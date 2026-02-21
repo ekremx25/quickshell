@@ -44,6 +44,11 @@ A modern, feature-rich desktop shell for **Niri** and **Hyprland** using [Quicks
   - Arch: `ttf-jetbrains-mono-nerd`
   - Fedora: `jetbrains-mono-nerd-fonts`
 
+### Theming
+- **[matugen](https://github.com/InioX/matugen)**: Material You color generation from wallpapers
+  - Arch (AUR): `paru -S matugen-bin` or `yay -S matugen-bin`
+  - Cargo: `cargo install matugen`
+
 ### System Utilities
 - **NetworkManager** (`nmcli`, `nm-connection-editor`): Network management
 - **BlueZ** (`bluetoothctl`): Bluetooth devices
