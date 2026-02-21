@@ -1,4 +1,4 @@
-import QtQuick.Io // In case Quickshell.Io is not enough? Oh wait, Quickshell.Io is there.
+
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Dialogs
