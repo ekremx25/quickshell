@@ -1,0 +1,38 @@
+{
+  "left": [
+    "Calendar",
+    "SysInfoGroup"
+  ],
+  "center": [
+    "Workspaces",
+    "Notifications",
+    "Notepad",
+    "Clipboard"
+  ],
+  "right": [
+    "Tray",
+    "Volume",
+    "PowerProfile"
+  ],
+  "inactive": [
+    "GPU",
+    "Disk",
+    "VolumeX",
+    "Temp",
+    "Battery",
+    "PowerGroup",
+    "Clock",
+    "SysInfo"
+  ],
+  "workspaces": {
+    "format": "roman",
+    "style": "fill",
+    "transparent": true,
+    "showApps": true,
+    "groupApps": true,
+    "scrollEnabled": true,
+    "iconSize": 20
+  },
+  "theme": "",
+  "_description": "This file is automatically overwritten when you save a custom layout. It stores a snapshot of your current bar_config.json."
+}

@@ -1,0 +1,29 @@
+{
+    "left": [
+        "Launcher",
+        "Workspaces",
+        "Calendar"
+    ],
+    "center": [
+        "Clock"
+    ],
+    "right": [
+        "Volume",
+        "Tray",
+        "Power"
+    ],
+    "inactive": [
+        "Temp",
+        "GPU",
+        "Disk",
+        "Battery",
+        "PowerProfile",
+        "SysInfoGroup",
+        "Notifications"
+    ],
+    "workspaces": {
+        "format": "number",
+        "style": "pill"
+    },
+    "theme": "Catppuccin Mocha"
+}

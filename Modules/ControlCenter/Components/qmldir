@@ -1,0 +1,3 @@
+module Components
+QuickToggle QuickToggle.qml
+VolumeSlider VolumeSlider.qml

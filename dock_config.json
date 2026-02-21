@@ -1,0 +1,91 @@
+{
+  "showDock": true,
+  "autoHide": false,
+  "intelligentAutoHide": false,
+  "showBackground": true,
+  "dockTransparency": 0.85,
+  "showBorder": true,
+  "dockScale": 1.4,
+  "iconSize": 28,
+  "dockPadding": 8,
+  "itemSpacing": 2,
+  "bottomMargin": 5,
+  "indicatorStyle": "circle",
+  "showLauncher": true,
+  "dockPosition": "bottom",
+  "dockAlignment": "center",
+  "pinned": [
+    {
+      "name": "Files",
+      "icon": "org.kde.dolphin",
+      "cmd": "dolphin",
+      "appId": "dolphin"
+    },
+    {
+      "name": "Firefox",
+      "icon": "firefox",
+      "cmd": "firefox",
+      "appId": "firefox"
+    },
+    {
+      "name": "Telegram",
+      "icon": "telegram",
+      "cmd": "Telegram",
+      "appId": "Telegram"
+    },
+    {
+      "name": "Discord",
+      "icon": "discord",
+      "cmd": "discord",
+      "appId": "discord"
+    },
+    {
+      "name": "Kitty",
+      "icon": "kitty",
+      "cmd": "kitty",
+      "appId": "kitty"
+    },
+    {
+      "name": "Iriunwebcam",
+      "icon": "iriunwebcam",
+      "cmd": "iriunwebcam",
+      "appId": "iriunwebcam"
+    },
+    {
+      "name": "Virt-manager",
+      "icon": "virt-manager",
+      "cmd": "virt-manager",
+      "appId": "virt-manager"
+    },
+    {
+      "name": "Antigravity",
+      "icon": "antigravity_tools",
+      "cmd": "antigravity_tools",
+      "appId": "antigravity_tools"
+    },
+    {
+      "name": "Antigravity",
+      "icon": "antigravity",
+      "cmd": "antigravity",
+      "appId": "antigravity"
+    },
+    {
+      "name": "OBS Studio",
+      "icon": "com.obsproject.Studio",
+      "cmd": "obs",
+      "appId": "obs"
+    },
+    {
+      "name": "Resolve",
+      "icon": "resolve",
+      "cmd": "resolve",
+      "appId": "resolve"
+    }
+  ],
+  "modules": [
+    "Media",
+    "Weather",
+    "Power",
+    "Launcher"
+  ]
+}

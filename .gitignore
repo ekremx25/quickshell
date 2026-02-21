@@ -1,0 +1,33 @@
+# OS generated files
+.DS_Store
+Thumbs.db
+._*
+
+# Logs
+*.log
+
+# Backup files
+*.bak
+*.old
+*.tmp
+*~
+
+# Editor directories
+.idea/
+.vscode/
+
+# Build artifacts (if any)
+build/
+dist/
+
+# Local configuration
+notes.txt
+
+# Large asset files
+assets/profile_avatar.jpg
+
+# User-specific config (generated at runtime)
+monitor_config.json
+weather_config.json
+countdown.json
+screen_config.json
