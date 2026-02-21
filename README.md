@@ -3,7 +3,7 @@
 A modern, feature-rich desktop shell for **Niri** and **Hyprland** using [Quickshell](https://github.com/outfoxxed/quickshell).
 
 
-https://github.com/ekremx25/quickshell/releases/download/v1.0/demo.mp4
+![Quickshell Demo](assets/demo.gif)
 
 ## Features
 
