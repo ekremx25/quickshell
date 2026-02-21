@@ -43,6 +43,10 @@ https://github.com/user-attachments/assets/e3ae46e2-b580-43fd-b1ca-1b0f7b9e8089
 - **JetBrainsMono Nerd Font**: Required for icons and text
   - Arch: `ttf-jetbrains-mono-nerd`
   - Fedora: `jetbrains-mono-nerd-fonts`
+- **Inter**: Modern sans-serif font used for UI text
+  - Arch: `ttf-inter`
+- **Font Awesome 6 Free**: Used for some specific icons
+  - Arch: `ttf-font-awesome`
 
 ### Theming
 - **[matugen](https://github.com/InioX/matugen)**: Material You color generation from wallpapers
