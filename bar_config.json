@@ -4,15 +4,15 @@
     "SysInfoGroup"
   ],
   "center": [
-    "Workspaces",
+    "Clipboard",
     "Notifications",
     "Notepad",
-    "Clipboard"
+    "Workspaces"
   ],
   "right": [
     "Tray",
-    "Volume",
-    "PowerProfile"
+    "PowerProfile",
+    "Volume"
   ],
   "inactive": [
     "GPU",
