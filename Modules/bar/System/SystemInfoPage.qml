@@ -4,6 +4,7 @@ import QtQuick.Layouts
 import QtQuick.Dialogs
 import Quickshell
 import Quickshell.Io
+import Qt.labs.platform
 import "../../../Widgets"
 
 Item {
@@ -234,9 +235,10 @@ Item {
     FileDialog {
         id: profilePicDialog
         title: "Select Profile Picture"
-        nameFilters: ["Images (*.png *.jpg *.jpeg *.webp *.svg)"]
+        nameFilters: ["Images (*.png *.jpg *.jpeg *.webp *.svg)", "All files (*)"]
+        folder: StandardPaths.writableLocation(StandardPaths.PicturesLocation)
         onAccepted: {
-            var selectedFile = profilePicDialog.selectedFile.toString().replace("file://", "");
+            var selectedFile = profilePicDialog.file.toString().replace("file://", "");
             if (selectedFile !== "") {
                 var targetDir = sysInfoPage.homeDir + "/.config/quickshell/assets";
                 var targetPath = targetDir + "/profile_avatar.jpg";
