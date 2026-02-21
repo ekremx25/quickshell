@@ -96,7 +96,7 @@ Rectangle {
 
         onClicked: (mouse) => {
             if (mouse.button === Qt.LeftButton) {
-                AppDrawerState.toggleRequested();
+                launcherRoot.settingsRequested();
             } else if (mouse.button === Qt.RightButton) {
                 launcherRoot.settingsRequested();
             }

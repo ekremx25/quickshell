@@ -39,10 +39,10 @@ ShellRoot {
         delegate: VolumeOSD {}
     }
 
-    Variants {
-        model: ScreenManager.getFilteredScreens("appdrawer")
-        delegate: AppDrawer {
-            id: appDrawer
-        }
-    }
+    // Variants {
+    //     model: ScreenManager.getFilteredScreens("appdrawer")
+    //     delegate: AppDrawer {
+    //         id: appDrawer
+    //     }
+    // }
 }
