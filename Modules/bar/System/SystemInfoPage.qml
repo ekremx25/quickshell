@@ -1,5 +1,7 @@
+import QtQuick.Io // In case Quickshell.Io is not enough? Oh wait, Quickshell.Io is there.
 import QtQuick
 import QtQuick.Layouts
+import QtQuick.Dialogs
 import Quickshell
 import Quickshell.Io
 import "../../../Widgets"
@@ -229,20 +231,18 @@ Item {
     // Profile image logic - simplified for portability
     // We strictly use ~/.config/quickshell/assets/profile_avatar.jpg
     
-    // Profile image picker
-    Process {
-        id: pickerProc
-        command: ["bash", "-c", "if command -v zenity >/dev/null; then zenity --file-selection --title='Select Profile Picture' --file-filter='Images | *.png *.jpg *.jpeg *.webp *.bmp *.svg' 2>/dev/null; elif command -v kdialog >/dev/null; then kdialog --getopenfilename ~ 'Image Files (*.png *.jpg *.jpeg *.webp *.bmp *.svg)' --title 'Select Profile Picture' 2>/dev/null; fi"]
-        property string buf: ""
-        stdout: SplitParser { onRead: (data) => { pickerProc.buf = data.trim(); } }
-        onExited: {
-            if (pickerProc.buf !== "") {
-                var targetPath = sysInfoPage.homeDir + "/.config/quickshell/assets/profile_avatar.jpg";
-                // Copy to config dir
-                copyProfileProc.command = ["sh", "-c", "cp '" + pickerProc.buf + "' '" + targetPath + "'"];
+    FileDialog {
+        id: profilePicDialog
+        title: "Select Profile Picture"
+        nameFilters: ["Images (*.png *.jpg *.jpeg *.webp *.svg)"]
+        onAccepted: {
+            var selectedFile = profilePicDialog.selectedFile.toString().replace("file://", "");
+            if (selectedFile !== "") {
+                var targetDir = sysInfoPage.homeDir + "/.config/quickshell/assets";
+                var targetPath = targetDir + "/profile_avatar.jpg";
+                copyProfileProc.command = ["sh", "-c", "mkdir -p '" + targetDir + "' && cp '" + selectedFile + "' '" + targetPath + "'"];
                 copyProfileProc.running = true;
             }
-            pickerProc.buf = "";
         }
     }
     
@@ -398,9 +398,7 @@ Item {
                             hoverEnabled: true
                             cursorShape: Qt.PointingHandCursor
                             onClicked: {
-                                pickerProc.buf = "";
-                                pickerProc.running = false;
-                                pickerProc.running = true;
+                                profilePicDialog.open();
                             }
                         }
                     }
