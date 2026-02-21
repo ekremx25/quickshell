@@ -94,7 +94,7 @@ https://github.com/user-attachments/assets/e3ae46e2-b580-43fd-b1ca-1b0f7b9e8089
 ## Configuration
 
 - **Bar Modules**: Open the Settings menu to drag & drop modules to rearrange the bar.
-- **Dock**: Drag apps from the launcher or rearrange existing icons. Right-click icons to pin/unpin.
+- **Dock**: Rearrange existing icons. Left-click to open apps. Right-click to pin/unpin.
 - **Monitors**: Go to Settings > Monitors to configure resolution, scale, HDR, and VRR.
 - **Theme**: Wallpaper-based color palette extraction for automatic theming.
 
