@@ -91,6 +91,7 @@ https://github.com/user-attachments/assets/c4c67fdb-3545-4575-be4e-232178523691
     ```bash
     quickshell
     ```
+    My youtube channel : https://www.youtube.com/@KernelAndWindows
 
 ## Configuration
 
