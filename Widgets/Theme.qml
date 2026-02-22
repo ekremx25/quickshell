@@ -133,6 +133,7 @@ QtObject {
     property color workspaceActiveTextColor: activeTheme.workspaceActiveText || activeTheme.text
     property color tempColor: activeTheme.temp
     property color gpuColor: activeTheme.gpu
+    property color ramColor: activeTheme.ram || activeTheme.green || "#a6e3a1"
     property color diskColor: activeTheme.disk
     property color calendarColor: activeTheme.calendar
     property color weatherColor: activeTheme.weather
@@ -214,7 +215,7 @@ QtObject {
                         workspaces: "#DDDDDD",
                         workspaceActiveText: "#000000",
                         
-                        temp: "#E0E0E0", gpu: "#E0E0E0", disk: "#E0E0E0",
+                        temp: "#E0E0E0", gpu: "#E0E0E0", ram: "#E0E0E0", disk: "#E0E0E0",
                         calendar: "#E0E0E0", weather: "#E0E0E0", media: "#E0E0E0",
                         system: "#E0E0E0", power: "#E0E0E0", tray: "#E0E0E0", display: "#E0E0E0",
                         
@@ -239,7 +240,7 @@ QtObject {
                         workspaces: "#222222",
                         workspaceActiveText: "#FFFFFF",
                         
-                        temp: "#FFFFFF", gpu: "#FFFFFF", disk: "#FFFFFF",
+                        temp: "#FFFFFF", gpu: "#FFFFFF", ram: "#FFFFFF", disk: "#FFFFFF",
                         calendar: "#FFFFFF", weather: "#FFFFFF", media: "#FFFFFF",
                         system: "#FFFFFF", power: "#FFFFFF", tray: "#FFFFFF", display: "#FFFFFF",
                         
@@ -259,7 +260,7 @@ QtObject {
                     background: "#1e1e2e", surface: "#313244", text: "#cdd6f4",
                     launcher: "#ffffff", launcherIcon: "#3377ff", workspaces: "#313244",
                     workspaceActiveText: "#cdd6f4",
-                    temp: "#fab387", gpu: "#f5e0dc", disk: "#74c7ec",
+                    temp: "#fab387", gpu: "#f5e0dc", ram: "#cba6f7", disk: "#74c7ec",
                     calendar: "#f9e2af", weather: "#94e2d5", media: "#cba6f7",
                     system: "#74c7ec", power: "#f38ba8", tray: "#f2cdcd", display: "#f5c2e7",
                     bluetooth: "#89b4fa", battery: "#a6e3a1", powerProfile: "#cba6f7",
@@ -272,7 +273,7 @@ QtObject {
                     background: "#1f1f28", surface: "#2a2a37", text: "#dcd7ba",
                     launcher: "#7e9cd8", launcherIcon: "#1f1f28", workspaces: "#7e9cd8",
                     workspaceActiveText: "#1f1f28",
-                    temp: "#ffa066", gpu: "#ff5d62", disk: "#e6c384",
+                    temp: "#ffa066", gpu: "#ff5d62", ram: "#957fb8", disk: "#e6c384",
                     calendar: "#7fb4ca", weather: "#ffffff", media: "#d27e99",
                     system: "#7aa89f", power: "#ff5d62", tray: "#c8c093", display: "#938aa9",
                     bluetooth: "#7e9cd8", battery: "#76946a", powerProfile: "#957fb8",
@@ -285,7 +286,7 @@ QtObject {
                     background: "#1a1b26", surface: "#24283b", text: "#c0caf5",
                     launcher: "#7aa2f7", launcherIcon: "#1a1b26", workspaces: "#7aa2f7",
                     workspaceActiveText: "#1a1b26",
-                    temp: "#ff9e64", gpu: "#f7768e", disk: "#e0af68",
+                    temp: "#ff9e64", gpu: "#f7768e", ram: "#bb9af7", disk: "#e0af68",
                     calendar: "#7dcfff", weather: "#9ece6a", media: "#bb9af7",
                     system: "#2ac3de", power: "#f7768e", tray: "#a9b1d6", display: "#7aa2f7",
                     bluetooth: "#7aa2f7", battery: "#9ece6a", powerProfile: "#bb9af7",
@@ -305,20 +306,20 @@ QtObject {
                     workspaceActiveText: p.primaryContainerOnColor,
                     
                     // Modules
-                    temp: isLight ? p.tertiaryContainerColor : p.tertiaryColor,
-                    gpu: isLight ? p.errorContainerColor : p.errorColor, 
-                    disk: isLight ? p.secondaryContainerColor : p.secondaryColor,
-                    calendar: isLight ? p.primaryContainerColor : p.primaryColor,
-                    weather: isLight ? p.tertiaryContainerColor : p.tertiaryColor,
-                    media: isLight ? p.secondaryContainerColor : p.secondaryColor,
-                    system: isLight ? p.primaryContainerColor : p.primaryColor,
-                    power: isLight ? p.errorContainerColor : p.errorColor,
+                    temp: isLight ? p.tertiaryColor : p.tertiaryColor,
+                    gpu: isLight ? p.errorColor : p.errorColor, 
+                    ram: isLight ? p.primaryColor : p.primaryColor,
+                    disk: isLight ? p.secondaryColor : p.secondaryColor,
+                    calendar: isLight ? p.primaryColor : p.primaryColor,
+                    weather: isLight ? p.tertiaryColor : p.tertiaryColor,
+                    media: isLight ? p.secondaryColor : p.secondaryColor,
+                    system: isLight ? p.primaryColor : p.primaryColor,
+                    power: isLight ? p.errorColor : p.errorColor,
                     tray: p.surfaceOnColor,
-                    display: isLight ? p.tertiaryContainerColor : p.tertiaryColor,
-                    
-                    bluetooth: isLight ? p.primaryContainerColor : p.primaryColor,
-                    battery: isLight ? p.tertiaryContainerColor : p.tertiaryColor,
-                    powerProfile: isLight ? p.secondaryContainerColor : p.secondaryColor,
+                    display: isLight ? p.tertiaryColor : p.tertiaryColor,
+                    bluetooth: isLight ? p.primaryColor : p.primaryColor,
+                    battery: isLight ? p.tertiaryColor : p.tertiaryColor,
+                    powerProfile: isLight ? p.secondaryColor : p.secondaryColor,
                     
                     // Specific text/icon colors (Always vibrant/dark for visibility)
                     redText: p.errorColor,

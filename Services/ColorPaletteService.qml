@@ -222,7 +222,7 @@ Singleton {
             return;
         }
 
-        // Helper to extract color safely
+        // Helper to extract color safely for the current scheme (light/dark)
         function c(token) {
             if (cols[token] && cols[token][scheme] && cols[token][scheme].color) {
                 return cols[token][scheme].color;
@@ -230,21 +230,35 @@ Singleton {
             return null;
         }
 
-        root.primaryColor = c("primary") || root.primaryColor;
+        // Helper to always extract the 'dark' variant for vibrant base colors
+        function cVivid(token) {
+            if (cols[token] && cols[token]["dark"] && cols[token]["dark"].color) {
+                return cols[token]["dark"].color;
+            }
+            // Fallback to current scheme if dark fails
+            return c(token);
+        }
+
+        // ALWAYS USE VIVID (DARK) COLORS FOR BASES SO THEY POP IN LIGHT MODE
+        root.primaryColor = cVivid("primary") || root.primaryColor;
         root.primaryOnColor = c("on_primary") || root.primaryOnColor;
         root.primaryContainerColor = c("primary_container") || root.primaryContainerColor;
         root.primaryContainerOnColor = c("on_primary_container") || root.primaryContainerOnColor;
-        root.secondaryColor = c("secondary") || root.secondaryColor;
+        
+        root.secondaryColor = cVivid("secondary") || root.secondaryColor;
         root.secondaryContainerColor = c("secondary_container") || root.secondaryContainerColor;
-        root.tertiaryColor = c("tertiary") || root.tertiaryColor;
+        
+        root.tertiaryColor = cVivid("tertiary") || root.tertiaryColor;
         root.tertiaryContainerColor = c("tertiary_container") || root.tertiaryContainerColor;
+        
         root.surfaceColor = c("surface") || root.surfaceColor;
         root.surfaceOnColor = c("on_surface") || root.surfaceOnColor;
         root.backgroundColor = c("background") || root.backgroundColor;
         root.surfaceVariantColor = c("surface_variant") || root.surfaceVariantColor;
         root.surfaceVariantOnColor = c("on_surface_variant") || root.surfaceVariantOnColor;
         root.outlineColor = c("outline") || root.outlineColor;
-        root.errorColor = c("error") || root.errorColor;
+        
+        root.errorColor = cVivid("error") || root.errorColor;
         root.errorContainerColor = c("error_container") || root.errorContainerColor;
 
         root.themeApplied();

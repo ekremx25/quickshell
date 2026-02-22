@@ -2,7 +2,7 @@
   "materialYou": true,
   "wallpaperPath": "/home/ekrem/Pictures/Wallpaper-Bank-main/wallpapers/skysea.jpg",
   "mode": "light",
-  "matugenType": "scheme-tonal-spot",
+  "matugenType": "scheme-rainbow",
   "applyToKitty": true,
   "applyToGtk": false,
   "liveUpdate": true

@@ -9,9 +9,8 @@ Rectangle {
     id: root
     height: 30
     width: layout.implicitWidth + 16
-    color: "#cba6f7" // Mor
     radius: 15
-
+    color: Theme.ramColor
     property bool isHovered: ma.containsMouse || tipWindow.visible
 
     border.width: 1

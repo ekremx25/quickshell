@@ -19,9 +19,9 @@ Rectangle {
     property bool available: true
 
     readonly property var profileData: ({
-        "performance": { icon: "󰓅", label: "Performans", color: "#f38ba8" },
-        "balanced":    { icon: "󰾅", label: "Dengeli",    color: Theme.powerProfileColor },
-        "power-saver": { icon: "󰾆", label: "Tasarruf",   color: "#a6e3a1" }
+        "performance": { icon: "󰓅", label: "Performance", color: "#f38ba8" },
+        "balanced":    { icon: "󰾅", label: "Balanced",    color: Theme.powerProfileColor },
+        "power-saver": { icon: "󰾆", label: "Power Saver",   color: "#a6e3a1" }
     })
 
     RowLayout {
@@ -138,7 +138,7 @@ Rectangle {
 
                 // Header
                 Text {
-                    text: "󰾅  Güç Profili"
+                    text: "󰾅  Power Profile"
                     color: Theme.powerProfileColor
                     font.bold: true
                     font.pixelSize: 16
@@ -151,7 +151,7 @@ Rectangle {
                 // Not available message
                 Text {
                     visible: !root.available
-                    text: "powerprofilesctl bulunamadı"
+                    text: "powerprofilesctl not found"
                     color: Theme.overlay2
                     font.pixelSize: 12
                     font.family: "JetBrainsMono Nerd Font"
