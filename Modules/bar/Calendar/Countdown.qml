@@ -44,7 +44,7 @@ ColumnLayout {
     Process {
         id: notifyProc
         property string msg: ""
-        command: ["notify-send", "-u", "critical", "⏰ Geri Sayım", notifyProc.msg]
+        command: ["notify-send", "-u", "critical", "⏰ Countdown", notifyProc.msg]
     }
 
     function saveAll() {
@@ -59,7 +59,7 @@ ColumnLayout {
 
     function addEvent() {
         var title = titleInput.text.trim();
-        if (title === "") title = "Etkinlik";
+        if (title === "") title = "Event";
         eventModel.append({
             title: title,
             target: root.selectedDate.toISOString(),
@@ -86,7 +86,7 @@ ColumnLayout {
         TextField {
             id: titleInput
             Layout.fillWidth: true
-            placeholderText: "Etkinlik Adı..."
+            placeholderText: "Event Name..."
             color: "#1e1e2e"
             font.pixelSize: 13
             selectByMouse: true
@@ -107,7 +107,7 @@ ColumnLayout {
             color: saveMA.containsMouse ? "#a6e3a1" : "#94e2d5"
             Text {
                 anchors.centerIn: parent
-                text: "Kaydet"
+                text: "Save"
                 color: "#1e1e2e"
                 font.bold: true
                 font.pixelSize: 12
@@ -127,7 +127,7 @@ ColumnLayout {
         Layout.alignment: Qt.AlignHCenter
         spacing: 8
 
-        Text { text: "Tarih:"; color: "#a6adc8"; font.pixelSize: 12 }
+        Text { text: "Date:"; color: "#a6adc8"; font.pixelSize: 12 }
 
         Text {
             text: root.selectedDate.getDate() + "/" + (root.selectedDate.getMonth() + 1) + "/" + root.selectedDate.getFullYear()
@@ -136,7 +136,7 @@ ColumnLayout {
             font.pixelSize: 13
         }
 
-        Text { text: "Saat:"; color: "#a6adc8"; font.pixelSize: 12 }
+        Text { text: "Time:"; color: "#a6adc8"; font.pixelSize: 12 }
 
         SpinBox {
             from: 0; to: 23
@@ -203,7 +203,7 @@ ColumnLayout {
             rowSpacing: 2
 
             Repeater {
-                model: ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"]
+                model: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
                 Text {
                     text: modelData
                     color: "#a6adc8"
@@ -247,7 +247,7 @@ ColumnLayout {
 
     // --- SAVED EVENTS LIST ---
     Text {
-        text: eventModel.count > 0 ? "Etkinlikler (" + eventModel.count + ")" : "Henüz etkinlik yok"
+        text: eventModel.count > 0 ? "Events (" + eventModel.count + ")" : "No events yet"
         color: "#a6adc8"
         font.pixelSize: 11
         font.bold: true
@@ -281,7 +281,7 @@ ColumnLayout {
 
                 // Event title
                 Text {
-                    text: model.title || "Etkinlik"
+                    text: model.title || "Event"
                     color: "#cdd6f4"
                     font.pixelSize: 12
                     font.bold: true
@@ -304,14 +304,14 @@ ColumnLayout {
                     text: {
                         var now = new Date();
                         var diff = targetDate - now;
-                        if (diff <= 0) return "Doldu!";
+                        if (diff <= 0) return "Expired!";
                         var days = Math.floor(diff / 86400000);
                         var hours = Math.floor((diff % 86400000) / 3600000);
                         var mins = Math.floor((diff % 3600000) / 60000);
                         var secs = Math.floor((diff % 60000) / 1000);
-                        if (days > 0) return days + "g " + hours + "s";
-                        if (hours > 0) return hours + "s " + mins + "dk";
-                        return mins + "dk " + secs + "sn";
+                        if (days > 0) return days + "d " + hours + "h";
+                        if (hours > 0) return hours + "h " + mins + "m";
+                        return mins + "m " + secs + "s";
                     }
                 }
 
@@ -340,7 +340,7 @@ ColumnLayout {
         property int displayMonth: refDate.getMonth()
         property string monthName: ""
         property var days: []
-        property var monthNames: ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"]
+        property var monthNames: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 
         function prevMonth() {
             if (displayMonth === 0) { displayMonth = 11; displayYear--; } else { displayMonth--; }
@@ -382,7 +382,7 @@ ColumnLayout {
                 var diff = new Date(ev.target) - now;
                 if (diff <= 0 && !ev.notified) {
                     // Send desktop notification
-                    notifyProc.msg = "\"" + (ev.title || "Etkinlik") + "\" süresi doldu!";
+                    notifyProc.msg = "\"" + (ev.title || "Event") + "\" has expired!";
                     notifyProc.running = false;
                     notifyProc.running = true;
                     eventModel.setProperty(i, "notified", true);
