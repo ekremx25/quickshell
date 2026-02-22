@@ -234,7 +234,7 @@ Rectangle {
                                 Layout.fillWidth: true
                                 spacing: 4
                                 Repeater {
-                                    model: ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"]
+                                    model: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
                                     Text {
                                         text: modelData
                                         Layout.preferredWidth: 36
@@ -288,7 +288,7 @@ Rectangle {
         property int displayMonth: date.getMonth()
         property string monthName: ""
         property var days: []
-        property var monthNames: ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"]
+        property var monthNames: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 
         function toToday() {
             var now = new Date();
