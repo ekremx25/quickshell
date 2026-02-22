@@ -79,7 +79,8 @@ Variants {
         "PowerGroup": powerGroupComp,
         "SysInfoGroup": sysInfoGroupComp,
         "Clock": clockComp,
-        "SysInfo": sysInfoComp
+        "SysInfo": sysInfoComp,
+        "RAM": ramComp
     })
 
     Component { id: tempComp; Temp {} }
@@ -101,6 +102,7 @@ Variants {
     Component { id: sysInfoGroupComp; SysInfoGroup {} }
     Component { id: clockComp; ClockBlock {} }
     Component { id: sysInfoComp; SystemStats {} }
+    Component { id: ramComp; RamModule {} }
 
     Item {
         id: screenItem

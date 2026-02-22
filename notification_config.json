@@ -1,6 +1,6 @@
 {
   "displayDuration": 15000,
-  "dnd": true,
+  "dnd": false,
   "popupPosition": 3,
   "overlayEnabled": false,
   "compactMode": false,

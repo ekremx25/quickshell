@@ -1,8 +1,8 @@
 {
   "materialYou": true,
-  "wallpaperPath": "/home/ekrem/Pictures/Wallpaper-Bank-main/wallpapers/Messy-Room.jpg",
-  "mode": "dark",
-  "matugenType": "scheme-expressive",
+  "wallpaperPath": "/home/ekrem/Pictures/Wallpaper-Bank-main/wallpapers/skysea.jpg",
+  "mode": "light",
+  "matugenType": "scheme-tonal-spot",
   "applyToKitty": true,
   "applyToGtk": false,
   "liveUpdate": true
