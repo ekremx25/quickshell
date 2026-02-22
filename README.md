@@ -1,3 +1,4 @@
+https://www.youtube.com/@KernelAndWindows
 # Quickshell
 
 A modern, feature-rich desktop shell for **Niri** and **Hyprland** using [Quickshell](https://github.com/outfoxxed/quickshell).
