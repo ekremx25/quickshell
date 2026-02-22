@@ -11,7 +11,7 @@ https://github.com/user-attachments/assets/c4c67fdb-3545-4575-be4e-232178523691
   - Workspaces (Japan numerals, scrollable)
   - System Info (CPU, RAM, Temp, Disk)
   - Controls (Volume, Mic, Brightness)
-  - Weather, Clock, Calendar
+  - Weather, Clock, Calendar, Event Countdown
   - Notification Center
   - Tray & Clipboard Manager
 - **Dock**:
