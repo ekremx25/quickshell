@@ -8,7 +8,7 @@ https://github.com/user-attachments/assets/c4c67fdb-3545-4575-be4e-232178523691
 ## Features
 
 - **Top Bar**:
-  - Workspaces (Arabic numerals, scrollable)
+  - Workspaces (jaoan numerals, scrollable)
   - System Info (CPU, RAM, Temp, Disk)
   - Controls (Volume, Mic, Brightness)
   - Weather, Clock, Calendar
