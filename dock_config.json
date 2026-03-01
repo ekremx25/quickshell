@@ -1,0 +1,93 @@
+{
+  "showDock": true,
+  "autoHide": false,
+  "intelligentAutoHide": false,
+  "showBackground": true,
+  "dockTransparency": 0,
+  "showBorder": true,
+  "dockScale": 1.2,
+  "iconSize": 28,
+  "dockPadding": 8,
+  "itemSpacing": 2,
+  "bottomMargin": 5,
+  "indicatorStyle": "circle",
+  "showLauncher": true,
+  "dockPosition": "bottom",
+  "dockAlignment": "center",
+  "pinned": [
+    {
+      "name": "Files",
+      "icon": "org.kde.dolphin",
+      "cmd": "dolphin",
+      "appId": "dolphin"
+    },
+    {
+      "name": "Iriunwebcam",
+      "icon": "iriunwebcam",
+      "cmd": "iriunwebcam",
+      "appId": "iriunwebcam"
+    },
+    {
+      "name": "Chrome",
+      "icon": "google-chrome-stable",
+      "cmd": "google-chrome-stable",
+      "appId": "google-chrome-stable"
+    },
+    {
+      "name": "Virt-manager",
+      "icon": "virt-manager",
+      "cmd": "virt-manager",
+      "appId": "virt-manager"
+    },
+    {
+      "name": "Telegram",
+      "icon": "telegram",
+      "cmd": "Telegram",
+      "appId": "Telegram"
+    },
+    {
+      "name": "Edge",
+      "icon": "microsoft-edge-stable",
+      "cmd": "microsoft-edge-stable",
+      "appId": "microsoft-edge-stable"
+    },
+    {
+      "name": "Antigravity",
+      "icon": "antigravity_tools",
+      "cmd": "antigravity_tools",
+      "appId": "antigravity_tools"
+    },
+    {
+      "name": "Discord",
+      "icon": "discord",
+      "cmd": "discord",
+      "appId": "discord"
+    },
+    {
+      "name": "Brave",
+      "icon": "brave-browser",
+      "cmd": "brave",
+      "appId": "brave-browser"
+    },
+    {
+      "name": "Antigravity",
+      "icon": "antigravity",
+      "cmd": "antigravity",
+      "appId": "antigravity"
+    },
+    {
+      "name": "OBS Studio",
+      "icon": "com.obsproject.Studio",
+      "cmd": "obs",
+      "appId": "obs"
+    }
+  ],
+  "leftModules": [
+    "Launcher",
+    "Weather"
+  ],
+  "rightModules": [
+    "Power",
+    "Media"
+  ]
+}

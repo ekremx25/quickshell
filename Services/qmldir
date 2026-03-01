@@ -1,0 +1,10 @@
+module Services
+singleton Notifications Notifications.qml
+singleton ScreenManager ScreenManager.qml
+singleton CompositorService CompositorService.qml
+singleton Mango Mango.qml
+singleton VpnService VpnService.qml
+singleton ColorPaletteService ColorPaletteService.qml
+singleton Volume Volume.qml
+singleton Network Network.qml
+singleton Time Time.qml

@@ -1,0 +1,10 @@
+{
+  "displayDuration": 15000,
+  "dnd": false,
+  "popupPosition": 3,
+  "overlayEnabled": false,
+  "compactMode": false,
+  "popupShadowEnabled": true,
+  "privacyMode": false,
+  "animationSpeed": 2
+}
