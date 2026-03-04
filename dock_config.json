@@ -22,40 +22,16 @@
       "appId": "dolphin"
     },
     {
-      "name": "Iriunwebcam",
-      "icon": "iriunwebcam",
-      "cmd": "iriunwebcam",
-      "appId": "iriunwebcam"
+      "name": "antigravity",
+      "icon": "antigravity",
+      "cmd": "antigravity",
+      "appId": "antigravity"
     },
     {
-      "name": "Chrome",
-      "icon": "google-chrome-stable",
-      "cmd": "google-chrome-stable",
-      "appId": "google-chrome-stable"
-    },
-    {
-      "name": "Virt-manager",
-      "icon": "virt-manager",
-      "cmd": "virt-manager",
-      "appId": "virt-manager"
-    },
-    {
-      "name": "Telegram",
-      "icon": "telegram",
-      "cmd": "Telegram",
-      "appId": "Telegram"
-    },
-    {
-      "name": "Edge",
-      "icon": "microsoft-edge-stable",
-      "cmd": "microsoft-edge-stable",
-      "appId": "microsoft-edge-stable"
-    },
-    {
-      "name": "Antigravity",
-      "icon": "antigravity_tools",
-      "cmd": "antigravity_tools",
-      "appId": "antigravity_tools"
+      "name": "telegram-desktop",
+      "icon": "org.telegram.desktop",
+      "cmd": "/usr/bin/telegram-desktop --",
+      "appId": "org.telegram.desktop"
     },
     {
       "name": "Discord",
@@ -64,16 +40,22 @@
       "appId": "discord"
     },
     {
-      "name": "Brave",
-      "icon": "brave-browser",
-      "cmd": "brave",
-      "appId": "brave-browser"
+      "name": "Io.github.ilya_zlobintsev.LACT",
+      "icon": "io.github.ilya_zlobintsev.lact",
+      "cmd": "lact gui",
+      "appId": "io.github.ilya_zlobintsev.LACT"
     },
     {
-      "name": "Antigravity",
-      "icon": "antigravity",
-      "cmd": "antigravity",
-      "appId": "antigravity"
+      "name": "Iriunwebcam",
+      "icon": "iriunwebcam",
+      "cmd": "iriunwebcam",
+      "appId": "iriunwebcam"
+    },
+    {
+      "name": "Brave",
+      "icon": "brave-browser",
+      "cmd": "brave-browser-stable --ozone-platform=wayland --enable-features=UseOzonePlatform,WebRTCPipeWireCapturer,WaylandWindowDecorations,AcceleratedVideoEncoder,AcceleratedVideoDecodeLinuxGL",
+      "appId": "brave-browser"
     },
     {
       "name": "OBS Studio",

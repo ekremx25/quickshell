@@ -160,19 +160,48 @@ Variants {
 
         // ── appId → icon (Rofi/Wofi tarzı: .desktop dosyalarından) ──
         property var desktopIcons: ({})
+        property var desktopCommands: ({})
         property string desktopIconScript: StandardPaths.writableLocation(StandardPaths.HomeLocation).toString().replace("file://", "") + "/.config/quickshell/scripts/desktop_icons.sh"
 
         Process {
             id: desktopIconProc
             command: ["bash", dockWindow.desktopIconScript]
             property string outputBuffer: ""
-            stdout: SplitParser { onRead: (data) => desktopIconProc.outputBuffer += data }
+            stdout: SplitParser { onRead: (data) => desktopIconProc.outputBuffer += data + "\n" }
             onExited: {
                 if (desktopIconProc.outputBuffer.trim() === "") return;
                 try {
-                    var parsed = JSON.parse(desktopIconProc.outputBuffer);
-                    dockWindow.desktopIcons = parsed;
-                    console.log("Desktop icons loaded: " + Object.keys(parsed).length + " apps");
+                    // Script outputs two JSON objects separated by newline:
+                    // First JSON: icon map, Second JSON: command map
+                    var raw = desktopIconProc.outputBuffer.trim();
+                    // Find the boundary between two JSON objects
+                    // Each ends with "}", find the first "}" that closes the first object
+                    var depth = 0;
+                    var splitIdx = -1;
+                    for (var ci = 0; ci < raw.length; ci++) {
+                        if (raw[ci] === '{') depth++;
+                        else if (raw[ci] === '}') {
+                            depth--;
+                            if (depth === 0) { splitIdx = ci; break; }
+                        }
+                    }
+                    if (splitIdx > 0) {
+                        var iconJson = raw.substring(0, splitIdx + 1);
+                        var cmdJson = raw.substring(splitIdx + 1).trim();
+                        var parsedIcons = JSON.parse(iconJson);
+                        dockWindow.desktopIcons = parsedIcons;
+                        console.log("Desktop icons loaded: " + Object.keys(parsedIcons).length + " apps");
+                        if (cmdJson.length > 2) {
+                            var parsedCmds = JSON.parse(cmdJson);
+                            dockWindow.desktopCommands = parsedCmds;
+                            console.log("Desktop commands loaded: " + Object.keys(parsedCmds).length + " apps");
+                        }
+                    } else {
+                        // Fallback: treat entire output as icon map only
+                        var parsed = JSON.parse(raw);
+                        dockWindow.desktopIcons = parsed;
+                        console.log("Desktop icons loaded (legacy): " + Object.keys(parsed).length + " apps");
+                    }
                 } catch (e) {
                     console.log("Desktop icons parse error: " + e);
                 }
@@ -262,7 +291,7 @@ Variants {
             if (c.match(/alacritty/)) return "Alacritty";
             if (c.match(/foot/)) return "Foot";
             if (c.match(/gnome-terminal/)) return "Terminal";
-            if (c.match(/telegram/)) return "Telegram";
+            if (c.match(/telegram/)) return "telegram-desktop";
             if (c.match(/discord|vesktop/)) return "Discord";
             if (c.match(/signal/)) return "Signal";
             if (c.match(/whatsapp/)) return "WhatsApp";
@@ -298,16 +327,43 @@ Variants {
             return appId.charAt(0).toUpperCase() + appId.slice(1);
         }
 
+        // ── appId → cmd ──
+        function getCmd(appId) {
+            if (!appId) return "";
+            var c = appId.toLowerCase();
+
+            // 1. .desktop dosyasından gelen Exec komutunu kullan (en güvenilir)
+            if (dockWindow.desktopCommands[c]) return dockWindow.desktopCommands[c];
+
+            // 2. org.xxx.AppName → kısa isimle tekrar dene
+            if (c.indexOf(".") !== -1) {
+                var parts = c.split(".");
+                var shortName = parts[parts.length - 1].toLowerCase();
+                if (dockWindow.desktopCommands[shortName]) return dockWindow.desktopCommands[shortName];
+            }
+
+            // 3. Hardcoded fallback (eski davranış)
+            if (c.match(/telegram/)) return "telegram-desktop";
+            if (c.match(/vesktop/)) return "vesktop";
+            if (c.match(/discord/)) return "discord";
+            if (c.match(/brave/)) return "brave-browser-stable";
+            if (c.match(/dolphin/)) return "dolphin";
+            if (c.match(/obs/)) return "obs";
+
+            // 4. Son çare: appId'yi doğrudan komut olarak kullan
+            return appId;
+        }
+
         // ── App ID Normalizasyonu ──
         function normalizeAppId(appId) {
             if (!appId) return "";
             var lower = appId.toLowerCase();
-            if (lower === "org.telegram.desktop") return "Telegram";
+            if (lower === "telegram") return "telegram-desktop";
             if (lower === "org.kde.dolphin") return "dolphin";
             if (lower === "firefox-esr") return "firefox";
             if (lower === "microsoft-edge") return "microsoft-edge-stable";
             if (lower === "google-chrome") return "google-chrome-stable";
-               if (lower === "brave") return "brave";
+               if (lower === "brave") return "brave-browser-stable";
             return appId;
         }
 
@@ -540,7 +596,7 @@ Variants {
             var newPinned = pinnedApps.slice();
             newPinned.push({
                 name: getAppName(appId), icon: appId.toLowerCase(),
-                cmd: appId, appId: appId
+                cmd: getCmd(appId), appId: appId
             });
             pinnedApps = newPinned;
 
@@ -556,7 +612,7 @@ Variants {
             var newPinned = pinnedApps.slice();
             var newItem = {
                 name: getAppName(appId), icon: appId.toLowerCase(),
-                cmd: appId, appId: appId
+                cmd: getCmd(appId), appId: appId
             };
             if (targetIndex >= 0 && targetIndex <= newPinned.length) {
                 newPinned.splice(targetIndex, 0, newItem);
