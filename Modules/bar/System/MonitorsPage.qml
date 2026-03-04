@@ -466,13 +466,16 @@ Item {
                 var monSdrSat = isSelected ? page.selSdrSaturation : (mon.sdrSaturation || 1.0);
                 var monCm = isSelected ? page.selColorManagement : (mon.colorManagement || "srgb");
                 var monEotf = isSelected ? page.selSdrEotf : ((mon.sdrEotf !== undefined) ? mon.sdrEotf : 1);
-                if (monHdr || monCm === "hdr") {
-                    monCmd += ",bitdepth," + monBitdepth + ",vrr," + monVrr + ",cm,hdr,sdrbrightness," + monSdrBri.toFixed(1) + ",sdrsaturation," + monSdrSat.toFixed(1);
+                
+                if (monHdr || monCm === "hdr" || monCm === "hdredid") {
+                    // Ensure the applied cm string is valid for HDR. If monHdr is toggled manually, default cm to "hdr" if it's not "hdredid"
+                    var appliedCm = (monCm === "hdr" || monCm === "hdredid") ? monCm : "hdr";
+                    monCmd += ",bitdepth," + monBitdepth + ",vrr," + monVrr + ",cm," + appliedCm + ",sdrbrightness," + monSdrBri.toFixed(1) + ",sdrsaturation," + monSdrSat.toFixed(1);
                 } else if (monCm === "default") {
                     // "default" is not a valid Hyprland cm value; omit cm param to let Hyprland use its built-in default
                     monCmd += ",bitdepth," + monBitdepth + ",vrr," + monVrr;
                 } else {
-                    // srgb or other valid values
+                    // srgb, dcip3, dp3, adobe, wide, edid
                     monCmd += ",bitdepth," + monBitdepth + ",vrr," + monVrr + ",cm," + monCm;
                 }
                 cmds.push(monCmd);
@@ -1215,7 +1218,17 @@ Item {
                                 spacing: 6
                                 Text {
                                     text: {
-                                        var labels = { "default": "Default", "srgb": "sRGB", "hdr": "HDR" };
+                                        var labels = { 
+                                            "default": "Default", 
+                                            "srgb": "sRGB", 
+                                            "dcip3": "DCI P3",
+                                            "dp3": "Apple P3",
+                                            "adobe": "Adobe RGB",
+                                            "wide": "Wide Color (BT2020)",
+                                            "edid": "EDID (Inaccurate)",
+                                            "hdr": "HDR",
+                                            "hdredid": "HDR (EDID)"
+                                        };
                                         return labels[page.selColorManagement] || page.selColorManagement;
                                     }
                                     color: Theme.text; font.pixelSize: 12; font.bold: true
@@ -1241,7 +1254,7 @@ Item {
                     Rectangle {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignRight
-                        Layout.preferredWidth: 120
+                        Layout.preferredWidth: 160
                         Layout.maximumWidth: 200
                         Layout.leftMargin: parent.width - 200
                         implicitHeight: cmOptionsCol.implicitHeight + 8
@@ -1261,7 +1274,13 @@ Item {
                                 model: [
                                     { value: "default", label: "Default" },
                                     { value: "srgb",   label: "sRGB" },
-                                    { value: "hdr",    label: "HDR" }
+                                    { value: "dcip3",  label: "DCI P3" },
+                                    { value: "dp3",    label: "Apple P3" },
+                                    { value: "adobe",  label: "Adobe RGB" },
+                                    { value: "wide",   label: "Wide Color" },
+                                    { value: "edid",   label: "EDID" },
+                                    { value: "hdr",    label: "HDR" },
+                                    { value: "hdredid", label: "HDR (EDID)" }
                                 ]
 
                                 Rectangle {
@@ -1297,9 +1316,9 @@ Item {
                                         onClicked: {
                                             page.selColorManagement = modelData.value;
                                             // HDR seçilince selHdr'yi de senkronize et
-                                            if (modelData.value === "hdr") {
+                                            if (modelData.value === "hdr" || modelData.value === "hdredid") {
                                                 page.selHdr = true;
-                                            } else if (page.selHdr && modelData.value !== "hdr") {
+                                            } else if (page.selHdr && modelData.value !== "hdr" && modelData.value !== "hdredid") {
                                                 page.selHdr = false;
                                             }
                                             page.colorDropdownOpen = false;
