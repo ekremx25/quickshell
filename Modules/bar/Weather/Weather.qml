@@ -194,7 +194,46 @@ Rectangle {
     property var popupData: ({})
     property string currentTemp: "-"
     property string weatherIcon: ""
+    property string cityName: "Erzurum"
+    property string customLat: "39.9208"
+    property string customLon: "41.2746"
+    property bool useFahrenheit: false
+
     property string cachePath: StandardPaths.writableLocation(StandardPaths.CacheLocation).toString().replace("file://", "") + "/quickshell/weather.json"
+    readonly property string weatherConfigPath: StandardPaths.writableLocation(StandardPaths.HomeLocation).toString().replace("file://", "") + "/.config/quickshell/weather_config.json"
+
+    // --- CONFIG OKUMA ---
+    Process {
+        id: weatherConfigProc
+        command: ["cat", root.weatherConfigPath]
+        property string buf: ""
+        stdout: SplitParser { onRead: (data) => { weatherConfigProc.buf += data; } }
+        onExited: {
+            try {
+                var cfg = JSON.parse(weatherConfigProc.buf);
+                var changed = false;
+
+                if (cfg.lat && cfg.lat !== root.customLat) { root.customLat = cfg.lat; changed = true; }
+                if (cfg.lon && cfg.lon !== root.customLon) { root.customLon = cfg.lon; changed = true; }
+                if (cfg.city && cfg.city !== root.cityName) { root.cityName = cfg.city; }
+                if (cfg.fahrenheit !== undefined && cfg.fahrenheit !== root.useFahrenheit) { root.useFahrenheit = cfg.fahrenheit; changed = true; }
+
+                if (changed) {
+                    console.log("Weather bar config changed, refreshing...");
+                    apiProc.running = false;
+                    apiProc.fullOutput = "";
+                    apiProc.running = true;
+                    updateTimer.restart();
+                }
+            } catch(e) {}
+            weatherConfigProc.buf = "";
+        }
+    }
+
+    Timer {
+        interval: 1500; running: true; repeat: true
+        onTriggered: { weatherConfigProc.buf = ""; weatherConfigProc.running = false; weatherConfigProc.running = true; }
+    }
 
     // --- CACHE OKUMA ---
     Process {
@@ -223,7 +262,7 @@ Rectangle {
     }
 
     Component.onCompleted: {
-        // weatherConfigProc.running = true; // Removed invalid reference
+        weatherConfigProc.running = true;
         readCacheProc.running = true;
     }
 
