@@ -792,6 +792,11 @@ Variants {
             if (s === undefined || s === null) return "''";
             return "'" + String(s).replace(/'/g, "'\\''") + "'";
         }
+        function detachedWrap(rawCmd) {
+            if (!rawCmd || rawCmd === "") return "";
+            // Fully detach child app from quickshell stdio/session to avoid EPIPE in Electron apps.
+            return "nohup sh -lc " + shellQuote(rawCmd) + " >/dev/null 2>&1 &";
+        }
         function cmdFromDesktopId(desktopId) {
             if (!desktopId) return "";
             var keys = Object.keys(dockWindow.desktopEntries);
@@ -812,7 +817,7 @@ Variants {
                 if (desktopId.indexOf("/") !== -1 || desktopId.indexOf(" ") !== -1) {
                     dockWindow.logToFile("launch branch=desktop-malformed cmd=" + desktopId);
                     launchProc.running = false;
-                    launchProc.command = ["/bin/sh", "-lc", desktopId];
+                    launchProc.command = ["/bin/sh", "-lc", detachedWrap(desktopId)];
                     launchProc.running = true;
                     return;
                 }
@@ -820,14 +825,14 @@ Variants {
                 if (desktopExec !== "") {
                     dockWindow.logToFile("launch branch=desktop-exec id=" + desktopId + " exec=" + desktopExec);
                     launchProc.running = false;
-                    launchProc.command = ["/bin/sh", "-lc", desktopExec];
+                    launchProc.command = ["/bin/sh", "-lc", detachedWrap(desktopExec)];
                     launchProc.running = true;
                     return;
                 }
                 // gtk-launch handles full .desktop Exec/field codes reliably.
                 dockWindow.logToFile("launch branch=gtk-launch id=" + desktopId);
                 launchProc.running = false;
-                launchProc.command = ["/usr/bin/gtk-launch", desktopId];
+                launchProc.command = ["/bin/sh", "-lc", detachedWrap("/usr/bin/gtk-launch " + shellQuote(desktopId))];
                 launchProc.running = true;
                 return;
             }
@@ -838,14 +843,14 @@ Variants {
                     var steamUrl = "steam://rungameid/" + gameId;
                     dockWindow.logToFile("launch branch=steam id=" + gameId);
                     launchProc.running = false;
-                    launchProc.command = ["/bin/sh", "-lc", "if command -v steam >/dev/null 2>&1; then steam " + shellQuote(steamUrl) + "; else flatpak run com.valvesoftware.Steam " + shellQuote(steamUrl) + "; fi"];
+                    launchProc.command = ["/bin/sh", "-lc", detachedWrap("if command -v steam >/dev/null 2>&1; then steam " + shellQuote(steamUrl) + "; else flatpak run com.valvesoftware.Steam " + shellQuote(steamUrl) + "; fi")];
                     launchProc.running = true;
                     return;
                 }
             }
             dockWindow.logToFile("launch branch=shell cmd=" + cmd);
             launchProc.running = false;
-            launchProc.command = ["/bin/sh", "-lc", cmd];
+            launchProc.command = ["/bin/sh", "-lc", detachedWrap(cmd)];
             launchProc.running = true;
         }
 
