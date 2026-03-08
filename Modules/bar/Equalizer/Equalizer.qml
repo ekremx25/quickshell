@@ -152,6 +152,24 @@ Rectangle {
         eqBands = presetMap[name].slice();
     }
 
+    function sameBands(a, b) {
+        if (!a || !b || a.length !== b.length) return false;
+        for (var i = 0; i < a.length; i++) {
+            if (Math.round(Number(a[i])) !== Math.round(Number(b[i]))) return false;
+        }
+        return true;
+    }
+
+    function detectPresetFromBands(arr) {
+        var keys = ["Flat", "Bass", "Treble", "Vocal", "Pop", "Rock", "Jazz", "Classic"];
+        for (var i = 0; i < keys.length; i++) {
+            var key = keys[i];
+            var p = presetMap[key];
+            if (sameBands(arr, p)) return key;
+        }
+        return "Custom";
+    }
+
     function setBandFromY(idx, y, h) {
         var r = 1 - Math.min(Math.max(y / h, 0), 1);
         var db = Math.round((r * 24) - 12);
@@ -184,6 +202,34 @@ Rectangle {
         if (audioInfoProc.running) return;
         audioInfoProc.out = "";
         audioInfoProc.running = true;
+    }
+
+    Process {
+        id: readEqProc
+        command: ["/bin/bash", "-lc", "if [ -f \"" + root.configDir + "/quickshell/eq/parametric-eq.txt\" ]; then cat \"" + root.configDir + "/quickshell/eq/parametric-eq.txt\"; fi"]
+        running: false
+        property string out: ""
+        stdout: SplitParser { onRead: data => { readEqProc.out += data + "\n"; } }
+        onExited: {
+            var lines = readEqProc.out.split("\n");
+            var gains = [];
+            for (var i = 0; i < lines.length; i++) {
+                var line = lines[i];
+                var m = line.match(/Gain\s+(-?\d+(?:\.\d+)?)\s+dB/i);
+                if (m && m.length > 1) gains.push(parseFloat(m[1]));
+            }
+            if (gains.length === 10) {
+                root.eqBands = gains;
+                root.selectedPreset = root.detectPresetFromBands(gains);
+            }
+            readEqProc.out = "";
+        }
+    }
+
+    function loadEqStateFromFile() {
+        if (readEqProc.running) return;
+        readEqProc.out = "";
+        readEqProc.running = true;
     }
 
     function setSinkVolumePercent(percent) {
@@ -267,6 +313,7 @@ Rectangle {
                 closeAnim.stop()
                 openAnim.start()
                 root.refreshAudioInfo()
+                root.loadEqStateFromFile()
             }
         }
 
