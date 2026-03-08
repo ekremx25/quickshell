@@ -61,6 +61,20 @@ https://github.com/user-attachments/assets/c4c67fdb-3545-4575-be4e-232178523691
 - **Pipewire** (`pw-dump`): Audio control
 - **Systemd** (`systemctl`, `loginctl`): Power management and session locking
 
+### Audio EQ Module Requirements
+The native EQ module (`Modules/bar/Equalizer` + `scripts/eq_filter_chain.sh`) requires:
+- `pipewire`
+- `pipewire-pulse`
+- `wireplumber`
+- `pulseaudio-utils` (`pactl`)
+- `pipewire` tools (`wpctl`, `pw-cli`)
+- `systemd --user` session support
+
+Example (Arch):
+```bash
+sudo pacman -S pipewire pipewire-pulse wireplumber pulseaudio-utils
+```
+
 ## Installation
 
 1. **Clone the repository**:
@@ -106,6 +120,29 @@ https://github.com/user-attachments/assets/c4c67fdb-3545-4575-be4e-232178523691
 - **Monitors**: Go to Settings > Monitors to configure resolution, scale, HDR, and VRR.
 - **Theme**: Wallpaper-based color palette extraction for automatic theming.
 
+## EQ Quick Start
+
+1. Apply EQ with 10-band gains (`dB`) and auto-target current default sink:
+```bash
+~/.config/quickshell/scripts/eq_filter_chain.sh apply 0 0 0 0 0 0 0 0 0 0 auto
+```
+
+2. Check status:
+```bash
+~/.config/quickshell/scripts/eq_filter_chain.sh status
+wpctl status | grep -E "effect_input.eq|filter-chain"
+```
+
+3. Disable EQ:
+```bash
+~/.config/quickshell/scripts/eq_filter_chain.sh disable
+```
+
+Expected healthy output:
+- `conf_exists=yes`
+- `effect_input.eq` visible
+- `filter-chain` visible
+
 ## Troubleshooting & Helpful Scripts
 
 - **MangoWC Auto Layout**: If you hotplug monitors under MangoWC, Mango might default the new screens to the `(0,0)` coordinate causing overlapping displays. You can dynamically snap them side-by-side using the provided Python script.
@@ -122,6 +159,7 @@ https://github.com/user-attachments/assets/c4c67fdb-3545-4575-be4e-232178523691
   - Quick test:
     - `~/.config/quickshell/scripts/eq_filter_chain.sh apply 0 0 0 0 0 0 0 0 0 0 auto`
     - `~/.config/quickshell/scripts/eq_filter_chain.sh status`
+  - If your default output device changes, run `apply ... auto` again so EQ rebinds to the current default sink.
 - **Missing Icons**: Ensure `JetBrainsMono Nerd Font` is installed and the cache is updated (`fc-cache -fv`).
 - **Network/Bluetooth not working**: Ensure `NetworkManager` and `bluetooth` services are running.
 
