@@ -18,6 +18,12 @@ Rectangle {
     property bool hasMedia: currentPlayer !== null
     property bool isPlaying: currentPlayer ? currentPlayer.isPlaying : false
     property bool expanded: true
+    readonly property real bgLuma: (mediaWidget.color.r * 0.299) + (mediaWidget.color.g * 0.587) + (mediaWidget.color.b * 0.114)
+    readonly property real primaryLuma: (Theme.primary.r * 0.299) + (Theme.primary.g * 0.587) + (Theme.primary.b * 0.114)
+    readonly property bool uiIsLight: bgLuma > 0.55
+    readonly property color adaptiveText: uiIsLight ? "#0f172a" : "#e2e8f0"
+    readonly property color adaptiveSubtext: uiIsLight ? "#475569" : "#94a3b8"
+    readonly property color adaptiveOnPrimary: primaryLuma > 0.62 ? "#0b1220" : "#f8fafc"
 
     // --- Instantiator: track Mpris players ---
     Instantiator {
@@ -103,13 +109,13 @@ Rectangle {
                     text: ""
                     font.family: "JetBrainsMono Nerd Font"
                     font.pixelSize: 14 * dockScale
-                    color: Theme.subtext
+                    color: mediaWidget.adaptiveSubtext
                 }
             }
 
             Text {
                 text: "No Music"
-                color: Theme.overlay2
+                color: mediaWidget.adaptiveSubtext
                 font.bold: true
                 font.pixelSize: 12 * dockScale
                 verticalAlignment: Text.AlignVCenter
@@ -169,7 +175,7 @@ Rectangle {
                 Text {
                     Layout.fillWidth: true
                     text: mediaWidget.currentPlayer ? (mediaWidget.currentPlayer.trackTitle || "Unknown") : ""
-                    color: Theme.text
+                    color: mediaWidget.adaptiveText
                     font.bold: true
                     font.pixelSize: 12 * dockScale
                     elide: Text.ElideRight
@@ -178,7 +184,7 @@ Rectangle {
                 Text {
                     Layout.fillWidth: true
                     text: mediaWidget.currentPlayer ? (mediaWidget.currentPlayer.trackArtist || "Unknown") : ""
-                    color: Theme.subtext
+                    color: mediaWidget.adaptiveSubtext
                     font.pixelSize: 10 * dockScale
                     elide: Text.ElideRight
                 }
@@ -200,7 +206,7 @@ Rectangle {
                         text: "󰒮"
                         font.family: "JetBrainsMono Nerd Font"
                         font.pixelSize: 14 * dockScale
-                        color: Theme.text
+                        color: mediaWidget.adaptiveText
                     }
 
                     MouseArea {
@@ -220,10 +226,10 @@ Rectangle {
 
                     Text {
                         anchors.centerIn: parent
-                        text: mediaWidget.isPlaying ? "⏸" : "⏵"
+                        text: mediaWidget.isPlaying ? "⏸" : ""
                         font.family: "JetBrainsMono Nerd Font"
                         font.pixelSize: 14 * dockScale
-                        color: Theme.base
+                        color: mediaWidget.adaptiveOnPrimary
                     }
 
                     MouseArea {
@@ -246,7 +252,7 @@ Rectangle {
                         text: "󰒭"
                         font.family: "JetBrainsMono Nerd Font"
                         font.pixelSize: 14 * dockScale
-                        color: Theme.text
+                        color: mediaWidget.adaptiveText
                     }
 
                     MouseArea {
@@ -271,7 +277,7 @@ Rectangle {
                         text: mediaWidget.expanded ? "󰅁" : "󰅀"
                         font.family: "JetBrainsMono Nerd Font"
                         font.pixelSize: 12 * dockScale
-                        color: mediaWidget.expanded ? Theme.primary : Theme.subtext
+                        color: mediaWidget.expanded ? mediaWidget.adaptiveText : mediaWidget.adaptiveSubtext
                     }
 
                     MouseArea {

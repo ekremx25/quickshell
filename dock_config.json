@@ -34,6 +34,12 @@
       "appId": "org.telegram.desktop"
     },
     {
+      "name": "Lutris",
+      "icon": "net.lutris.lutris",
+      "cmd": "__desktop__:net.lutris.Lutris",
+      "appId": "net.lutris.Lutris"
+    },
+    {
       "name": "Virt-manager",
       "icon": "virt-manager",
       "cmd": "virt-manager",
@@ -52,6 +58,12 @@
       "appId": "iriunwebcam"
     },
     {
+      "name": "VS Code",
+      "icon": "codex",
+      "cmd": "__desktop__:codex",
+      "appId": "Codex"
+    },
+    {
       "name": "Brave",
       "icon": "brave-browser",
       "cmd": "brave-browser-stable --ozone-platform=wayland --enable-features=UseOzonePlatform,WebRTCPipeWireCapturer,WaylandWindowDecorations,AcceleratedVideoEncoder,AcceleratedVideoDecodeLinuxGL",
@@ -65,7 +77,6 @@
     }
   ],
   "leftModules": [
-    "Launcher",
     "Weather"
   ],
   "rightModules": [

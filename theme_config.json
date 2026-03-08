@@ -1,8 +1,8 @@
 {
   "materialYou": true,
   "wallpaperPath": "/home/ekrem/Pictures/wallpapers/wp2491468-gentoo-wallpapers.png",
-  "mode": "dark",
-  "matugenType": "scheme-tonal-spot",
+  "mode": "light",
+  "matugenType": "scheme-tokyo-night",
   "applyToKitty": true,
   "applyToGtk": false,
   "liveUpdate": true

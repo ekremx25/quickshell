@@ -8,6 +8,14 @@ import Qt.labs.platform
 
 Item {
     id: materialPage
+    readonly property real bgLuma: (Theme.background.r * 0.299) + (Theme.background.g * 0.587) + (Theme.background.b * 0.114)
+    readonly property real primaryLuma: (Theme.primary.r * 0.299) + (Theme.primary.g * 0.587) + (Theme.primary.b * 0.114)
+    readonly property bool uiIsLight: bgLuma > 0.62
+    readonly property bool darkAccentOnLight: uiIsLight && primaryLuma < 0.25
+    readonly property color chipIdleBg: uiIsLight ? Qt.rgba(15/255, 23/255, 42/255, 0.03) : Qt.rgba(255, 255, 255, 0.04)
+    readonly property color chipSelectedBg: darkAccentOnLight ? Qt.rgba(15/255, 23/255, 42/255, 0.08) : Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.18)
+    readonly property color chipSelectedBorder: darkAccentOnLight ? Qt.rgba(15/255, 23/255, 42/255, 0.24) : Theme.primary
+    readonly property color chipSelectedText: darkAccentOnLight ? Theme.text : Theme.primary
 
     Flickable {
         anchors.fill: parent
@@ -117,14 +125,14 @@ Item {
 
                     Rectangle {
                         Layout.fillWidth: true; height: 42; radius: 10
-                        color: ColorPaletteService.mode === modelData.key ? Qt.rgba(137/255, 180/255, 250/255, 0.15) : Qt.rgba(255,255,255,0.04)
-                        border.color: ColorPaletteService.mode === modelData.key ? Theme.primary : "transparent"
+                        color: ColorPaletteService.mode === modelData.key ? materialPage.chipSelectedBg : materialPage.chipIdleBg
+                        border.color: ColorPaletteService.mode === modelData.key ? materialPage.chipSelectedBorder : "transparent"
                         border.width: 1
                         Behavior on color { ColorAnimation { duration: 150 } }
 
                         RowLayout {
                             anchors.centerIn: parent; spacing: 8
-                            Text { text: modelData.icon; font.pixelSize: 16; font.family: "JetBrainsMono Nerd Font"; color: ColorPaletteService.mode === modelData.key ? Theme.primary : Theme.subtext }
+                            Text { text: modelData.icon; font.pixelSize: 16; font.family: "JetBrainsMono Nerd Font"; color: ColorPaletteService.mode === modelData.key ? materialPage.chipSelectedText : Theme.subtext }
                             Text { text: modelData.label; font.pixelSize: 13; color: ColorPaletteService.mode === modelData.key ? Theme.text : Theme.subtext }
                         }
 
@@ -145,8 +153,8 @@ Item {
 
                     Rectangle {
                         width: schemeText.width + 18; height: 30; radius: 8
-                        color: ColorPaletteService.matugenType === modelData ? Qt.rgba(137/255, 180/255, 250/255, 0.15) : Qt.rgba(255,255,255,0.04)
-                        border.color: ColorPaletteService.matugenType === modelData ? Theme.primary : "transparent"
+                        color: ColorPaletteService.matugenType === modelData ? materialPage.chipSelectedBg : materialPage.chipIdleBg
+                        border.color: ColorPaletteService.matugenType === modelData ? materialPage.chipSelectedBorder : "transparent"
                         border.width: 1
                         Behavior on color { ColorAnimation { duration: 150 } }
 
@@ -154,7 +162,7 @@ Item {
                             id: schemeText; anchors.centerIn: parent
                             text: modelData.replace("scheme-", "")
                             font.pixelSize: 11
-                            color: ColorPaletteService.matugenType === modelData ? Theme.primary : Theme.subtext
+                            color: ColorPaletteService.matugenType === modelData ? materialPage.chipSelectedText : Theme.subtext
                         }
 
                         MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: ColorPaletteService.setMatugenType(modelData) }

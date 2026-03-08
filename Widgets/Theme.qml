@@ -138,6 +138,7 @@ QtObject {
     property color calendarColor: activeTheme.calendar
     property color weatherColor: activeTheme.weather
     property color mediaColor: activeTheme.media
+    property color equalizerColor: activeTheme.equalizer || activeTheme.launcher || activeTheme.media
     property color systemColor: activeTheme.system
     property color powerColor: activeTheme.power
     property color trayColor: activeTheme.tray

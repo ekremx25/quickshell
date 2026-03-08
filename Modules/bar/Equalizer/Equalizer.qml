@@ -14,9 +14,9 @@ Rectangle {
     implicitWidth: row.implicitWidth + 20
     implicitHeight: 34
     radius: 17
-    color: Qt.rgba(137/255, 180/255, 250/255, popupWindow.visible ? 0.28 : 0.16)
-    border.width: 1
-    border.color: popupWindow.visible ? Theme.primary : Qt.rgba(137/255, 180/255, 250/255, 0.35)
+    color: popupWindow.visible ? root.eqChipFillActive : root.eqChipFill
+    border.width: root.useNeutralEqChip ? 1 : 0
+    border.color: popupWindow.visible ? root.eqChipBorderActive : root.eqChipBorder
 
     property var defaultSink: Pipewire.defaultAudioSink
     property var defaultSource: Pipewire.defaultAudioSource
@@ -40,6 +40,29 @@ Rectangle {
     readonly property string homeDir: Quickshell.env("HOME") || ""
     readonly property string configDir: Quickshell.env("XDG_CONFIG_HOME") || (homeDir + "/.config")
     readonly property string eqScriptPath: configDir + "/quickshell/scripts/eq_filter_chain.sh"
+    readonly property real bgLuma: (Theme.background.r * 0.299) + (Theme.background.g * 0.587) + (Theme.background.b * 0.114)
+    readonly property color eqAccent: Theme.equalizerColor
+    readonly property real eqAccentLuma: (eqAccent.r * 0.299) + (eqAccent.g * 0.587) + (eqAccent.b * 0.114)
+    readonly property bool useNeutralEqChip: uiIsLight && eqAccentLuma < 0.25
+    readonly property color eqChipFill: useNeutralEqChip ? Theme.surface : eqAccent
+    readonly property color eqChipFillActive: useNeutralEqChip ? Qt.rgba(Theme.surface.r, Theme.surface.g, Theme.surface.b, 0.98) : eqAccent
+    readonly property color eqChipBorder: useNeutralEqChip ? Qt.rgba(15/255, 23/255, 42/255, 0.24) : "transparent"
+    readonly property color eqChipBorderActive: useNeutralEqChip ? Qt.rgba(15/255, 23/255, 42/255, 0.30) : "transparent"
+    readonly property real eqChipLuma: (eqChipFill.r * 0.299) + (eqChipFill.g * 0.587) + (eqChipFill.b * 0.114)
+    readonly property color chipTextColor: eqChipLuma > 0.62 ? "#0b1220" : "#f8fafc"
+    readonly property color eqAccentSoft: useNeutralEqChip ? Qt.rgba(Theme.surface.r, Theme.surface.g, Theme.surface.b, 0.92) : Qt.rgba(eqAccent.r, eqAccent.g, eqAccent.b, 0.26)
+    readonly property color eqAccentStrong: useNeutralEqChip ? Qt.rgba(Theme.surface.r, Theme.surface.g, Theme.surface.b, 0.98) : Qt.rgba(eqAccent.r, eqAccent.g, eqAccent.b, 0.40)
+    readonly property color eqAccentBorder: useNeutralEqChip ? Qt.rgba(15/255, 23/255, 42/255, 0.24) : Qt.rgba(eqAccent.r, eqAccent.g, eqAccent.b, 0.62)
+    readonly property color eqAccentDim: useNeutralEqChip ? Qt.rgba(15/255, 23/255, 42/255, 0.08) : Qt.rgba(eqAccent.r, eqAccent.g, eqAccent.b, 0.28)
+    readonly property color eqAccentButton: useNeutralEqChip ? Qt.rgba(15/255, 23/255, 42/255, 0.12) : Qt.rgba(eqAccent.r, eqAccent.g, eqAccent.b, 0.32)
+    readonly property real primaryLuma: (eqAccent.r * 0.299) + (eqAccent.g * 0.587) + (eqAccent.b * 0.114)
+    readonly property bool uiIsLight: bgLuma > 0.62
+    readonly property color adaptiveText: uiIsLight ? "#0f172a" : Theme.text
+    readonly property color adaptiveSubtext: uiIsLight ? "#475569" : Theme.subtext
+    readonly property color adaptiveAccentText: uiIsLight ? "#0f172a" : root.eqAccent
+    readonly property color adaptiveOnPrimary: primaryLuma > 0.62 ? "#0b1220" : "#f8fafc"
+    readonly property color sinkAccent: uiIsLight ? "#0f766e" : "#a6e3a1"
+    readonly property color sourceAccent: uiIsLight ? "#0369a1" : "#94e2d5"
 
     readonly property var presetMap: ({
         "Flat":    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -269,14 +292,14 @@ Rectangle {
             text: "󰕾"
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 15
-            color: Theme.primary
+            color: root.chipTextColor
         }
 
         Text {
             text: "EQ"
             font.bold: true
             font.pixelSize: 12
-            color: Theme.text
+            color: root.chipTextColor
         }
     }
 
@@ -349,14 +372,14 @@ Rectangle {
 
                 RowLayout {
                     Layout.fillWidth: true
-                    Text { text: "Audio Control"; color: Theme.text; font.bold: true; font.pixelSize: 18 }
+                    Text { text: "Audio Control"; color: root.adaptiveText; font.bold: true; font.pixelSize: 18 }
                     Item { Layout.fillWidth: true }
                     Rectangle {
                         width: 26
                         height: 26
                         radius: 13
                         color: Qt.rgba(255,255,255,0.08)
-                        Text { anchors.centerIn: parent; text: "✕"; color: Theme.text; font.pixelSize: 12 }
+                        Text { anchors.centerIn: parent; text: "✕"; color: root.adaptiveText; font.pixelSize: 12 }
                         MouseArea {
                             anchors.fill: parent
                             cursorShape: Qt.PointingHandCursor
@@ -391,7 +414,7 @@ Rectangle {
                                 width: 52
                                 height: 52
                                 radius: 10
-                                color: Qt.rgba(137/255, 180/255, 250/255, 0.16)
+                                color: root.eqAccentSoft
                                 clip: true
 
                                 Image {
@@ -407,7 +430,7 @@ Rectangle {
                                     text: "󰎆"
                                     font.family: "JetBrainsMono Nerd Font"
                                     font.pixelSize: 18
-                                    color: Theme.primary
+                                    color: root.adaptiveAccentText
                                 }
                             }
 
@@ -418,7 +441,7 @@ Rectangle {
                                 Text {
                                     Layout.fillWidth: true
                                     text: root.currentPlayer ? (root.currentPlayer.trackTitle || "Unknown Track") : "No media playing"
-                                    color: Theme.text
+                                    color: root.adaptiveText
                                     font.bold: true
                                     font.pixelSize: 15
                                     elide: Text.ElideRight
@@ -427,7 +450,7 @@ Rectangle {
                                 Text {
                                     Layout.fillWidth: true
                                     text: root.currentPlayer ? (root.currentPlayer.trackArtist || "Unknown Artist") : "Open Spotify / Browser / Player"
-                                    color: Theme.subtext
+                                    color: root.adaptiveSubtext
                                     font.pixelSize: 12
                                     elide: Text.ElideRight
                                 }
@@ -441,21 +464,21 @@ Rectangle {
                             Rectangle {
                                 width: 32; height: 32; radius: 16
                                 color: prevMA.containsMouse ? Qt.rgba(255,255,255,0.10) : "transparent"
-                                Text { anchors.centerIn: parent; text: "󰒮"; font.family: "JetBrainsMono Nerd Font"; color: Theme.text; font.pixelSize: 13 }
+                                Text { anchors.centerIn: parent; text: "󰒮"; font.family: "JetBrainsMono Nerd Font"; color: root.adaptiveText; font.pixelSize: 13 }
                                 MouseArea { id: prevMA; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: if (root.currentPlayer) root.currentPlayer.previous() }
                             }
 
                             Rectangle {
                                 width: 44; height: 44; radius: 22
-                                color: Theme.primary
-                                Text { anchors.centerIn: parent; text: root.isPlaying ? "⏸" : "⏵"; color: Theme.base; font.pixelSize: 16; font.bold: true }
+                                color: root.eqAccent
+                                Text { anchors.centerIn: parent; text: root.isPlaying ? "⏸" : "⏵"; color: root.adaptiveOnPrimary; font.pixelSize: 16; font.bold: true }
                                 MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: if (root.currentPlayer) root.currentPlayer.togglePlaying() }
                             }
 
                             Rectangle {
                                 width: 32; height: 32; radius: 16
                                 color: nextMA.containsMouse ? Qt.rgba(255,255,255,0.10) : "transparent"
-                                Text { anchors.centerIn: parent; text: "󰒭"; font.family: "JetBrainsMono Nerd Font"; color: Theme.text; font.pixelSize: 13 }
+                                Text { anchors.centerIn: parent; text: "󰒭"; font.family: "JetBrainsMono Nerd Font"; color: root.adaptiveText; font.pixelSize: 13 }
                                 MouseArea { id: nextMA; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: if (root.currentPlayer) root.currentPlayer.next() }
                             }
                         }
@@ -477,12 +500,12 @@ Rectangle {
 
                         RowLayout {
                             Layout.fillWidth: true
-                            Text { text: "Equalizer"; color: Theme.text; font.bold: true; font.pixelSize: 15 }
+                            Text { text: "Equalizer"; color: root.adaptiveText; font.bold: true; font.pixelSize: 15 }
                             Item { Layout.fillWidth: true }
                             Rectangle {
                                 radius: 8
-                                color: Qt.rgba(137/255, 180/255, 250/255, 0.18)
-                                border.color: Theme.primary
+                                color: root.eqAccentDim
+                                border.color: root.eqAccent
                                 border.width: 1
                                 implicitWidth: presetLabel.implicitWidth + 14
                                 implicitHeight: 28
@@ -490,7 +513,7 @@ Rectangle {
                                     id: presetLabel
                                     anchors.centerIn: parent
                                     text: root.selectedPreset
-                                    color: Theme.primary
+                                    color: root.adaptiveAccentText
                                     font.pixelSize: 12
                                     font.bold: true
                                 }
@@ -525,7 +548,7 @@ Rectangle {
                                             width: 20
                                             height: 20
                                             radius: 10
-                                            color: "#b6f0ff"
+                                            color: root.sourceAccent
                                             y: {
                                                 var db = root.eqBands[index];
                                                 var ratio = (db + 12) / 24.0;
@@ -547,7 +570,7 @@ Rectangle {
                                     Text {
                                         Layout.alignment: Qt.AlignHCenter
                                         text: modelData
-                                        color: Theme.subtext
+                                        color: root.adaptiveSubtext
                                         font.pixelSize: 11
                                         font.bold: true
                                     }
@@ -567,14 +590,14 @@ Rectangle {
                                     Layout.fillWidth: true
                                     Layout.preferredHeight: 30
                                     radius: 9
-                                    color: root.selectedPreset === modelData ? Qt.rgba(137/255,180/255,250/255,0.18) : Qt.rgba(255,255,255,0.05)
+                                    color: root.selectedPreset === modelData ? root.eqAccentDim : Qt.rgba(255,255,255,0.05)
                                     border.width: 1
-                                    border.color: root.selectedPreset === modelData ? Theme.primary : Qt.rgba(255,255,255,0.05)
+                                    border.color: root.selectedPreset === modelData ? root.eqAccent : Qt.rgba(255,255,255,0.05)
 
                                     Text {
                                         anchors.centerIn: parent
                                         text: modelData
-                                        color: root.selectedPreset === modelData ? Theme.primary : Theme.text
+                                        color: root.selectedPreset === modelData ? root.adaptiveAccentText : root.adaptiveText
                                         font.pixelSize: 12
                                         font.bold: root.selectedPreset === modelData
                                     }
@@ -596,10 +619,10 @@ Rectangle {
                                 Layout.fillWidth: true
                                 Layout.preferredHeight: 34
                                 radius: 9
-                                color: Qt.rgba(137/255,180/255,250/255,0.2)
+                                color: root.eqAccentButton
                                 border.width: 1
-                                border.color: Theme.primary
-                                Text { anchors.centerIn: parent; text: eqProc.running ? "Applying..." : "Apply EQ"; color: Theme.primary; font.bold: true; font.pixelSize: 12 }
+                                border.color: root.eqAccent
+                                Text { anchors.centerIn: parent; text: eqProc.running ? "Applying..." : "Apply EQ"; color: root.adaptiveAccentText; font.bold: true; font.pixelSize: 12 }
                                 MouseArea { anchors.fill: parent; enabled: !eqProc.running; cursorShape: Qt.PointingHandCursor; onClicked: root.applyToPipeWire() }
                             }
 
@@ -617,7 +640,7 @@ Rectangle {
 
                         Text {
                             text: "Status: " + root.applyStatus
-                            color: Theme.subtext
+                            color: root.adaptiveSubtext
                             font.pixelSize: 11
                         }
                     }
@@ -636,17 +659,17 @@ Rectangle {
                         RowLayout {
                             Layout.fillWidth: true
                             spacing: 8
-                            Text { text: "󰓃"; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 16; color: "#a6e3a1" }
+                            Text { text: "󰓃"; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 16; color: root.sinkAccent }
                             Text {
                                 Layout.fillWidth: true
                                 text: root.sinkDisplayName
-                                color: Theme.text
+                                color: root.adaptiveText
                                 font.bold: true
                                 elide: Text.ElideRight
                             }
                             Text {
                                 text: root.sinkVolumePercent + "%"
-                                color: Theme.primary
+                                color: root.adaptiveAccentText
                                 font.bold: true
                             }
                         }
@@ -665,7 +688,7 @@ Rectangle {
                                     text: root.sinkMuted ? "󰝟" : "󰕾"
                                     font.family: "JetBrainsMono Nerd Font"
                                     font.pixelSize: 13
-                                    color: root.sinkMuted ? "#f38ba8" : "#a6e3a1"
+                                    color: root.sinkMuted ? "#f38ba8" : root.sinkAccent
                                 }
                                 MouseArea {
                                     anchors.fill: parent
@@ -683,7 +706,7 @@ Rectangle {
                                     width: parent.width * (Math.max(0, Math.min(root.sinkVolumePercent, 150)) / 150)
                                     height: parent.height
                                     radius: 3
-                                    color: "#a6e3a1"
+                                    color: root.sinkAccent
                                 }
                                 MouseArea {
                                     anchors.fill: parent
@@ -714,17 +737,17 @@ Rectangle {
                         RowLayout {
                             Layout.fillWidth: true
                             spacing: 8
-                            Text { text: "󰍬"; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 16; color: "#94e2d5" }
+                            Text { text: "󰍬"; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 16; color: root.sourceAccent }
                             Text {
                                 Layout.fillWidth: true
                                 text: root.sourceDisplayName
-                                color: Theme.text
+                                color: root.adaptiveText
                                 font.bold: true
                                 elide: Text.ElideRight
                             }
                             Text {
                                 text: root.sourceVolumePercent + "%"
-                                color: "#94e2d5"
+                                color: root.sourceAccent
                                 font.bold: true
                             }
                         }
@@ -743,7 +766,7 @@ Rectangle {
                                     text: root.sourceMuted ? "󰍭" : "󰍬"
                                     font.family: "JetBrainsMono Nerd Font"
                                     font.pixelSize: 13
-                                    color: root.sourceMuted ? "#f38ba8" : "#94e2d5"
+                                    color: root.sourceMuted ? "#f38ba8" : root.sourceAccent
                                 }
                                 MouseArea {
                                     anchors.fill: parent
@@ -761,7 +784,7 @@ Rectangle {
                                     width: parent.width * (Math.max(0, Math.min(root.sourceVolumePercent, 100)) / 100)
                                     height: parent.height
                                     radius: 3
-                                    color: "#94e2d5"
+                                    color: root.sourceAccent
                                 }
                                 MouseArea {
                                     anchors.fill: parent

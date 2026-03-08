@@ -105,6 +105,10 @@ Rectangle {
     PanelWindow {
         id: calWindow
         visible: false
+        property real panelOpacity: 0.0
+        property real panelYOffset: -18
+        Behavior on panelOpacity { NumberAnimation { duration: 170; easing.type: Easing.OutCubic } }
+        Behavior on panelYOffset { NumberAnimation { duration: 220; easing.type: Easing.OutBack } }
         implicitWidth: 400
         implicitHeight: 560
         color: "transparent"
@@ -134,15 +138,23 @@ Rectangle {
                 calWindow.margins.left = globalPos.x - calWindow.width - 10;
                 if (calWindow.margins.left < 10) calWindow.margins.left = 10;
             } else {
-                calWindow.margins.top = 58;
-                calWindow.margins.left = globalPos.x - (calWindow.width / 2) + (dateRoot.width / 2);
-                if (calWindow.margins.left < 10) calWindow.margins.left = 10;
+                var desiredTop = globalPos.y + dateRoot.height + 8;
+                if (desiredTop + calWindow.height > win.height - 8) {
+                    desiredTop = globalPos.y - calWindow.height - 8;
+                }
+                calWindow.margins.top = Math.max(8, desiredTop);
+
+                var desiredLeft = globalPos.x - (calWindow.width / 2) + (dateRoot.width / 2);
+                var maxLeft = Math.max(10, win.width - calWindow.width - 10);
+                calWindow.margins.left = Math.max(10, Math.min(desiredLeft, maxLeft));
             }
         }
 
         Rectangle {
             id: bgRect
             anchors.fill: parent
+            opacity: calWindow.panelOpacity
+            transform: Translate { y: calWindow.panelYOffset }
             color: popupBg
             border.color: accentColor
             border.width: 2
@@ -299,9 +311,24 @@ Rectangle {
             if (visible) {
                 calendar.toToday()
                 repositionCalendar()
+                calWindow.panelOpacity = 0.0
+                calWindow.panelYOffset = -18
+                Qt.callLater(function() {
+                    calWindow.panelOpacity = 1.0
+                    calWindow.panelYOffset = 0
+                })
+            } else {
+                calWindow.panelOpacity = 0.0
+                calWindow.panelYOffset = -14
             }
         }
+
+        onWidthChanged: if (visible) repositionCalendar()
+        onHeightChanged: if (visible) repositionCalendar()
     }
+
+    onWidthChanged: if (calWindow.visible) calWindow.repositionCalendar()
+    onHeightChanged: if (calWindow.visible) calWindow.repositionCalendar()
 
     QtObject {
         id: calendar

@@ -161,6 +161,7 @@ Variants {
         // ── appId → icon (Rofi/Wofi tarzı: .desktop dosyalarından) ──
         property var desktopIcons: ({})
         property var desktopCommands: ({})
+        property var desktopEntries: ({})
         property string desktopIconScript: StandardPaths.writableLocation(StandardPaths.HomeLocation).toString().replace("file://", "") + "/.config/quickshell/scripts/desktop_icons.sh"
 
         Process {
@@ -171,30 +172,41 @@ Variants {
             onExited: {
                 if (desktopIconProc.outputBuffer.trim() === "") return;
                 try {
-                    // Script outputs two JSON objects separated by newline:
-                    // First JSON: icon map, Second JSON: command map
+                    // Script outputs JSON objects separated by newline:
+                    // First JSON: icon map, Second JSON: command map, Third JSON: desktop id map
                     var raw = desktopIconProc.outputBuffer.trim();
                     // Find the boundary between two JSON objects
-                    // Each ends with "}", find the first "}" that closes the first object
+                    // Each ends with "}", find boundaries by depth==0 transitions.
                     var depth = 0;
-                    var splitIdx = -1;
+                    var parts = [];
+                    var startIdx = -1;
                     for (var ci = 0; ci < raw.length; ci++) {
-                        if (raw[ci] === '{') depth++;
+                        if (raw[ci] === '{') {
+                            if (depth === 0) startIdx = ci;
+                            depth++;
+                        }
                         else if (raw[ci] === '}') {
                             depth--;
-                            if (depth === 0) { splitIdx = ci; break; }
+                            if (depth === 0 && startIdx >= 0) {
+                                parts.push(raw.substring(startIdx, ci + 1));
+                                startIdx = -1;
+                            }
                         }
                     }
-                    if (splitIdx > 0) {
-                        var iconJson = raw.substring(0, splitIdx + 1);
-                        var cmdJson = raw.substring(splitIdx + 1).trim();
+                    if (parts.length > 0) {
+                        var iconJson = parts[0];
                         var parsedIcons = JSON.parse(iconJson);
                         dockWindow.desktopIcons = parsedIcons;
                         console.log("Desktop icons loaded: " + Object.keys(parsedIcons).length + " apps");
-                        if (cmdJson.length > 2) {
-                            var parsedCmds = JSON.parse(cmdJson);
+                        if (parts.length > 1) {
+                            var parsedCmds = JSON.parse(parts[1]);
                             dockWindow.desktopCommands = parsedCmds;
                             console.log("Desktop commands loaded: " + Object.keys(parsedCmds).length + " apps");
+                        }
+                        if (parts.length > 2) {
+                            var parsedDesktopIds = JSON.parse(parts[2]);
+                            dockWindow.desktopEntries = parsedDesktopIds;
+                            console.log("Desktop ids loaded: " + Object.keys(parsedDesktopIds).length + " apps");
                         }
                     } else {
                         // Fallback: treat entire output as icon map only
@@ -256,6 +268,9 @@ Variants {
             if (!appId) return "application-x-executable";
             var c = appId.toLowerCase();
 
+            var resolvedKey = resolveDesktopKey(c);
+            if (resolvedKey !== "") return dockWindow.desktopIcons[resolvedKey] || c;
+
             // 1. .desktop dosyasından gelen icon adını bul
             if (dockWindow.desktopIcons[c]) return dockWindow.desktopIcons[c];
 
@@ -272,6 +287,38 @@ Variants {
             // 4. Son fallback: appId'yi doğrudan icon adı olarak ver
             //    image://icon/ Qt'nin icon theme cache'ini kullanarak çözer
             return c;
+        }
+
+        // ── appId/class/title benzeri değerlerden en yakın desktop anahtarını bul ──
+        function resolveDesktopKey(rawId) {
+            if (!rawId) return "";
+            var c = rawId.toLowerCase();
+
+            if (dockWindow.desktopEntries[c] || dockWindow.desktopIcons[c] || dockWindow.desktopCommands[c]) return c;
+
+            var compact = c.replace(/[^a-z0-9]/g, "");
+            if (compact.length === 0) return "";
+
+            // Prefer keys that contain the id or are contained by it.
+            var keys = Object.keys(dockWindow.desktopEntries);
+            for (var i = 0; i < keys.length; i++) {
+                var k = keys[i];
+                var kc = k.replace(/[^a-z0-9]/g, "");
+                if (kc === compact) return k;
+            }
+            for (var j = 0; j < keys.length; j++) {
+                var k2 = keys[j];
+                var kc2 = k2.replace(/[^a-z0-9]/g, "");
+                if (kc2.indexOf(compact) !== -1 || compact.indexOf(kc2) !== -1) return k2;
+            }
+
+            // Last token from org.example.App -> app
+            if (c.indexOf(".") !== -1) {
+                var parts = c.split(".");
+                var shortName = parts[parts.length - 1].toLowerCase();
+                if (dockWindow.desktopEntries[shortName] || dockWindow.desktopIcons[shortName] || dockWindow.desktopCommands[shortName]) return shortName;
+            }
+            return "";
         }
 
         // ── appId → name ──
@@ -331,6 +378,20 @@ Variants {
         function getCmd(appId) {
             if (!appId) return "";
             var c = appId.toLowerCase();
+            var resolvedKey = resolveDesktopKey(c);
+
+            // Steam game window ids often look like steam_app_570.
+            var steamMatch = c.match(/steam_app[_-](\d+)/);
+            if (steamMatch && steamMatch.length > 1) return "__steam_game__:" + steamMatch[1];
+            if (c === "dota2" || c === "dota" || c.indexOf("dota 2") !== -1) return "__steam_game__:570";
+
+            if (resolvedKey !== "") {
+                if (dockWindow.desktopEntries[resolvedKey]) return "__desktop__:" + dockWindow.desktopEntries[resolvedKey];
+                if (dockWindow.desktopCommands[resolvedKey]) return dockWindow.desktopCommands[resolvedKey];
+            }
+
+            // 0. Prefer desktop-id launcher (mimics rofi/wofi drun behavior better)
+            if (dockWindow.desktopEntries[c]) return "__desktop__:" + dockWindow.desktopEntries[c];
 
             // 1. .desktop dosyasından gelen Exec komutunu kullan (en güvenilir)
             if (dockWindow.desktopCommands[c]) return dockWindow.desktopCommands[c];
@@ -339,6 +400,9 @@ Variants {
             if (c.indexOf(".") !== -1) {
                 var parts = c.split(".");
                 var shortName = parts[parts.length - 1].toLowerCase();
+                var shortSteamMatch = shortName.match(/steam_app[_-](\d+)/);
+                if (shortSteamMatch && shortSteamMatch.length > 1) return "__steam_game__:" + shortSteamMatch[1];
+                if (dockWindow.desktopEntries[shortName]) return "__desktop__:" + dockWindow.desktopEntries[shortName];
                 if (dockWindow.desktopCommands[shortName]) return dockWindow.desktopCommands[shortName];
             }
 
@@ -412,7 +476,7 @@ Variants {
                 items.push({
                     name: getAppName(p.appId), 
                     icon: resolvedIcon,
-                    cmd: p.cmd,
+                    cmd: getCmd(p.appId),
                     appId: p.appId, isPinned: true, isRunning: isRunning, windowId: windowId,
                     isModule: false 
                 });
@@ -716,12 +780,72 @@ Variants {
         }
 
         // ── Uygulama başlatıcı ──
-        Process { id: launchProc; command: []; running: false }
+        Process {
+            id: launchProc
+            command: []
+            running: false
+            stdout: SplitParser { onRead: (d) => dockWindow.logToFile("launch stdout: " + d) }
+            stderr: SplitParser { onRead: (d) => dockWindow.logToFile("launch stderr: " + d) }
+            onExited: (code) => { dockWindow.logToFile("launch exit: " + code + " cmd=" + JSON.stringify(command)); }
+        }
+        function shellQuote(s) {
+            if (s === undefined || s === null) return "''";
+            return "'" + String(s).replace(/'/g, "'\\''") + "'";
+        }
+        function cmdFromDesktopId(desktopId) {
+            if (!desktopId) return "";
+            var keys = Object.keys(dockWindow.desktopEntries);
+            for (var i = 0; i < keys.length; i++) {
+                var k = keys[i];
+                if (dockWindow.desktopEntries[k] === desktopId && dockWindow.desktopCommands[k]) {
+                    return dockWindow.desktopCommands[k];
+                }
+            }
+            return "";
+        }
         function launchApp(cmd) {
+            if (!cmd || cmd === "") return;
+            if (cmd && cmd.indexOf("__desktop__:") === 0) {
+                var desktopPrefix = "__desktop__:";
+                var desktopId = cmd.substring(desktopPrefix.length);
+                // Guard: if malformed desktop id is actually a shell path/cmd, run it as normal command.
+                if (desktopId.indexOf("/") !== -1 || desktopId.indexOf(" ") !== -1) {
+                    dockWindow.logToFile("launch branch=desktop-malformed cmd=" + desktopId);
+                    launchProc.running = false;
+                    launchProc.command = ["/bin/sh", "-lc", desktopId];
+                    launchProc.running = true;
+                    return;
+                }
+                var desktopExec = cmdFromDesktopId(desktopId);
+                if (desktopExec !== "") {
+                    dockWindow.logToFile("launch branch=desktop-exec id=" + desktopId + " exec=" + desktopExec);
+                    launchProc.running = false;
+                    launchProc.command = ["/bin/sh", "-lc", desktopExec];
+                    launchProc.running = true;
+                    return;
+                }
+                // gtk-launch handles full .desktop Exec/field codes reliably.
+                dockWindow.logToFile("launch branch=gtk-launch id=" + desktopId);
+                launchProc.running = false;
+                launchProc.command = ["/usr/bin/gtk-launch", desktopId];
+                launchProc.running = true;
+                return;
+            }
+            if (cmd && cmd.indexOf("__steam_game__:") === 0) {
+                var steamPrefix = "__steam_game__:";
+                var gameId = cmd.substring(steamPrefix.length).replace(/[^0-9]/g, "");
+                if (gameId.length > 0) {
+                    var steamUrl = "steam://rungameid/" + gameId;
+                    dockWindow.logToFile("launch branch=steam id=" + gameId);
+                    launchProc.running = false;
+                    launchProc.command = ["/bin/sh", "-lc", "if command -v steam >/dev/null 2>&1; then steam " + shellQuote(steamUrl) + "; else flatpak run com.valvesoftware.Steam " + shellQuote(steamUrl) + "; fi"];
+                    launchProc.running = true;
+                    return;
+                }
+            }
+            dockWindow.logToFile("launch branch=shell cmd=" + cmd);
             launchProc.running = false;
-            // Detach process so it survives when launchProc is reused/killed
-            var detachedCmd = "nohup " + cmd + " > /dev/null 2>&1 &";
-            launchProc.command = ["sh", "-c", detachedCmd];
+            launchProc.command = ["/bin/sh", "-lc", cmd];
             launchProc.running = true;
         }
 
