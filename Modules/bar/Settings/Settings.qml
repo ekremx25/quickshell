@@ -48,6 +48,7 @@ PanelWindow {
         "Notifications": { icon: "󰂚", label: "Notifications", color: "#fab387" },
         "Weather": { icon: "󰖕", label: "Weather", color: "#f9e2af" },
         "Volume": { icon: "󰕾", label: "Volume", color: "#89b4fa" },
+        "Equalizer": { icon: "󱞙", label: "Equalizer", color: "#89dceb" },
         "Tray": { icon: "󰇚", label: "Tray", color: "#a6adc8" },
         "Clipboard": { icon: "󰅍", label: "Clipboard", color: "#fab387" },
         "Power": { icon: "⏻", label: "Power", color: "#f38ba8" },
@@ -61,7 +62,7 @@ PanelWindow {
     // Bilinen tüm modül adları
     readonly property var allModuleNames: [
         "Launcher", "Calendar", "Notepad",
-        "Workspaces", "Notifications", "Weather", "Volume",
+        "Workspaces", "Notifications", "Weather", "Volume", "Equalizer",
         "Tray", "Clipboard", "Power",
         "PowerGroup", "SysInfoGroup", "RamModule", "Media"
     ]

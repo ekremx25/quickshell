@@ -1,8 +1,8 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
-import Quickshell.Services.Pipewire
 import "../../../Widgets"
+import "../../../Services"
 
 Rectangle {
 	id: root
@@ -12,13 +12,9 @@ Rectangle {
 	implicitHeight: 34
 	radius: 17
 
-	// Pipewire Bağlantısı
-	property var audioSink: Pipewire.defaultAudioSink
-	PwObjectTracker { objects: [ Pipewire.defaultAudioSink ] }
-
-	// Ses Durumu Özellikleri (Reactivity için)
-	readonly property bool muted: audioSink?.audio?.isMuted ?? false
-	readonly property real vol: audioSink?.audio?.volume ?? 0
+	// Ses Durumu Özellikleri (OSD ile aynı servis kaynağı)
+	readonly property bool muted: Volume.sinkMuted === true
+	readonly property real vol: (Volume.sinkVolume !== undefined && Volume.sinkVolume !== null) ? Volume.sinkVolume : 0
 
 	// Sessizdeyken Kırmızı, Normalken Yeşil
 	color: muted ? Theme.red : Theme.mediaColor
@@ -64,18 +60,16 @@ Rectangle {
 		onClicked: (mouse) => {
 			if (mouse.button === Qt.MiddleButton || mouse.button === Qt.LeftButton) {
 				// SOL TIK & ORTA TIK: Sesi Tamamen Kapat (Mute)
-				if (root.audioSink) root.audioSink.audio.isMuted = !root.audioSink.audio.isMuted
+				Volume.toggleSinkMute()
 			}
 		}
 
 		// TEKERLEK: Ses Aç/Kıs
 		onWheel: (wheel) => {
-			if (root.audioSink) {
-				var step = 0.05
-				var newVol = root.audioSink.audio.volume + (wheel.angleDelta.y > 0 ? step : -step)
-				// Sesi 0 ile 1.5 (%150) arasında sınırla
-				root.audioSink.audio.volume = Math.min(Math.max(newVol, 0.0), 1.5)
-			}
+			var step = 0.05
+			var newVol = root.vol + (wheel.angleDelta.y > 0 ? step : -step)
+			// Sesi 0 ile 1.5 (%150) arasında sınırla
+			Volume.setSinkVolume(Math.min(Math.max(newVol, 0.0), 1.5))
 		}
 	}
 }

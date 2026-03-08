@@ -3,40 +3,100 @@ pragma Singleton
 import Quickshell
 import Quickshell.Services.Pipewire
 import QtQuick
+import Quickshell.Io
 
 Singleton {
     id: root
 
-    // 追踪音频对象变化
+    // Keep tracking objects when available.
     PwObjectTracker {
         objects: [Pipewire.defaultAudioSink, Pipewire.defaultAudioSource]
     }
 
-    // --- 核心逻辑：判断是否是耳机 ---
+    // Headphone hint from current default sink description.
     property bool isHeadphone: {
         if (!Pipewire.defaultAudioSink) return false
-        
-        // 获取设备描述 (Description) 或 属性 (Properties)
-        // 转换为小写并查找 "headphone" 关键字
         const desc = (Pipewire.defaultAudioSink.description || "").toLowerCase()
         return desc.includes("headphone")
     }
 
-    // --- 音量与静音状态 ---
-    property bool sinkMuted: Pipewire.defaultAudioSink ? Pipewire.defaultAudioSink.audio.isMuted : false
-    property real sinkVolume: Pipewire.defaultAudioSink ? Pipewire.defaultAudioSink.audio.volume : 0
+    // Stable values consumed by OSD/UI.
+    property bool sinkMuted: false
+    property real sinkVolume: 0.0
+    property string lastRaw: ""
 
-    // --- 功能函数 ---
-    function toggleSinkMute() {
-        Quickshell.execDetached(["wpctl", "set-mute", "@DEFAULT_SINK@", "toggle"])
+    function clamp(v, minV, maxV) {
+        return Math.max(minV, Math.min(maxV, v))
     }
 
-    // 音量设置 (wpctl 接受 0.0 ~ 1.0 的浮点数)
+    function applyPipewireSnapshot() {
+        if (!Pipewire.defaultAudioSink) return
+        var m = Pipewire.defaultAudioSink.audio.isMuted
+        var v = Pipewire.defaultAudioSink.audio.volume
+        root.sinkMuted = (m === true)
+        if (v !== undefined && v !== null) {
+            root.sinkVolume = root.clamp(v, 0.0, 1.5)
+        }
+    }
+
+    function parsePactl(text) {
+        if (!text || text.trim() === "") return
+        if (text === root.lastRaw) return
+        root.lastRaw = text
+
+        // Expected lines:
+        // VOL=NN
+        // MUTE=yes|no
+        var vm = text.match(/VOL=(\d+)/)
+        if (vm && vm.length > 1) {
+            root.sinkVolume = root.clamp(parseInt(vm[1]) / 100.0, 0.0, 1.5)
+        }
+        var mm = text.match(/MUTE=(yes|no)/)
+        if (mm && mm.length > 1) {
+            root.sinkMuted = (mm[1] === "yes")
+        }
+    }
+
+    Process {
+        id: readPactlProc
+        command: ["/bin/bash", "-lc", "S=$(/usr/bin/pactl info | /usr/bin/sed -n \"s/^Default Sink: //p\" | /usr/bin/head -n1); [ -z \"$S\" ] && S='@DEFAULT_SINK@'; V=$(/usr/bin/pactl get-sink-volume \"$S\" 2>/dev/null | /usr/bin/sed -n \"s/.* \\([0-9]\\+\\)%.*/\\1/p\" | /usr/bin/head -n1); M=$(/usr/bin/pactl get-sink-mute \"$S\" 2>/dev/null | /usr/bin/awk '{print $2}'); [ -z \"$V\" ] && V=0; [ -z \"$M\" ] && M=no; echo \"VOL=$V\"; echo \"MUTE=$M\""]
+        running: false
+        property string out: ""
+        stdout: SplitParser { onRead: data => { readPactlProc.out += data + "\n" } }
+        onExited: {
+            root.parsePactl(readPactlProc.out.trim())
+            readPactlProc.out = ""
+        }
+    }
+
+    function refresh() {
+        // Prefer live PipeWire object when available.
+        root.applyPipewireSnapshot()
+        // Also poll pactl default sink so state survives node restarts/default sink switches.
+        if (!readPactlProc.running) {
+            readPactlProc.out = ""
+            readPactlProc.running = true
+        }
+    }
+
+    Timer {
+        interval: 400
+        running: true
+        repeat: true
+        onTriggered: root.refresh()
+    }
+
+    Component.onCompleted: refresh()
+
+    function toggleSinkMute() {
+        Quickshell.execDetached(["/usr/bin/pactl", "set-sink-mute", "@DEFAULT_SINK@", "toggle"])
+        refresh()
+    }
+
     function setSinkVolume(volume: real) {
-        // 限制范围防止爆音
-        let safeVol = volume
-        if (safeVol > 1.0) safeVol = 1.0
-        if (safeVol < 0.0) safeVol = 0.0
-        Quickshell.execDetached(["wpctl", "set-volume", "@DEFAULT_SINK@", safeVol])
+        let safeVol = clamp(volume, 0.0, 1.5)
+        Quickshell.execDetached(["/usr/bin/pactl", "set-sink-volume", "@DEFAULT_SINK@", String(Math.round(safeVol * 100)) + "%"])
+        sinkVolume = safeVol
+        refresh()
     }
 }

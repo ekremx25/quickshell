@@ -34,16 +34,16 @@
       "appId": "org.telegram.desktop"
     },
     {
+      "name": "Virt-manager",
+      "icon": "virt-manager",
+      "cmd": "virt-manager",
+      "appId": "virt-manager"
+    },
+    {
       "name": "Discord",
       "icon": "discord",
       "cmd": "discord",
       "appId": "discord"
-    },
-    {
-      "name": "Io.github.ilya_zlobintsev.LACT",
-      "icon": "io.github.ilya_zlobintsev.lact",
-      "cmd": "lact gui",
-      "appId": "io.github.ilya_zlobintsev.LACT"
     },
     {
       "name": "Iriunwebcam",

@@ -19,6 +19,7 @@ import "./Weather"
 import "./Notifications"
 import "./Clipboard"
 import "./Settings"
+import "./Equalizer"
 
 import "./Group"
 import "./System" as Sys
@@ -65,6 +66,7 @@ Variants {
         "Notifications": notificationsComp,
         "Weather": weatherComp,
         "Volume": volumeComp,
+        "Equalizer": equalizerComp,
         "Tray": trayComp,
         "Clipboard": clipboardComp,
         "Power": powerComp,
@@ -80,6 +82,7 @@ Variants {
     Component { id: notificationsComp; Notifications {} }
     Component { id: weatherComp; Weather {} }
     Component { id: volumeComp; Volume {} }
+    Component { id: equalizerComp; Equalizer {} }
     Component { id: trayComp; Tray {} }
     Component { id: clipboardComp; Clipboard {} }
     Component { id: powerComp; Power {} }

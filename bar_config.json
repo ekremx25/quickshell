@@ -10,8 +10,9 @@
     "Notepad"
   ],
   "right": [
-    "Tray",
     "Clipboard",
+    "Equalizer",
+    "Tray",
     "Volume"
   ],
   "inactive": [

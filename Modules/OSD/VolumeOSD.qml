@@ -33,7 +33,7 @@ PanelWindow {
     // Initial invisible state
     visible: false
     // State control
-    property real displayVolume: Volume.sinkVolume * 100
+    property real displayVolume: (Volume.sinkVolume !== undefined && Volume.sinkVolume !== null ? Volume.sinkVolume : 0) * 100
     
     // Auto-hide Timer
     Timer {
@@ -55,15 +55,14 @@ PanelWindow {
         }
     }
 
-    // Initialize states to prevent ghost OSD popups on startup
-    property int lastVolumeInt: Math.round(Volume.sinkVolume * 100)
-    property bool lastMuteState: Volume.sinkMuted
-    property bool isInitialized: false
-    property var startupTime: Date.now()
+    // Stable last-known values for change detection
+    property int lastVolumeInt: Math.round((Volume.sinkVolume !== undefined && Volume.sinkVolume !== null ? Volume.sinkVolume : 0) * 100)
+    property bool lastMuteState: Volume.sinkMuted === true
 
     Component.onCompleted: {
-        // Delay full initialization to allow initial Pipewire values to settle
-        Qt.callLater(() => { root.isInitialized = true })
+        root.displayVolume = Math.round(Volume.sinkVolume * 100)
+        root.lastVolumeInt = root.displayVolume
+        root.lastMuteState = (Volume.sinkMuted === true)
     }
 
     // React to Volume Changes from the Service
@@ -71,31 +70,20 @@ PanelWindow {
         target: Volume
         function onSinkVolumeChanged() {
             let currentVolInt = Math.round(Volume.sinkVolume * 100)
-            
-            // Only act if there's a real 1% change
+
+            // Show OSD on actual volume delta.
             if (currentVolInt !== root.lastVolumeInt) {
-                // If the system just started, skip the first few updates
-                if (root.isInitialized && (Date.now() - root.startupTime > 1500)) {
-                    // Check if this is a sudden rapid succession of events (Pipewire jitter)
-                    // We only allow showing OSD if there's a distinct user-like change, but since we can't tell,
-                    // we just rely on the 1% threshold and a minimum time since startup.
-                    root.displayVolume = currentVolInt
-                    root.lastVolumeInt = currentVolInt
-                    root.refreshOSD()
-                } else {
-                    root.lastVolumeInt = currentVolInt
-                }
+                root.displayVolume = currentVolInt
+                root.lastVolumeInt = currentVolInt
+                root.refreshOSD()
             }
         }
         function onSinkMutedChanged() {
-            if (Volume.sinkMuted !== root.lastMuteState) {
-                // Ignore the very first initialization ghost event, but allow user events
-                if (root.isInitialized) {
-                    root.lastMuteState = Volume.sinkMuted
-                    root.refreshOSD()
-                } else {
-                    root.lastMuteState = Volume.sinkMuted
-                }
+            const mutedNow = (Volume.sinkMuted === true)
+            if (mutedNow !== root.lastMuteState) {
+                root.lastMuteState = mutedNow
+                root.displayVolume = Math.round(Volume.sinkVolume * 100)
+                root.refreshOSD()
             }
         }
     }

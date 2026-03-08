@@ -12,6 +12,7 @@ MouseArea {
 
     hoverEnabled: true
     cursorShape: Qt.PointingHandCursor
+    property bool menuOpening: false
 
     // Sol ve Sağ Tıkı Kabul Et
     acceptedButtons: Qt.LeftButton | Qt.RightButton
@@ -21,8 +22,19 @@ MouseArea {
             modelData.activate();
         } else if (event.button === Qt.RightButton) {
             if (menuAnchor.menu) {
-                menuAnchor.open();
+                root.menuOpening = true
+                openMenuTimer.restart()
             }
+        }
+    }
+
+    Timer {
+        id: openMenuTimer
+        interval: 90
+        repeat: false
+        onTriggered: {
+            menuAnchor.open()
+            root.menuOpening = false
         }
     }
 
@@ -38,12 +50,14 @@ MouseArea {
         id: bg
         anchors.fill: parent
         radius: 8
-        color: root.containsMouse ? Qt.rgba(205/255, 214/255, 244/255, 0.12) : "transparent"
-        border.color: root.containsMouse ? Qt.rgba(137/255, 180/255, 250/255, 0.2) : "transparent"
+        color: (root.containsMouse || root.menuOpening) ? Qt.rgba(205/255, 214/255, 244/255, root.menuOpening ? 0.20 : 0.12) : "transparent"
+        border.color: (root.containsMouse || root.menuOpening) ? Qt.rgba(137/255, 180/255, 250/255, root.menuOpening ? 0.38 : 0.2) : "transparent"
         border.width: 1
+        scale: root.menuOpening ? 1.08 : (root.containsMouse ? 1.03 : 1.0)
 
         Behavior on color { ColorAnimation { duration: 150 } }
         Behavior on border.color { ColorAnimation { duration: 150 } }
+        Behavior on scale { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
     }
 
     // --- İKON ---
@@ -76,7 +90,7 @@ MouseArea {
         }
 
         // Hover'da hafif büyüme efekti
-        scale: root.containsMouse ? 1.1 : 1.0
+        scale: root.menuOpening ? 1.16 : (root.containsMouse ? 1.1 : 1.0)
         Behavior on scale { NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
 
         // Hover'da opaklık artışı

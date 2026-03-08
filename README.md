@@ -112,6 +112,16 @@ https://github.com/user-attachments/assets/c4c67fdb-3545-4575-be4e-232178523691
   - **Manual use**: `python3 ~/.config/quickshell/scripts/mango_auto_layout.py`
   - **Auto-start**: Add `python3 ~/.config/quickshell/scripts/mango_auto_layout.py &` to your `~/.config/mango/autostart.sh`
   - **Keybind**: Add `bind=SUPER,p,spawn,python3 ~/.config/quickshell/scripts/mango_auto_layout.py` to your `~/.config/mango/config.conf`
+- **Global/portable EQ module (PipeWire native)**:
+  - Script: `scripts/eq_filter_chain.sh`
+  - Works with `XDG_CONFIG_HOME` automatically (default: `~/.config`)
+  - Optional overrides:
+    - `QUICKSHELL_CONFIG_DIR=/path/to/quickshell`
+    - `PIPEWIRE_CONF_DIR=/path/to/pipewire.conf.d`
+  - Required tools: `pactl`, `wpctl`, `pw-cli`, `systemctl`
+  - Quick test:
+    - `~/.config/quickshell/scripts/eq_filter_chain.sh apply 0 0 0 0 0 0 0 0 0 0 auto`
+    - `~/.config/quickshell/scripts/eq_filter_chain.sh status`
 - **Missing Icons**: Ensure `JetBrainsMono Nerd Font` is installed and the cache is updated (`fc-cache -fv`).
 - **Network/Bluetooth not working**: Ensure `NetworkManager` and `bluetooth` services are running.
 
