@@ -1,11 +1,12 @@
 import QtQuick
 import Quickshell
+import "../../../Widgets"
 
 MouseArea {
     id: root
 
-    // Sistemden gelen veri
     required property var modelData
+    property string rawIconName: modelData && modelData.icon ? String(modelData.icon) : ""
 
     implicitWidth: 30
     implicitHeight: 30
@@ -14,7 +15,6 @@ MouseArea {
     cursorShape: Qt.PointingHandCursor
     property bool menuOpening: false
 
-    // Sol ve Sağ Tıkı Kabul Et
     acceptedButtons: Qt.LeftButton | Qt.RightButton
 
     onClicked: (event) => {
@@ -38,29 +38,28 @@ MouseArea {
         }
     }
 
-    // --- MENÜ ÇAPASI ---
     QsMenuAnchor {
         id: menuAnchor
         menu: modelData.menu
         anchor.item: root
     }
 
-    // --- ARKA PLAN ---
     Rectangle {
         id: bg
-        anchors.fill: parent
+        anchors.centerIn: parent
+        width: 24
+        height: 24
         radius: 8
-        color: (root.containsMouse || root.menuOpening) ? Qt.rgba(205/255, 214/255, 244/255, root.menuOpening ? 0.20 : 0.12) : "transparent"
-        border.color: (root.containsMouse || root.menuOpening) ? Qt.rgba(137/255, 180/255, 250/255, root.menuOpening ? 0.38 : 0.2) : "transparent"
+        color: root.menuOpening ? Qt.rgba(1, 1, 1, 0.62) : (root.containsMouse ? Qt.rgba(1, 1, 1, 0.52) : Qt.rgba(1, 1, 1, 0.42))
+        border.color: root.menuOpening ? Qt.rgba(1, 1, 1, 0.80) : (root.containsMouse ? Qt.rgba(1, 1, 1, 0.66) : Qt.rgba(1, 1, 1, 0.34))
         border.width: 1
-        scale: root.menuOpening ? 1.08 : (root.containsMouse ? 1.03 : 1.0)
+        scale: root.menuOpening ? 1.08 : (root.containsMouse ? 1.04 : 1.0)
 
-        Behavior on color { ColorAnimation { duration: 150 } }
-        Behavior on border.color { ColorAnimation { duration: 150 } }
+        Behavior on color { ColorAnimation { duration: 140 } }
+        Behavior on border.color { ColorAnimation { duration: 140 } }
         Behavior on scale { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
     }
 
-    // --- İKON ---
     Image {
         id: content
         anchors.centerIn: parent
@@ -74,27 +73,29 @@ MouseArea {
         mipmap: true
 
         source: {
-            const raw = root.modelData.icon;
+            const raw = root.rawIconName;
 
-            // Spotify düzeltmesi
-            if (raw && raw.indexOf("spotify") !== -1) {
+            if (!raw) {
+                return "image://icon/application-x-executable";
+            }
+
+            if (raw.startsWith("image://") || raw.startsWith("/") || raw.startsWith("file:")) {
+                return raw;
+            }
+
+            if (raw.indexOf("spotify") !== -1) {
                 return "image://icon/spotify";
             }
-            
-            // Fix for missing nm-connection-editor icon
+
             if (raw === "nm-connection-editor") {
                 return "image://icon/preferences-system-network";
             }
 
-            return raw;
+            return "image://icon/" + raw.replace(/-symbolic$/, "");
         }
 
-        // Hover'da hafif büyüme efekti
-        scale: root.menuOpening ? 1.16 : (root.containsMouse ? 1.1 : 1.0)
-        Behavior on scale { NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
-
-        // Hover'da opaklık artışı
-        opacity: root.containsMouse ? 1.0 : 0.75
-        Behavior on opacity { NumberAnimation { duration: 150 } }
+        scale: root.menuOpening ? 1.12 : (root.containsMouse ? 1.06 : 1.0)
+        opacity: 1.0
+        Behavior on scale { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
     }
 }

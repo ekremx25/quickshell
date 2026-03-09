@@ -7,18 +7,18 @@ import "../../../Widgets"
 Rectangle {
     id: root
 
-    color: Qt.rgba(Theme.background.r, Theme.background.g, Theme.background.b, 0.5)
-    radius: 12
-    border.color: Qt.rgba(Theme.trayColor.r, Theme.trayColor.g, Theme.trayColor.b, 0.1)
+    color: "transparent"
+    radius: 17
+    border.color: Qt.rgba(1, 1, 1, 0.12)
     border.width: 1
 
     implicitHeight: 34
-    implicitWidth: trayRow.implicitWidth + 16
+    implicitWidth: trayRow.implicitWidth + 18
 
     RowLayout {
         id: trayRow
         anchors.centerIn: parent
-        spacing: 4
+        spacing: 5
 
         Repeater {
             model: SystemTray.items
