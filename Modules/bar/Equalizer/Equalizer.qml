@@ -115,7 +115,7 @@ Rectangle {
 
     Process {
         id: audioInfoProc
-        command: ["/bin/bash", "-lc", "S=$(/usr/bin/pactl info | /usr/bin/awk -F': ' '/^Default Sink:/{print $2; exit}'); SR=$(/usr/bin/pactl info | /usr/bin/awk -F': ' '/^Default Source:/{print $2; exit}'); SV=$(/usr/bin/pactl get-sink-volume \"$S\" 2>/dev/null | /usr/bin/sed -n 's/.* \\([0-9]\\+\\)%.*/\\1/p' | /usr/bin/head -n1 || echo 0); SM=$(/usr/bin/pactl get-sink-mute \"$S\" 2>/dev/null | /usr/bin/awk '{print $2}' || echo no); SRV=$(/usr/bin/pactl get-source-volume \"$SR\" 2>/dev/null | /usr/bin/sed -n 's/.* \\([0-9]\\+\\)%.*/\\1/p' | /usr/bin/head -n1 || echo 0); SRM=$(/usr/bin/pactl get-source-mute \"$SR\" 2>/dev/null | /usr/bin/awk '{print $2}' || echo no); echo \"SINK=$S\"; echo \"SOURCE=$SR\"; echo \"SINKVOL=$SV\"; echo \"SINKMUTE=$SM\"; echo \"SOURCEVOL=$SRV\"; echo \"SOURCEMUTE=$SRM\""]
+        command: ["/bin/bash", "-lc", "STATE_FILE=\"" + root.configDir + "/../.local/state/quickshell/eq_filter_chain.state\"; S=$(/usr/bin/pactl info | /usr/bin/awk -F': ' '/^Default Sink:/{print $2; exit}'); if [ \"$S\" = \"effect_input.eq\" ] && [ -f \"$STATE_FILE\" ]; then EQ_BASE=$(/usr/bin/awk -F'=' '/^BASE_SINK=/{print $2; exit}' \"$STATE_FILE\"); if [ -n \"$EQ_BASE\" ]; then S=\"$EQ_BASE\"; fi; fi; SR=$(/usr/bin/pactl info | /usr/bin/awk -F': ' '/^Default Source:/{print $2; exit}'); SV=$(/usr/bin/pactl get-sink-volume \"$S\" 2>/dev/null | /usr/bin/sed -n 's/.* \\([0-9]\\+\\)%.*/\\1/p' | /usr/bin/head -n1 || echo 0); SM=$(/usr/bin/pactl get-sink-mute \"$S\" 2>/dev/null | /usr/bin/awk '{print $2}' || echo no); SRV=$(/usr/bin/pactl get-source-volume \"$SR\" 2>/dev/null | /usr/bin/sed -n 's/.* \\([0-9]\\+\\)%.*/\\1/p' | /usr/bin/head -n1 || echo 0); SRM=$(/usr/bin/pactl get-source-mute \"$SR\" 2>/dev/null | /usr/bin/awk '{print $2}' || echo no); echo \"SINK=$S\"; echo \"SOURCE=$SR\"; echo \"SINKVOL=$SV\"; echo \"SINKMUTE=$SM\"; echo \"SOURCEVOL=$SRV\"; echo \"SOURCEMUTE=$SRM\""]
         running: false
         property string out: ""
         stdout: SplitParser { onRead: data => { audioInfoProc.out += data + "\n"; } }
@@ -205,11 +205,15 @@ Rectangle {
     function applyToPipeWire() {
         if (eqProc.running) return;
         root.applyStatus = "Applying...";
+        var targetSink = "auto";
+        if (root.currentSinkName.length > 0 && root.currentSinkName !== "effect_input.eq") {
+            targetSink = root.currentSinkName;
+        }
         eqProc.command = [
             "/bin/bash", root.eqScriptPath, "apply",
             String(eqBands[0]), String(eqBands[1]), String(eqBands[2]), String(eqBands[3]), String(eqBands[4]),
             String(eqBands[5]), String(eqBands[6]), String(eqBands[7]), String(eqBands[8]), String(eqBands[9]),
-            (root.currentSinkName.length > 0 ? root.currentSinkName : "auto")
+            targetSink
         ];
         eqProc.running = true;
     }
