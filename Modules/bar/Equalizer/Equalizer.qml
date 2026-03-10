@@ -121,7 +121,7 @@ Rectangle {
 
     Process {
         id: audioInfoProc
-        command: ["/bin/bash", "-lc", "STATE_FILE=\"" + root.configDir + "/../.local/state/quickshell/eq_filter_chain.state\"; S=$(/usr/bin/pactl info | /usr/bin/awk -F': ' '/^Default Sink:/{print $2; exit}'); if [ \"$S\" = \"effect_input.eq\" ]; then RUNNING_SINK=$(/usr/bin/pactl list short sinks | /usr/bin/awk '$5 == \"RUNNING\" {print $2}' | /usr/bin/grep -v '^effect_input\\.eq$' | /usr/bin/head -n1); if [ -n \"$RUNNING_SINK\" ]; then S=\"$RUNNING_SINK\"; elif [ -f \"$STATE_FILE\" ]; then EQ_BASE=$(/usr/bin/awk -F'=' '/^BASE_SINK=/{print $2; exit}' \"$STATE_FILE\"); if [ -n \"$EQ_BASE\" ]; then S=\"$EQ_BASE\"; fi; fi; fi; SR=$(/usr/bin/pactl info | /usr/bin/awk -F': ' '/^Default Source:/{print $2; exit}'); SV=$(/usr/bin/pactl get-sink-volume \"$S\" 2>/dev/null | /usr/bin/sed -n 's/.* \\([0-9]\\+\\)%.*/\\1/p' | /usr/bin/head -n1 || echo 0); SM=$(/usr/bin/pactl get-sink-mute \"$S\" 2>/dev/null | /usr/bin/awk '{print $2}' || echo no); SRV=$(/usr/bin/pactl get-source-volume \"$SR\" 2>/dev/null | /usr/bin/sed -n 's/.* \\([0-9]\\+\\)%.*/\\1/p' | /usr/bin/head -n1 || echo 0); SRM=$(/usr/bin/pactl get-source-mute \"$SR\" 2>/dev/null | /usr/bin/awk '{print $2}' || echo no); echo \"SINK=$S\"; echo \"SOURCE=$SR\"; echo \"SINKVOL=$SV\"; echo \"SINKMUTE=$SM\"; echo \"SOURCEVOL=$SRV\"; echo \"SOURCEMUTE=$SRM\""]
+        command: ["/bin/bash", "-lc", "STATE_FILE=\"" + root.configDir + "/../.local/state/quickshell/eq_filter_chain.state\"; S=$(/usr/bin/pactl info | /usr/bin/awk -F': ' '/^Default Sink:/{print $2; exit}'); if [ \"$S\" = \"effect_input.eq\" ]; then if [ -f \"$STATE_FILE\" ]; then EQ_BASE=$(/usr/bin/awk -F'=' '/^BASE_SINK=/{print $2; exit}' \"$STATE_FILE\"); if [ -n \"$EQ_BASE\" ]; then S=\"$EQ_BASE\"; fi; fi; if [ \"$S\" = \"effect_input.eq\" ]; then RUNNING_SINK=$(/usr/bin/pactl list short sinks | /usr/bin/awk '$5 == \"RUNNING\" {print $2}' | /usr/bin/grep -v '^effect_input\\.eq$' | /usr/bin/head -n1); if [ -n \"$RUNNING_SINK\" ]; then S=\"$RUNNING_SINK\"; fi; fi; fi; SR=$(/usr/bin/pactl info | /usr/bin/awk -F': ' '/^Default Source:/{print $2; exit}'); SV=$(/usr/bin/pactl get-sink-volume \"$S\" 2>/dev/null | /usr/bin/sed -n 's/.* \\([0-9]\\+\\)%.*/\\1/p' | /usr/bin/head -n1 || echo 0); SM=$(/usr/bin/pactl get-sink-mute \"$S\" 2>/dev/null | /usr/bin/awk '{print $2}' || echo no); SRV=$(/usr/bin/pactl get-source-volume \"$SR\" 2>/dev/null | /usr/bin/sed -n 's/.* \\([0-9]\\+\\)%.*/\\1/p' | /usr/bin/head -n1 || echo 0); SRM=$(/usr/bin/pactl get-source-mute \"$SR\" 2>/dev/null | /usr/bin/awk '{print $2}' || echo no); echo \"SINK=$S\"; echo \"SOURCE=$SR\"; echo \"SINKVOL=$SV\"; echo \"SINKMUTE=$SM\"; echo \"SOURCEVOL=$SRV\"; echo \"SOURCEMUTE=$SRM\""]
         running: false
         property string out: ""
         stdout: SplitParser { onRead: data => { audioInfoProc.out += data + "\n"; } }
@@ -307,9 +307,22 @@ Rectangle {
         readEqProc.running = true;
     }
 
+    function physicalSinkArg() {
+        if (root.currentSinkName.length > 0 && root.currentSinkName !== "effect_input.eq") {
+            return root.currentSinkName;
+        }
+        if (root.pendingAutoTargetSink.length > 0 && root.pendingAutoTargetSink !== "effect_input.eq") {
+            return root.pendingAutoTargetSink;
+        }
+        if (root.lastAppliedTargetSink.length > 0 && root.lastAppliedTargetSink !== "effect_input.eq") {
+            return root.lastAppliedTargetSink;
+        }
+        return "@DEFAULT_SINK@";
+    }
+
     function setSinkVolumePercent(percent) {
         var p = Math.max(0, Math.min(150, Math.round(percent)));
-        var sinkArg = (root.currentSinkName.length > 0 ? root.currentSinkName : "@DEFAULT_SINK@");
+        var sinkArg = root.physicalSinkArg();
         Quickshell.execDetached(["/usr/bin/pactl", "set-sink-volume", sinkArg, String(p) + "%"]);
         root.sinkVolumePercent = p;
         Qt.callLater(root.refreshAudioInfo);
@@ -324,7 +337,7 @@ Rectangle {
     }
 
     function toggleSinkMute() {
-        var sinkArg = (root.currentSinkName.length > 0 ? root.currentSinkName : "@DEFAULT_SINK@");
+        var sinkArg = root.physicalSinkArg();
         Quickshell.execDetached(["/usr/bin/pactl", "set-sink-mute", sinkArg, "toggle"]);
         Qt.callLater(root.refreshAudioInfo);
     }
