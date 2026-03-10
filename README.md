@@ -66,14 +66,22 @@ The native EQ module (`Modules/bar/Equalizer` + `scripts/eq_filter_chain.sh`) re
 - `pipewire`
 - `pipewire-pulse`
 - `wireplumber`
-- `pulseaudio-utils` (`pactl`)
-- `pipewire` tools (`wpctl`, `pw-cli`)
+- `libpulse` (`pactl` on Arch)
+- `pipewire` tools (`pw-cli`, `pw-link`)
+- `wireplumber` tools (`wpctl`)
 - `systemd --user` session support
 
 Example (Arch):
 ```bash
-sudo pacman -S pipewire pipewire-pulse wireplumber pulseaudio-utils
+sudo pacman -S pipewire pipewire-pulse wireplumber libpulse
 ```
+
+This script expects these commands to exist in `PATH`:
+- `pactl`
+- `wpctl`
+- `pw-cli`
+- `pw-link`
+- `systemctl`
 
 ## Installation
 
