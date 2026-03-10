@@ -7,6 +7,7 @@ import Quickshell.Io
 import Quickshell.Services.Pipewire
 import Quickshell.Services.Mpris
 import "../../../Widgets"
+import "../../../Services"
 
 Rectangle {
     id: root
@@ -117,6 +118,7 @@ Rectangle {
             root.refreshAudioInfo();
             delayedRefreshTimer.restart();
             routeRecoveryTimer.restart();
+            Volume.pulseOsd();
             eqProc.out = "";
         }
     }

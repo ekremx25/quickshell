@@ -68,23 +68,26 @@ PanelWindow {
     // React to Volume Changes from the Service
     Connections {
         target: Volume
-        function onSinkVolumeChanged() {
-            let currentVolInt = Math.round(Volume.sinkVolume * 100)
-
-            // Show OSD on actual volume delta.
-            if (currentVolInt !== root.lastVolumeInt) {
-                root.displayVolume = currentVolInt
-                root.lastVolumeInt = currentVolInt
-                root.refreshOSD()
-            }
+        function onOsdPulse() {
+            root.displayVolume = Math.round(Volume.sinkVolume * 100)
+            root.lastVolumeInt = root.displayVolume
+            root.lastMuteState = (Volume.sinkMuted === true)
+            root.refreshOSD()
         }
-        function onSinkMutedChanged() {
+        function onTargetSinkNameChanged() {
+            root.displayVolume = Math.round(Volume.sinkVolume * 100)
+            root.lastVolumeInt = root.displayVolume
+            root.lastMuteState = (Volume.sinkMuted === true)
+        }
+        function onRefreshSerialChanged() {
+            let currentVolInt = Math.round(Volume.sinkVolume * 100)
             const mutedNow = (Volume.sinkMuted === true)
-            if (mutedNow !== root.lastMuteState) {
-                root.lastMuteState = mutedNow
-                root.displayVolume = Math.round(Volume.sinkVolume * 100)
-                root.refreshOSD()
-            }
+
+            root.displayVolume = currentVolInt
+            root.lastVolumeInt = currentVolInt
+            root.lastMuteState = mutedNow
+
+            root.refreshOSD()
         }
     }
     

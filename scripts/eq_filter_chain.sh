@@ -40,6 +40,8 @@ write_state() {
   cat > "$STATE_FILE" <<STATE
 BASE_SINK=${BASE_SINK:-}
 BASE_SOURCE=${BASE_SOURCE:-}
+EQ_SINK_VOLUME=${EQ_SINK_VOLUME:-40%}
+EQ_SINK_MUTED=${EQ_SINK_MUTED:-0}
 STATE
 }
 
@@ -99,6 +101,23 @@ move_sink_inputs_to() {
     [[ -n "$input_id" ]] || continue
     pactl move-sink-input "$input_id" "$sink_name" >/dev/null 2>&1 || true
   done < <(pactl list short sink-inputs 2>/dev/null || true)
+}
+
+capture_eq_sink_state() {
+  if sink_exists "effect_input.eq"; then
+    EQ_SINK_VOLUME="$(pactl get-sink-volume "effect_input.eq" 2>/dev/null | sed -n 's/.* \([0-9]\+%\).*/\1/p' | head -n1 || true)"
+    EQ_SINK_MUTED="$(pactl get-sink-mute "effect_input.eq" 2>/dev/null | awk '{print ($2 == "yes" ? "1" : "0")}' || true)"
+  fi
+
+  [[ -n "${EQ_SINK_VOLUME:-}" ]] || EQ_SINK_VOLUME="40%"
+  [[ -n "${EQ_SINK_MUTED:-}" ]] || EQ_SINK_MUTED="0"
+}
+
+normalize_eq_sink() {
+  if sink_exists "effect_input.eq"; then
+    pactl set-sink-volume "effect_input.eq" "${EQ_SINK_VOLUME:-40%}" >/dev/null 2>&1 || true
+    pactl set-sink-mute "effect_input.eq" "${EQ_SINK_MUTED:-0}" >/dev/null 2>&1 || true
+  fi
 }
 
 relink_eq_output_to_base_sink() {
@@ -289,8 +308,23 @@ stabilize_eq_route() {
   done
 }
 
+finalize_eq_route() {
+  local sink_name="$1"
+
+  [[ -n "$sink_name" ]] || return 0
+
+  for _ in {1..8}; do
+    relink_eq_output_to_base_sink "$sink_name" || true
+    set_default_sink_compat "effect_input.eq" || true
+    move_sink_inputs_to "effect_input.eq" || true
+    sleep 0.25
+  done
+}
+
 recover_eq() {
   read_state
+  capture_eq_sink_state
+  write_state
 
   local sink="${BASE_SINK:-}"
   if [[ -z "$sink" || "$sink" == "effect_input.eq" ]]; then
@@ -299,6 +333,7 @@ recover_eq() {
 
   wait_for_eq_nodes || true
   [[ -n "$sink" ]] && stabilize_eq_route "$sink" || true
+  normalize_eq_sink
   set_default_sink_compat "effect_input.eq" || true
   [[ -n "${BASE_SOURCE:-}" ]] && set_default_source_compat "$BASE_SOURCE" || true
   echo "recovered"
@@ -310,6 +345,7 @@ apply_eq() {
   local gains=("$@")
 
   read_state
+  capture_eq_sink_state
   local cur_sink cur_source
   cur_sink="$(default_sink || true)"
   cur_source="$(default_source || true)"
@@ -338,13 +374,18 @@ apply_eq() {
   wait_for_eq_nodes || true
 
   [[ -n "${BASE_SINK:-}" ]] && stabilize_eq_route "$BASE_SINK" || true
+  normalize_eq_sink
   set_default_sink_compat "effect_input.eq" || true
   [[ -n "${BASE_SOURCE:-}" ]] && set_default_source_compat "$BASE_SOURCE" || true
+  [[ -n "${BASE_SINK:-}" ]] && finalize_eq_route "$BASE_SINK" || true
+  normalize_eq_sink
   echo "applied file=$EQ_FILE"
 }
 
 disable_eq() {
   read_state
+  capture_eq_sink_state
+  write_state
 
   rm -f "$PW_CONF_FILE"
   restart_audio_stack
