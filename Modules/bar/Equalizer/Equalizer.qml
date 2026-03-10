@@ -43,6 +43,7 @@ Rectangle {
     readonly property string homeDir: Quickshell.env("HOME") || ""
     readonly property string configDir: Quickshell.env("XDG_CONFIG_HOME") || (homeDir + "/.config")
     readonly property string eqScriptPath: configDir + "/quickshell/scripts/eq_filter_chain.sh"
+    readonly property string eqPipewireConfPath: configDir + "/pipewire/pipewire.conf.d/90-quickshell-eq.conf"
     readonly property real bgLuma: (Theme.background.r * 0.299) + (Theme.background.g * 0.587) + (Theme.background.b * 0.114)
     readonly property color eqAccent: Theme.equalizerColor
     readonly property real eqAccentLuma: (eqAccent.r * 0.299) + (eqAccent.g * 0.587) + (eqAccent.b * 0.114)
@@ -127,6 +128,17 @@ Rectangle {
         id: recoverProc
         command: ["/bin/bash", root.eqScriptPath, "recover"]
         running: false
+    }
+
+    Process {
+        id: startupEqCheckProc
+        command: ["/usr/bin/test", "-f", root.eqPipewireConfPath]
+        running: false
+        onExited: (code) => {
+            if (code === 0) {
+                startupRecoverTimer.restart();
+            }
+        }
     }
 
     Process {
@@ -292,6 +304,19 @@ Rectangle {
                 recoverProc.running = true;
             }
             root.refreshAudioInfo();
+        }
+    }
+
+    Timer {
+        id: startupRecoverTimer
+        interval: 3000
+        repeat: false
+        onTriggered: {
+            if (!recoverProc.running) {
+                recoverProc.running = true;
+            }
+            root.refreshAudioInfo();
+            Volume.pulseOsd();
         }
     }
 
@@ -947,5 +972,11 @@ Rectangle {
         repeat: true
         triggeredOnStart: true
         onTriggered: root.refreshAudioInfo()
+    }
+
+    Component.onCompleted: {
+        root.loadEqStateFromFile();
+        root.refreshAudioInfo();
+        startupEqCheckProc.running = true;
     }
 }
