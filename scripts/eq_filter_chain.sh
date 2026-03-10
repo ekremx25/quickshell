@@ -256,14 +256,52 @@ CONF
 }
 
 restart_audio_stack() {
-  systemctl --user restart pipewire.service pipewire-pulse.service wireplumber.service
-  for _ in {1..20}; do
+  systemctl --user restart pipewire.service pipewire-pulse.service
+  for _ in {1..30}; do
     if pactl info >/dev/null 2>&1; then
       sleep 0.2
       return
     fi
     sleep 0.2
   done
+}
+
+wait_for_eq_nodes() {
+  for _ in {1..30}; do
+    if sink_exists "effect_input.eq" && node_id_by_name Node "effect_output.eq" >/dev/null 2>&1; then
+      return 0
+    fi
+    sleep 0.2
+  done
+  echo "EQ nodes did not come up in time" >&2
+  return 1
+}
+
+stabilize_eq_route() {
+  local sink_name="$1"
+
+  [[ -n "$sink_name" ]] || return 0
+
+  for _ in {1..5}; do
+    relink_eq_output_to_base_sink "$sink_name" || true
+    move_sink_inputs_to "effect_input.eq" || true
+    sleep 0.3
+  done
+}
+
+recover_eq() {
+  read_state
+
+  local sink="${BASE_SINK:-}"
+  if [[ -z "$sink" || "$sink" == "effect_input.eq" ]]; then
+    sink="$(pick_best_sink "$(default_sink || true)" "${BASE_SINK:-}")"
+  fi
+
+  wait_for_eq_nodes || true
+  [[ -n "$sink" ]] && stabilize_eq_route "$sink" || true
+  set_default_sink_compat "effect_input.eq" || true
+  [[ -n "${BASE_SOURCE:-}" ]] && set_default_source_compat "$BASE_SOURCE" || true
+  echo "recovered"
 }
 
 apply_eq() {
@@ -297,10 +335,10 @@ apply_eq() {
   write_state
 
   restart_audio_stack
+  wait_for_eq_nodes || true
 
-  [[ -n "${BASE_SINK:-}" ]] && relink_eq_output_to_base_sink "$BASE_SINK" || true
+  [[ -n "${BASE_SINK:-}" ]] && stabilize_eq_route "$BASE_SINK" || true
   set_default_sink_compat "effect_input.eq" || true
-  move_sink_inputs_to "effect_input.eq" || true
   [[ -n "${BASE_SOURCE:-}" ]] && set_default_source_compat "$BASE_SOURCE" || true
   echo "applied file=$EQ_FILE"
 }
@@ -360,11 +398,14 @@ case "$cmd" in
   disable)
     disable_eq
     ;;
+  recover)
+    recover_eq
+    ;;
   status)
     status_eq
     ;;
   *)
-    echo "Usage: $0 {apply <10 gains> [target_sink|auto]|disable|status}" >&2
+    echo "Usage: $0 {apply <10 gains> [target_sink|auto]|disable|recover|status}" >&2
     exit 2
     ;;
 esac

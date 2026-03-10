@@ -115,13 +115,21 @@ Rectangle {
                 root.applyStatus = errText.length > 0 ? ("Error (" + code + "): " + errText) : ("Error (" + code + ")");
             }
             root.refreshAudioInfo();
+            delayedRefreshTimer.restart();
+            routeRecoveryTimer.restart();
             eqProc.out = "";
         }
     }
 
     Process {
+        id: recoverProc
+        command: ["/bin/bash", root.eqScriptPath, "recover"]
+        running: false
+    }
+
+    Process {
         id: audioInfoProc
-        command: ["/bin/bash", "-lc", "STATE_FILE=\"" + root.configDir + "/../.local/state/quickshell/eq_filter_chain.state\"; S=$(/usr/bin/pactl info | /usr/bin/awk -F': ' '/^Default Sink:/{print $2; exit}'); if [ \"$S\" = \"effect_input.eq\" ]; then if [ -f \"$STATE_FILE\" ]; then EQ_BASE=$(/usr/bin/awk -F'=' '/^BASE_SINK=/{print $2; exit}' \"$STATE_FILE\"); if [ -n \"$EQ_BASE\" ]; then S=\"$EQ_BASE\"; fi; fi; if [ \"$S\" = \"effect_input.eq\" ]; then RUNNING_SINK=$(/usr/bin/pactl list short sinks | /usr/bin/awk '$5 == \"RUNNING\" {print $2}' | /usr/bin/grep -v '^effect_input\\.eq$' | /usr/bin/head -n1); if [ -n \"$RUNNING_SINK\" ]; then S=\"$RUNNING_SINK\"; fi; fi; fi; SR=$(/usr/bin/pactl info | /usr/bin/awk -F': ' '/^Default Source:/{print $2; exit}'); SV=$(/usr/bin/pactl get-sink-volume \"$S\" 2>/dev/null | /usr/bin/sed -n 's/.* \\([0-9]\\+\\)%.*/\\1/p' | /usr/bin/head -n1 || echo 0); SM=$(/usr/bin/pactl get-sink-mute \"$S\" 2>/dev/null | /usr/bin/awk '{print $2}' || echo no); SRV=$(/usr/bin/pactl get-source-volume \"$SR\" 2>/dev/null | /usr/bin/sed -n 's/.* \\([0-9]\\+\\)%.*/\\1/p' | /usr/bin/head -n1 || echo 0); SRM=$(/usr/bin/pactl get-source-mute \"$SR\" 2>/dev/null | /usr/bin/awk '{print $2}' || echo no); echo \"SINK=$S\"; echo \"SOURCE=$SR\"; echo \"SINKVOL=$SV\"; echo \"SINKMUTE=$SM\"; echo \"SOURCEVOL=$SRV\"; echo \"SOURCEMUTE=$SRM\""]
+        command: ["/bin/bash", "-lc", "STATE_FILE=\"" + root.configDir + "/../.local/state/quickshell/eq_filter_chain.state\"; DEFAULT_SINK=$(/usr/bin/pactl info | /usr/bin/awk -F': ' '/^Default Sink:/{print $2; exit}'); RUNNING_SINK=$(/usr/bin/pactl list short sinks | /usr/bin/awk '$5 == \"RUNNING\" {print $2}' | /usr/bin/grep -v '^effect_input\\.eq$' | /usr/bin/head -n1); STATE_SINK=''; if [ -f \"$STATE_FILE\" ]; then STATE_SINK=$(/usr/bin/awk -F'=' '/^BASE_SINK=/{print $2; exit}' \"$STATE_FILE\"); fi; S=\"$DEFAULT_SINK\"; if [ \"$DEFAULT_SINK\" = \"effect_input.eq\" ]; then if [ -n \"$RUNNING_SINK\" ]; then S=\"$RUNNING_SINK\"; elif [ -n \"$STATE_SINK\" ]; then S=\"$STATE_SINK\"; fi; fi; SR=$(/usr/bin/pactl info | /usr/bin/awk -F': ' '/^Default Source:/{print $2; exit}'); SV=$(/usr/bin/pactl get-sink-volume \"$S\" 2>/dev/null | /usr/bin/sed -n 's/.* \\([0-9]\\+\\)%.*/\\1/p' | /usr/bin/head -n1 || echo 0); SM=$(/usr/bin/pactl get-sink-mute \"$S\" 2>/dev/null | /usr/bin/awk '{print $2}' || echo no); SRV=$(/usr/bin/pactl get-source-volume \"$SR\" 2>/dev/null | /usr/bin/sed -n 's/.* \\([0-9]\\+\\)%.*/\\1/p' | /usr/bin/head -n1 || echo 0); SRM=$(/usr/bin/pactl get-source-mute \"$SR\" 2>/dev/null | /usr/bin/awk '{print $2}' || echo no); echo \"SINK=$S\"; echo \"SOURCE=$SR\"; echo \"SINKVOL=$SV\"; echo \"SINKMUTE=$SM\"; echo \"SOURCEVOL=$SRV\"; echo \"SOURCEMUTE=$SRM\""]
         running: false
         property string out: ""
         stdout: SplitParser { onRead: data => { audioInfoProc.out += data + "\n"; } }
@@ -263,6 +271,25 @@ Rectangle {
             if (root.pendingAutoTargetSink.length === 0) return;
             if (root.pendingAutoTargetSink !== root.currentSinkName) return;
             root.autoApplyForCurrentSink();
+        }
+    }
+
+    Timer {
+        id: delayedRefreshTimer
+        interval: 1200
+        repeat: false
+        onTriggered: root.refreshAudioInfo()
+    }
+
+    Timer {
+        id: routeRecoveryTimer
+        interval: 1800
+        repeat: false
+        onTriggered: {
+            if (!recoverProc.running) {
+                recoverProc.running = true;
+            }
+            root.refreshAudioInfo();
         }
     }
 
