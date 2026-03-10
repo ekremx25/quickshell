@@ -143,6 +143,24 @@ Expected healthy output:
 - `effect_input.eq` visible
 - `filter-chain` visible
 
+## How The EQ Works
+
+- The UI writes a 10-band parametric EQ file to `eq/parametric-eq.txt`.
+- `scripts/eq_filter_chain.sh` creates a PipeWire filter-chain with:
+  - `effect_input.eq` as the virtual EQ sink
+  - `effect_output.eq` as the EQ output stream
+- Applications play into `effect_input.eq`, then PipeWire sends the processed signal to the selected physical output device.
+- The script disables PipeWire autoconnect for the EQ output and manually links it to the selected sink. This avoids the EQ jumping to the wrong device on multi-output systems.
+- The script stores the last physical target in `~/.local/state/quickshell/eq_filter_chain.state` as `BASE_SINK`.
+- The Equalizer panel shows the real physical output volume, not just the virtual EQ sink volume.
+
+### Device Switching
+
+- If you change output devices in `pavucontrol` or another mixer, the Equalizer module refreshes sink state in the background.
+- When it detects a new physical output, it auto-runs `apply` again with the current EQ values.
+- This means the same preset can move from speakers to USB headphones or Bluetooth audio without manually rebuilding the EQ curve.
+- Some applications may still need a quick pause/resume if their stream was already active during the device handoff.
+
 ## Troubleshooting & Helpful Scripts
 
 - **MangoWC Auto Layout**: If you hotplug monitors under MangoWC, Mango might default the new screens to the `(0,0)` coordinate causing overlapping displays. You can dynamically snap them side-by-side using the provided Python script.
@@ -155,11 +173,11 @@ Expected healthy output:
   - Optional overrides:
     - `QUICKSHELL_CONFIG_DIR=/path/to/quickshell`
     - `PIPEWIRE_CONF_DIR=/path/to/pipewire.conf.d`
-  - Required tools: `pactl`, `wpctl`, `pw-cli`, `systemctl`
+  - Required tools: `pactl`, `wpctl`, `pw-cli`, `pw-link`, `systemctl`
   - Quick test:
     - `~/.config/quickshell/scripts/eq_filter_chain.sh apply 0 0 0 0 0 0 0 0 0 0 auto`
     - `~/.config/quickshell/scripts/eq_filter_chain.sh status`
-  - If your default output device changes, run `apply ... auto` again so EQ rebinds to the current default sink.
+  - The Equalizer UI now auto-reapplies the current preset when the active physical output device changes.
 - **Missing Icons**: Ensure `JetBrainsMono Nerd Font` is installed and the cache is updated (`fc-cache -fv`).
 - **Network/Bluetooth not working**: Ensure `NetworkManager` and `bluetooth` services are running.
 
