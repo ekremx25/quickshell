@@ -40,6 +40,7 @@ Rectangle {
     property string currentSourceName: ""
     property string lastAppliedTargetSink: ""
     property string pendingAutoTargetSink: ""
+    property var availableSinks: []
     readonly property string homeDir: Quickshell.env("HOME") || ""
     readonly property string configDir: Quickshell.env("XDG_CONFIG_HOME") || (homeDir + "/.config")
     readonly property string eqScriptPath: configDir + "/quickshell/scripts/eq_filter_chain.sh"
@@ -71,7 +72,9 @@ Rectangle {
     readonly property var presetMap: ({
         "Flat":    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "Bass":    [5, 4, 3, 2, 1, 0, -2, -3, -4, -5],
+        "Movie":   [4, 3, 2, 0, -1, 0, 2, 3, 4, 4],
         "Treble":  [-4, -3, -2, -1, 0, 1, 2, 3, 4, 5],
+        "Voice":   [-4, -3, -1, 2, 4, 5, 4, 2, 0, -1],
         "Vocal":   [-2, -1, 1, 3, 4, 3, 1, -1, -2, -3],
         "Pop":     [-1, 1, 3, 4, 2, 0, -1, 1, 3, 4],
         "Rock":    [3, 2, 1, 0, -1, 1, 3, 4, 3, 2],
@@ -181,6 +184,44 @@ Rectangle {
         }
     }
 
+    Process {
+        id: sinkListProc
+        command: ["/bin/bash", "-lc", "STATE_FILE=\"" + root.configDir + "/../.local/state/quickshell/eq_filter_chain.state\"; CURRENT=''; if [ -f \"$STATE_FILE\" ]; then CURRENT=$(/usr/bin/awk -F'=' '/^BASE_SINK=/{print $2; exit}' \"$STATE_FILE\"); fi; /usr/bin/pactl list short sinks | /usr/bin/awk '{print $2 \"|\" $5}' | /usr/bin/grep -v '^effect_input\\.eq|' || true; echo \"CURRENT=$CURRENT\""]
+        running: false
+        property string out: ""
+        stdout: SplitParser { onRead: data => { sinkListProc.out += data + "\n"; } }
+        onExited: {
+            var lines = sinkListProc.out.trim().split("\n");
+            var items = [];
+            var remembered = "";
+            for (var i = 0; i < lines.length; i++) {
+                var line = lines[i].trim();
+                if (line.length === 0) continue;
+                if (line.indexOf("CURRENT=") === 0) {
+                    remembered = line.substring(8).trim();
+                    continue;
+                }
+                var parts = line.split("|");
+                if (parts.length < 2) continue;
+                var sinkName = parts[0];
+                var state = parts[1];
+                items.push({
+                    name: sinkName,
+                    state: state,
+                    label: sinkName.replace(/^alsa_output\./, "").replace(/\.analog-stereo$/, "").replace(/_/g, " "),
+                    selected: false
+                });
+            }
+
+            var target = root.currentSinkName.length > 0 ? root.currentSinkName : remembered;
+            for (var j = 0; j < items.length; j++) {
+                items[j].selected = (target.length > 0 && items[j].name === target);
+            }
+            root.availableSinks = items;
+            sinkListProc.out = "";
+        }
+    }
+
     function checkPlayers() {
         var count = playerTracker.count;
         var active = null;
@@ -215,7 +256,7 @@ Rectangle {
     }
 
     function detectPresetFromBands(arr) {
-        var keys = ["Flat", "Bass", "Treble", "Vocal", "Pop", "Rock", "Jazz", "Classic"];
+        var keys = ["Flat", "Bass", "Movie", "Treble", "Voice", "Vocal", "Pop", "Rock", "Jazz", "Classic"];
         for (var i = 0; i < keys.length; i++) {
             var key = keys[i];
             var p = presetMap[key];
@@ -331,6 +372,30 @@ Rectangle {
         if (audioInfoProc.running) return;
         audioInfoProc.out = "";
         audioInfoProc.running = true;
+        root.refreshSinkList();
+    }
+
+    function refreshSinkList() {
+        if (sinkListProc.running) return;
+        sinkListProc.out = "";
+        sinkListProc.running = true;
+    }
+
+    function selectOutputSink(sinkName) {
+        if (!sinkName || sinkName.length === 0 || eqProc.running) return;
+        root.lastAppliedTargetSink = sinkName;
+        root.pendingAutoTargetSink = sinkName;
+        root.currentSinkName = sinkName;
+        root.sinkDisplayName = sinkName.replace(/^alsa_output\./, "").replace(/\.analog-stereo$/, "").replace(/_/g, " ");
+        root.applyStatus = "Switching output...";
+        eqProc.requestedTargetSink = sinkName;
+        eqProc.command = [
+            "/bin/bash", root.eqScriptPath, "apply",
+            String(eqBands[0]), String(eqBands[1]), String(eqBands[2]), String(eqBands[3]), String(eqBands[4]),
+            String(eqBands[5]), String(eqBands[6]), String(eqBands[7]), String(eqBands[8]), String(eqBands[9]),
+            sinkName
+        ];
+        eqProc.running = true;
     }
 
     Process {
@@ -456,13 +521,14 @@ Rectangle {
                 openAnim.start()
                 root.refreshAudioInfo()
                 root.loadEqStateFromFile()
+                root.refreshSinkList()
             }
         }
 
         Rectangle {
             id: panel
             width: 480
-            height: 730
+            height: 1080
             radius: 16
             opacity: 0
             scale: 1.0
@@ -700,11 +766,11 @@ Rectangle {
                         GridLayout {
                             Layout.fillWidth: true
                             columns: 4
-                            rowSpacing: 6
+                            rowSpacing: 8
                             columnSpacing: 8
 
                             Repeater {
-                                model: ["Flat", "Bass", "Treble", "Vocal", "Pop", "Rock", "Jazz", "Classic"]
+                                model: ["Flat", "Bass", "Movie", "Treble", "Voice", "Vocal", "Pop", "Rock", "Jazz", "Classic"]
                                 delegate: Rectangle {
                                     Layout.fillWidth: true
                                     Layout.preferredHeight: 30
@@ -915,6 +981,96 @@ Rectangle {
                                     }
                                     onPressed: (mouse) => setMic(mouse)
                                     onPositionChanged: (mouse) => { if (pressed) setMic(mouse); }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Rectangle {
+                    Layout.fillWidth: true
+                    height: 220
+                    radius: 10
+                    color: Theme.surface
+                    border.width: 1
+                    border.color: Qt.rgba(255,255,255,0.06)
+
+                    ColumnLayout {
+                        anchors.fill: parent
+                        anchors.margins: 10
+                        spacing: 8
+
+                        RowLayout {
+                            Layout.fillWidth: true
+                            Text { text: "󰓃"; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 15; color: root.sinkAccent }
+                            Text {
+                                text: "Output Devices"
+                                color: root.adaptiveText
+                                font.bold: true
+                                font.pixelSize: 14
+                            }
+                            Item { Layout.fillWidth: true }
+                            Text {
+                                text: eqProc.running ? "Applying..." : ""
+                                color: root.adaptiveSubtext
+                                font.pixelSize: 11
+                            }
+                        }
+
+                        ListView {
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+                            clip: true
+                            spacing: 8
+                            model: root.availableSinks
+
+                            delegate: Rectangle {
+                                required property var modelData
+                                width: ListView.view.width
+                                height: 52
+                                radius: 10
+                                color: modelData.selected ? root.eqAccentDim : Qt.rgba(255,255,255,0.04)
+                                border.width: 1
+                                border.color: modelData.selected ? root.eqAccentBorder : Qt.rgba(255,255,255,0.05)
+
+                                RowLayout {
+                                    anchors.fill: parent
+                                    anchors.margins: 10
+                                    spacing: 8
+
+                                    Text {
+                                        text: modelData.selected ? "󰓃" : "󰖁"
+                                        font.family: "JetBrainsMono Nerd Font"
+                                        font.pixelSize: 13
+                                        color: modelData.selected ? root.sinkAccent : root.adaptiveSubtext
+                                    }
+
+                                    ColumnLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 2
+
+                                        Text {
+                                            Layout.fillWidth: true
+                                            text: modelData.label
+                                            color: root.adaptiveText
+                                            font.pixelSize: 12
+                                            font.bold: modelData.selected
+                                            elide: Text.ElideRight
+                                        }
+
+                                        Text {
+                                            text: modelData.state.toLowerCase()
+                                            color: root.adaptiveSubtext
+                                            font.pixelSize: 10
+                                        }
+                                    }
+                                }
+
+                                MouseArea {
+                                    anchors.fill: parent
+                                    enabled: !eqProc.running
+                                    cursorShape: Qt.PointingHandCursor
+                                    onClicked: root.selectOutputSink(modelData.name)
                                 }
                             }
                         }

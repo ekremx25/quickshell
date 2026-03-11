@@ -456,8 +456,6 @@ Item {
             var monPosY = Math.round(mon.posY);
 
             if (CompositorService.isHyprland) {
-                var monCmd = "hyprctl keyword monitor " + mon.name + "," + monRes + "@" + monHz + "," + monPosX + "x" + monPosY + "," + monScale;
-                // HDR parameters for selected monitor
                 var monHdr = isSelected ? page.selHdr : (mon.hdr || false);
                 var monBitdepth = isSelected ? page.selBitdepth : (mon.bitdepth || 8);
                 var monVrr = isSelected ? page.selVrr : (mon.vrr || 0);
@@ -466,10 +464,18 @@ Item {
                 var monSdrSat = isSelected ? page.selSdrSaturation : (mon.sdrSaturation || 1.0);
                 var monCm = isSelected ? page.selColorManagement : (mon.colorManagement || "srgb");
                 var monEotf = isSelected ? page.selSdrEotf : ((mon.sdrEotf !== undefined) ? mon.sdrEotf : 1);
-                
-                if (monHdr || monCm === "hdr" || monCm === "hdredid") {
+                var monCmd = "hyprctl keyword monitor " + mon.name + "," + monRes + "@" + monHz + "," + monPosX + "x" + monPosY + "," + monScale;
+
+                var riskyColorMode = ["dcip3", "dp3", "adobe"].indexOf(monCm) >= 0;
+
+                // Wide-gamut color management modes can blank on some displays when VRR renegotiates.
+                if (riskyColorMode) {
+                    monVrr = 0;
+                }
+
+                if (monHdr || ["hdr", "hdredid", "hdrp3", "hdrapple", "hdradobe"].indexOf(monCm) >= 0) {
                     // Ensure the applied cm string is valid for HDR. If monHdr is toggled manually, default cm to "hdr" if it's not "hdredid"
-                    var appliedCm = (monCm === "hdr" || monCm === "hdredid") ? monCm : "hdr";
+                    var appliedCm = (monCm === "hdredid") ? "hdredid" : "hdr";
                     monCmd += ",bitdepth," + monBitdepth + ",vrr," + monVrr + ",cm," + appliedCm + ",sdrbrightness," + monSdrBri.toFixed(1) + ",sdrsaturation," + monSdrSat.toFixed(1);
                 } else if (monCm === "default") {
                     // "default" is not a valid Hyprland cm value; omit cm param to let Hyprland use its built-in default
@@ -478,7 +484,40 @@ Item {
                     // srgb, dcip3, dp3, adobe, wide, edid
                     monCmd += ",bitdepth," + monBitdepth + ",vrr," + monVrr + ",cm," + monCm;
                 }
-                cmds.push(monCmd);
+
+                // Avoid reapplying untouched monitors. Re-sending wide-gamut monitor rules is what
+                // causes the unrelated screen to blank when another monitor is changed.
+                var currentHdr = mon.hdr || false;
+                var currentBitdepth = mon.bitdepth || 8;
+                var currentVrr = (mon.vrr !== undefined) ? mon.vrr : 0;
+                var currentBri = mon.sdrBrightness || 1.0;
+                var currentSat = mon.sdrSaturation || 1.0;
+                var currentCm = mon.colorManagement || "srgb";
+                var currentEotf = (mon.sdrEotf !== undefined) ? mon.sdrEotf : 1;
+                var changed = false;
+
+                if (monRes !== mon.res) changed = true;
+                if (!changed && Math.abs(parseFloat(monHz) - parseFloat(mon.hz)) >= 0.01) changed = true;
+                if (!changed && Math.abs(parseFloat(monScale) - parseFloat(mon.scale)) >= 0.01) changed = true;
+                if (!changed && monPosX !== Math.round(mon.posX)) changed = true;
+                if (!changed && monPosY !== Math.round(mon.posY)) changed = true;
+                if (!changed && monHdr !== currentHdr) changed = true;
+                if (!changed && monBitdepth !== currentBitdepth) changed = true;
+                if (!changed && monVrr !== currentVrr) changed = true;
+                if (!changed && Math.abs(monSdrBri - currentBri) >= 0.01) changed = true;
+                if (!changed && Math.abs(monSdrSat - currentSat) >= 0.01) changed = true;
+                if (!changed && monCm !== currentCm) changed = true;
+                if (!changed && monEotf !== currentEotf) changed = true;
+
+                if (isSelected && monCm !== currentCm) {
+                    var resetCmd = "hyprctl keyword monitor " + mon.name + "," + monRes + "@" + monHz + "," + monPosX + "x" + monPosY + "," + monScale
+                        + ",bitdepth,10,vrr,0,cm,srgb";
+                    monCmd = resetCmd + " && sleep 0.2 && " + monCmd;
+                }
+
+                if (isSelected || changed) {
+                    cmds.push(monCmd);
+                }
             } else if (CompositorService.isMango) {
                 // Mango: wlr-randr geçersiz Hz ile çökebiliyor, o yüzden sadece config.conf + reload kullanıyoruz.
 
@@ -951,7 +990,7 @@ Item {
                                 // Sync color management when toggling HDR
                                 if (page.selHdr) {
                                     page.selColorManagement = "hdr";
-                                } else if (page.selColorManagement === "hdr") {
+                                } else if (["hdr", "hdrp3", "hdrapple", "hdradobe"].indexOf(page.selColorManagement) >= 0) {
                                     page.selColorManagement = "srgb";
                                 }
                             }
@@ -1227,6 +1266,9 @@ Item {
                                             "wide": "Wide Color (BT2020)",
                                             "edid": "EDID (Inaccurate)",
                                             "hdr": "HDR",
+                                            "hdrp3": "HDR + P3 (Test)",
+                                            "hdrapple": "HDR + Apple P3 (Test)",
+                                            "hdradobe": "HDR + Adobe RGB (Test)",
                                             "hdredid": "HDR (EDID)"
                                         };
                                         return labels[page.selColorManagement] || page.selColorManagement;
@@ -1280,6 +1322,9 @@ Item {
                                     { value: "wide",   label: "Wide Color" },
                                     { value: "edid",   label: "EDID" },
                                     { value: "hdr",    label: "HDR" },
+                                    { value: "hdrp3",  label: "HDR + P3 (Test)" },
+                                    { value: "hdrapple", label: "HDR + Apple P3 (Test)" },
+                                    { value: "hdradobe", label: "HDR + Adobe RGB (Test)" },
                                     { value: "hdredid", label: "HDR (EDID)" }
                                 ]
 
@@ -1316,9 +1361,9 @@ Item {
                                         onClicked: {
                                             page.selColorManagement = modelData.value;
                                             // HDR seçilince selHdr'yi de senkronize et
-                                            if (modelData.value === "hdr" || modelData.value === "hdredid") {
+                                            if (["hdr", "hdredid", "hdrp3", "hdrapple", "hdradobe"].indexOf(modelData.value) >= 0) {
                                                 page.selHdr = true;
-                                            } else if (page.selHdr && modelData.value !== "hdr" && modelData.value !== "hdredid") {
+                                            } else if (page.selHdr && ["hdr", "hdredid", "hdrp3", "hdrapple", "hdradobe"].indexOf(modelData.value) < 0) {
                                                 page.selHdr = false;
                                             }
                                             page.colorDropdownOpen = false;
@@ -1329,10 +1374,13 @@ Item {
                         }
                     }
 
-                    // SDR EOTF dropdown
+                    // SDR EOTF dropdown is hidden for now.
+                    // We don't pass this setting to Hyprland yet, so exposing it only causes
+                    // unnecessary monitor re-apply churn and fullscreen instability.
                     RowLayout {
                         Layout.fillWidth: true
                         spacing: 12
+                        visible: false
                         Text { text: "SDR EOTF"; color: Theme.subtext; font.pixelSize: 12; font.bold: true; Layout.preferredWidth: 140 }
                         Item { Layout.fillWidth: true }
 
@@ -1382,7 +1430,7 @@ Item {
                         Layout.maximumWidth: 220
                         Layout.leftMargin: parent.width - 220
                         implicitHeight: eotfOptionsCol.implicitHeight + 8
-                        visible: page.eotfDropdownOpen
+                        visible: false
                         color: Qt.rgba(49/255, 50/255, 68/255, 0.95)
                         radius: 10
                         border.color: Qt.rgba(255,255,255,0.08)
