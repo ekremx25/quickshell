@@ -48,23 +48,13 @@ PanelWindow {
 
     // --- LOGIC ---
 
-    // Watch for changes in the notification list
     Connections {
         target: notifService
-        function onNotificationsChanged() {
-            // If we have notifications, check the latest one
-            if (notifService.notifications.length > 0) {
-                var latest = notifService.notifications[0];
-                
-                // If it's a new notification (different ID or timestamp from what we showed last)
-                // We use ID if available, or just compare summary/body if needed.
-                // Simpler: Just show the top one if it's not closed.
-                // AND CHECK DND
-                if (!latest.closed && !notifService.dnd) {
-                    currentNotif = latest;
-                    root.visible = true;
-                    hideTimer.restart(); // Restart timer
-                }
+        function onNewNotificationReceived(notif) {
+            if (!notif.closed && !notifService.dnd) {
+                currentNotif = notif;
+                root.visible = true;
+                hideTimer.restart();
             }
         }
     }
