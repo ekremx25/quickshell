@@ -4,7 +4,7 @@
 A modern, feature-rich desktop shell for **Niri**, **Hyprland**, and **MangoWC** using [Quickshell](https://github.com/outfoxxed/quickshell).
 
 
-https://github.com/user-attachments/assets/c4c67fdb-3545-4575-be4e-232178523691
+<video src="demo.mp4" controls width="100%"></video>
 
 ## Features
 
