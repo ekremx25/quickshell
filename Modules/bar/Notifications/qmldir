@@ -1,0 +1,7 @@
+module Notifications
+Notifications Notifications.qml
+NotificationPopup NotificationPopup.qml
+Toast Toast.qml
+ToastHost ToastHost.qml
+DurationPopup DurationPopup.qml
+NotificationPopupBackend NotificationPopupBackend.qml

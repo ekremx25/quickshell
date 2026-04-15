@@ -1,0 +1,9 @@
+{
+  "backgroundPath": "~/Pictures/wallpapers/City-Rainy-Night.png",
+  "dimTimeoutMinutes": 36,
+  "lockTimeoutMinutes": 35,
+  "screenOffTimeoutMinutes": 36,
+  "suspendTimeoutMinutes": 43,
+  "ignoreMediaInhibit": true,
+  "_schemaVersion": 1
+}
