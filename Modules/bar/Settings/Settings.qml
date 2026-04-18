@@ -73,7 +73,8 @@ PanelWindow {
             items: [
                 { key: "workspaces", icon: "󰖲", label: "Workspaces" },
                 { key: "notifications", icon: "󰂚", label: "Notifications" },
-                { key: "weather",    icon: "󰖕", label: "Weather" }
+                { key: "weather",    icon: "󰖕", label: "Weather" },
+                { key: "apikeys",    icon: "󰌆", label: "API Keys" }
             ]
         },
         {
@@ -420,6 +421,13 @@ PanelWindow {
                         anchors.fill: parent
                         visible: settingsPopup.currentPage === "notifications"
                         settingsPopup: settingsPopup
+                    }
+
+                    // ── API KEYS (SmartComplete AI reranker) ──
+                    ApiKeysPage {
+                        anchors.fill: parent
+                        visible: settingsPopup.currentPage === "apikeys"
+                        z: visible ? 100 : 0
                     }
 
                     // ── DOCK SAYFASI ──
