@@ -23,6 +23,18 @@ Item {
     // ── Provider presets ──────────────────────────────────────────────────
     readonly property var providers: [
         {
+            id: "local",
+            name: "Local only",
+            description: "100% offline — no network, no key needed",
+            api_base: "",
+            key_prefix: "",
+            key_example: "",
+            models: [],
+            signup_url: "",
+            native: true,
+            is_local: true
+        },
+        {
             id: "openai",
             name: "OpenAI",
             description: "ChatGPT API (paid)",
@@ -250,22 +262,29 @@ Item {
     }
 
     function saveConfig() {
-        if (!page.apiKey || page.apiKey.trim() === "") {
+        const isLocal = page.selectedProviderId === "local";
+
+        if (!isLocal && (!page.apiKey || page.apiKey.trim() === "")) {
             page.saveStatus = "error";
             page.saveMessage = "API key cannot be empty";
             return;
         }
         page.saveStatus = "saving";
-        page.saveMessage = "Writing file and restarting fcitx5...";
+        page.saveMessage = isLocal
+            ? "Activating local-only mode..."
+            : "Writing file and restarting fcitx5...";
 
-        // Pass the JSON payload as a positional argument ($1) to avoid
-        // shell quoting on the key value (which may contain special chars).
-        const payload = JSON.stringify({
-            provider: page.selectedProviderId,
-            api_base: page.apiBase,
-            model: page.model,
-            api_key: page.apiKey
-        }, null, 2);
+        // Local mode writes a minimal marker — SmartComplete short-circuits
+        // on "provider": "local" and never calls any API.
+        const config = isLocal
+            ? { provider: "local", ai_enabled: false }
+            : {
+                provider: page.selectedProviderId,
+                api_base: page.apiBase,
+                model: page.model,
+                api_key: page.apiKey
+            };
+        const payload = JSON.stringify(config, null, 2);
 
         const script =
             'dir="$HOME/.config/linuxcomplete"; ' +
@@ -415,8 +434,188 @@ Item {
                 }
             }
 
-            // ── Provider details panel ─────────────────────────────────
+            // ── LOCAL ONLY info panel (shown when "Local only" selected) ──
             Rectangle {
+                visible: page.selectedProviderId === "local"
+                Layout.fillWidth: true
+                Layout.preferredHeight: localCol.implicitHeight + 32
+                radius: 12
+                color: Qt.rgba(166/255, 227/255, 161/255, 0.08)
+                border.color: Qt.rgba(166/255, 227/255, 161/255, 0.3)
+                border.width: 1
+
+                ColumnLayout {
+                    id: localCol
+                    anchors.fill: parent
+                    anchors.margins: 16
+                    spacing: 10
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 10
+
+                        Rectangle {
+                            Layout.preferredWidth: 40
+                            Layout.preferredHeight: 40
+                            radius: 10
+                            color: Qt.rgba(166/255, 227/255, 161/255, 0.15)
+                            border.color: Qt.rgba(166/255, 227/255, 161/255, 0.4)
+                            border.width: 1
+                            Text {
+                                anchors.centerIn: parent
+                                text: "󰒘"
+                                font.family: "JetBrainsMono Nerd Font"
+                                font.pixelSize: 20
+                                color: "#a6e3a1"
+                            }
+                        }
+
+                        ColumnLayout {
+                            spacing: 2
+                            Text {
+                                text: "100% Local Mode"
+                                color: "#a6e3a1"
+                                font.pixelSize: 15
+                                font.bold: true
+                            }
+                            Text {
+                                text: "No network, no API key, no data leaves your machine"
+                                color: SettingsPalette.subtext
+                                font.pixelSize: 11
+                            }
+                        }
+                    }
+
+                    Rectangle {
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 1
+                        color: Qt.rgba(166/255, 227/255, 161/255, 0.2)
+                    }
+
+                    Text {
+                        text: "SmartComplete will use only the built-in data on your system:"
+                        color: SettingsPalette.text
+                        font.pixelSize: 12
+                    }
+
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        Layout.leftMargin: 8
+                        spacing: 4
+
+                        Repeater {
+                            model: [
+                                { icon: "󰂺", label: "Dictionary", detail: "74,000+ English words" },
+                                { icon: "󰨸", label: "Grammar rules", detail: "25,000+ pair and triple patterns" },
+                                { icon: "󰒡", label: "N-grams + phrases", detail: "48,000 bigrams, 787 phrase completions" },
+                                { icon: "󰈸", label: "Emoji shortcodes", detail: "303 entries (:smile → 😊)" },
+                                { icon: "󰔠", label: "Your learned words", detail: "Saved to ~/.local/share/linuxcomplete/" }
+                            ]
+                            delegate: RowLayout {
+                                required property var modelData
+                                Layout.fillWidth: true
+                                spacing: 8
+
+                                Text {
+                                    text: modelData.icon
+                                    font.family: "JetBrainsMono Nerd Font"
+                                    font.pixelSize: 14
+                                    color: "#a6e3a1"
+                                    Layout.preferredWidth: 20
+                                }
+                                Text {
+                                    text: modelData.label
+                                    color: SettingsPalette.text
+                                    font.pixelSize: 11
+                                    font.bold: true
+                                    Layout.preferredWidth: 150
+                                }
+                                Text {
+                                    text: modelData.detail
+                                    color: SettingsPalette.subtext
+                                    font.pixelSize: 11
+                                    Layout.fillWidth: true
+                                }
+                            }
+                        }
+                    }
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Layout.topMargin: 10
+                        spacing: 8
+
+                        Item { Layout.fillWidth: true }
+
+                        Rectangle {
+                            Layout.preferredWidth: 180
+                            Layout.preferredHeight: 36
+                            radius: 8
+                            color: localSaveArea.containsMouse
+                                ? Qt.rgba(166/255, 227/255, 161/255, 0.25)
+                                : Qt.rgba(166/255, 227/255, 161/255, 0.15)
+                            border.color: "#a6e3a1"
+                            border.width: 1
+                            enabled: page.saveStatus !== "saving"
+
+                            RowLayout {
+                                anchors.centerIn: parent
+                                spacing: 6
+                                Text {
+                                    text: "󰒘"
+                                    font.family: "JetBrainsMono Nerd Font"
+                                    font.pixelSize: 14
+                                    color: "#a6e3a1"
+                                }
+                                Text {
+                                    text: page.saveStatus === "saving" ? "Saving..." : "Activate Local-Only Mode"
+                                    color: "#a6e3a1"
+                                    font.pixelSize: 12
+                                    font.bold: true
+                                }
+                            }
+
+                            MouseArea {
+                                id: localSaveArea
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: parent.enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
+                                onClicked: if (parent.enabled) page.saveConfig()
+                            }
+                        }
+                    }
+
+                    // Status message for local mode save
+                    Rectangle {
+                        visible: page.saveStatus !== ""
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: localStatusText.implicitHeight + 16
+                        radius: 6
+                        color: Qt.rgba(0, 0, 0, 0.2)
+                        border.color: page.saveStatus === "saved"
+                            ? Qt.rgba(166/255, 227/255, 161/255, 0.4)
+                            : Qt.rgba(243/255, 139/255, 168/255, 0.4)
+                        border.width: 1
+                        Text {
+                            id: localStatusText
+                            anchors.fill: parent
+                            anchors.margins: 8
+                            text: "💾 " + (page.saveStatus === "saved" ? "✓ " : (page.saveStatus === "error" ? "✗ " : "… ")) + page.saveMessage
+                            color: {
+                                if (page.saveStatus === "saved") return "#a6e3a1";
+                                if (page.saveStatus === "error") return "#f38ba8";
+                                return SettingsPalette.text;
+                            }
+                            font.pixelSize: 11
+                            wrapMode: Text.WordWrap
+                        }
+                    }
+                }
+            }
+
+            // ── Provider details panel (hidden for Local only) ─────────────
+            Rectangle {
+                visible: page.selectedProviderId !== "local"
                 Layout.fillWidth: true
                 Layout.preferredHeight: detailsColumn.implicitHeight + 32
                 radius: 12
