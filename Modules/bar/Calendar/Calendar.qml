@@ -64,7 +64,7 @@ Rectangle {
             }
             color: "#1e1e2e"
             font.bold: true
-            font.family: "JetBrainsMono Nerd Font"
+            font.family: Theme.fontFamily
             font.pixelSize: 13 // Matches others roughly
         }
     }
@@ -255,7 +255,7 @@ Rectangle {
                                     text: backend.monthName + " " + backend.displayYear
                                     color: popupText
                                     font.bold: true; font.pixelSize: 18
-                                    font.family: "JetBrainsMono Nerd Font"
+                                    font.family: Theme.fontFamily
                                 }
 
                                 Item { Layout.fillWidth: true }
@@ -299,7 +299,7 @@ Rectangle {
                                             text: modelData.day
                                             color: modelData.isToday ? "#1e1e2e" : (modelData.inMonth ? popupText : "#505050")
                                             font.bold: modelData.isToday
-                                            font.family: "JetBrainsMono Nerd Font"
+                                            font.family: Theme.fontFamily
                                         }
                                     }
                                 }

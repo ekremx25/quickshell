@@ -409,7 +409,10 @@ Item {
             fontsPage.statusMessage = exitCode === 0
                 ? "Fonts saved. Reopen Dolphin for the changes to fully apply."
                 : "Failed to save font settings.";
-            if (exitCode === 0) fontsPage.loadCurrentValues();
+            if (exitCode === 0) {
+                fontsPage.loadCurrentValues();
+                if (typeof Theme !== "undefined" && Theme.reloadSystemFonts) Theme.reloadSystemFonts();
+            }
         }
     }
 

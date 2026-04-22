@@ -10,11 +10,11 @@ ColumnLayout {
 
     // --- UI ---
     Text {
-        text: "Not Defteri"
+        text: "Notepad"
         color: Theme.text || "#cdd6f4"
         font.bold: true
         font.pixelSize: 18
-        font.family: "JetBrainsMono Nerd Font"
+        font.family: Theme.fontFamily
         Layout.alignment: Qt.AlignHCenter
     }
 
@@ -25,11 +25,11 @@ ColumnLayout {
 
         TextArea {
             id: textArea
-            placeholderText: "Buraya not al..."
+            placeholderText: "Write your notes here..."
             text: notesService.text
             color: "#cdd6f4"
             font.pixelSize: 13
-            font.family: "JetBrainsMono Nerd Font"
+            font.family: Theme.fontFamily
             wrapMode: TextEdit.Wrap
             
             background: Rectangle {

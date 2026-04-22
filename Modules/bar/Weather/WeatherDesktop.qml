@@ -87,7 +87,7 @@ WeatherDataScope {
                                 color: Theme.text
                                 font.pixelSize: 52
                                 font.bold: true
-                                font.family: "Inter"
+                                font.family: Theme.fontFamily
                             }
                             Text {
                                 text: "°"

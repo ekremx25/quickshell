@@ -47,7 +47,7 @@ Rectangle {
             color: "#1e1e2e"
             font.bold: true
             font.pixelSize: 13
-            font.family: "JetBrainsMono Nerd Font"
+            font.family: Theme.fontFamily
         }
     }
 

@@ -1,5 +1,7 @@
 pragma Singleton
 import QtQuick
+import Quickshell
+import Quickshell.Io
 import "../Services"
 
 QtObject {
@@ -9,6 +11,52 @@ QtObject {
     property string currentTheme: userSelectedTheme
     property string currentThemeName: currentTheme
     property string lastMaterialSyncSignature: ""
+
+    // ── FONTS ─────────────────────────────────────────────────────────
+    // fontFamily follows the user's selection in Settings → Fonts (which
+    // writes to kdeglobals / qt6ct). iconFontFamily stays fixed so Nerd
+    // Font glyphs always render.
+    property string fontFamily: "Inter"
+    property string monoFontFamily: "JetBrainsMono Nerd Font"
+    readonly property string iconFontFamily: "JetBrainsMono Nerd Font"
+
+    function _applyFontValue(raw, target) {
+        if (!raw) return;
+        var text = String(raw).trim();
+        if (text.length >= 2 && text.charAt(0) === "\"" && text.charAt(text.length - 1) === "\"") {
+            text = text.slice(1, -1);
+        }
+        if (!text.length) return;
+        var family = text.split(",")[0].trim();
+        if (!family.length) return;
+        if (target === "mono") root.monoFontFamily = family;
+        else root.fontFamily = family;
+    }
+
+    function reloadSystemFonts() {
+        loadGeneralFont.running = false;
+        loadGeneralFont.buffer = "";
+        loadGeneralFont.running = true;
+        loadMonoFont.running = false;
+        loadMonoFont.buffer = "";
+        loadMonoFont.running = true;
+    }
+
+    property Process loadGeneralFont: Process {
+        command: ["kreadconfig6", "--file", "kdeglobals", "--group", "General", "--key", "font"]
+        running: true
+        property string buffer: ""
+        stdout: SplitParser { onRead: data => loadGeneralFont.buffer += data }
+        onExited: root._applyFontValue(loadGeneralFont.buffer, "general")
+    }
+
+    property Process loadMonoFont: Process {
+        command: ["kreadconfig6", "--file", "kdeglobals", "--group", "General", "--key", "fixed"]
+        running: true
+        property string buffer: ""
+        stdout: SplitParser { onRead: data => loadMonoFont.buffer += data }
+        onExited: root._applyFontValue(loadMonoFont.buffer, "mono")
+    }
 
     // --- ANIMATION DURATIONS ---
     // Use these constants when writing new components; that way all speeds

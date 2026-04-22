@@ -372,7 +372,7 @@ ColumnLayout {
                     }
                     font.pixelSize: 11
                     font.bold: true
-                    font.family: "JetBrainsMono Nerd Font"
+                    font.family: Theme.fontFamily
 
                     property var targetDate: new Date(model.target)
                     text: {

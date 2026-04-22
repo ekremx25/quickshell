@@ -127,14 +127,14 @@ Rectangle {
                         color: "#cdd6f4"
                         font.pixelSize: 26
                         font.bold: true
-                        font.family: "JetBrainsMono Nerd Font"
+                        font.family: Theme.fontFamily
                         Layout.alignment: Qt.AlignHCenter
                     }
                     Text {
                         text: uptimeProc.uptimeText
                         color: "#a6adc8"
                         font.pixelSize: 14
-                        font.family: "JetBrainsMono Nerd Font"
+                        font.family: Theme.fontFamily
                         Layout.alignment: Qt.AlignHCenter
                     }
                 }
@@ -178,7 +178,7 @@ Rectangle {
                                     text: modelData.title
                                     font.pixelSize: 15
                                     font.bold: true
-                                    font.family: "JetBrainsMono Nerd Font"
+                                    font.family: Theme.fontFamily
                                     color: isSelected ? "#1e1e2e" : "#cdd6f4"
                                     Layout.alignment: Qt.AlignHCenter
                                 }
@@ -200,7 +200,7 @@ Rectangle {
                     text: "Use arrow keys to navigate, Enter to select, Esc to cancel"
                     color: "#6c7086"
                     font.pixelSize: 12
-                    font.family: "JetBrainsMono Nerd Font"
+                    font.family: Theme.fontFamily
                     Layout.alignment: Qt.AlignHCenter
                 }
             }
