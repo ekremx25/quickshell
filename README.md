@@ -1,192 +1,351 @@
+<div align="center">
 
 # Quickshell
 
-A modern, feature-rich desktop shell for **Niri**, **Hyprland**, and **MangoWC** using [Quickshell](https://github.com/outfoxxed/quickshell).
+**A modern, feature-rich desktop shell for Wayland compositors.**
 
+[Niri](https://github.com/YaLTeR/niri) · [Hyprland](https://github.com/hyprwm/Hyprland) · [MangoWC](https://github.com/DreamMaoMao/mango)
+
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Platform: Wayland](https://img.shields.io/badge/platform-Wayland-green.svg)]()
+[![Built with: Quickshell](https://img.shields.io/badge/built%20with-Quickshell-7F60F6.svg)](https://github.com/outfoxxed/quickshell)
 
 https://github.com/user-attachments/assets/c32273fd-03a5-41d9-ab4e-100727b9591d
 
+</div>
 
+---
+
+Built on top of [outfoxxed's Quickshell framework](https://github.com/outfoxxed/quickshell), this configuration turns it into a complete desktop shell: a top bar, dock, settings dashboard, on-screen display, notification centre, blue-light filter, Material You theming, and more — all drag-and-drop customisable and compositor-agnostic.
+
+## Table of Contents
+
+- [Features](#features)
+- [Supported Compositors](#supported-compositors)
+- [Dependencies](#dependencies)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Night Light](#night-light)
+- [Audio Equaliser](#audio-equaliser)
+- [Architecture](#architecture)
+- [Troubleshooting](#troubleshooting)
+- [Links](#links)
+- [License](#license)
 
 ## Features
 
-- **Top Bar**:
-  - Workspaces (Japan numerals, scrollable)
-  - System Info (CPU, RAM, Temp, Disk)
-  - Controls (Volume, Mic, Brightness)
-  - Weather, Clock, Calendar, Event Countdown
-  - Notification Center
-  - Tray & Clipboard Manager
-- **Dock**:
-  - Animated icons with zoom effect
-  - Drag & Drop pinning/reordering
-  - Live running indicators
-- **Settings Dashboard**:
-  - Drag & Drop module customization
-  - Monitor management (Resolution, Scale, HDR, VRR)
-  - Network & Bluetooth connection managers
-- **OSD**: Volume/Brightness on-screen display
-- **App Drawer**: Application launcher
-- **Wallpaper Picker**: With color palette extraction
+### Top Bar
+- **Workspaces** — Roman / Japan / decimal numerals, scrollable, per-monitor visibility
+- **System Info** — CPU, RAM, temperature, disk usage, groupable
+- **Audio** — Volume control, mute, 10-band parametric equaliser
+- **Weather** — Current conditions with optional desktop widget
+- **Clock & Calendar** — With agenda and event countdown
+- **Notification Centre** — Grouped history, DND, per-app filters, customisable popup position
+- **System Tray** — Standard StatusNotifierItem protocol
+- **Clipboard Manager** — History with copy-on-click
+
+### Dock
+- Animated zoom effect on hover
+- Drag-and-drop pinning and reordering
+- Live running indicators (dot or line, configurable)
+- Per-monitor visibility
+- Auto-hide with intelligent window-overlap detection
+- Left/right module slots (Weather, Volume, Tray, Power, Media, Notepad, …)
+
+### Settings Dashboard
+- Drag-and-drop bar module arrangement
+- Bar position toggle (top / bottom / left / right)
+- Per-screen module assignment (OSD on one monitor, notifications on another)
+- Seven built-in layout presets (macOS, Windows 11, GNOME, KDE, Unity, ZorinOS, Custom)
+- Material You theme editor with live wallpaper colour extraction
+
+### Monitor Management
+- Resolution, refresh rate, and scale per output
+- HDR, VRR, 10-bit colour, wide-gamut colour management (sRGB / DCI-P3 / Adobe RGB / Rec.2020)
+- Drag-to-arrange multi-monitor layout canvas
+- SDR brightness, saturation, and reference luminance for HDR outputs
+- Applied with a single `hyprctl --batch` call on Hyprland (no flicker)
+
+### Night Light
+- Blue-light filter with 1000–6500 K slider and five presets
+- **Fixed-time schedule** with midnight-wrap support (e.g. 19:00 → 07:00)
+- Cross-compositor backend: `hyprsunset` on Hyprland, `gammastep` on wlroots
+- Persists through shell restart; auto-applies on startup
+
+### Extras
+- **OSD** for volume and brightness
+- **App Drawer** launcher with fuzzy search
+- **Wallpaper Picker** with Material You palette extraction ([matugen](https://github.com/InioX/matugen))
+- **Lock Screen** — wallpaper, dim/lock/suspend timeouts, media inhibit
+- **Mouse & Keyboard** — sensitivity, scroll factor, cursor theme
+- **Network & Bluetooth** connection managers
+- **VPN** connection manager (NetworkManager + WireGuard)
+- **API Keys** — configure [SmartComplete](https://github.com/ekremx25/smartcomplete) AI providers (OpenAI, Claude, Groq, Ollama, …)
+- **Notepad** and **Event Countdown**
 
 ## Supported Compositors
 
-| Compositor | Status |
-|------------|--------|
-| [Niri](https://github.com/YaLTeR/niri) | ✅ Fully supported |
-| [Hyprland](https://github.com/hyprwm/Hyprland) | ✅ Fully supported |
-| [MangoWC](https://github.com/DreamMaoMao/mango) | ✅ Fully supported |
+| Compositor | Status | Notes |
+|------------|:------:|-------|
+| [Niri](https://github.com/YaLTeR/niri) | Full | Event-driven IPC, auto-reconnect |
+| [Hyprland](https://github.com/hyprwm/Hyprland) | Full | Socket2 event stream; Night Light requires `hyprsunset` |
+| [MangoWC](https://github.com/DreamMaoMao/mango) | Full | Tag-based workspace model |
 
 ## Dependencies
 
 ### Core
-- **Quickshell**: The shell framework
-- **Niri**, **Hyprland**, or **MangoWC**: Wayland compositor
+
+| Package | Purpose |
+|---------|---------|
+| `quickshell` | Shell framework ([outfoxxed/quickshell](https://github.com/outfoxxed/quickshell)) |
+| `niri`, `hyprland`, or `mango` | A Wayland compositor |
+| `networkmanager` | Network management (`nmcli`) |
+| `bluez` + `bluez-utils` | Bluetooth |
+| `pipewire` + `pipewire-pulse` + `wireplumber` + `libpulse` | Audio control and EQ filter-chain |
+| `jq` | JSON processing in helper scripts |
 
 ### Fonts
-- **JetBrainsMono Nerd Font**: Required for icons and text
-  - Arch: `ttf-jetbrains-mono-nerd`
-  - Fedora: `jetbrains-mono-nerd-fonts`
-- **Inter**: Modern sans-serif font used for UI text
-  - Arch: `ttf-inter`
-- **Font Awesome 6 Free**: Used for some specific icons
-  - Arch: `ttf-font-awesome`
+
+| Font | Package (Arch) |
+|------|----------------|
+| JetBrainsMono Nerd Font | `ttf-jetbrains-mono-nerd` |
+| Inter | `ttf-inter` |
+| Font Awesome 6 Free | `ttf-font-awesome` |
 
 ### Theming
-- **[matugen](https://github.com/InioX/matugen)**: Material You color generation from wallpapers
-  - Arch (AUR): `paru -S matugen-bin` or `yay -S matugen-bin`
+
+- **[matugen](https://github.com/InioX/matugen)** — Material You palette from wallpapers
+  - Arch AUR: `paru -S matugen-bin` (or `yay -S matugen-bin`)
   - Cargo: `cargo install matugen`
 
-### System Utilities
-- **NetworkManager** (`nmcli`, `nm-connection-editor`): Network management
-- **BlueZ** (`bluetoothctl`): Bluetooth devices
-- **Pipewire** (`pw-dump`): Audio control
-- **Systemd** (`systemctl`, `loginctl`): Power management and session locking
+### Optional (feature-specific)
 
-### Audio EQ Module Requirements
-The native EQ module (`Modules/bar/Equalizer` + `scripts/eq_filter_chain.sh`) requires:
-- `pipewire`
-- `pipewire-pulse`
-- `wireplumber`
-- `libpulse` (`pactl` on Arch)
-- `pipewire` tools (`pw-cli`, `pw-link`)
-- `wireplumber` tools (`wpctl`)
-- `systemd --user` session support
+| Package | Feature |
+|---------|---------|
+| `hyprsunset` | Night Light on Hyprland (required) |
+| `gammastep` | Night Light on Niri / MangoWC (required) |
+| `inotify-tools` | Event-driven config file watching (otherwise falls back to polling) |
+| `grim` + `slurp` | Screenshot helpers |
+| `socat` or `ncat` | Hyprland event stream (used by the dock's live running indicators) |
 
-Example (Arch):
+### One-liner install (Arch)
+
 ```bash
-sudo pacman -S pipewire pipewire-pulse wireplumber libpulse
+sudo pacman -S quickshell networkmanager bluez bluez-utils pipewire \
+  pipewire-pulse wireplumber libpulse jq inotify-tools \
+  ttf-jetbrains-mono-nerd ttf-inter ttf-font-awesome
 ```
-
-This script expects these commands to exist in `PATH`:
-- `pactl`
-- `wpctl`
-- `pw-cli`
-- `pw-link`
-- `systemctl`
 
 ## Installation
 
-1. **Clone the repository**:
-    ```bash
-    git clone https://github.com/ekremx25/quickshell ~/.config/quickshell
-    ```
+1. **Clone the repository**
 
-2. **Install dependencies** (Arch Linux):
-    ```bash
-    sudo pacman -S ttf-jetbrains-mono-nerd networkmanager bluez pipewire
-    ```
+   ```bash
+   git clone https://github.com/ekremx25/quickshell ~/.config/quickshell
+   ```
 
-3. **Install Quickshell**:
-    Follow the instructions at [Quickshell's Repository](https://github.com/outfoxxed/quickshell).
+2. **Install dependencies** (see the section above).
 
-4. **Run**:
+3. **Spawn quickshell at compositor startup**
 
-    **For Niri** — add to `~/.config/niri/config.kdl`:
-    ```kdl
-    spawn-at-startup "quickshell"
-    ```
+   <details>
+   <summary><b>Niri</b> — <code>~/.config/niri/config.kdl</code></summary>
 
-    **For Hyprland** — add to `~/.config/hypr/hyprland.conf`:
-    ```ini
-    exec-once = quickshell
-    ```
+   ```kdl
+   spawn-at-startup "quickshell"
+   ```
+   </details>
 
-    **For MangoWC** — add to `~/.config/mango/autostart.sh`:
-    ```bash
-    pgrep -x quickshell >/dev/null || quickshell &
-    ```
+   <details>
+   <summary><b>Hyprland</b> — <code>~/.config/hypr/hyprland.conf</code></summary>
 
-    Or run manually:
-    ```bash
-    quickshell
-    ```
-    My youtube channel : https://www.youtube.com/@Kernel-Windows
+   ```ini
+   exec-once = quickshell
+   ```
+   </details>
+
+   <details>
+   <summary><b>MangoWC</b> — <code>~/.config/mango/autostart.sh</code></summary>
+
+   ```bash
+   pgrep -x quickshell >/dev/null || quickshell &
+   ```
+   </details>
+
+   Or launch manually: `quickshell`.
 
 ## Configuration
 
-- **Bar Modules**: Open the Settings menu to drag & drop modules to rearrange the bar.
-- **Dock**: Rearrange existing icons. Left-click to open apps. Right-click to pin/unpin.
-- **Monitors**: Go to Settings > Monitors to configure resolution, scale, HDR, and VRR.
-- **Theme**: Wallpaper-based color palette extraction for automatic theming.
+All settings live in `~/.config/quickshell/` and are edited through the in-app **Settings** dashboard (launcher logo on the bar → settings icon).
 
-## EQ Quick Start
+| File | Contents |
+|------|----------|
+| `bar_config.json` | Bar modules, layout, position |
+| `dock_config.json` | Pinned apps, scale, alignment |
+| `monitor_config.json` | Resolution, scale, HDR, VRR, colour mode per output |
+| `theme_config.json` | Material You settings, wallpaper path |
+| `lock_config.json` | Lock screen wallpaper and timeouts |
+| `notification_config.json` | DND, popup position, animation speed, filters |
+| `mouse_config.json` | Sensitivity, scroll factor, cursor theme |
+| `screen_config.json` | Per-component monitor filtering |
+| `nightlight_config.json` | Blue-light filter state + schedule |
 
-1. Apply EQ with 10-band gains (`dB`) and auto-target current default sink:
+All writes are **atomic** (temp file + rename). A shell crash mid-save never leaves a corrupt config.
+
+## Night Light
+
+Warm-tint the display in the evening to reduce eye strain. Manual control, fixed-time scheduling, cross-compositor.
+
+### Setup
+
+Install the backend for your compositor:
+
 ```bash
-~/.config/quickshell/scripts/eq_filter_chain.sh apply 0 0 0 0 0 0 0 0 0 0 auto
+# Hyprland
+sudo pacman -S hyprsunset
+
+# Niri / MangoWC
+sudo pacman -S gammastep
 ```
 
-2. Check status:
+> **Why two backends?** Modern Hyprland removed the `wlr-gamma-control` protocol that gammastep relies on, so it now ships its own daemon (`hyprsunset`). Quickshell detects the active compositor and uses the appropriate backend automatically.
+
+### Usage
+
+**Settings → Appearance → Night Light**:
+
+- Toggle the filter on or off
+- Adjust temperature with the 1000–6500 K slider
+- Pick a preset (Candle, Warm, Reading, Neutral, Daylight)
+- Enable the **Schedule** card and set on/off times — e.g. `19:00 → 07:00` (midnight-wrap supported)
+- Enable **Apply on startup** to restore the saved temperature at shell boot
+
+## Audio Equaliser
+
+Native 10-band parametric EQ built on a PipeWire filter-chain. The UI writes `eq/parametric-eq.txt` and a helper script creates:
+
+- `effect_input.eq` — virtual EQ sink (applications play into this)
+- `effect_output.eq` — processed stream, manually linked to the selected physical sink
+
+### Quick start
+
 ```bash
+# Apply a flat curve to the current default sink
+~/.config/quickshell/scripts/eq_filter_chain.sh apply 0 0 0 0 0 0 0 0 0 0 auto
+
+# Check status
+~/.config/quickshell/scripts/eq_filter_chain.sh status
+
+# Disable
+~/.config/quickshell/scripts/eq_filter_chain.sh disable
+```
+
+Expected healthy output: `conf_exists=yes`, plus `effect_input.eq` and `filter-chain` visible in `wpctl status`.
+
+### Device switching
+
+When you change output devices in `pavucontrol` or another mixer, the Equalizer module refreshes sink state in the background and **auto-reapplies** the active EQ curve — the same preset follows you from speakers → USB headphones → Bluetooth without rebuilding the curve.
+
+The last known physical sink is stored in `~/.local/state/quickshell/eq_filter_chain.state` as `BASE_SINK`.
+
+## Architecture
+
+A short tour for contributors. Full source is under [`Services/`](Services/), [`Modules/`](Modules/), and [`Widgets/`](Widgets/).
+
+### Staged loading — [`shell.qml`](shell.qml)
+
+The shell boots in three phases to speed up the first visible frame:
+
+| Phase | Delay | Loads |
+|:-----:|:-----:|-------|
+| 1 | 0 ms | `ShellBootstrap` + `Bar` |
+| 2 | 300 ms | `EqBootstrap`, `MouseBootstrap` |
+| 3 | 600 ms | `Dock`, `WeatherDesktop`, `ToastHost`, `VolumeOSD` |
+
+### Core persistence — [`Services/core/`](Services/core/)
+
+| File | Role |
+|------|------|
+| `JsonDataStore.qml` | Schema versioning with `migrate()` and `validate()` hooks, default fallback |
+| `TextDataStore.qml` | Atomic write (temp + rename) + write queue (no data loss on rapid saves) |
+| `FileChangeWatcher.qml` | `inotifywait` with automatic polling fallback when `inotify-tools` is missing |
+| `atomic_write.sh` | Argv-based write helper — zero shell interpretation, no injection risk |
+
+### Compositor abstraction — [`Services/CompositorService.qml`](Services/CompositorService.qml)
+
+A singleton that detects the active compositor from environment variables and exposes a uniform API (`monitors`, `focusWindow`, `powerOnMonitors`, …) so modules never need to special-case Hyprland vs. Niri vs. Mango.
+
+### Staged, defensive modules
+
+Every long-running integration (notification server, volume subscription, Niri event stream, Hyprland socket, Mango tag events, PipeWire EQ) ships with retry logic and auto-reconnect after compositor restarts or IPC drops.
+
+## Troubleshooting
+
+<details>
+<summary><b>Icons are missing or show as empty squares</b></summary>
+
+Install JetBrainsMono Nerd Font and refresh the font cache:
+
+```bash
+sudo pacman -S ttf-jetbrains-mono-nerd
+fc-cache -fv
+```
+</details>
+
+<details>
+<summary><b>Network or Bluetooth toggles do nothing</b></summary>
+
+Make sure the services are running:
+
+```bash
+systemctl enable --now NetworkManager
+systemctl enable --now bluetooth
+```
+</details>
+
+<details>
+<summary><b>Night Light does not tint the screen</b></summary>
+
+- **Hyprland**: confirm `hyprsunset` is installed (`which hyprsunset`). Modern Hyprland no longer exposes `wlr-gamma-control`, so `gammastep` will report _"Zero outputs support gamma adjustment"_ and silently do nothing.
+- **Niri / MangoWC**: test `gammastep -O 4000` directly — it should tint the screen. If it doesn't, the wlroots gamma-control protocol may not be advertised by your compositor build.
+- Look for an error banner at the top of **Settings → Night Light** for diagnostic info.
+</details>
+
+<details>
+<summary><b>The equaliser has no effect</b></summary>
+
+Apply a flat curve and inspect PipeWire:
+
+```bash
+~/.config/quickshell/scripts/eq_filter_chain.sh apply 0 0 0 0 0 0 0 0 0 0 auto
 ~/.config/quickshell/scripts/eq_filter_chain.sh status
 wpctl status | grep -E "effect_input.eq|filter-chain"
 ```
 
-3. Disable EQ:
+You should see `conf_exists=yes`, plus both `effect_input.eq` and `filter-chain` in `wpctl status`. If they're missing, confirm the PipeWire / WirePlumber / libpulse packages from the Core dependency list are installed.
+</details>
+
+<details>
+<summary><b>Dock shows no running indicators on Hyprland</b></summary>
+
+The dock uses Hyprland's socket2 stream via `socat` or `ncat`. Install one of them:
+
 ```bash
-~/.config/quickshell/scripts/eq_filter_chain.sh disable
+sudo pacman -S socat
+# or
+sudo pacman -S openbsd-netcat
 ```
 
-Expected healthy output:
-- `conf_exists=yes`
-- `effect_input.eq` visible
-- `filter-chain` visible
+Without either, the dock falls back to 2.5 s polling — indicators still work but update slower.
+</details>
 
-## How The EQ Works
+## Links
 
-- The UI writes a 10-band parametric EQ file to `eq/parametric-eq.txt`.
-- `scripts/eq_filter_chain.sh` creates a PipeWire filter-chain with:
-  - `effect_input.eq` as the virtual EQ sink
-  - `effect_output.eq` as the EQ output stream
-- Applications play into `effect_input.eq`, then PipeWire sends the processed signal to the selected physical output device.
-- The script disables PipeWire autoconnect for the EQ output and manually links it to the selected sink. This avoids the EQ jumping to the wrong device on multi-output systems.
-- The script stores the last physical target in `~/.local/state/quickshell/eq_filter_chain.state` as `BASE_SINK`.
-- The Equalizer panel shows the real physical output volume, not just the virtual EQ sink volume.
-
-### Device Switching
-
-- If you change output devices in `pavucontrol` or another mixer, the Equalizer module refreshes sink state in the background.
-- When it detects a new physical output, it auto-runs `apply` again with the current EQ values.
-- This means the same preset can move from speakers to USB headphones or Bluetooth audio without manually rebuilding the EQ curve.
-- Some applications may still need a quick pause/resume if their stream was already active during the device handoff.
-
-## Troubleshooting & Helpful Scripts
-
-- **Global/portable EQ module (PipeWire native)**:
-  - Script: `scripts/eq_filter_chain.sh`
-  - Works with `XDG_CONFIG_HOME` automatically (default: `~/.config`)
-  - Optional overrides:
-    - `QUICKSHELL_CONFIG_DIR=/path/to/quickshell`
-    - `PIPEWIRE_CONF_DIR=/path/to/pipewire.conf.d`
-  - Required tools: `pactl`, `wpctl`, `pw-cli`, `pw-link`, `systemctl`
-  - Quick test:
-    - `~/.config/quickshell/scripts/eq_filter_chain.sh apply 0 0 0 0 0 0 0 0 0 0 auto`
-    - `~/.config/quickshell/scripts/eq_filter_chain.sh status`
-  - The Equalizer UI now auto-reapplies the current preset when the active physical output device changes.
-- **Missing Icons**: Ensure `JetBrainsMono Nerd Font` is installed and the cache is updated (`fc-cache -fv`).
-- **Network/Bluetooth not working**: Ensure `NetworkManager` and `bluetooth` services are running.
+- Demos & tutorials: [YouTube: @Kernel-Windows](https://www.youtube.com/@Kernel-Windows)
+- Built on: [outfoxxed/quickshell](https://github.com/outfoxxed/quickshell)
+- Theming: [InioX/matugen](https://github.com/InioX/matugen)
+- Companion project: [ekremx25/smartcomplete](https://github.com/ekremx25/smartcomplete)
 
 ## License
 
-MIT
+[MIT](LICENSE)
