@@ -129,6 +129,27 @@ Built on top of [outfoxxed's Quickshell framework](https://github.com/outfoxxed/
   </tr>
 </table>
 
+### Bar popovers
+
+Click any of these on the bar to reveal an inline popover.
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="docs/screenshots/popover-eq.png" alt="Equalizer popover" />
+      <sub><b>Equalizer</b> — 10-band parametric EQ with sound theming</sub>
+    </td>
+    <td align="center">
+      <img src="docs/screenshots/popover-notepad.png" alt="Notepad popover" />
+      <sub><b>Notepad</b> — quick scratchpad, autosaved</sub>
+    </td>
+    <td align="center">
+      <img src="docs/screenshots/popover-calendar.png" alt="Calendar popover" />
+      <sub><b>Calendar</b> — month view with today highlighted</sub>
+    </td>
+  </tr>
+</table>
+
 <details>
 <summary><b>More Settings pages</b> (click to expand)</summary>
 
