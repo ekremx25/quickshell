@@ -1,88 +1,80 @@
 # Screenshots
 
-Screenshots that the README references. Sizes are recommendations — if a screenshot is taller or wider that's fine, but please keep them under ~2 MB each so the README loads quickly on slow connections.
+Images used by the project README. Each one is downscaled to **1280 px wide**
+(~650 KB) so the README loads quickly.
 
-## Checklist
+## Current set
 
-The README expects the following images to exist in this directory:
+| File | Subject |
+|------|---------|
+| `settings-bar.png` | Bar Settings — drag-drop module layout |
+| `settings-dock.png` | Dock Settings — auto-hide, indicators, scale |
+| `settings-monitors.png` | Monitor management — HDR / VRR / scale / colour |
+| `settings-nightlight.png` | Night Light — temperature slider + schedule |
+| `settings-materialyou.png` | Material You — wallpaper-derived palette |
+| `settings-workspaces.png` | Workspaces — numerals, grouping, scroll |
+| `settings-layout-presets.png` | Built-in layout presets (macOS, Win11, GNOME, …) |
+| `settings-notifications.png` | Notification Center configuration |
+| `settings-weather.png` | Weather provider / location |
+| `settings-lockscreen.png` | Lock screen wallpaper + timeouts |
+| `settings-mouse.png` | Mouse sensitivity / cursor theme |
+| `settings-network.png` | Ethernet / Wi-Fi / DNS / proxy |
+| `settings-disks.png` | Disk management |
+| `settings-screen-prefs.png` | Per-component monitor assignment |
+| `settings-systeminfo.png` | System Info dashboard |
+| `settings-apikeys.png` | SmartComplete API Keys page |
 
-| Filename | Subject | Recommended size |
-|----------|---------|------------------|
-| `bar-top.png` | The full top bar (one monitor) | full-width, 80–120 px tall |
-| `dock.png` | The dock with a few pinned apps + running indicators | ~600 px wide |
-| `settings-bar.png` | Settings → Bar Settings (drag-drop layout view, like the existing screenshot the user has) | 1200×800 |
-| `settings-monitors.png` | Settings → Monitors (with the layout canvas showing 2 displays) | 1200×800 |
-| `settings-nightlight.png` | Settings → Appearance → Night Light (toggle on, schedule visible) | 1200×800 |
-| `settings-materialyou.png` | Settings → Appearance → Material You (with a wallpaper selected) | 1200×800 |
-| `osd-volume.png` | Volume OSD popping up in the corner | ~300 px wide |
-| `notification-popup.png` | A notification popup with the Material You theme | ~400 px wide |
+## Adding more
 
-Optional but nice to have:
-- `lockscreen.png` — Lock Screen with custom background
-- `dock-context-menu.png` — right-click menu on a dock icon
-- `night-light-comparison.png` — split image, off vs. on (3500 K)
+### 1. Capture (popup-friendly)
 
-## How to take them
-
-```bash
-# Whole screen
-grim ~/screenshot.png
-
-# Region (drag-select)
-grim -g "$(slurp)" ~/screenshot.png
-
-# Specific output (e.g. 1080p monitor)
-grim -o DP-2 ~/screenshot.png
-
-# Specific window (Hyprland)
-grim -g "$(hyprctl activewindow -j | jq -r '"\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])"')" ~/screenshot.png
-```
-
-Then move into this directory:
+For modules with popovers that close on focus loss (EQ, Notepad, Calendar,
+right-click menus), use the bundled delayed-capture helper instead of
+`hyprshot`:
 
 ```bash
-mv ~/screenshot.png ~/.config/quickshell/docs/screenshots/<name>.png
+~/.config/quickshell/scripts/screenshot_popover.sh eq.png 4 DP-3
+#                                                  └──┘ └┘ └──┘
+#                                                   |   |   |
+#                                                   |   |   output (optional)
+#                                                   |   delay seconds
+#                                                   filename
 ```
 
-## After adding screenshots
+You then have 4 seconds to open the popover before `grim` fires silently.
 
-Open [`README.md`](../../README.md) and replace the section under `### Top Bar` (and the other feature sections) with:
-
-```markdown
-### Top Bar
-![Top bar](docs/screenshots/bar-top.png)
-- Workspaces — ...
-- ...
-```
-
-Or add a dedicated `## Screenshots` section between `## Features` and `## Supported Compositors`:
-
-```markdown
-## Screenshots
-
-<table>
-  <tr>
-    <td><img src="docs/screenshots/bar-top.png" alt="Top bar"/></td>
-    <td><img src="docs/screenshots/dock.png" alt="Dock"/></td>
-  </tr>
-  <tr>
-    <td><img src="docs/screenshots/settings-bar.png" alt="Bar settings"/></td>
-    <td><img src="docs/screenshots/settings-nightlight.png" alt="Night Light settings"/></td>
-  </tr>
-</table>
-```
-
-GitHub will scale them automatically.
-
-## Tip: consistent look
-
-For a polished feel, take all screenshots with:
-- The **same wallpaper** (Material You will derive the same theme)
-- The **same time of day** in the clock
-- **No private notifications** showing
-
-A throwaway test profile helps:
+For static views you can still use `hyprshot`:
 
 ```bash
-HOME=/tmp/qs-screenshot quickshell  # uses /tmp/qs-screenshot/.config/quickshell
+hyprshot -m output -o ~/Pictures/screen
+hyprshot -m region -o ~/Pictures/screen
 ```
+
+### 2. Resize to 1280 px wide
+
+The repo standard is 1280 px wide (preserves aspect ratio). Use ffmpeg —
+ImageMagick is not in this dotfile set:
+
+```bash
+ffmpeg -i ~/Pictures/screen/raw.png -vf "scale=1280:-2" docs/screenshots/<name>.png
+```
+
+### 3. Reference in the README
+
+Add a `<td>` cell to the existing `<table>` block under `## Screenshots`:
+
+```html
+<td align="center">
+  <img src="docs/screenshots/<name>.png" alt="..." />
+  <sub><b>Title</b> — short description</sub>
+</td>
+```
+
+## Tips
+
+- Take all screenshots with the **same wallpaper** — Material You will derive
+  consistent colours so the gallery looks unified.
+- Keep notifications closed and the clock at a sensible time; throwaway
+  details distract from the feature you're highlighting.
+- For consistent multi-monitor shots use `-o DP-2` (or whichever output) —
+  full-screen captures of dual-monitor setups make the gallery feel cluttered.

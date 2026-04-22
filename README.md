@@ -84,6 +84,99 @@ Built on top of [outfoxxed's Quickshell framework](https://github.com/outfoxxed/
 - **API Keys** — configure [SmartComplete](https://github.com/ekremx25/smartcomplete) AI providers (OpenAI, Claude, Groq, Ollama, …)
 - **Notepad** and **Event Countdown**
 
+## Screenshots
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="docs/screenshots/settings-bar.png" alt="Bar Settings (drag-drop layout)" />
+      <sub><b>Bar Settings</b> — drag-drop module layout, four positions, per-screen visibility</sub>
+    </td>
+    <td align="center">
+      <img src="docs/screenshots/settings-monitors.png" alt="Monitor settings with HDR/VRR/colour management" />
+      <sub><b>Monitors</b> — resolution, scale, HDR, VRR, colour management, drag-to-arrange canvas</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="docs/screenshots/settings-nightlight.png" alt="Night Light blue-light filter with schedule" />
+      <sub><b>Night Light</b> — temperature slider, presets, fixed-time schedule (hyprsunset / gammastep)</sub>
+    </td>
+    <td align="center">
+      <img src="docs/screenshots/settings-materialyou.png" alt="Material You theme settings" />
+      <sub><b>Material You</b> — wallpaper-derived palette, light/dark, multiple scheme types</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="docs/screenshots/settings-dock.png" alt="Dock settings (auto-hide, indicators, scale)" />
+      <sub><b>Dock Settings</b> — auto-hide, indicator style, icon scale, alignment</sub>
+    </td>
+    <td align="center">
+      <img src="docs/screenshots/settings-apikeys.png" alt="API Keys for SmartComplete AI providers" />
+      <sub><b>API Keys</b> — local-only or any of 7 cloud providers for SmartComplete</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="docs/screenshots/settings-systeminfo.png" alt="System Info dashboard" />
+      <sub><b>System Info</b> — CPU, RAM, GPU, storage, environment</sub>
+    </td>
+    <td align="center">
+      <img src="docs/screenshots/settings-workspaces.png" alt="Workspaces settings" />
+      <sub><b>Workspaces</b> — numeral style (Roman / Japan / Decimal), grouping, scroll behaviour</sub>
+    </td>
+  </tr>
+</table>
+
+<details>
+<summary><b>More Settings pages</b> (click to expand)</summary>
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="docs/screenshots/settings-layout-presets.png" alt="Layout presets" />
+      <sub><b>Layout Presets</b> — macOS, Windows 11, GNOME, KDE, Unity, ZorinOS, Custom</sub>
+    </td>
+    <td align="center">
+      <img src="docs/screenshots/settings-notifications.png" alt="Notification settings" />
+      <sub><b>Notifications</b> — DND, popup position, animation speed, filters</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="docs/screenshots/settings-weather.png" alt="Weather settings" />
+      <sub><b>Weather</b> — location and provider configuration</sub>
+    </td>
+    <td align="center">
+      <img src="docs/screenshots/settings-lockscreen.png" alt="Lock screen settings" />
+      <sub><b>Lock Screen</b> — wallpaper, dim/lock/suspend timeouts, media inhibit</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="docs/screenshots/settings-mouse.png" alt="Mouse settings" />
+      <sub><b>Mouse</b> — sensitivity, scroll factor, accel profile, cursor theme</sub>
+    </td>
+    <td align="center">
+      <img src="docs/screenshots/settings-network.png" alt="Network settings (Ethernet / Wi-Fi)" />
+      <sub><b>Network</b> — Ethernet, Wi-Fi, DNS, proxy, advanced</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="docs/screenshots/settings-disks.png" alt="Disk management" />
+      <sub><b>Disks</b> — mount points, removable drives, fstab helper</sub>
+    </td>
+    <td align="center">
+      <img src="docs/screenshots/settings-screen-prefs.png" alt="Per-screen module preferences" />
+      <sub><b>Screen Prefs</b> — assign each component (bar, dock, OSD, notif) to specific monitors</sub>
+    </td>
+  </tr>
+</table>
+
+</details>
+
 ## Supported Compositors
 
 | Compositor | Status | Notes |
