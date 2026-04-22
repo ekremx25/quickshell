@@ -1,0 +1,10 @@
+{
+  "enabled": true,
+  "temperature": 4100,
+  "applyOnStartup": true,
+  "scheduleEnabled": false,
+  "scheduleOnHour": 19,
+  "scheduleOnMinute": 0,
+  "scheduleOffHour": 7,
+  "scheduleOffMinute": 0
+}

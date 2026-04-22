@@ -8,7 +8,7 @@ import "../../../Widgets"
 Rectangle {
     id: root
 
-    // --- BAR ÜZERİNDEKİ BUTON GÖRÜNÜMÜ ---
+    // --- BUTTON APPEARANCE ON THE BAR ---
     implicitWidth: layout.implicitWidth + 24
     implicitHeight: 34
     radius: 17
@@ -23,7 +23,7 @@ Rectangle {
         spacing: 6
 
         Text {
-            text: "" // Kapatma İkonu
+            text: "" // Power icon
             color: "#1e1e2e"
             font.pixelSize: 16
             font.family: "JetBrainsMono Nerd Font"
@@ -41,7 +41,7 @@ Rectangle {
         }
     }
 
-    // --- UPTIME ÇEKME ---
+    // --- READ UPTIME ---
     Process {
         id: uptimeProc
         command: ["uptime", "-p"]
@@ -55,27 +55,27 @@ Rectangle {
         }
     }
 
-    // --- KLAVYE KONTROLÜ İÇİN SEÇİLİ İNDEKS ---
+    // --- SELECTED INDEX FOR KEYBOARD CONTROL ---
     property int selectedIndex: 0
 
-    // --- EKRANIN ORTASINDA AÇILAN SERBEST PENCERE ---
+    // --- FREE WINDOW OPENED AT THE CENTRE OF THE SCREEN ---
     Window {
         id: menuWindow
         visible: false
 
-        // Ekranın tamamını kapla (Arka planı karartmak için)
+        // Cover the full screen (darkens the background).
         width: Screen.width
         height: Screen.height
         x: 0
         y: 0
 
-        color: "#90000000" // Yarı saydam siyah
+        color: "#90000000" // Semi-transparent black
 
-        // DÜZELTME: Qt.ToolTip klavye odağını engelliyordu, onu kaldırdık!
-        // Qt.Popup sayesinde Niri (Wayland) bunun bir menü olduğunu anlar ve klavye odağını verir.
+        // FIX: Qt.ToolTip blocked keyboard focus, so we removed it.
+        // Qt.Popup tells Niri (Wayland) this is a menu and hands it keyboard focus.
         flags: Qt.Popup | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
 
-        // Pencere görünür olduğunda odağı zorla al
+        // Force focus when the window becomes visible.
         onVisibleChanged: {
             if (visible) {
                 menuWindow.requestActivate()
@@ -83,31 +83,31 @@ Rectangle {
             }
         }
 
-        // --- KLAVYE KISAYOLLARI (Kesin Çalışan Yöntem) ---
+        // --- KEYBOARD SHORTCUTS (known-good approach) ---
         Shortcut { sequence: "Escape"; onActivated: menuWindow.visible = false }
         Shortcut { sequence: "Right"; onActivated: root.selectedIndex = (root.selectedIndex + 1) % 4 }
         Shortcut { sequence: "Left"; onActivated: root.selectedIndex = (root.selectedIndex + 3) % 4 }
         Shortcut { sequence: "Return"; onActivated: executeSelected() }
 
-        // Boşluğa (arka plana) tıklayınca kapat
+        // Click on the background to close.
         MouseArea {
             anchors.fill: parent
             onClicked: menuWindow.visible = false
         }
 
-        // --- ASIL MENÜ KUTUSU ---
+        // --- THE MENU BOX ---
         Rectangle {
             id: popupContainer
             width: 600
             height: 350
             anchors.centerIn: parent
 
-            color: "#e61e1e2e" // Koyu Arka Plan (%90 Opaklık)
+            color: "#e61e1e2e" // Dark background (90% opacity)
             radius: 20
             border.color: "#313244"
             border.width: 1
 
-            // Bu kutunun içine tıklayınca arka plandaki MouseArea tetiklenmesin (kapanmasın)
+            // Clicks inside this box must not bubble up to the background MouseArea.
             MouseArea {
                 anchors.fill: parent
                 onClicked: (mouse) => mouse.accepted = true
@@ -117,7 +117,7 @@ Rectangle {
                 anchors.centerIn: parent
                 spacing: 30
 
-                // 1. BAŞLIK VE UPTIME
+                // 1. TITLE AND UPTIME
                 ColumnLayout {
                     Layout.alignment: Qt.AlignHCenter
                     spacing: 5
@@ -139,7 +139,7 @@ Rectangle {
                     }
                 }
 
-                // 2. BÜYÜK BUTONLAR
+                // 2. LARGE BUTTONS
                 RowLayout {
                     Layout.alignment: Qt.AlignHCenter
                     spacing: 15
@@ -159,7 +159,7 @@ Rectangle {
                             height: 120
                             radius: 24
 
-                            // Renkler: Seçiliyse Lavender, değilse Koyu Gri
+                            // Colours: lavender when selected, dark grey otherwise.
                             color: isSelected ? "#b4befe" : "#24283b"
                             Behavior on color { ColorAnimation { duration: 150 } }
 
@@ -195,7 +195,7 @@ Rectangle {
                     }
                 }
 
-                // 3. ALT BİLGİ (İPUCU)
+                // 3. HINT FOOTER
                 Text {
                     text: "Use arrow keys to navigate, Enter to select, Esc to cancel"
                     color: "#6c7086"
@@ -207,7 +207,7 @@ Rectangle {
         }
     }
 
-    // --- KOMUT ÇALIŞTIRICI ---
+    // --- COMMAND EXECUTOR ---
     function executeSelected() {
         var cmds = [
             ["systemctl", "poweroff"],

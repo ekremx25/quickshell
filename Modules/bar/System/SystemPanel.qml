@@ -74,7 +74,7 @@ PanelWindow {
                     anchors.margins: 12
                     spacing: 4
 
-                    // Başlık (Drag Area)
+                    // Title (Drag Area)
                     Item {
                         Layout.fillWidth: true
                         height: 30
@@ -129,7 +129,7 @@ PanelWindow {
 
                     Item { height: 6 }
 
-                    // Menü öğeleri
+                    // Menu items
                     Repeater {
                         model: root.menuItems
 
@@ -145,7 +145,7 @@ PanelWindow {
 
                             Behavior on color { ColorAnimation { duration: 120 } }
 
-                            // Sol accent çizgisi
+                            // Left accent line
                             Rectangle {
                                 visible: root.currentPage === modelData.key
                                 width: 3; height: 20; radius: 2
@@ -191,10 +191,10 @@ PanelWindow {
                 }
             }
 
-            // Ayırıcı
+            // Separator
             Rectangle { width: 1; Layout.fillHeight: true; color: Qt.rgba(255,255,255,0.06) }
 
-            // ═══ İÇERİK ═══
+            // ═══ CONTENT ═══
             Item {
                 Layout.fillWidth: true
                 Layout.fillHeight: true

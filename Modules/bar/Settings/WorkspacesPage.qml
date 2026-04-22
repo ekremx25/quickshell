@@ -7,7 +7,7 @@ Item {
     id: root
     property var settingsPopup: null
     
-    // Tema renkleri
+    // Theme colors
     property color colorText: "#cdd6f4"
     property color colorSubtext: "#a6adc8"
     property color colorSurface: "#313244"
@@ -18,12 +18,12 @@ Item {
         ? settingsPopup.barConfig.workspaces
         : ({})
 
-    // Geçici seçim durumu (Henüz kaydedilmemiş)
+    // Temporary selection state (Not yet saved)
     property string selectedFormat: workspaceConfig.format || "chinese"
     property string selectedStyle: workspaceConfig.style || "fill"
     property bool isTransparent: workspaceConfig.transparent === true
     
-    // Yeni özelliklerin geçici seçim durumu (DMS özellikleri)
+    // Temporary selection state for new features (DMS features)
     property bool showApps: workspaceConfig.showApps !== false
     property bool groupApps: workspaceConfig.groupApps !== false
     property bool scrollEnabled: workspaceConfig.scrollEnabled !== false
@@ -77,7 +77,7 @@ Item {
 
         Item { height: 10 }
 
-        // Kartlar (Seçenekler)
+        // Cards (Options)
         RowLayout {
             Layout.fillWidth: true
             spacing: 16
@@ -298,7 +298,7 @@ Item {
                     checked: root.isTransparent
                     onToggled: root.isTransparent = checked
                     
-                    // Basit stil
+                    // Simple style
                     indicator: Rectangle {
                         implicitWidth: 40
                         implicitHeight: 20
@@ -489,7 +489,7 @@ Item {
             }
         }
 
-        // Esnek Boşluk
+        // Flexible Spacer
         Item { Layout.fillHeight: true; implicitHeight: 20 }
 
         // Bottom Bar (Apply Button)
@@ -507,7 +507,7 @@ Item {
                 Text {
                     anchors.centerIn: parent
                     text: "Apply"
-                    color: "#1e1e2e" // Koyu yazı (Crust/Mantle)
+                    color: "#1e1e2e" // Dark text (Crust/Mantle)
                     font.bold: true
                     font.pixelSize: 14
                 }

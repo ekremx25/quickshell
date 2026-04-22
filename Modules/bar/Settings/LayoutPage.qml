@@ -17,12 +17,12 @@ Item {
     signal presetApplied()
 
     readonly property var presets: [
-        { key: "macos", name: "macOS", icon: "", desc: "Sol: Launcher, Calendar | Orta: Workspaces | Sağ: Volume, Tray, Clock" },
-        { key: "windows11", name: "Windows 11", icon: "", desc: "Sol: Workspaces | Orta: Launcher, Tray, Clock | Sağ: Volume, Notifications" },
-        { key: "gnome", name: "GNOME", icon: "", desc: "Sol: Calendar | Orta: Clock | Sağ: Volume, Power, Tray" },
-        { key: "kde", name: "KDE Plasma", icon: "", desc: "Sol: Launcher, Workspaces | Orta: (boş) | Sağ: Tray, Clock, Volume, Power" },
-        { key: "zorin", name: "ZorinOS", icon: "", desc: "Sol: Launcher, Calendar | Orta: Clock | Sağ: Tray, Volume, Notifications, Power" },
-        { key: "unity", name: "Unity", icon: "", desc: "Sol: Launcher, Workspaces, Calendar | Orta: Clock | Sağ: Volume, Tray, Power" },
+        { key: "macos", name: "macOS", icon: "", desc: "Left: Launcher, Calendar | Center: Workspaces | Right: Volume, Tray, Clock" },
+        { key: "windows11", name: "Windows 11", icon: "", desc: "Left: Workspaces | Center: Launcher, Tray, Clock | Right: Volume, Notifications" },
+        { key: "gnome", name: "GNOME", icon: "", desc: "Left: Calendar | Center: Clock | Right: Volume, Power, Tray" },
+        { key: "kde", name: "KDE Plasma", icon: "", desc: "Left: Launcher, Workspaces | Center: (empty) | Right: Tray, Clock, Volume, Power" },
+        { key: "zorin", name: "ZorinOS", icon: "", desc: "Left: Launcher, Calendar | Center: Clock | Right: Tray, Volume, Notifications, Power" },
+        { key: "unity", name: "Unity", icon: "", desc: "Left: Launcher, Workspaces, Calendar | Center: Clock | Right: Volume, Tray, Power" },
         { key: "custom", name: "Custom", icon: "", desc: "Your saved custom layout" }
     ]
 

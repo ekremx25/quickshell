@@ -34,6 +34,12 @@
       "appId": "org.telegram.desktop"
     },
     {
+      "name": "Chrome",
+      "icon": "google-chrome-stable",
+      "cmd": "__desktop__:google-chrome",
+      "appId": "google-chrome-stable"
+    },
+    {
       "name": "Virt-manager",
       "icon": "virt-manager",
       "cmd": "virt-manager",
@@ -44,12 +50,6 @@
       "icon": "discord",
       "cmd": "discord",
       "appId": "discord"
-    },
-    {
-      "name": "Chrome",
-      "icon": "google-chrome-stable",
-      "cmd": "google-chrome-stable",
-      "appId": "google-chrome-stable"
     },
     {
       "name": "VS Code",

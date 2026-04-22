@@ -5,12 +5,12 @@ Rectangle {
     id: root
     height: 30
     width: layout.implicitWidth + 24
-    color: "#a6e3a1" // Yeşil
+    color: "#a6e3a1" // Green
     radius: 15
 
     Behavior on width { NumberAnimation { duration: 200; easing.type: Easing.InOutQuad } }
 
-    // Köşeleri düzleştiren yama (Sağ taraf için)
+    // Patch that flattens the corners (for the right side)
     Rectangle {
         width: 15
         height: 30

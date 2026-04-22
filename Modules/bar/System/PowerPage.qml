@@ -16,12 +16,12 @@ Item {
     }
 
     readonly property var actions: [
-        { key: "shutdown",  icon: "⏻",  label: "Kapat",          desc: "Sistemi kapat",           color: "#f38ba8", cmd: ["systemctl", "poweroff"] },
-        { key: "reboot",    icon: "󰜉", label: "Yeniden Başlat",  desc: "Sistemi yeniden başlat",  color: "#fab387", cmd: ["systemctl", "reboot"] },
-        { key: "suspend",   icon: "󰒲", label: "Askıya Al",       desc: "Uyku moduna geç",         color: "#89b4fa", cmd: ["systemctl", "suspend"] },
-        { key: "hibernate",  icon: "󰋊", label: "Hazırda Beklet",  desc: "Diske yaz ve kapat",      color: "#cba6f7", cmd: ["systemctl", "hibernate"] },
-        { key: "logout",    icon: "󰍃", label: "Oturumu Kapat",   desc: "Masaüstünden çık",        color: "#94e2d5", cmd: ["niri", "msg", "action", "quit"] },
-        { key: "lock",      icon: "󰌾", label: "Kilitle",         desc: "Ekranı kilitle",          color: "#a6adc8", cmd: ["loginctl", "lock-session"] }
+        { key: "shutdown",  icon: "⏻",  label: "Shutdown",       desc: "Power off the system",    color: "#f38ba8", cmd: ["systemctl", "poweroff"] },
+        { key: "reboot",    icon: "󰜉", label: "Reboot",          desc: "Restart the system",      color: "#fab387", cmd: ["systemctl", "reboot"] },
+        { key: "suspend",   icon: "󰒲", label: "Suspend",         desc: "Enter sleep mode",        color: "#89b4fa", cmd: ["systemctl", "suspend"] },
+        { key: "hibernate", icon: "󰋊", label: "Hibernate",       desc: "Save to disk and power off", color: "#cba6f7", cmd: ["systemctl", "hibernate"] },
+        { key: "logout",    icon: "󰍃", label: "Log Out",         desc: "End the desktop session", color: "#94e2d5", cmd: ["niri", "msg", "action", "quit"] },
+        { key: "lock",      icon: "󰌾", label: "Lock",            desc: "Lock the screen",         color: "#a6adc8", cmd: ["loginctl", "lock-session"] }
     ]
 
     ColumnLayout {
@@ -32,7 +32,7 @@ Item {
         RowLayout {
             Layout.fillWidth: true
             Text { text: "⏻"; font.pixelSize: 20; font.family: "JetBrainsMono Nerd Font"; color: Theme.primary }
-            Text { text: "Güç Seçenekleri"; font.bold: true; font.pixelSize: 18; color: SettingsPalette.text }
+            Text { text: "Power Options"; font.bold: true; font.pixelSize: 18; color: SettingsPalette.text }
         }
 
         Item { height: 8 }

@@ -2,16 +2,16 @@ import QtQuick
 import Quickshell.Io
 import "../../../Services/core" as Core
 
-// VPN panelini dış süreçlerden tetiklemek için IPC servisi.
+// IPC service for triggering the VPN panel from external processes.
 //
-// Tetikleme mekanizması:
-//   Herhangi bir process $XDG_RUNTIME_DIR'e "qs_vpn_open" dosyası oluşturduğunda
-//   triggerDetected() sinyali yayınlanır ve dosya silinir.
+// Trigger mechanism:
+//   When any process creates a "qs_vpn_open" file in $XDG_RUNTIME_DIR,
+//   the triggerDetected() signal is emitted and the file is deleted.
 //
-// inotifywait varsa (inotify-tools):
-//   Dizin create olayı izlenir — polling yoktur, CPU maliyeti sıfır.
-// Yoksa:
-//   600ms fallback polling devreye girer (önceki davranış korunur).
+// If inotifywait is available (inotify-tools):
+//   Directory create events are watched — no polling, zero CPU cost.
+// Otherwise:
+//   600ms fallback polling kicks in (preserves prior behavior).
 Item {
     id: service
     visible: false; width: 0; height: 0
@@ -25,7 +25,7 @@ Item {
         return "'" + String(text).replace(/'/g, "'\\''") + "'";
     }
 
-    // Runtime dizinini hesapla (dirname)
+    // Compute the runtime directory (dirname)
     function _runtimeDir() {
         var idx = triggerPath.lastIndexOf("/");
         return idx > 0 ? triggerPath.substring(0, idx) : "/tmp";
@@ -36,7 +36,7 @@ Item {
     }
 
     // ----------------------------------------------------------------
-    // inotifywait tabanlı izleme (event-driven, CPU-free)
+    // inotifywait-based watching (event-driven, CPU-free)
     // ----------------------------------------------------------------
     property bool _pollingMode: false
 
@@ -58,11 +58,11 @@ Item {
         }
         onExited: exitCode => {
             if (exitCode === 127) {
-                // inotifywait bulunamadı → polling fallback
+                // inotifywait not found → polling fallback
                 service._pollingMode = true;
                 return;
             }
-            // Geçici hata: 1 saniye sonra yeniden dene
+            // Temporary error: retry after 1 second
             restartTimer.restart();
         }
     }
@@ -76,7 +76,7 @@ Item {
     }
 
     // ----------------------------------------------------------------
-    // Polling fallback (inotify-tools kurulu değilse)
+    // Polling fallback (if inotify-tools is not installed)
     // ----------------------------------------------------------------
     Timer {
         id: fallbackTimer
@@ -101,7 +101,7 @@ Item {
     }
 
     // ----------------------------------------------------------------
-    // Yardımcı process'ler
+    // Helper processes
     // ----------------------------------------------------------------
     Process {
         id: triggerRemoveProc

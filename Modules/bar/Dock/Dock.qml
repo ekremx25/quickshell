@@ -7,9 +7,7 @@ import Quickshell.Wayland
 import "../../../Widgets"
 import "../../../Services" as S
 import "../Weather"
-
 import "../Volume"
-
 import "../Tray"
 import "../Workspaces"
 import "../power"
@@ -39,7 +37,7 @@ Variants {
             left:   cfgPosition === "left"
             right:  cfgPosition === "right"
         }
-        
+
         // Convenience computed properties from config
         property real cfgBottomMargin: (dockWindow.dockConfigData && dockWindow.dockConfigData.bottomMargin !== undefined) ? dockWindow.dockConfigData.bottomMargin : 5
         property real cfgIconSize:     (dockWindow.dockConfigData && dockWindow.dockConfigData.iconSize     !== undefined) ? dockWindow.dockConfigData.iconSize     : 28
@@ -67,7 +65,7 @@ Variants {
             left:   cfgPosition === "left"   ? hideOffset : 0
             right:  cfgPosition === "right"  ? hideOffset : 0
         }
-    
+
         color: "transparent"
         // When alignment is not center, use full screen width so dockContent can align left/right
         property real dockContentWidth: dockContent.implicitWidth + (cfgPadding * 2 * dockScale)
@@ -76,26 +74,24 @@ Variants {
         exclusiveZone: dockThickness * dockScale
         // Auto hide logic integration
         WlrLayershell.exclusiveZone: (dockWindow.dockConfigData && (dockWindow.dockConfigData.autoHide || dockWindow.cfgIntelligentHide)) ? -1 : (dockThickness * dockScale)
-        
+
         property bool hasOverlappingWindow: false
-        
+
         Timer {
             id: hideCheckTimer
             interval: 500; running: dockWindow.dockConfigData && dockWindow.dockConfigData.autoHide; repeat: true
             onTriggered: {
                 if (!dockWindow.dockConfigData.autoHide) { dockWindow.hasOverlappingWindow = false; return; }
-                
+
                 try {
-                    // Check if any active window intersects dock region on this monitor
-                    // To do this simply, we check if there are maximized windows on this monitor
+                    // Heuristic: hide the dock if any window is present on this monitor
+                    // unless the mouse is currently over the dock.
                     var activeWindowsCount = dockWindow.runningWindows.length;
-                    
-                    // Simple heuristic: if any window exists, hide dock unless mouse is over
                     dockWindow.hasOverlappingWindow = (activeWindowsCount > 0) && !dockContainsMouse;
                 } catch(e) {}
             }
         }
-        
+
         property bool dockContainsMouse: globalMouse.containsMouse || dockRowMouseArea.containsMouse
 
         DockBackend {
@@ -112,16 +108,17 @@ Variants {
         property alias pinnedApps: dockBackend.pinnedApps
         property alias runningWindows: dockBackend.runningWindows
         property alias dockItems: dockBackend.dockItems
-        property alias leftModules: dockBackend.leftModules  // Sol taraf modülleri
-        property alias rightModules: dockBackend.rightModules // Sağ taraf modülleri
-        
-        // 4K monitör kontrolü (1080p'den büyükse varsayılan 1.5 al ama user ayarı ile ez)
+        property alias leftModules: dockBackend.leftModules
+        property alias rightModules: dockBackend.rightModules
+
+        // 4K monitor check — above 1200px height default scale is 1.5, but the user
+        // setting (dockScale) always wins when present.
         property bool is4K: modelData.height > 1200
         property real dockScale: (dockWindow.dockConfigData && dockWindow.dockConfigData.dockScale !== undefined)
             ? dockWindow.dockConfigData.dockScale
             : (dockWindow.is4K ? 1.5 : 1.0)
-        
-        property alias dockConfigData: dockBackend.dockConfigData // Ayarları okumak için obje
+
+        property alias dockConfigData: dockBackend.dockConfigData
         property int contextMenuIndex: -1
         property bool contextMenuVisible: false
 
@@ -134,71 +131,21 @@ Variants {
         property real dragGlobalY: 0
         property string dragIcon: ""
 
-        // ── Ghost Icon ──
-        Rectangle {
-            visible: dockWindow.isDragging
-            width: 36 * dockScale
-            height: 36 * dockScale
-            radius: 14 * dockScale
-            color: "transparent" // Ghost icon arka planı şeffaf olsun, ikonun kendi şekli görünsün
-            z: 9999
-
-            x: dockWindow.dragGlobalX - (width / 2)
-            y: dockWindow.dragGlobalY - (height / 2)
-
-            Image {
-                anchors.fill: parent
-                source: {
-                    if (!dockWindow.dragIcon) return "";
-                    if (dockWindow.dragIcon.startsWith("/")) return "file://" + dockWindow.dragIcon;
-                    return "image://icon/" + dockBackend.resolveThemedIconName(dockWindow.dragIcon);
-                }
-                sourceSize: Qt.size(64, 64)
-                fillMode: Image.PreserveAspectFit
-                smooth: true
-            }
+        // Floating drag icon
+        DockGhostIcon {
+            isDragging: dockWindow.isDragging
+            dragIcon: dockWindow.dragIcon
+            dragGlobalX: dockWindow.dragGlobalX
+            dragGlobalY: dockWindow.dragGlobalY
+            dockScale: dockWindow.dockScale
+            backend: dockBackend
         }
 
-        // ── appId → icon (Rofi/Wofi tarzı: .desktop dosyalarından) ──
+        // ── appId → icon (Rofi/Wofi style, sourced from .desktop files) ──
         property alias desktopIcons: dockBackend.desktopIcons
         property alias desktopCommands: dockBackend.desktopCommands
         property alias desktopEntries: dockBackend.desktopEntries
         property alias lastDockConfigContent: dockBackend.lastDockConfigContent
-
-        component ContextMenuAction: Rectangle {
-            required property string label
-            required property color labelColor
-            required property var onActivate
-
-            width: 140 * dockScale
-            height: 30 * dockScale
-            radius: 8 * dockScale
-            color: actionMouse.containsMouse ? Qt.rgba(137/255, 180/255, 250/255, 0.18) : "transparent"
-
-            Text {
-                anchors.centerIn: parent
-                text: label
-                color: labelColor
-                font.pixelSize: 12 * dockScale
-                font.bold: true
-                font.family: "JetBrainsMono Nerd Font"
-            }
-
-            MouseArea {
-                id: actionMouse
-                anchors.fill: parent
-                hoverEnabled: true
-                cursorShape: Qt.PointingHandCursor
-                onClicked: if (onActivate) onActivate()
-            }
-        }
-
-        component ContextMenuSeparator: Rectangle {
-            width: 120 * dockScale
-            height: 1
-            color: Qt.rgba(1, 1, 1, 0.1)
-            anchors.horizontalCenter: parent.horizontalCenter
-        }
 
         function shouldShowPinnedSeparator(itemIndex) {
             if (itemIndex === 0 || itemIndex >= dockItems.length) return false;
@@ -207,8 +154,7 @@ Variants {
             return !!(prev && curr && prev.isPinned && !curr.isPinned && !prev.isModule && !curr.isModule);
         }
 
-
-        // ── Modül Eşleştirmesi ──
+        // ── Module component map ──
         property var moduleMap: ({
             "Weather": weatherComp,
             "Volume": volumeComp,
@@ -225,13 +171,11 @@ Variants {
         Component { id: volumeComp; Volume { } }
         Component { id: trayComp; Tray { } }
         Component { id: powerComp; Power { } }
-
         Component { id: clipboardComp; Clipboard { } }
         Component { id: mediaComp; MediaWidget { dockScale: dockWindow.dockScale } }
 
-        // Launcher Component — sinyal bağlantısı
-        Settings { 
-            id: settingsMenu 
+        Settings {
+            id: settingsMenu
         }
 
         Component {
@@ -245,7 +189,7 @@ Variants {
             }
         }
 
-        // ── Sürükle-bırak sonuçlandırma ──
+        // ── Drag-and-drop finalisation ──
         function handleDrop() {
             var fromIndex = dragFromIndex;
             var toIndex = dragOverIndex;
@@ -259,7 +203,7 @@ Variants {
             var fromItem = dockItems[fromIndex];
 
             if (fromItem.isPinned) {
-                // Pinli uygulamayı yeniden sırala
+                // Reorder a pinned app.
                 var fromPinnedIdx = -1;
                 var toPinnedIdx = -1;
                 for (var i = 0; i < pinnedApps.length; i++) {
@@ -275,7 +219,7 @@ Variants {
                 }
                 dockBackend.reorderPinned(fromPinnedIdx, toPinnedIdx);
             } else {
-                // Çalışan uygulamayı pinle
+                // Pin a running app.
                 var insertIdx = pinnedApps.length;
                 if (toIndex < dockItems.length) {
                     var target = dockItems[toIndex];
@@ -292,27 +236,7 @@ Variants {
             }
         }
 
-        // ── Mouse pozisyonundan hangi item üzerinde olduğunu hesapla ──
-        function getItemIndexAtX(globalX) {
-            // dockRow içindeki her item 36px * scale
-            var rowX = dockRow.mapFromItem(dockWindow.contentItem, globalX, 0).x;
-            var itemWidth = 36 * dockScale;
-            var spacing = 2 * dockScale;
-            var totalItems = dockItems.length;
-
-            for (var i = 0; i < totalItems; i++) {
-                var itemStart = i * (itemWidth + spacing);
-                var itemEnd = itemStart + itemWidth;
-                if (rowX >= itemStart && rowX <= itemEnd) return i;
-            }
-
-            // Sınır dışıysa en yakın item
-            if (rowX < 0) return 0;
-            return totalItems - 1;
-        }
-
-
-        // ── Ana mouse alanı: tüm sürükleme burada yönetilir ──
+        // ── Global hover / click-outside area ──
         MouseArea {
             id: globalMouse
             anchors.fill: parent
@@ -364,7 +288,7 @@ Variants {
             border.color: (dockWindow.dockConfigData && dockWindow.dockConfigData.showBackground === false) ? "transparent" : (dockWindow.cfgShowBorder ? Qt.rgba(49/255, 50/255, 68/255, 0.8) : "transparent")
             border.width: (dockWindow.dockConfigData && dockWindow.dockConfigData.showBackground === false) ? 0 : (dockWindow.cfgShowBorder ? 1 : 0)
 
-            // Glow
+            // Subtle glow outside the border
             Rectangle {
                 visible: dockWindow.dockConfigData && dockWindow.dockConfigData.showBackground !== false && dockWindow.cfgShowBorder
                 anchors.fill: parent
@@ -388,394 +312,52 @@ Variants {
                 anchors.centerIn: parent
                 spacing: dockWindow.cfgItemSpacing * dockScale
 
-                // ── Sol Modüller ──
+                // ── Left modules ──
                 Repeater {
                     model: dockWindow.leftModules
-                    Item {
-                        width: leftModLoader.item ? leftModLoader.item.implicitWidth : dockWindow.cfgIconSize * dockScale
-                        height: (dockWindow.cfgIconSize + 8) * dockScale
-                        Loader {
-                            id: leftModLoader
-                            active: true
-                            sourceComponent: dockWindow.moduleMap[modelData] || null
-                            anchors.centerIn: parent
-                        }
+                    DockModuleSlot {
+                        moduleMap: dockWindow.moduleMap
+                        dockScale: dockWindow.dockScale
+                        iconSize: dockWindow.cfgIconSize
                     }
                 }
 
-                // Sol ayırıcı (sol modül varsa)
-                Rectangle {
+                DockSeparator {
                     visible: dockWindow.leftModules.length > 0
-                    width: 1 * dockScale
-                    height: dockWindow.cfgIconSize * 0.6 * dockScale
-                    color: Qt.rgba(147/255, 153/255, 178/255, 0.35)
-                    anchors.verticalCenter: parent.verticalCenter
+                    dockScale: dockWindow.dockScale
+                    iconSize: dockWindow.cfgIconSize
                 }
-
 
                 Repeater {
                     id: dockRepeater
                     model: dockWindow.dockItems
 
-                    Item {
-                        id: dockItemContainer
-                        width: modelData.isModule ? (moduleLoader.item ? moduleLoader.item.implicitWidth : dockWindow.cfgIconSize * dockScale) : dockWindow.cfgIconSize * dockScale
-                        height: (dockWindow.cfgIconSize + 8) * dockScale
-
-                        Loader {
-                            id: moduleLoader
-                            active: modelData.isModule
-                            sourceComponent: modelData.isModule ? (dockWindow.moduleMap[modelData.moduleName] || null) : null
-                            anchors.centerIn: parent
-                            // Scale down if needed? Bar modules might assume 34px height. Dock item container is 46px height.
-                            // Bar modules in Bar.qml have implicitHeight: 34.
-                            // We can center them.
-                        }
-
-                        // App Item (only if not module)
-                        Item {
-                            anchors.fill: parent
-                            visible: !modelData.isModule
-
-                            // Ayırıcı (Only for apps, or maybe logical to show between app and module too?)
-                            // Original logic: if (index === 0) return false; ... prev.isPinned && !curr.isPinned
-                            Rectangle {
-                                visible: dockWindow.shouldShowPinnedSeparator(index)
-                                width: 1 * dockScale
-                                height: dockWindow.cfgIconSize * 0.6 * dockScale
-                                color: Qt.rgba(147/255, 153/255, 178/255, 0.35)
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.left: parent.left
-                                anchors.leftMargin: -3
-                            }
-
-                            Rectangle {
-                                id: dockItem
-                                anchors.centerIn: parent
-                                width: dockWindow.cfgIconSize * dockScale
-                                height: dockWindow.cfgIconSize * dockScale
-                                radius: (dockWindow.cfgIconSize * 0.25) * dockScale
-                                color: itemMouse.containsMouse
-                                    ? Qt.rgba(137/255, 180/255, 250/255, 0.18)
-                                    : "transparent"
-
-                                // Sürüklenirken tamamen gizle (yer tutucu olarak kalsın ama görünmesin)
-                                opacity: dockWindow.isDragging && dockWindow.dragFromIndex === index ? 0.0 : 1.0
-                                Behavior on opacity { NumberAnimation { duration: 120 } }
-
-                                Behavior on color { ColorAnimation { duration: 180 } }
-
-                                property real hoverScale: itemMouse.containsMouse && !dockWindow.isDragging ? 1.22 : 1.0
-                                Behavior on hoverScale {
-                                    NumberAnimation { duration: 200; easing.type: Easing.OutBack }
-                                }
-
-                                transform: Scale {
-                                    origin.x: dockItem.width / 2
-                                    origin.y: dockItem.height
-                                    xScale: dockItem.hoverScale
-                                    yScale: dockItem.hoverScale
-                                }
-
-                                Image {
-                                    anchors.centerIn: parent
-                                    width: (dockWindow.cfgIconSize - 4) * dockScale
-                                    height: (dockWindow.cfgIconSize - 4) * dockScale
-                                    source: {
-                                        if (!modelData.icon) return "image://icon/application-x-executable";
-                                        if (modelData.icon.startsWith("/")) return "file://" + modelData.icon;
-                                        return "image://icon/" + dockBackend.resolveThemedIconName(modelData.icon);
-                                    }
-                                    sourceSize: Qt.size(64, 64)
-                                    fillMode: Image.PreserveAspectFit
-                                    smooth: true
-                                    antialiasing: true
-                                    opacity: dockWindow.isDragging && dockWindow.dragFromIndex === index ? 0 : 1
-                                    Behavior on opacity { NumberAnimation { duration: 150 } }
-                                }
-
-                                // Tooltip
-                                Rectangle {
-                                    id: tooltip
-                                    visible: itemMouse.containsMouse && !dockWindow.contextMenuVisible && !dockWindow.isDragging
-                                    anchors.horizontalCenter: parent.horizontalCenter
-                                    anchors.bottom: parent.top
-                                    anchors.bottomMargin: 10 * dockScale
-                                    width: tooltipText.implicitWidth + (18 * dockScale)
-                                    height: tooltipText.implicitHeight + (10 * dockScale)
-                                    radius: 9 * dockScale
-                                    color: Qt.rgba(30/255, 30/255, 46/255, 0.96)
-                                    border.color: Qt.rgba(49/255, 50/255, 68/255, 0.8)
-                                    border.width: 1
-
-                                    Text {
-                                        id: tooltipText
-                                        anchors.centerIn: parent
-                                        text: modelData.name
-                                        color: Theme.text
-                                        font.pixelSize: 11 * dockScale
-                                        font.bold: true
-                                    }
-
-                                    opacity: itemMouse.containsMouse ? 1 : 0
-                                    Behavior on opacity { NumberAnimation { duration: 150 } }
-                                }
-
-                                MouseArea {
-                                    id: itemMouse
-                                    anchors.fill: parent
-                                    hoverEnabled: true
-                                    cursorShape: dockWindow.isDragging ? Qt.ClosedHandCursor : Qt.PointingHandCursor
-                                    acceptedButtons: Qt.LeftButton | Qt.RightButton
-                                    preventStealing: true
-
-                                    property real pressX: 0
-                                    property real pressY: 0
-                                    property bool dragStarted: false
-
-                                    onPressed: (mouse) => {
-                                        if (mouse.button === Qt.LeftButton) {
-                                            pressX = mouse.x;
-                                            pressY = mouse.y;
-                                            dragStarted = false;
-                                        }
-                                    }
-
-                                    onPositionChanged: (mouse) => {
-                                        if (!pressed) return;
-
-                                        if (dockWindow.isDragging) {
-                                            var pos = mapToItem(dockWindow.contentItem, mouse.x, mouse.y);
-                                            dockWindow.dragGlobalX = pos.x;
-                                            dockWindow.dragGlobalY = pos.y;
-                                        }
-
-                                        if (!dragStarted && (Math.abs(mouse.x - pressX) > 4 || Math.abs(mouse.y - pressY) > 4)) {
-                                            dockBackend.logToFile("Drag started! Index: " + index);
-                                            dragStarted = true;
-                                            dockWindow.isDragging = true;
-                                            dockWindow.dragFromIndex = index;
-                                            dockWindow.contextMenuVisible = false;
-                                            dockWindow.dragIcon = modelData.icon;
-                                            
-                                            var startPos = mapToItem(dockWindow.contentItem, mouse.x, mouse.y);
-                                            dockWindow.dragGlobalX = startPos.x;
-                                            dockWindow.dragGlobalY = startPos.y;
-                                        }
-
-                                        if (dragStarted) {
-                                            var globalPos = mapToItem(dockRow, mouse.x, mouse.y);
-                                            // Repeater'ın Row içindeki konumunu hesapla
-                                            var repeaterPos = dockRepeater.mapToItem ? globalPos.x : globalPos.x;
-                                            var itemWidth = 32 * dockScale;
-                                            var spacing = 2 * dockScale;
-                                            // dockRepeater'ın ilk item'ının Row içindeki x konumunu bul
-                                            var firstItem = dockRepeater.itemAt(0);
-                                            var offsetX = firstItem ? firstItem.mapToItem(dockRow, 0, 0).x : 0;
-                                            var adjustedX = globalPos.x - offsetX;
-                                            var targetIdx = Math.floor(adjustedX / (itemWidth + spacing));
-                                            
-                                            if (targetIdx < 0) targetIdx = 0;
-                                            if (targetIdx >= dockWindow.dockItems.length) targetIdx = dockWindow.dockItems.length - 1;
-                                            
-                                            dockWindow.dragOverIndex = targetIdx;
-                                        }
-                                    }
-
-                                    onReleased: (mouse) => {
-                                        if (dragStarted) {
-                                            dockWindow.isDragging = false;
-
-                                            var globalPos = mapToItem(dockContent, mouse.x, mouse.y);
-                                            
-                                            // Wayland window grabs often clamp coordinates to the surface.
-                                            // If the user drags to the very edge of the dock, we consider it outside.
-                                            // The surface ends at -cfgPadding on top.
-                                            var isOutside = (globalPos.y < -15 || globalPos.y > dockContent.height + 15 || globalPos.x < -20 || globalPos.x > dockContent.width + 20); 
-                                            var wasPinned = modelData.isPinned;
-
-                                            var appIdToDelete = modelData.appId;
-
-                                            dockBackend.logToFile("Released. Outside: " + isOutside);
-                                            
-                                            if (isOutside) {
-                                                if (wasPinned) {
-                                                    dockBackend.unpinApp(appIdToDelete);
-                                                }
-                                            } else {
-                                                dockWindow.handleDrop();
-                                            }
-
-                                            // Reset drag state
-                                            dockWindow.dragFromIndex = -1;
-                                            dockWindow.dragOverIndex = -1;
-                                            dockWindow.dragIcon = "";
-                                            dragStarted = false;
-                                        }
-                                    }
-
-                                    onClicked: (mouse) => {
-                                        if (dragStarted) return;
-                                        if (mouse.button === Qt.RightButton) {
-                                            dockWindow.contextMenuIndex = index;
-                                            dockWindow.contextMenuVisible = true;
-                                        } else {
-                                            dockWindow.contextMenuVisible = false;
-                                            
-                                            var logMsg = "Clicked: " + modelData.appId + 
-                                                        " | Running: " + modelData.isRunning + 
-                                                        " | WinID: " + modelData.windowId + 
-                                                        " | Cmd: " + modelData.cmd;
-                                            dockBackend.logToFile(logMsg);
-
-                                            if (modelData.isRunning && modelData.windowId && modelData.windowId !== -1) {
-                                                // Açık pencereye odaklan
-                                                dockBackend.focusWindow(modelData.windowId);
-                                            } else {
-                                                dockBackend.launchApp(modelData.cmd);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            // ── Çalışıyor göstergesi ──
-                            Rectangle {
-                                visible: modelData.isRunning
-                                // circle: küçük daire; line: ince çizgi
-                                width:  dockWindow.cfgIndicator === "line" ? (dockWindow.cfgIconSize * 0.6 * dockScale) : (5 * dockScale)
-                                height: dockWindow.cfgIndicator === "line" ? (2 * dockScale) : (5 * dockScale)
-                                radius: dockWindow.cfgIndicator === "line" ? (1 * dockScale) : (2.5 * dockScale)
-                                color: Theme.primary
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                anchors.bottom: parent.bottom
-                                anchors.bottomMargin: 0
-
-                                Rectangle {
-                                    visible: dockWindow.cfgIndicator !== "line"
-                                    anchors.centerIn: parent
-                                    width: 9 * dockScale
-                                    height: 9 * dockScale
-                                    radius: 4.5 * dockScale
-                                    color: Qt.rgba(137/255, 180/255, 250/255, 0.25)
-                                    z: -1
-                                }
-                            }
-
-                            // ── Sağ tık menüsü ──
-                            Rectangle {
-                                id: contextMenu
-                                visible: dockWindow.contextMenuVisible && dockWindow.contextMenuIndex === index
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                anchors.bottom: parent.top
-                                anchors.bottomMargin: 14
-                                width: menuContent.implicitWidth + (16 * dockScale)
-                                height: menuContent.implicitHeight + (12 * dockScale)
-                                radius: 12 * dockScale
-                                color: Qt.rgba(30/255, 30/255, 46/255, 0.96)
-                                border.color: Qt.rgba(49/255, 50/255, 68/255, 0.8)
-                                border.width: 1
-                                z: 100
-
-                                Column {
-                                    id: menuContent
-                                    anchors.centerIn: parent
-                                    spacing: 2
-
-                                    ContextMenuAction {
-                                        label: modelData.isPinned ? "  Dock'tan Kaldır" : "  Dock'a Sabitle"
-                                        labelColor: modelData.isPinned ? Theme.red : Theme.primary
-                                        onActivate: function() {
-                                            if (modelData.isPinned) {
-                                                dockBackend.unpinApp(modelData.appId);
-                                            } else {
-                                                dockBackend.pinApp(modelData.appId);
-                                            }
-                                            dockWindow.contextMenuVisible = false;
-                                        }
-                                    }
-
-                                    ContextMenuSeparator {}
-
-                                    ContextMenuAction {
-                                        label: "  Uygulamayı Kapat"
-                                        labelColor: Theme.text
-                                        onActivate: function() {
-                                            if (modelData.isRunning && modelData.windowId) {
-                                                dockBackend.closeWindow(modelData.windowId);
-                                            }
-                                            dockWindow.contextMenuVisible = false;
-                                        }
-                                    }
-
-                                    ContextMenuSeparator {}
-
-                                    ContextMenuAction {
-                                        label: "  Dock Ayarları"
-                                        labelColor: Theme.text
-                                        onActivate: function() {
-                                            settingsMenu.currentPage = "dock";
-                                            settingsMenu.visible = true;
-                                            dockWindow.contextMenuVisible = false;
-                                        }
-                                    }
-                                }
-                            }
-                        } // End of App Item wrapper
-
-                        property int itemIndex: index
-
-                        // ── Drop göstergesi ──
-                        // Move this OUTSIDE the App Item wrapper so it shows for modules too
-                        Rectangle {
-                            visible: dockWindow.isDragging && dockWindow.dragOverIndex === index && dockWindow.dragFromIndex !== index
-                            width: 2 * dockScale
-                            height: 32 * dockScale
-                            radius: 1 * dockScale
-                            color: Theme.primary
-                            anchors.verticalCenter: parent.verticalCenter
-                            
-                            // Sürükleme yönüne göre sağa veya sola yapış
-                            anchors.left: (dockWindow.dragOverIndex > dockWindow.dragFromIndex) ? undefined : parent.left
-                            anchors.right: (dockWindow.dragOverIndex > dockWindow.dragFromIndex) ? parent.right : undefined
-                            anchors.leftMargin: (dockWindow.dragOverIndex > dockWindow.dragFromIndex) ? 0 : -4
-                            anchors.rightMargin: (dockWindow.dragOverIndex > dockWindow.dragFromIndex) ? -4 : 0
-                            
-                            z: 50
-
-                            Rectangle {
-                                anchors.centerIn: parent
-                                width: 7
-                                height: 44
-                                radius: 3.5
-                                color: Qt.rgba(137/255, 180/255, 250/255, 0.2)
-                                z: -1
-                            }
-                        }
+                    // Repeater auto-satisfies the required modelData/index on DockItem.
+                    DockItem {
+                        dockScale: dockWindow.dockScale
+                        panel: dockWindow
+                        backend: dockBackend
+                        repeater: dockRepeater
+                        row: dockRow
+                        content: dockContent
+                        moduleMap: dockWindow.moduleMap
+                        settingsPopup: settingsMenu
                     }
                 }
 
-                // Sağ ayırıcı (sağ modül varsa)
-                Rectangle {
+                DockSeparator {
                     visible: dockWindow.rightModules.length > 0
-                    width: 1 * dockScale
-                    height: dockWindow.cfgIconSize * 0.6 * dockScale
-                    color: Qt.rgba(147/255, 153/255, 178/255, 0.35)
-                    anchors.verticalCenter: parent.verticalCenter
+                    dockScale: dockWindow.dockScale
+                    iconSize: dockWindow.cfgIconSize
                 }
 
-                // ── Sağ Modüller ──
+                // ── Right modules ──
                 Repeater {
                     model: dockWindow.rightModules
-                    Item {
-                        width: rightModLoader.item ? rightModLoader.item.implicitWidth : dockWindow.cfgIconSize * dockScale
-                        height: (dockWindow.cfgIconSize + 8) * dockScale
-                        Loader {
-                            id: rightModLoader
-                            active: true
-                            sourceComponent: dockWindow.moduleMap[modelData] || null
-                            anchors.centerIn: parent
-                        }
+                    DockModuleSlot {
+                        moduleMap: dockWindow.moduleMap
+                        dockScale: dockWindow.dockScale
+                        iconSize: dockWindow.cfgIconSize
                     }
                 }
             }

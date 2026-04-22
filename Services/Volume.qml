@@ -70,8 +70,8 @@ Singleton {
 
     Process {
         id: snapshotProc
-        // Bash env var genişletmesiyle script path'ini hesaplar.
-        // PathService bağımlılığı yok → Singleton yükleme sırası sorunu olmaz.
+        // Resolves the script path via bash env var expansion so there's no
+        // dependency on PathService and no singleton-load-order pitfall.
         command: ["/bin/bash", "-lc",
             "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/quickshell/scripts/volume_snapshot.sh\""]
         running: false

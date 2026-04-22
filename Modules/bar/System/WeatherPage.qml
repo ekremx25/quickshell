@@ -72,7 +72,7 @@ Item {
                 }
             }
 
-            // ═══ MEVCUT KONUM BİLGİSİ ═══
+            // ═══ CURRENT LOCATION INFO ═══
             Rectangle {
                 Layout.fillWidth: true
                 height: currentLocCol.height + 24
@@ -196,7 +196,7 @@ Item {
 
                         Text {
                             anchors.fill: parent
-                            text: "İstanbul, Ankara, London..."
+                            text: "Istanbul, London, Tokyo..."
                             color: SettingsPalette.overlay
                             font.pixelSize: 13
                             verticalAlignment: Text.AlignVCenter
@@ -269,7 +269,7 @@ Item {
                 }
             }
 
-            // ═══ KAYDET VE UYGULA ═══
+            // ═══ SAVE AND APPLY ═══
             Rectangle { Layout.fillWidth: true; height: 1; color: Qt.rgba(255,255,255,0.06) }
 
             RowLayout {

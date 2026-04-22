@@ -5,33 +5,33 @@ import Quickshell.Io
 import QtQuick
 import "./core/Log.js" as Log
 
-// Niri compositor workspace event stream entegrasyonu.
-// Event stream beklenmedik şekilde kapanırsa (compositor yeniden başlama,
-// IPC hatası vb.) 2 saniye bekleyip otomatik yeniden bağlanır.
+// Integration with the Niri compositor's workspace event stream.
+// If the event stream closes unexpectedly (compositor restart,
+// IPC failure, etc.) the service waits 2 seconds and reconnects automatically.
 Singleton {
-    // _reconnect: false yapılırsa process durur, timer true'ya getirince
-    // binding yeniden değerlendirilerek process otomatik başlar.
+    // Setting _reconnect to false stops the process; setting it back to true
+    // re-evaluates the binding and restarts the process.
     property bool _reconnect: true
 
     property ListModel workspaces: ListModel {}
 
     // ------------------------------------------------------------------
-    // Workspace listesini güncelle
+    // Refresh the workspace list
     // ------------------------------------------------------------------
     function updateWorkspaces(workspacesEvent) {
         const workspaceList = workspacesEvent.workspaces;
 
-        // İndekse göre sırala
+        // Sort by index
         workspaceList.sort((a, b) => a.idx - b.idx);
 
         workspaces.clear();
         for (const workspace of workspaceList) {
             workspaces.append({
-                // ID'yi string'e çevir: JS sayı hassasiyeti kaybını önler
+                // Cast ID to string to avoid JS number precision loss.
                 wsId: String(workspace.id),
                 idx: workspace.idx,
                 isActive: workspace.is_active,
-                // name null ise boş string kullan: ListModel çökmesini önler
+                // Fall back to empty string when name is null — avoids ListModel crashes.
                 name: workspace.name || "",
                 output: workspace.output || ""
             });
@@ -39,10 +39,10 @@ Singleton {
     }
 
     // ------------------------------------------------------------------
-    // Aktif workspace'i güncelle
+    // Update the active workspace
     // ------------------------------------------------------------------
     function activateWorkspace(workspacesEvent) {
-        // String karşılaştırması: sayı dönüşüm hatalarına karşı güvenli
+        // String comparison — safe against numeric-conversion surprises.
         const activeId = String(workspacesEvent.id);
 
         for (let i = 0; i < workspaces.count; i++) {
@@ -56,9 +56,9 @@ Singleton {
     }
 
     // ------------------------------------------------------------------
-    // Yeniden bağlanma zamanlayıcısı
-    // Process kapandığında 2 saniye bekleyip _reconnect = true yapar;
-    // bu binding'i tetikleyerek process'i yeniden başlatır.
+    // Reconnect timer
+    // When the process exits, waits 2 seconds and sets _reconnect = true,
+    // which retriggers the binding and restarts the process.
     // ------------------------------------------------------------------
     Timer {
         id: reconnectTimer
@@ -66,7 +66,7 @@ Singleton {
         repeat: false
         onTriggered: {
             if (CompositorService.isNiri) {
-                Log.info("Niri", "Event stream'e yeniden bağlanılıyor...");
+                Log.info("Niri", "Reconnecting to event stream...");
                 _reconnect = true;
             }
         }
@@ -91,16 +91,16 @@ Singleton {
                         activateWorkspace(event.WorkspaceActivated);
                     }
                 } catch (e) {
-                    Log.warn("Niri", "Event parse hatası: " + e);
+                    Log.warn("Niri", "Event parse error: " + e);
                 }
             }
         }
 
-        // Beklenmedik çıkışlarda (crash, IPC kopması, yeniden başlama)
-        // kısa bir bekleme süresi sonra otomatik yeniden bağlan.
+        // On an unexpected exit (crash, IPC drop, restart), reconnect after a
+        // short delay.
         onExited: exitCode => {
             if (CompositorService.isNiri) {
-                Log.warn("Niri", "Event stream kapandı (kod: " + exitCode + "), 2s sonra yeniden bağlanılıyor");
+                Log.warn("Niri", "Event stream closed (code: " + exitCode + "), reconnecting in 2s");
                 _reconnect = false;
                 reconnectTimer.restart();
             }

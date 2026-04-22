@@ -59,7 +59,7 @@ Item {
     }
 
     function copyToClipboard(text) {
-        // wl-copy argüman olarak metin alır — shell'e gerek yok, injection riski sıfır.
+        // wl-copy takes the text as an argument — no shell involved, no injection risk.
         copyProc.command = ["wl-copy", "--", text];
         copyProc.running = false;
         copyProc.running = true;

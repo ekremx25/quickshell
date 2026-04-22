@@ -10,16 +10,16 @@ QtObject {
     property string currentThemeName: currentTheme
     property string lastMaterialSyncSignature: ""
 
-    // --- ANİMASYON SÜRELERİ ---
-    // Yeni component yazarken bu sabitleri kullan; böylece tüm hızları
-    // tek yerden kontrol edebilirsin.
-    readonly property int animInstant:  50   // anlık geri bildirim (hover vb.)
-    readonly property int animFast:    100   // hızlı geçişler
-    readonly property int animNormal:  150   // standart UI geçişleri
-    readonly property int animMedium:  250   // panel aç/kapat
-    readonly property int animSlow:    400   // sayfa girişi, büyük geçişler
+    // --- ANIMATION DURATIONS ---
+    // Use these constants when writing new components; that way all speeds
+    // can be controlled from one place.
+    readonly property int animInstant:  50   // instant feedback (hover etc.)
+    readonly property int animFast:    100   // fast transitions
+    readonly property int animNormal:  150   // standard UI transitions
+    readonly property int animMedium:  250   // panel open/close
+    readonly property int animSlow:    400   // page entry, big transitions
 
-    // --- TEMALAR ---
+    // --- THEMES ---
     readonly property var themes: ({
         "Catppuccin Mocha": {
             background: "#1e1e2e", surface: "#313244", text: "#cdd6f4",
@@ -136,7 +136,7 @@ QtObject {
     property color surface: activeTheme.surface
     property color text: activeTheme.text
     
-    // Modül Renkleri
+    // Module Colors
     property color launcherColor: activeTheme.launcher
     property color launcherIconColor: activeTheme.launcherIcon || "#1e1e2e"
     property color workspacesColor: activeTheme.workspaces
@@ -157,7 +157,7 @@ QtObject {
     property color batteryColor: activeTheme.battery || "#a6e3a1"
     property color powerProfileColor: activeTheme.powerProfile || "#cba6f7"
 
-    // Geriye dönük uyumluluk (Eski Theme özellikleri)
+    // Backward compatibility (Legacy Theme properties)
     property color subtext: activeTheme.subtext || "#a6adc8"
     property color primary: activeTheme.launcher 
     property color secondary: activeTheme.media
@@ -170,7 +170,7 @@ QtObject {
     property color overlay: "#6c7086"
     property int radius: themeConfig.radius || 12
 
-    // Dışarıdan tema değiştirme
+    // External theme switching
     function setTheme(name) {
         if (name && themes[name]) {
             userSelectedTheme = name;

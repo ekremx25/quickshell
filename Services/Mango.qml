@@ -8,10 +8,10 @@ import "./core/Log.js" as Log
 Singleton {
     id: root
 
-    // Monitor bazlı workspace verileri: { "DP-2": [{tagNum, state, clients, focused}], "DP-3": [...] }
+    // Per-monitor workspace data: { "DP-2": [{tagNum, state, clients, focused}], "DP-3": [...] }
     property var monitorWorkspaces: ({})
 
-    // mmsg -w -t event stream: tag değişikliklerini izle
+    // mmsg -w -t event stream: watch for tag changes
     Process {
         id: mangoEvents
         running: CompositorService.isMango
@@ -19,21 +19,21 @@ Singleton {
 
         stdout: SplitParser {
             onRead: data => {
-                // Her event geldiğinde tag bilgilerini yeniden oku
+                // Each event triggers a fresh tag read.
                 refreshTagsProc.running = true;
             }
         }
     }
 
-    // mmsg -g -t çıktısını parse et
-    // Çıktı formatı (mmsg.c kaynak kodundan):
+    // Parse mmsg -g -t output.
+    // Output format (from mmsg.c):
     //   DP-2 tag 1 1 2 1     ← monitor tag_num state clients focused
     //   DP-2 tag 2 0 0 0
     //   ...
-    //   DP-2 clients 5       ← toplam client
+    //   DP-2 clients 5       ← total clients
     //   DP-2 tags 7 2 0      ← occ sel urg bitmask
     //   DP-2 tags 000000111 000000010 000000000  ← 9-bit binary
-    //   DP-3 tag 1 1 1 0     ← ikinci monitör
+    //   DP-3 tag 1 1 1 0     ← second monitor
     //   ...
     Process {
         id: refreshTagsProc
@@ -58,7 +58,7 @@ Singleton {
 
                     var monName = parts[0];
 
-                    // "DP-2 tag 1 1 2 1" formatı
+                    // "DP-2 tag 1 1 2 1" format
                     if (parts[1] === "tag" && parts.length >= 6) {
                         var tagNum = parseInt(parts[2]);
                         var state = parseInt(parts[3]);
@@ -76,7 +76,7 @@ Singleton {
                             focused: focused
                         });
                     }
-                    // "clients" ve "tags" satırlarını atlayabiliriz, per-tag bilgi yeterli
+                    // Skip "clients" and "tags" lines — per-tag info is enough.
                 }
 
                 root.monitorWorkspaces = monData;
@@ -87,14 +87,14 @@ Singleton {
         }
     }
 
-    // İlk başlatmada tag bilgilerini al
+    // Fetch tag data on first start.
     Component.onCompleted: {
         if (CompositorService.isMango) {
             refreshTagsProc.running = true;
         }
     }
 
-    // Belirli bir monitör için workspace listesini döndür
+    // Returns the workspace list for a given monitor.
     function getWorkspacesForMonitor(monitorName) {
         var data = root.monitorWorkspaces[monitorName];
         if (!data) return [];

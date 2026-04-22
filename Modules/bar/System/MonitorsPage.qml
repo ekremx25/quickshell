@@ -126,7 +126,7 @@ Item {
         return backend.getRefreshRates(selectedOutput, selRes);
     }
 
-    // Anlık seçim durumunu MonitorGeometry fonksiyonlarına bağlam olarak iletir.
+    // Carries the live selection state as context to the MonitorGeometry helpers.
     function geoCtx() {
         return {
             selectedName: selectedOutput ? selectedOutput.name : "",
@@ -137,7 +137,7 @@ Item {
         };
     }
 
-    // Geometry wrapper'ları — mantık MonitorGeometry.js'de yaşıyor.
+    // Geometry wrappers — the actual logic lives in MonitorGeometry.js.
     function effectiveWidth(output)  { return MonitorGeometry.effectiveWidth(output, geoCtx()); }
     function effectiveHeight(output) { return MonitorGeometry.effectiveHeight(output, geoCtx()); }
     function outputPosX(output)      { return MonitorGeometry.outputPosX(output, geoCtx()); }
@@ -418,129 +418,9 @@ Item {
         anchors.margins: 22
         spacing: 16
 
-        Rectangle {
+        MonitorsHeader {
             Layout.fillWidth: true
-            radius: 14
-            color: page.cardColor
-            border.color: page.cardBorder
-            border.width: 1
-            implicitHeight: headerContent.implicitHeight + 28
-
-            RowLayout {
-                id: headerContent
-                anchors.fill: parent
-                anchors.margins: 14
-                spacing: 14
-
-                Rectangle {
-                    width: 42
-                    height: 42
-                    radius: 12
-                    color: page.accentSoft
-                    border.color: page.accentBorder
-                    border.width: 1
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: page.outputs.length
-                        color: Theme.primary
-                        font.pixelSize: 18
-                        font.bold: true
-                    }
-                }
-
-                ColumnLayout {
-                    Layout.fillWidth: true
-                    spacing: 2
-
-                    Text {
-                        text: "Displays"
-                        color: SettingsPalette.text
-                        font.pixelSize: 20
-                        font.bold: true
-                    }
-
-                        Text {
-                            text: selectedOutput
-                            ? (displayCountText() + " connected. Arrange your displays, choose the main screen, and tune resolution, scale, and color.")
-                            : "No active display detected."
-                            color: SettingsPalette.subtext
-                            font.pixelSize: 12
-                        wrapMode: Text.WordWrap
-                        Layout.fillWidth: true
-                    }
-                }
-
-                Rectangle {
-                    visible: selectedOutput !== null
-                    radius: 9
-                    color: pendingChanges() ? page.accentSoft : Qt.rgba(166 / 255, 227 / 255, 161 / 255, 0.16)
-                    border.color: pendingChanges() ? page.accentBorder : Qt.rgba(166 / 255, 227 / 255, 161 / 255, 0.55)
-                    border.width: 1
-                    implicitWidth: statusText.implicitWidth + 20
-                    implicitHeight: 34
-
-                    Text {
-                        id: statusText
-                        anchors.centerIn: parent
-                        text: pendingChanges() ? "Unsaved changes" : "Up to date"
-                        color: pendingChanges() ? Theme.primary : "#a6e3a1"
-                        font.pixelSize: 12
-                        font.bold: true
-                    }
-                }
-
-                Rectangle {
-                    width: 38
-                    height: 38
-                    radius: 10
-                    color: refreshArea.containsMouse ? Qt.rgba(255, 255, 255, 0.08) : Qt.rgba(255, 255, 255, 0.03)
-                    border.color: page.softBorder
-                    border.width: 1
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: "R"
-                        color: SettingsPalette.text
-                        font.pixelSize: 13
-                        font.bold: true
-                    }
-
-                    MouseArea {
-                        id: refreshArea
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: page.refresh()
-                    }
-                }
-
-                Rectangle {
-                    radius: 10
-                    color: identifyHeaderArea.containsMouse ? Qt.rgba(255, 255, 255, 0.08) : Qt.rgba(255, 255, 255, 0.03)
-                    border.color: page.softBorder
-                    border.width: 1
-                    implicitWidth: identifyHeaderText.implicitWidth + 20
-                    implicitHeight: 38
-
-                    Text {
-                        id: identifyHeaderText
-                        anchors.centerIn: parent
-                        text: "Identify"
-                        color: SettingsPalette.text
-                        font.pixelSize: 12
-                        font.bold: true
-                    }
-
-                    MouseArea {
-                        id: identifyHeaderArea
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: page.triggerIdentify()
-                    }
-                }
-            }
+            page: page
         }
 
         MonitorLayoutCanvas {
@@ -819,95 +699,9 @@ Item {
             }
         }
 
-        Rectangle {
+        MonitorsApplyFooter {
             Layout.fillWidth: true
-            radius: 14
-            color: page.cardColor
-            border.color: page.cardBorder
-            border.width: 1
-            implicitHeight: 72
-
-            RowLayout {
-                anchors.fill: parent
-                anchors.margins: 14
-                spacing: 12
-
-                ColumnLayout {
-                    Layout.fillWidth: true
-                    spacing: 2
-
-                    Text {
-                        text: pendingChanges() ? "Review your changes before applying them." : "Your current display configuration is saved."
-                        color: SettingsPalette.text
-                        font.pixelSize: 13
-                        font.bold: true
-                    }
-
-                    Text {
-                        text: page.selectedOutput
-                            ? ("Selected display: " + page.selectedOutput.name + " | Position " + page.selPosX + ", " + page.selPosY)
-                            : "No display selected."
-                        color: SettingsPalette.subtext
-                        font.pixelSize: 11
-                    }
-                }
-
-                Rectangle {
-                    radius: 10
-                    color: revertArea.enabled
-                        ? (revertArea.containsMouse ? Qt.rgba(255, 255, 255, 0.08) : Qt.rgba(255, 255, 255, 0.03))
-                        : Qt.rgba(255, 255, 255, 0.02)
-                    border.color: revertArea.enabled ? page.softBorder : Qt.rgba(255, 255, 255, 0.03)
-                    border.width: 1
-                    implicitWidth: 90
-                    implicitHeight: 40
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: "Revert"
-                        color: revertArea.enabled ? SettingsPalette.text : SettingsPalette.subtext
-                        font.pixelSize: 12
-                        font.bold: true
-                    }
-
-                    MouseArea {
-                        id: revertArea
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        enabled: page.selectedOutput !== null && pendingChanges()
-                        cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
-                        onClicked: page.syncSelection()
-                    }
-                }
-
-                Rectangle {
-                    radius: 10
-                    color: applyArea.enabled
-                        ? (applyArea.containsMouse ? Qt.lighter(Theme.primary, 1.1) : Theme.primary)
-                        : Qt.rgba(255, 255, 255, 0.08)
-                    border.color: applyArea.enabled ? Qt.lighter(Theme.primary, 1.2) : Qt.rgba(255, 255, 255, 0.05)
-                    border.width: 1
-                    implicitWidth: 118
-                    implicitHeight: 40
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: pendingChanges() ? "Apply" : "Saved"
-                        color: applyArea.enabled ? "#11151b" : SettingsPalette.subtext
-                        font.pixelSize: 13
-                        font.bold: true
-                    }
-
-                    MouseArea {
-                        id: applyArea
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        enabled: page.selectedOutput !== null && pendingChanges()
-                        cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
-                        onClicked: page.applySettings()
-                    }
-                }
-            }
+            page: page
         }
     }
 }

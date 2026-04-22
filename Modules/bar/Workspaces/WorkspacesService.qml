@@ -353,12 +353,12 @@ Item {
     }
 
     // ----------------------------------------------------------------
-    // Hyprland: .socket2 event stream (event-driven, polling yok)
+    // Hyprland: .socket2 event stream (event-driven, no polling)
     // ----------------------------------------------------------------
-    // Hyprland socket'ten gelen olayları dinler; workspace/pencere
-    // değişikliklerinde 50ms debounce ile refresh() çağırır.
-    // Bağlantı koparsaysa 1s sonra otomatik yeniden bağlanır.
-    // socat/nc bulunamazsa (exit 127) polling fallback devreye girer.
+    // Listens for events from the Hyprland socket; calls refresh() with
+    // a 50ms debounce on workspace/window changes.
+    // If the connection drops, auto-reconnects after 1s.
+    // If socat/nc is missing (exit 127), polling fallback kicks in.
     property bool _hyprFallback: false
 
     Process {
@@ -372,7 +372,7 @@ Item {
             onRead: data => {
                 var line = data.trim();
                 if (!line) return;
-                // Workspace veya pencere değişikliğini tetikleyen olaylar
+                // Events that trigger a workspace or window change
                 if (line.startsWith("workspace>>")   ||
                     line.startsWith("openwindow>>")  ||
                     line.startsWith("closewindow>>") ||
@@ -388,13 +388,13 @@ Item {
         onExited: exitCode => {
             if (!CompositorService.isHyprland) return;
             if (exitCode === 127) {
-                // socat/nc yok → polling fallback
-                Log.warn("WorkspacesService", "Hyprland event stream kullanılamıyor, polling moduna geçiliyor");
+                // socat/nc not available → polling fallback
+                Log.warn("WorkspacesService", "Hyprland event stream unavailable, switching to polling mode");
                 service._hyprFallback = true;
                 return;
             }
-            // Geçici kopukluk (compositor restart vb.) → 1s sonra yeniden bağlan
-            Log.info("WorkspacesService", "Hyprland event stream kapandı (kod: " + exitCode + "), yeniden bağlanılıyor");
+            // Temporary disconnect (compositor restart etc.) → reconnect after 1s
+            Log.info("WorkspacesService", "Hyprland event stream closed (code: " + exitCode + "), reconnecting");
             hyprReconnectTimer.restart();
         }
     }
@@ -419,9 +419,9 @@ Item {
 
     // ----------------------------------------------------------------
     // Hyprland fallback + MangoWC: polling (700ms)
-    // Hyprland: sadece socat/nc yoksa aktif olur.
-    // MangoWC: her zaman aktif (event stream API yok).
-    // Niri: Niri.qml event stream kullandığından hiç çalışmaz.
+    // Hyprland: only active if socat/nc is missing.
+    // MangoWC: always active (no event stream API).
+    // Niri: never runs because Niri.qml uses its own event stream.
     // ----------------------------------------------------------------
     Timer {
         interval: 700

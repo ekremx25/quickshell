@@ -1,13 +1,13 @@
 .pragma library
 
-// Monitor layout geometry hesaplamaları.
+// Monitor layout geometry calculations.
 //
-// ctx nesnesi, anlık seçim durumunu taşır:
+// The ctx object carries the current selection state:
 //   { selectedName: string, selRes: string, selScale: number,
 //     selPosX: number, selPosY: number }
 //
-// Tüm fonksiyonlar saf hesaplama yapar (QML state bağımlılığı yok),
-// bu sayede birim testi ve izole kullanım mümkündür.
+// All functions perform pure calculations (no QML state dependency),
+// enabling unit testing and isolated use.
 
 function effectiveWidth(output, ctx) {
     if (!output) return 0;

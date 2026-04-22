@@ -20,6 +20,7 @@ import "./Notifications"
 import "./Clipboard"
 import "./Settings"
 import "./Equalizer"
+import "./NightLight"
 
 import "./Group"
 import "./System" as Sys
@@ -69,6 +70,7 @@ Variants {
         "Tray": trayComp,
         "Clipboard": clipboardComp,
         "Power": powerComp,
+        "NightLight": nightLightComp,
 
         "PowerGroup": powerGroupComp,
         "SysInfoGroup": sysInfoGroupComp,
@@ -85,6 +87,7 @@ Variants {
     Component { id: trayComp; Tray {} }
     Component { id: clipboardComp; Clipboard {} }
     Component { id: powerComp; Power {} }
+    Component { id: nightLightComp; NightLight {} }
 
     Component { id: powerGroupComp; PowerGroup {} }
     Component { id: sysInfoGroupComp; SysInfoGroup {} }
@@ -112,7 +115,7 @@ Variants {
             id: barWindow
             screen: modelData
 
-            // Dinamik anchor'lar pozisyona göre
+            // Dynamic anchors based on bar position
             anchors {
                 left:   root.barPosition !== "right"
                 right:  root.barPosition !== "left"
@@ -122,7 +125,7 @@ Variants {
             color: "transparent"
             property real barSize: 46
 
-            // Yatay modda height, dikey modda width ayarla
+            // In horizontal mode set height; in vertical mode set width.
             implicitHeight: root.isVertical ? -1 : barSize
             implicitWidth:  root.isVertical ? barSize : -1
             exclusiveZone: barSize
@@ -179,7 +182,7 @@ Variants {
                     }
                 }
 
-                // === YATAY MOD (top/bottom) ===
+                // === HORIZONTAL MODE (top/bottom) ===
                 // --- LEFT ---
                 RowLayout {
                     visible: !root.isVertical
@@ -266,7 +269,7 @@ Variants {
                     }
                 }
 
-                // === DİKEY MOD (left/right) ===
+                // === VERTICAL MODE (left/right) ===
                 // --- TOP (= left modules) ---
                 ColumnLayout {
                     visible: root.isVertical

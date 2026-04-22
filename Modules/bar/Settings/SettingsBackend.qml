@@ -73,7 +73,7 @@ Item {
             var cfg = backend.normalizeBarConfig(value);
             backend.applyBarConfig(cfg);
             if (rawText.trim() === "") {
-                // İlk çalıştırma: normalize edilmiş config'i diske yaz.
+                // First run: write the normalized config to disk.
                 barConfigStore.save(cfg);
                 customPresetStore.save(cfg);
                 defaultsStore.write(backend.renderBarDefaults(cfg));

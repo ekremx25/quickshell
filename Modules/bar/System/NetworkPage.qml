@@ -405,7 +405,7 @@ Item {
                                 font.bold: modelData.active; font.pixelSize: 13; Layout.fillWidth: true; elide: Text.ElideRight
                             }
                             Text {
-                                text: (modelData.security !== "" ? "🔒 " + modelData.security : "Açık") + " • " + modelData.signal + "%"
+                                text: (modelData.security !== "" ? "🔒 " + modelData.security : "Open") + " • " + modelData.signal + "%"
                                 color: SettingsPalette.subtext; font.pixelSize: 10
                             }
                         }
@@ -434,7 +434,7 @@ Item {
 
                             Text {
                                 anchors.centerIn: parent
-                                text: networkPage.connectingSsid === modelData.ssid ? "Bağlanıyor..." : "Bağlan"
+                                text: networkPage.connectingSsid === modelData.ssid ? "Connecting..." : "Connect"
                                 color: networkPage.connectingSsid === modelData.ssid ? SettingsPalette.subtext : "#1e1e2e"
                                 font.bold: true; font.pixelSize: 12
                             }
@@ -597,7 +597,7 @@ Item {
                             color: Qt.rgba(0,0,0,0.2); border.color: dnsInput.activeFocus ? Theme.primary : "transparent"; border.width: 1
                             TextInput { 
                                 id: dnsInput; anchors.fill: parent; anchors.margins: 8; color: SettingsPalette.text; verticalAlignment: TextInput.AlignVCenter; selectByMouse: true
-                                Text { text: "Otomatik (Boş Bırakın)"; visible: parent.text === "" && !parent.activeFocus; color: SettingsPalette.overlay; anchors.verticalCenter: parent.verticalCenter }
+                                Text { text: "Automatic (leave empty)"; visible: parent.text === "" && !parent.activeFocus; color: SettingsPalette.overlay; anchors.verticalCenter: parent.verticalCenter }
                             }
                         }
                     }

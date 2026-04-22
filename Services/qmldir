@@ -8,3 +8,4 @@ singleton ColorPaletteService ColorPaletteService.qml
 singleton Volume Volume.qml
 singleton Network Network.qml
 singleton Time Time.qml
+singleton NightLight NightLight.qml

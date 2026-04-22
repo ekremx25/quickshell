@@ -79,7 +79,7 @@ for dir in $DESKTOP_DIRS; do
             desktop_map["$wm_lower"]="$desktop_basename"
         fi
 
-        # Exec adı → icon & cmd
+        # Exec name → icon & cmd
         if [ -n "$exec_name" ]; then
             exec_lower=$(echo "$exec_name" | tr '[:upper:]' '[:lower:]')
             icon_map["$exec_lower"]="$icon"

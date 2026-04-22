@@ -25,7 +25,7 @@ ColumnLayout {
         mountDialogVisible = true;
     }
 
-    // --- Başlık ---
+    // --- Title ---
     RowLayout {
         Layout.fillWidth: true
         Text {
@@ -41,7 +41,7 @@ ColumnLayout {
             color: SettingsPalette.text
         }
         Item { Layout.fillWidth: true }
-        // Yenile butonu
+        // Refresh button
         Rectangle {
             width: 32; height: 32; radius: 16
             color: refreshMA.containsMouse ? SettingsPalette.surface : "transparent"
@@ -75,7 +75,7 @@ ColumnLayout {
         }
     }
 
-    // --- Disk Listesi ---
+    // --- Disk List ---
     ListView {
         id: diskListView
         Layout.fillWidth: true
@@ -90,7 +90,7 @@ ColumnLayout {
             height: 112
             color: SettingsPalette.surface
             radius: 12
-            // Sadece görsel çerçeve, interactive değil
+            // Visual frame only, not interactive
             border.color: "transparent"
 
             RowLayout {
@@ -98,16 +98,16 @@ ColumnLayout {
                 anchors.margins: 12
                 spacing: 16
 
-                // Sol Taraf: Grafik veya İkon
+                // Left Side: Chart or Icon
                 Item {
                     width: 50; height: 50
-                    
-                    // Bağlı diskler için: Daire Grafik
+
+                    // For mounted disks: Circle Chart
                     Item {
                         anchors.fill: parent
                         visible: modelData.mountpoint !== "" && modelData.fsused !== ""
 
-                        // Arkaplan halkası
+                        // Background ring
                         Shape {
                             anchors.fill: parent
                             ShapePath {
@@ -124,7 +124,7 @@ ColumnLayout {
                             }
                         }
 
-                        // Doluluk halkası
+                        // Fill ring
                         Shape {
                             anchors.fill: parent
                             ShapePath {
@@ -155,7 +155,7 @@ ColumnLayout {
                         }
                     }
 
-                    // Bağlı OLMAYAN diskler için: İkon
+                    // For UNMOUNTED disks: Icon
                     Rectangle {
                         visible: modelData.mountpoint === "" || modelData.fsused === ""
                         anchors.fill: parent
@@ -171,12 +171,12 @@ ColumnLayout {
                     }
                 }
 
-                // Bilgiler
+                // Info
                 ColumnLayout {
                     Layout.fillWidth: true
                     spacing: 4
-                    
-                    // İsim ve Bağlama Noktası
+
+                    // Name and Mount Point
                     RowLayout {
                         Text {
                             text: modelData.name
@@ -195,7 +195,7 @@ ColumnLayout {
                         }
                     }
 
-                    // Detaylar (Kullanılan / Toplam / Boş)
+                    // Details (Used / Total / Free)
                     Text {
                         text: {
                             if (modelData.mountpoint && modelData.fsused) {
@@ -209,7 +209,7 @@ ColumnLayout {
                         opacity: 0.8
                     }
                     
-                    // FSType (küçük bilgi)
+                    // FSType (small info)
                     Text {
                         visible: modelData.fstype !== ""
                         text: modelData.fstype.toUpperCase()

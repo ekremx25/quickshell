@@ -7,10 +7,10 @@ Rectangle {
     id: root
     height: 30
     width: layout.implicitWidth + 32
-    color: "#f5c2e7" // Pembe
+    color: "#f5c2e7" // Pink
     radius: 15
 
-    // Sol tarafı düzleştiren yama
+    // Patch that flattens the left side
     Rectangle {
         width: 15
         height: parent.height
@@ -32,41 +32,41 @@ Rectangle {
         }
 
         Text {
-            text: "" // Senin fontunda varsa "󰏈" yapabilirsin
+            text: "" // If your font has it you can use "󰏈"
             font.pixelSize: 16
             color: "#1e1e2e"
         }
     }
 
-    // --- EN SAĞLAM YÖNTEM: Donanım Dosyasını Bul ve Oku ---
+    // --- MOST ROBUST METHOD: Find and Read the Hardware File ---
     Process {
         id: tempProc
-        // Bu komut şunları yapar:
-        // 1. hwmon klasörlerini gezer.
-        // 2. "k10temp" (senin işlemcin) ismini arar.
-        // 3. Bulduğu klasördeki sıcaklık dosyasını (temp1_input) okur.
-        // 4. "Sensors" komutunu çalıştırmaktan çok daha hafiftir.
+        // This command does the following:
+        // 1. Walks through the hwmon folders.
+        // 2. Searches for the "k10temp" name (your CPU).
+        // 3. Reads the temperature file (temp1_input) from the folder it finds.
+        // 4. Much lighter than running the "sensors" command.
         command: ["sh", "-c", "for h in /sys/class/hwmon/hwmon*; do grep -q k10temp $h/name && cat $h/temp1_input && exit; done"]
     }
 
-    // --- VERİ OKUMA ---
+    // --- DATA READING ---
     Connections {
-        // Sadece süreç çalışırken bağlan (Hata vermemesi için kritik!)
+        // Only connect while the process is running (Critical to avoid errors!)
         target: tempProc.running ? tempProc.stdout : null
 
         function onRead(data) {
             var rawVal = data.toString().trim()
 
-            // Gelen veri sayı mı kontrol et (Örn: 46125 gelir)
+            // Check if the incoming data is a number (e.g. 46125 arrives)
             if (rawVal !== "" && !isNaN(rawVal)) {
-                // 1000'e bölüp dereceye çeviriyoruz: 46125 -> 46.1
+                // Divide by 1000 and convert to degrees: 46125 -> 46.1
                 var temp = (parseInt(rawVal) / 1000).toFixed(1)
                 tempText.text = "+" + temp + "°C"
             }
         }
     }
 
-    // --- ZAMANLAYICI (2 Saniye) ---
+    // --- TIMER (2 Seconds) ---
     Timer {
         interval: 2000
         running: true

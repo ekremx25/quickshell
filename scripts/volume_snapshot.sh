@@ -1,36 +1,36 @@
 #!/usr/bin/env bash
-# volume_snapshot.sh — Aktif ses çıkışının anlık durumunu okur.
+# volume_snapshot.sh — Read a snapshot of the active audio output's state.
 #
-# EQ sanal sink (effect_input.eq) aktifken gerçek cihazı (BASE_SINK)
-# hedef olarak kullanır; böylece görünen ses seviyesi her zaman fiziksel
-# cihaza karşılık gelir.
+# When the EQ virtual sink (effect_input.eq) is active, the physical device
+# (BASE_SINK) is used as the target so that the displayed volume always
+# corresponds to the physical device.
 #
-# Çıktı (her satır bir değer):
-#   SINK=<sink-adı>     ← kontrol edilen sink
-#   VOL=<0-150>         ← yüzde olarak ses seviyesi
-#   MUTE=<yes|no>       ← sessizleştirme durumu
+# Output (one value per line):
+#   SINK=<sink-name>    ← sink under control
+#   VOL=<0-150>         ← volume as a percentage
+#   MUTE=<yes|no>       ← mute state
 #
-# Bağımlılıklar: pactl (pulseaudio-utils), awk, sed
+# Dependencies: pactl (pulseaudio-utils), awk, sed
 
 set -euo pipefail
 
 STATE_FILE="${XDG_STATE_HOME:-$HOME/.local/state}/quickshell/eq_filter_chain.state"
 
-# Varsayılan ve çalışan (RUNNING) sink'i al
-# "|| true": boş sonuç veya eşleşme olmadığında pipefail'dan kaçın
+# Find the default sink and any RUNNING sink.
+# `|| true` — avoid pipefail when there's no match.
 DEFAULT_SINK=$(pactl info | sed -n 's/^Default Sink: //p' | head -n1 || true)
 RUNNING_SINK=$(pactl list short sinks \
     | awk '$5 == "RUNNING" {print $2}' \
     | { grep -v '^effect_input\.eq$' || true; } \
     | head -n1)
 
-# EQ state dosyasından kalıcı BASE_SINK'i oku
+# Read the persistent BASE_SINK from the EQ state file.
 STATE_SINK=""
 if [ -f "$STATE_FILE" ]; then
     STATE_SINK=$(awk -F'=' '/^BASE_SINK=/{print $2; exit}' "$STATE_FILE" || true)
 fi
 
-# Kontrol hedefini belirle
+# Pick the control target.
 CONTROL="$DEFAULT_SINK"
 TARGET="$DEFAULT_SINK"
 
@@ -45,7 +45,7 @@ fi
 
 [ -z "$CONTROL" ] && CONTROL="$TARGET"
 
-# Ses seviyesi ve sessizlik durumunu oku
+# Read volume and mute state.
 VOL=$(pactl get-sink-volume "$CONTROL" 2>/dev/null \
     | sed -n 's/.* \([0-9]\+\)%.*/\1/p' \
     | head -n1)

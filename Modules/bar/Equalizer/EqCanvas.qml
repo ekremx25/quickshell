@@ -1,7 +1,7 @@
 import QtQuick
 
-// EQ frekans eğrisi Canvas'ı.
-// Equalizer.qml'den bağımsız olarak çalışır; tüm state dışarıdan property olarak verilir.
+// EQ frequency curve Canvas.
+// Runs independently from Equalizer.qml; all state is passed in as properties.
 Canvas {
     id: canvas
 
@@ -16,7 +16,7 @@ Canvas {
         ctx.reset();
         if (!eqBands || eqBands.length === 0) return;
 
-        // Frekans bantlarını canvas koordinatlarına dönüştür
+        // Convert frequency bands to canvas coordinates
         var anchors = [];
         for (var i = 0; i < eqBands.length; i++) {
             var anchorX     = (width / Math.max(1, eqBands.length - 1)) * i;
@@ -26,7 +26,7 @@ Canvas {
         }
         if (anchors.length < 2) return;
 
-        // Dalga örneklerini oluştur (arka + ön katman)
+        // Generate wave samples (back + front layer)
         var backSamples  = [];
         var frontSamples = [];
         var sampleCount  = Math.max(48, Math.floor(width / 6));
@@ -52,7 +52,7 @@ Canvas {
             frontSamples.push({ x: fx, y: baseY + frontRipple });
         }
 
-        // Arka plan sis katmanı
+        // Background mist layer
         var mist = ctx.createLinearGradient(0, height * 0.30, width, height * 0.68);
         mist.addColorStop(0.0, "rgba(180, 245, 245, 0.01)");
         mist.addColorStop(0.5, "rgba(180, 245, 245, 0.06)");
@@ -60,7 +60,7 @@ Canvas {
         ctx.fillStyle = mist;
         ctx.fillRect(0, height * 0.30, width, height * 0.30);
 
-        // Gölge eğrisi (kalın, saydam)
+        // Shadow curve (thick, translucent)
         ctx.beginPath();
         ctx.moveTo(backSamples[0].x, backSamples[0].y);
         for (var p = 1; p < backSamples.length; p++) {
@@ -70,7 +70,7 @@ Canvas {
         ctx.strokeStyle = Qt.rgba(eqAccent.r, eqAccent.g, eqAccent.b, 0.10);
         ctx.stroke();
 
-        // Glow eğrisi (orta)
+        // Glow curve (middle)
         ctx.beginPath();
         ctx.moveTo(frontSamples[0].x, frontSamples[0].y);
         for (var j = 1; j < frontSamples.length; j++) {
@@ -80,7 +80,7 @@ Canvas {
         ctx.strokeStyle = waveGlowColor;
         ctx.stroke();
 
-        // Ana eğri (ince, keskin)
+        // Main curve (thin, sharp)
         ctx.beginPath();
         ctx.moveTo(frontSamples[0].x, frontSamples[0].y);
         for (var k = 1; k < frontSamples.length; k++) {
@@ -90,7 +90,7 @@ Canvas {
         ctx.strokeStyle = waveLineColor;
         ctx.stroke();
 
-        // Bant noktası parlaklıkları
+        // Band anchor glows
         for (var a = 0; a < anchors.length; a++) {
             var softGrad = ctx.createRadialGradient(
                 anchors[a].x, anchors[a].y, 0,

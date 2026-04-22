@@ -30,15 +30,15 @@ PanelWindow {
     property var notifService: S.Notifications
     property var currentNotif: null
 
-    // Pozisyona göre giriş yönü
+    // Entry direction based on position
     readonly property bool isLeft:   notifService.popupPosition === 2 || notifService.popupPosition === 6
     readonly property bool isBottom: notifService.popupPosition === 4 || notifService.popupPosition === 5 || notifService.popupPosition === 6
 
-    // --- Animasyon kaynakları ---
+    // --- Animation sources ---
     property real slideStartX: isLeft ? -360 : 360
     property real slideStartY: isBottom ? 80 : -80
 
-    // --- GİRİŞ ---
+    // --- ENTER ---
     function playEnter() {
         mainRect.opacity = 0;
         mainRect.scale   = 0.82;
@@ -47,7 +47,7 @@ PanelWindow {
         enterAnim.restart();
     }
 
-    // --- ÇIKIŞ ---
+    // --- EXIT ---
     function playExit(callback) {
         exitAnim.onFinishedCallback = callback;
         exitAnim.restart();
@@ -73,7 +73,7 @@ PanelWindow {
         }
     }
 
-    // --- BAĞLANTILAR ---
+    // --- CONNECTIONS ---
     Connections {
         target: notifService
         function onNewNotificationReceived(notif) {
@@ -110,13 +110,13 @@ PanelWindow {
             Translate { id: slideY; y: 0 }
         ]
 
-        // Hover: zamanlayıcıyı durdur
+        // Hover: stop the timer
         HoverHandler {
             id: toastHover
             onHoveredChanged: {
                 if (hovered) {
                     hideTimer.stop();
-                    // Hafif parlama
+                    // Slight shine
                     hoverAnim.start();
                 } else {
                     hideTimer.restart();
@@ -128,7 +128,7 @@ PanelWindow {
         NumberAnimation { id: hoverAnim;   target: mainRect; property: "scale"; to: 1.03; duration: 180; easing.type: Easing.OutCubic }
         NumberAnimation { id: unhoverAnim; target: mainRect; property: "scale"; to: 1.0;  duration: 180; easing.type: Easing.OutCubic }
 
-        // Tıklayınca kapat
+        // Close on click
         MouseArea {
             anchors.fill: parent
             cursorShape: Qt.PointingHandCursor
@@ -142,7 +142,7 @@ PanelWindow {
             }
         }
 
-        // Kapat butonu
+        // Close button
         Text {
             anchors { top: parent.top; right: parent.right; margins: 8 }
             text: ""
@@ -161,7 +161,7 @@ PanelWindow {
             anchors { left: parent.left; top: parent.top; right: parent.right; margins: 12 }
             spacing: 12
 
-            // İkon
+            // Icon
             Rectangle {
                 width: 40; height: 40; radius: 10
                 color: Theme.base
@@ -184,7 +184,7 @@ PanelWindow {
                 }
             }
 
-            // İçerik
+            // Content
             ColumnLayout {
                 Layout.fillWidth: true
                 spacing: 4
@@ -217,7 +217,7 @@ PanelWindow {
             }
         }
 
-        // Progress bar (süre göstergesi)
+        // Progress bar (duration indicator)
         Rectangle {
             anchors { bottom: parent.bottom; left: parent.left }
             height: 3

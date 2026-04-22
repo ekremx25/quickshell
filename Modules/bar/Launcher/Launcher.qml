@@ -6,12 +6,12 @@ import "../../../Widgets"
 Rectangle {
     id: launcherRoot
 
-    // --- SİNYAL ---
+    // --- SIGNAL ---
     signal settingsRequested()
     LauncherService { id: launcherService }
 
-    // --- RENK AYARLARI ---
-    // --- RENK AYARLARI ---
+    // --- COLOR SETTINGS ---
+    // --- COLOR SETTINGS ---
     property color containerColor: Theme.launcherColor
     property color hoverColor: Qt.lighter(containerColor, 1.1)
     property color iconColor: Theme.launcherIconColor
@@ -31,7 +31,7 @@ Rectangle {
     Behavior on color { ColorAnimation { duration: 200 } }
     Behavior on scale { NumberAnimation { duration: 180; easing.type: Easing.OutBack } }
 
-    // Ripple efekti
+    // Ripple effect
     Rectangle {
         id: ripple
         anchors.centerIn: parent
@@ -51,7 +51,7 @@ Rectangle {
     // --- LOGO SETTINGS ---
     property string logo: ""
 
-    // --- GENTOO İKONU / CUSTOM LOGO ---
+    // --- GENTOO ICON / CUSTOM LOGO ---
     
     // 1. Text Logo (if logo is text or empty/default)
     Text {
@@ -79,7 +79,7 @@ Rectangle {
         fillMode: Image.PreserveAspectFit
     }
 
-    // --- TIKLAMA ALANI ---
+    // --- CLICK AREA ---
     MouseArea {
         id: launcherMouse
         anchors.fill: parent

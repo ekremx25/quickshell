@@ -12,7 +12,7 @@ Scope {
     property string cityName: "Erzurum"
     property string customLat: "39.9208"
     property string customLon: "41.2746"
-    property string apiKey: ""         // gerekmiyor
+    property string apiKey: ""         // not required
     property bool useFahrenheit: false
     property bool weatherEnabled: true
 
@@ -84,10 +84,10 @@ Scope {
                 root.currentTemp = Math.round(cur.temperature_2m).toString();
                 root.weatherIcon  = root.getWeatherIcon(cur.weathercode, cur.is_day === 1);
 
-                // Açıklama metni
+                // Description text
                 var desc = root.getWeatherDesc(cur.weathercode);
 
-                // Sunrise/Sunset (bugün, ISO string → HH:MM)
+                // Sunrise/Sunset (today, ISO string → HH:MM)
                 function fmtTime(iso) {
                     if (!iso) return "--:--";
                     var d = new Date(iso);
@@ -96,7 +96,7 @@ Scope {
                     return h + ":" + m;
                 }
 
-                // 5 günlük tahmin
+                // 5-day forecast
                 var dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
                 var forecastList = [];
                 for (var i = 0; i < daily.time.length; i++) {
@@ -145,7 +145,7 @@ Scope {
 
     Timer {
         id: updateTimer
-        interval: 1800000  // 30 dakikada bir güncelle
+        interval: 1800000  // update every 30 minutes
         running: true
         repeat: true
         triggeredOnStart: false
@@ -160,7 +160,7 @@ Scope {
         onTriggered: root.triggerRefresh()
     }
 
-    // WMO Weather Codes → Nerd Font ikonlar
+    // WMO Weather Codes → Nerd Font icons
     function getWeatherIcon(code, isDaylight) {
         if (code === 0)  return "☀";                    // Clear sky
         if (code === 1)  return "☀";                    // Mainly clear
@@ -182,7 +182,7 @@ Scope {
         return "⛅";
     }
 
-    // WMO kodundan açıklama
+    // Description from WMO code
     function getWeatherDesc(code) {
         if (code === 0)  return "Clear Sky";
         if (code === 1)  return "Mainly Clear";

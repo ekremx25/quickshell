@@ -81,7 +81,7 @@ Rectangle {
             id: tooltipText
             anchors.centerIn: parent
             text: {
-                if (!root.hasBattery) return "Masaüstü — AC Güç"
+                if (!root.hasBattery) return "Desktop — AC Power"
                 return root.batteryLevel + "% — " + root.batteryStatus
             }
             color: Theme.text

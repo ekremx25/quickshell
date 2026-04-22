@@ -43,13 +43,13 @@ PanelWindow {
     readonly property color contentBackgroundColor: Qt.rgba(0, 0, 0, 0.92)
     readonly property color contentPanelColor: SettingsPalette.background
 
-    // Aktif sayfa
+    // Active page
     property string currentPage: "bar"
 
-    // Modül bilgileri
+    // Module info
     readonly property alias moduleInfo: backend.moduleInfo
 
-    // Sidebar menü kategorileri
+    // Sidebar menu categories
     readonly property var menuCategories: [
         {
             title: "SYSTEM",
@@ -65,7 +65,8 @@ PanelWindow {
                 { key: "bar",        icon: "󰒍", label: "Bar Settings" },
                 { key: "dock",       icon: "⚓", label: "Dock Settings" },
                 { key: "layout",     icon: "󰕰", label: "Layout Presets" },
-                { key: "materialyou",icon: "󰏘", label: "Material You" }
+                { key: "materialyou",icon: "󰏘", label: "Material You" },
+                { key: "nightlight", icon: "󰽥", label: "Night Light" }
             ]
         },
         {
@@ -131,7 +132,7 @@ PanelWindow {
         width: 1000
         height: 700
         
-        // Ekranın ortasında başla
+        // Start at the center of the screen
         x: (parent.width - width) / 2
         y: (parent.height - height) / 2
 
@@ -145,7 +146,7 @@ PanelWindow {
         property real minH: 450
         property bool resizing: false
 
-        // Resize sırasında layout animasyonlarını kapat
+        // Disable layout animations during resize
         Behavior on width { enabled: !settingsContent.resizing; NumberAnimation { duration: 0 } }
         Behavior on height { enabled: !settingsContent.resizing; NumberAnimation { duration: 0 } }
 
@@ -173,13 +174,13 @@ PanelWindow {
                     anchors.margins: 12
                     spacing: 4
 
-                    // Başlık (drag handle) — sürüklenebilir
+                    // Title (drag handle) — draggable
                     Item {
                         Layout.fillWidth: true
                         Layout.bottomMargin: 12
                         height: 30
 
-                        // Drag handler - başlık alanından pencereyi sürükle
+                        // Drag handler - drag the window from the title area
                         MouseArea {
                             id: titleDragArea
                             anchors.fill: parent
@@ -251,7 +252,7 @@ PanelWindow {
                             width: parent.width
                             spacing: 12
 
-                            // Menü kategorileri
+                            // Menu categories
                             Repeater {
                                 model: settingsPopup.menuCategories
 
@@ -261,7 +262,7 @@ PanelWindow {
                                     spacing: 4
                                     property bool isExpanded: true
 
-                                    // Kategori Başlığı (Tıklanabilir)
+                                    // Category Title (Clickable)
                                     Rectangle {
                                         Layout.fillWidth: true
                                         height: 28
@@ -299,7 +300,7 @@ PanelWindow {
                                         }
                                     }
 
-                                    // Kategori öğeleri
+                                    // Category items
                                     ColumnLayout {
                                         Layout.fillWidth: true
                                         spacing: 4
@@ -319,7 +320,7 @@ PanelWindow {
                                                 }
                                                 Behavior on color { ColorAnimation { duration: settingsContent.resizing ? 0 : 120 } }
 
-                                                // Sol accent çizgisi
+                                                // Left accent line
                                                 Rectangle {
                                                     visible: settingsPopup.currentPage === modelData.key
                                                     width: 3; height: 18; radius: 2
@@ -364,16 +365,16 @@ PanelWindow {
                                 }
                             }
                             
-                            Item { height: 16 } // Alt boşluk
+                            Item { height: 16 } // Bottom spacing
                         }
                     }
                 }
             }
 
-            // Ayırıcı
+            // Separator
             Rectangle { width: 1; Layout.fillHeight: true; color: Qt.rgba(255,255,255,0.06) }
 
-            // ═══ İÇERİK ═══
+            // ═══ CONTENT ═══
             Rectangle {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
@@ -409,14 +410,14 @@ PanelWindow {
                         }
                     }
 
-                    // ── WORKSPACES SAYFASI ──
+                    // ── WORKSPACES PAGE ──
                     WorkspacesPage {
                         anchors.fill: parent
                         visible: settingsPopup.currentPage === "workspaces"
                         settingsPopup: settingsPopup
                     }
 
-                    // ── NOTIFICATIONS SAYFASI ──
+                    // ── NOTIFICATIONS PAGE ──
                     NotificationsPage {
                         anchors.fill: parent
                         visible: settingsPopup.currentPage === "notifications"
@@ -430,14 +431,14 @@ PanelWindow {
                         z: visible ? 100 : 0
                     }
 
-                    // ── DOCK SAYFASI ──
+                    // ── DOCK PAGE ──
                     DockPage {
                         anchors.fill: parent
                         visible: settingsPopup.currentPage === "dock"
                         settingsPopup: settingsPopup
                     }
 
-                    // ── SİSTEM SAYFALARI ──
+                    // ── SYSTEM PAGES ──
                     Sys.SystemInfoPage {
                         anchors.fill: parent
                         visible: settingsPopup.currentPage === "sysinfo"
@@ -446,6 +447,11 @@ PanelWindow {
                     Sys.LockPage {
                         anchors.fill: parent
                         visible: settingsPopup.currentPage === "lockscreen"
+                    }
+
+                    Sys.NightLightPage {
+                        anchors.fill: parent
+                        visible: settingsPopup.currentPage === "nightlight"
                     }
 
                     Sys.DiskPage {

@@ -143,7 +143,7 @@ Singleton {
                 for (var i = 0; i < lines.length; i++) {
                     var line = lines[i].trim();
                     if (line === "") continue;
-                    // mmsg -O çıktısını parse et - her satır bir monitor
+                    // Parse mmsg -O output — each line is one monitor
                     list.push({
                         name: line,
                         make: "",

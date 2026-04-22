@@ -13,10 +13,10 @@ Item {
     property var value: ({})
     property string rawText: ""
 
-    // Şema versiyonlama:
-    // - schemaVersion: bu store'un beklediği versiyon numarası (varsayılan 0 = versiyonsuz)
-    // - migrate(data, fromVersion): eski config'i güncel şemaya dönüştürmek için override et
-    //   Örnek kullanım:
+    // Schema versioning:
+    // - schemaVersion: the version number this store expects (default 0 = unversioned)
+    // - migrate(data, fromVersion): override to convert older configs to the current schema.
+    //   Example:
     //     schemaVersion: 2
     //     function migrate(data, from) {
     //         if (from < 1) data.newField = "default";
@@ -26,12 +26,12 @@ Item {
     property int schemaVersion: 0
 
     function migrate(data, fromVersion) {
-        // Alt sınıflar override etsin. Varsayılan: dönüşüm yok.
+        // Subclasses should override. Default: no transformation.
         return data;
     }
 
-    // Yüklenen veriyi doğrular. Geçersiz bir değer varsa düzeltilmiş veriyi döndür.
-    // Alt sınıflar override edebilir:
+    // Validates the loaded data. Returns a corrected copy if invalid values are found.
+    // Subclasses can override:
     //   function validate(data) {
     //       if (data.timeout < 0) data.timeout = 0;
     //       if (data.timeout > 3600) data.timeout = 3600;
@@ -77,12 +77,12 @@ Item {
             try {
                 var parsed = JSON.parse(text);
 
-                // Şema versiyonu kontrolü: config'deki versiyon mevcut beklentiden düşükse migrate et.
+                // Schema version check: if the config's version is below our expectation, migrate it.
                 var fileVersion = (typeof parsed._schemaVersion === "number") ? parsed._schemaVersion : 0;
                 if (root.schemaVersion > 0 && fileVersion < root.schemaVersion) {
                     parsed = root.migrate(parsed, fileVersion);
                     parsed._schemaVersion = root.schemaVersion;
-                    // Migrasyon sonucunu hemen diske yaz.
+                    // Persist the migration result to disk immediately.
                     root.rawText = JSON.stringify(parsed, null, 2);
                     textStore.write(root.rawText);
                 }
@@ -90,7 +90,7 @@ Item {
                 root.value = root.validate(parsed);
                 root.loadedValue(root.value, root.rawText);
             } catch (e) {
-                // Parse hatası: default değeri kullan, hata sinyalini path ile birlikte ilet
+                // Parse error: fall back to default, emit failure signal with the path for context.
                 root.value = root.cloneValue(root.defaultValue);
                 root.failed("parse", -1, String(e) + " [path=" + root.path + "]");
                 root.loadedValue(root.value, root.rawText);
@@ -99,8 +99,8 @@ Item {
         onSaved: {
             root.savedValue(root.value);
         }
-        // Okuma/yazma hatasına dosya yolunu ekle; loglarda hangi config
-        // dosyasının sorun çıkardığı anında görünür hale gelir.
+        // Attach the file path to read/write errors so logs immediately reveal
+        // which config file is misbehaving.
         onFailed: (phase, exitCode, details) => {
             const info = details.length > 0
                 ? details + " [path=" + root.path + "]"

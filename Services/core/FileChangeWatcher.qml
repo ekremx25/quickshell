@@ -2,19 +2,19 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 
-// Dosya değişikliklerini izler.
+// Watches a file for changes.
 //
-// ── İNOTIFY MODU (inotify-tools kuruluysa) ──────────────────────────
-//   inotifywait ile dizini dinler; close_write veya moved_to olayında
-//   değişikliği bildirir. CPU kullanımı sıfır — timer yok, polling yok.
-//   Atomik mv yazmaları (TextDataStore) da doğru şekilde yakalanır.
+// ── INOTIFY MODE (when inotify-tools is installed) ─────────────────
+//   Uses inotifywait to watch the directory; emits on close_write or
+//   moved_to events. Zero CPU cost — no timer, no polling. Atomic mv
+//   writes (from TextDataStore) are caught correctly.
 //
-// ── POLLING MODU (inotify-tools yoksa otomatik devreye girer) ────────
-//   stat ile mtime/size/inode üçlüsü karşılaştırılır. İlk çalışmada
-//   baseline alınır; sahte "changed" sinyali üretilmez.
+// ── POLLING MODE (falls back automatically if inotify-tools missing) ─
+//   Compares the (mtime, size, inode) triple via stat. On the first
+//   tick a baseline is recorded so no spurious "changed" is emitted.
 //
-// inotify-tools kurmak için (Arch): sudo pacman -S inotify-tools
-// Kurulduktan sonra herhangi bir config değişikliği uygulamak yeterli.
+// To install inotify-tools (Arch): sudo pacman -S inotify-tools
+// After install any config reload picks it up automatically.
 Item {
     id: root
 
@@ -24,43 +24,43 @@ Item {
 
     property string path: ""
     property bool active: true
-    // interval yalnızca polling fallback modunda kullanılır
+    // interval is only used in the polling fallback mode
     property int interval: 1000
 
     signal changed()
 
-    // inotifywait bulunamazsa (exit 127) true yapılır, polling başlar
+    // Set to true if inotifywait is not available (exit 127) — polling takes over
     property bool _pollingMode: false
     property string _lastToken: ""
     property bool _initialized: false
     readonly property string _coreDir: (Quickshell.env("XDG_CONFIG_HOME") || (Quickshell.env("HOME") + "/.config")) + "/quickshell/Services/core"
 
-    // path'in bulunduğu dizini döndür
+    // Returns the directory portion of `path`
     function _dir() {
         var idx = path.lastIndexOf("/");
         return idx > 0 ? path.substring(0, idx) : ".";
     }
 
-    // path'in dosya adını döndür
+    // Returns the filename portion of `path`
     function _file() {
         var idx = path.lastIndexOf("/");
         return idx >= 0 ? path.substring(idx + 1) : path;
     }
 
     // ----------------------------------------------------------------
-    // inotifywait tabanlı izleme (event-driven)
+    // inotifywait-based watcher (event-driven)
     // ----------------------------------------------------------------
     Process {
         id: watchProc
         running: root.active && root.path.length > 0 && !root._pollingMode
-        // Dizini izle; moved_to atomik mv yazmaları da yakalar
+        // Watch the directory; moved_to also catches atomic mv writes.
         command: root.path.length > 0
             ? ["inotifywait", "-m", "-q", "-e", "close_write,moved_to", "--format", "%f", root._dir()]
             : []
 
         stdout: SplitParser {
             onRead: data => {
-                // Sadece izlediğimiz dosya değiştiyse sinyal ver
+                // Only signal if the file we actually care about changed.
                 if (data.trim() === root._file()) {
                     root.changed();
                 }
@@ -70,12 +70,12 @@ Item {
         onExited: exitCode => {
             if (!root.active) return;
             if (exitCode === 127) {
-                // inotifywait bulunamadı → polling moduna geç
+                // inotifywait is not installed → switch to polling mode
                 root._pollingMode = true;
                 return;
             }
-            // Geçici hata (dizin yeniden oluştu, compositor restart vb.)
-            // 1 saniye sonra yeniden dene
+            // Transient failure (directory recreated, compositor restart, etc.)
+            // Retry after 1 second.
             inotifyRestartTimer.restart();
         }
     }
@@ -92,7 +92,7 @@ Item {
     }
 
     // ----------------------------------------------------------------
-    // Polling fallback (inotify-tools kurulu değilse)
+    // Polling fallback (used when inotify-tools is not installed)
     // ----------------------------------------------------------------
     Timer {
         id: pollTimer
@@ -118,7 +118,7 @@ Item {
             var token = statProc.output.trim();
             statProc.output = "";
             if (token.length === 0) return;
-            // İlk çalışmada baseline kur; sahte "changed" üretme
+            // Seed the baseline on the first tick; don't emit a spurious "changed".
             if (!root._initialized) {
                 root._lastToken = token;
                 root._initialized = true;

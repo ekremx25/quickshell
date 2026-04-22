@@ -2,21 +2,21 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 
-// Cpu klasöründeki dosyaları (Usage ve Temp) içeri al
+// Import files from the Cpu folder (Usage and Temp)
 import "./Cpu"
 
 RowLayout {
     spacing: 0
 
-    // 1. SAAT (Yeşil)
+    // 1. CLOCK (Green)
     TimeModule {}
 
-    // 2. CPU KULLANIMI (Mavi - Geri geldi!)
+    // 2. CPU USAGE (Blue - it's back!)
     Usage {}
 
-    // 3. RAM (Mor)
+    // 3. RAM (Purple)
     RamModule {}
 
-    // 4. SICAKLIK (Pembe)
+    // 4. TEMPERATURE (Pink)
     CpuTemp {}
 }

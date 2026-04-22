@@ -9,7 +9,7 @@ Rectangle {
   property bool isHovered: ma.containsMouse
   TempBackend { id: backend }
 
-  // --- GÖRÜNÜM ---
+  // --- APPEARANCE ---
   implicitWidth: layout.implicitWidth + 24
   implicitHeight: 30
   radius: 15
@@ -78,7 +78,7 @@ Rectangle {
         anchors.margins: 12
         spacing: 4
 
-        // 1. SATIR
+        // ROW 1
         RowLayout {
           Layout.fillWidth: true
           Text { text: "Usage: " + Math.floor(backend.cpuPercent) + "%"; color: "#cdd6f4"; font.bold: true }
@@ -89,7 +89,7 @@ Rectangle {
 
         Rectangle { Layout.fillWidth: true; height: 1; color: "#fab387"; opacity: 0.3; Layout.topMargin: 2; Layout.bottomMargin: 2 }
 
-        // 2. SATIR: GRAFİK
+        // ROW 2: GRAPH
         Canvas {
           id: cpuHistCanvas
           Layout.fillWidth: true
@@ -114,7 +114,7 @@ Rectangle {
 
         Rectangle { Layout.fillWidth: true; height: 1; color: "#fab387"; opacity: 0.3; Layout.topMargin: 2; Layout.bottomMargin: 2 }
 
-        // 3. SATIR: DETAYLAR
+        // ROW 3: DETAILS
         Text { text: "Temp: " + backend.cpuTempC + " °C"; color: "#cdd6f4"; font.family: "Monospace" }
         Text { text: "Gov: " + backend.governor; color: "#cdd6f4"; font.family: "Monospace" }
         Text { text: "CPU: " + backend.cpuModelName; color: "#fab387"; font.family: "Monospace"; font.pixelSize: 11; elide: Text.ElideRight; Layout.fillWidth: true }

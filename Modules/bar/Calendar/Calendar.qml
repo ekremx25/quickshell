@@ -9,7 +9,7 @@ import "../../../Widgets"
 Rectangle {
     id: dateRoot
 
-    // --- RENK AYARLARI ---
+    // --- COLOR SETTINGS ---
     property color barBgColor: Theme.calendarColor
     property color barTextColor: Theme.background
 
@@ -31,15 +31,15 @@ Rectangle {
 
     scale: calMouse.pressed ? 0.93 : (calMouse.containsMouse ? 1.05 : 1.0)
 
-    // GENİŞLİK: İçeriğe göre otomatik ayarla
+    // WIDTH: Auto-adjust based on content
     implicitWidth: layout.implicitWidth + 24
     Behavior on implicitWidth { NumberAnimation { duration: 200; easing.type: Easing.InOutQuad } }
     Behavior on scale { NumberAnimation { duration: 160; easing.type: Easing.OutBack } }
 
     
-    // ... (Timer iptal edilebilir veya sadece takvim popup için kullanılabilir)
+    // ... (Timer can be cancelled or used only for the calendar popup)
 
-    // --- BAR İÇERİĞİ ---
+    // --- BAR CONTENT ---
     RowLayout {
         id: layout
         anchors.centerIn: parent
@@ -54,7 +54,7 @@ Rectangle {
 
         Text {
             id: timeText
-            // Format: 17:11 • 16 Şub Paz
+            // Format: 17:11 • 16 Feb Sun
             text: {
                 if (dateRoot.showFullDate) {
                     return Qt.formatTime(dateRoot.currentDate, "HH:mm") + " • " + Qt.formatDate(dateRoot.currentDate, "dd MMM ddd")
@@ -69,7 +69,7 @@ Rectangle {
         }
     }
 
-    // Popup Kapatma Zamanlayıcısı
+    // Popup Close Timer
     Timer {
         id: closeTimer
         interval: 300
@@ -77,31 +77,31 @@ Rectangle {
         onTriggered: calWindow.visible = false
     }
 
-    // --- FARE ETKİLEŞİMİ ---
+    // --- MOUSE INTERACTION ---
     MouseArea {
         id: calMouse
         anchors.fill: parent
         hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
 
-        // Üstüne Gelince: Takvimi Aç
+        // On Hover: Open Calendar
         onEntered: {
             closeTimer.stop()
             calWindow.visible = true
         }
 
-        // Üzerinden Gidince: Takvimi Kapat (Timer ile)
+        // On Exit: Close Calendar (via Timer)
         onExited: {
             closeTimer.start()
         }
 
-        // Tıklayınca: Tarih yazısını Genişlet/Daralt (Takvimi etkilemez)
+        // On Click: Expand/Collapse date text (does not affect calendar)
         onClicked: {
             dateRoot.showFullDate = !dateRoot.showFullDate
         }
     }
 
-    // --- TAKVİM PENCERESİ ---
+    // --- CALENDAR WINDOW ---
     PopupWindow {
         id: calWindow
         visible: false
@@ -236,7 +236,7 @@ Rectangle {
                             anchors.fill: parent
                             spacing: 10
 
-                            // BAŞLIK
+                            // TITLE
                             RowLayout {
                                 Layout.fillWidth: true
 
@@ -270,7 +270,7 @@ Rectangle {
                                 }
                             }
 
-                            // GÜN İSİMLERİ
+                            // DAY NAMES
                             RowLayout {
                                 Layout.fillWidth: true
                                 spacing: 4
@@ -286,7 +286,7 @@ Rectangle {
                                 }
                             }
 
-                            // GÜNLER
+                            // DAYS
                             GridLayout {
                                 columns: 7; columnSpacing: 4; rowSpacing: 4
                                 Repeater {

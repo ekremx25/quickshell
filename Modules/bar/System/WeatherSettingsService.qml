@@ -70,7 +70,7 @@ Item {
         id: geoSearchProc
         property string buf: ""
         property string query: ""
-        // Open-Meteo Geocoding API — ücretsiz, API key yok
+        // Open-Meteo Geocoding API — free, no API key
         command: ["curl", "-s",
             "https://geocoding-api.open-meteo.com/v1/search?name=" + query + "&count=5&language=en&format=json"]
         stdout: SplitParser { onRead: data => geoSearchProc.buf += data }

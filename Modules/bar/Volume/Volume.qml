@@ -7,23 +7,23 @@ import "../../../Services"
 Rectangle {
 	id: root
 
-	// --- GÖRÜNÜM AYARLARI ---
+	// --- APPEARANCE SETTINGS ---
 	implicitWidth: layout.implicitWidth + 24
 	implicitHeight: 34
 	radius: 17
 
-	// Ses Durumu Özellikleri (OSD ile aynı servis kaynağı)
+	// Volume State Properties (same service source as OSD)
 	readonly property bool muted: Volume.sinkMuted === true
 	readonly property real vol: (Volume.sinkVolume !== undefined && Volume.sinkVolume !== null) ? Volume.sinkVolume : 0
 
-	// Sessizdeyken Kırmızı, Normalken Yeşil
+	// Red when muted, green otherwise
 	color: muted
 		? (volumeMouse.containsMouse ? Qt.lighter(Theme.red, 1.15) : Theme.red)
 		: (volumeMouse.containsMouse ? Qt.lighter(Theme.mediaColor, 1.15) : Theme.mediaColor)
 
 	scale: volumeMouse.pressed ? 0.92 : (volumeMouse.containsMouse ? 1.06 : 1.0)
 
-	// Geçiş Animasyonları
+	// Transition Animations
 	Behavior on color { ColorAnimation { duration: 200 } }
 	Behavior on scale { NumberAnimation { duration: 160; easing.type: Easing.OutBack } }
 
@@ -32,7 +32,7 @@ Rectangle {
 		anchors.centerIn: parent
 		spacing: 6
 
-		// İKON
+		// ICON
 		Text {
 			text: {
 				if (root.muted || root.vol === 0) return "󰝟"
@@ -45,7 +45,7 @@ Rectangle {
 			color: "#1e1e2e"
 		}
 
-		// YÜZDE (Örn: 54%)
+		// PERCENTAGE (e.g. 54%)
 		Text {
 			text: Math.round(root.vol * 100) + "%"
 			font.bold: true
@@ -54,28 +54,28 @@ Rectangle {
 		}
 	}
 
-	// --- KONTROLLER ---
+	// --- CONTROLS ---
 	MouseArea {
 		id: volumeMouse
 		anchors.fill: parent
 		hoverEnabled: true
 		cursorShape: Qt.PointingHandCursor
 
-		// Hem Sol (Aç/Kapa) hem Orta (Mute) tuşunu dinle
+		// Listen to both Left (On/Off) and Middle (Mute) buttons
 		acceptedButtons: Qt.LeftButton | Qt.MiddleButton
 
 		onClicked: (mouse) => {
 			if (mouse.button === Qt.MiddleButton || mouse.button === Qt.LeftButton) {
-				// SOL TIK & ORTA TIK: Sesi Tamamen Kapat (Mute)
+				// LEFT CLICK & MIDDLE CLICK: Mute completely
 				Volume.toggleSinkMute()
 			}
 		}
 
-		// TEKERLEK: Ses Aç/Kıs
+		// WHEEL: Volume up/down
 		onWheel: (wheel) => {
 			var step = 0.05
 			var newVol = root.vol + (wheel.angleDelta.y > 0 ? step : -step)
-			// Sesi 0 ile 1.5 (%150) arasında sınırla
+			// Clamp volume between 0 and 1.5 (150%)
 			Volume.setSinkVolume(Math.min(Math.max(newVol, 0.0), 1.5))
 		}
 	}

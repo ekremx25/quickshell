@@ -8,7 +8,7 @@ import "../../../Services" as S
 WeatherDataScope {
     id: root
 
-    // --- HER EKRAN İÇİN PANEL ---
+    // --- PANEL FOR EACH SCREEN ---
     Variants {
         model: S.ScreenManager.getFilteredScreens("weather")
 
@@ -42,7 +42,7 @@ WeatherDataScope {
                     anchors.margins: 24
                     spacing: 16
 
-                    // ═══ BAŞLIK ═══
+                    // ═══ TITLE ═══
                     RowLayout {
                         Layout.fillWidth: true
                         spacing: 8
@@ -60,7 +60,7 @@ WeatherDataScope {
                         }
                     }
 
-                    // ═══ ANA SICAKLIK ═══
+                    // ═══ MAIN TEMPERATURE ═══
                     ColumnLayout {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
@@ -78,7 +78,7 @@ WeatherDataScope {
                             lineHeight: 82
                             Layout.alignment: Qt.AlignHCenter
                         }
-                        // Hissedilen sıcaklık (büyük, en başta)
+                        // Feels-like temperature (large, at the top)
                         RowLayout {
                             Layout.alignment: Qt.AlignHCenter
                             spacing: 2
@@ -104,7 +104,7 @@ WeatherDataScope {
                             font.pixelSize: 11
                             Layout.alignment: Qt.AlignHCenter
                         }
-                        // Gerçek sıcaklık (küçük)
+                        // Actual temperature (small)
                         Text {
                             text: root.currentTemp + (root.useFahrenheit ? "°F" : "°C")
                             color: Theme.subtext
@@ -120,14 +120,14 @@ WeatherDataScope {
                         }
                     }
 
-                    // ═══ AYIRICI ═══
+                    // ═══ SEPARATOR ═══
                     Rectangle {
                         Layout.fillWidth: true
                         height: 1
                         color: Qt.rgba(Theme.surface.r, Theme.surface.g, Theme.surface.b, 0.5)
                     }
 
-                    // ═══ DETAYLAR ═══
+                    // ═══ DETAILS ═══
                     GridLayout {
                         Layout.fillWidth: true
                         columns: 2
@@ -160,14 +160,14 @@ WeatherDataScope {
                         }
                     }
 
-                    // ═══ AYIRICI ═══
+                    // ═══ SEPARATOR ═══
                     Rectangle {
                         Layout.fillWidth: true
                         height: 1
                         color: Qt.rgba(Theme.surface.r, Theme.surface.g, Theme.surface.b, 0.5)
                     }
 
-                    // ═══ 7 GÜNLÜK TAHMİN ═══
+                    // ═══ 7 DAY FORECAST ═══
                     Text {
                         text: "5 Day Forecast"
                         color: Theme.subtext
@@ -220,7 +220,7 @@ WeatherDataScope {
                                         color: Theme.overlay2
                                         font.pixelSize: 12
                                     }
-                                    // Mini sıcaklık barı
+                                    // Mini temperature bar
                                     Rectangle {
                                         Layout.preferredWidth: 50
                                         height: 4
@@ -254,7 +254,7 @@ WeatherDataScope {
                 }
             }
 
-            // ═══ DETAY KARTI BİLEŞENİ ═══
+            // ═══ DETAIL CARD COMPONENT ═══
             component DetailCard : Rectangle {
                 property string icon
                 property string label

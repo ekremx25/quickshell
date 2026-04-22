@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
 set -euo pipefail
-# init_dock.sh - Sisteme kurulu uygulamalara göre dock_config.json oluşturur.
-# dock_config.json yoksa ilk çalıştırmada otomatik çağrılır.
+# init_dock.sh - Generate dock_config.json from applications installed on the system.
+# Invoked automatically on first run when dock_config.json is missing.
 #
-# Güvenlik notu: JSON çıktısı jq ile üretilir; uygulama adı, ikon veya komut
-# içinde özel karakter / tırnak bulunsa bile JSON bozulmaz (injection yok).
+# Security note: the JSON output is produced with jq, so special characters and
+# quotes inside app names, icons or commands cannot break the JSON (no injection).
 
 command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
-# jq zorunlu bağımlılık
+# jq is a hard dependency
 if ! command_exists jq; then
-    echo "error: jq bulunamadı. Lütfen jq kurun." >&2
+    echo "error: jq not found. Please install jq." >&2
     exit 1
 fi
 
@@ -20,16 +20,16 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 QS_DIR="$(dirname "$SCRIPT_DIR")"
 CONFIG_FILE="$QS_DIR/dock_config.json"
 
-# Zaten varsa dokunma
+# Don't touch an existing config
 if [ -f "$CONFIG_FILE" ]; then
     echo "exists"
     exit 0
 fi
 
-# Popüler uygulamalar — öncelik sırasına göre
+# Popular applications — in priority order
 # Format: "appId|name|cmd|icon"
 APPS=(
-    # Dosya Yöneticisi
+    # File manager
     "org.gnome.Nautilus|Files|nautilus --new-window|org.gnome.Nautilus"
     "dolphin|Files|dolphin|org.kde.dolphin"
     "thunar|Files|thunar|Thunar"
@@ -37,7 +37,7 @@ APPS=(
     "pcmanfm|Files|pcmanfm|system-file-manager"
     "caja|Files|caja|caja"
 
-    # Tarayıcılar
+    # Browsers
     "firefox|Firefox|firefox|firefox"
     "brave-browser|Brave|brave-browser|brave-browser"
     "google-chrome|Chrome|google-chrome-stable|google-chrome"
@@ -55,23 +55,23 @@ APPS=(
     "gnome-terminal|Terminal|gnome-terminal|org.gnome.Terminal"
     "xfce4-terminal|Terminal|xfce4-terminal|org.xfce.terminal"
 
-    # Editörler
+    # Editors
     "code|VS Code|code|visual-studio-code"
     "cursor|Cursor|cursor|cursor"
     "zed|Zed|zed|zed"
 
-    # İletişim
+    # Communication
     "telegram-desktop|Telegram|telegram-desktop|telegram"
     "discord|Discord|discord|discord"
     "vesktop|Discord|vesktop|vesktop"
     "signal-desktop|Signal|signal-desktop|signal-desktop"
     "slack|Slack|slack|slack"
 
-    # Medya
+    # Media
     "spotify|Spotify|spotify|spotify"
     "vlc|VLC|vlc|vlc"
 
-    # Araçlar
+    # Tools
     "virt-manager|Virt Manager|virt-manager|virt-manager"
     "obs|OBS Studio|obs|com.obsproject.Studio"
     "steam|Steam|steam|steam"
@@ -82,27 +82,27 @@ APPS=(
     "audacity|Audacity|audacity|audacity"
 )
 
-# Hangi kategoriden kaç tane eklendi sayacı
+# Per-category counters
 found_filemanager=0
 found_browser=0
 found_terminal=0
 found_editor=0
 
-# Bulunan uygulamaların jq JSON nesnelerini bu diziye topla
+# Collect jq JSON objects for each pinned app here
 pinned_entries=()
 
 for entry in "${APPS[@]}"; do
     IFS='|' read -r appId name cmd icon <<< "$entry"
 
-    # Komutun ilk kelimesini al (nautilus --new-window → nautilus)
+    # Take the first word of the command (nautilus --new-window → nautilus)
     bin=$(printf '%s\n' "$cmd" | awk '{print $1}')
 
-    # Kurulu mu kontrol et
+    # Skip if the binary isn't installed
     if ! command_exists "$bin"; then
         continue
     fi
 
-    # Kategori bazlı limit (sadece ilk bulunan)
+    # Per-category cap (only the first match wins)
     case "$name" in
         Files) [ "$found_filemanager" -ge 1 ] && continue; found_filemanager=$((found_filemanager+1)) ;;
         Firefox|Brave|Chrome|Chromium|Vivaldi|Opera) [ "$found_browser" -ge 2 ] && continue; found_browser=$((found_browser+1)) ;;
@@ -110,8 +110,8 @@ for entry in "${APPS[@]}"; do
         "VS Code"|Cursor|Zed) [ "$found_editor" -ge 1 ] && continue; found_editor=$((found_editor+1)) ;;
     esac
 
-    # jq --arg ile değişkenleri güvenli şekilde JSON'a yerleştir.
-    # Tırnak, ters eğik çizgi veya unicode içeren değerler otomatik escape edilir.
+    # Use jq --arg to embed values safely into JSON.
+    # Quotes, backslashes, unicode — all escaped automatically.
     entry_json=$(jq -cn \
         --arg name  "$name" \
         --arg icon  "$icon" \
@@ -122,14 +122,14 @@ for entry in "${APPS[@]}"; do
     pinned_entries+=("$entry_json")
 done
 
-# Dizi elemanlarını jq ile JSON array'e dönüştür
+# Convert the collected objects into a JSON array with jq
 if [ ${#pinned_entries[@]} -eq 0 ]; then
     pinned_json="[]"
 else
     pinned_json=$(printf '%s\n' "${pinned_entries[@]}" | jq -s '.')
 fi
 
-# Tam konfigürasyonu jq ile üret ve atomik geçici dosya + mv ile yaz
+# Build the full config with jq and write it atomically (tmp + mv)
 tmp_config=$(mktemp "$(dirname "$CONFIG_FILE")/.XXXXXX")
 jq -n \
     --argjson pinned         "$pinned_json" \
@@ -147,7 +147,7 @@ jq -n \
         autoHide:       $autoHide
     }' > "$tmp_config" && mv -- "$tmp_config" "$CONFIG_FILE" || {
         rm -f "$tmp_config"
-        echo "error: dock_config.json yazılamadı" >&2
+        echo "error: could not write dock_config.json" >&2
         exit 1
     }
 

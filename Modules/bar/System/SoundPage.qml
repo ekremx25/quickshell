@@ -76,14 +76,14 @@ Item {
         anchors.margins: 20
         spacing: 16
 
-        // Başlık
+        // Title
         RowLayout {
             Layout.fillWidth: true
             Text { text: "󰕾"; font.pixelSize: 20; font.family: "JetBrainsMono Nerd Font"; color: Theme.primary }
             Text { text: "Sound Settings"; font.bold: true; font.pixelSize: 18; color: SettingsPalette.text }
         }
 
-        // --- Parlaklık ---
+        // --- Brightness ---
         Rectangle {
             Layout.fillWidth: true
             height: 90
@@ -138,7 +138,7 @@ Item {
             }
         }
 
-        // --- Çıkış (Hoparlör) ---
+        // --- Output (Speaker) ---
         SoundDeviceCard {
             iconText: "󰓃"
             accentColor: "#a6e3a1"
@@ -152,7 +152,7 @@ Item {
             onSetVolume: function(percent) { soundService.setSinkVolumePercent(percent); }
         }
 
-        // --- Giriş (Mikrofon) ---
+        // --- Input (Microphone) ---
         SoundDeviceCard {
             iconText: "󰍬"
             accentColor: "#94e2d5"
@@ -166,7 +166,7 @@ Item {
             onSetVolume: function(percent) { soundService.setSourceVolumePercent(percent); }
         }
 
-        // --- Uygulamalar ---
+        // --- Applications ---
         Text { text: "Applications"; color: SettingsPalette.subtext; font.pixelSize: 12; font.bold: true }
 
         ListView {

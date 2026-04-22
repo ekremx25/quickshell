@@ -27,7 +27,7 @@ Rectangle {
             color: "#1e1e2e"
         }
         Text {
-            text: "" // RAM İkonu
+            text: "" // RAM Icon
             font.pixelSize: 14
             color: "#1e1e2e"
         }

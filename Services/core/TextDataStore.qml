@@ -2,20 +2,20 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 
-// Dosya okuma/yazma servisi.
+// File read/write service.
 //
-// Yazma Güvenliği (Atomic Write):
-//   Doğrudan hedefe yazmak yerine aynı dizinde geçici bir dosya oluşturur,
-//   içeriği oraya yazar ve atomik mv ile hedefe taşır. Böylece:
-//     - Shell veya QML çökmesi yarım konfigürasyon bırakmaz.
-//     - Okuma ve yazma aynı anda gerçekleşse bile tutarlı veri okunur.
+// Write safety (atomic write):
+//   Rather than writing to the target directly, writes a temporary file in the
+//   same directory and then atomically mv's it into place. This means:
+//     - A shell or QML crash never leaves a half-written config behind.
+//     - A concurrent read still sees consistent data.
 //
-// Yazma Sırası (Write Queue):
-//   Bir yazma işlemi devam ederken yeni bir write() çağrısı gelirse
-//   process öldürülmez; mevcut işlem tamamlanır, ardından en son
-//   pendingText ile yeni yazma başlatılır. Böylece:
-//     - Hızlı ardışık kaydetmelerde veri kaybı yaşanmaz.
-//     - Atomik mv yarıda kesilmez.
+// Write queue:
+//   If a new write() is called while a previous write is still in progress,
+//   the running process is NOT killed; it finishes, and then a new write
+//   starts with the most recent pendingText. This means:
+//     - Rapid successive saves do not lose data.
+//     - An atomic mv is never interrupted mid-flight.
 Item {
     id: root
 
@@ -26,7 +26,7 @@ Item {
     property string path: ""
     property string readBuffer: ""
     property string pendingText: ""
-    // Mevcut yazma biterken yeni bir write() gelirse true yapılır.
+    // Set to true when a new write() arrives while another is still running.
     property bool _writeQueued: false
     readonly property string _coreDir: (Quickshell.env("XDG_CONFIG_HOME") || (Quickshell.env("HOME") + "/.config")) + "/quickshell/Services/core"
 
@@ -44,8 +44,8 @@ Item {
         if (root.path.length === 0) return;
         root.pendingText = text;
         if (writeProc.running) {
-            // Mevcut yazma bitmeden yenisini başlatma; tamamlanınca
-            // en güncel pendingText ile devam edilecek.
+            // Don't spawn a new write mid-flight; the current one will pick up
+            // the most recent pendingText once it finishes.
             root._writeQueued = true;
         } else {
             writeProc.running = true;
@@ -53,7 +53,7 @@ Item {
     }
 
     // ------------------------------------------------------------------
-    // Okuma process'i
+    // Read process
     // ------------------------------------------------------------------
     Process {
         id: readProc
@@ -68,7 +68,7 @@ Item {
     }
 
     // ------------------------------------------------------------------
-    // Yazma process'i — atomik geçici dosya + mv
+    // Write process — atomic temp file + mv
     // ------------------------------------------------------------------
     Process {
         id: writeProc
@@ -84,7 +84,7 @@ Item {
             } else {
                 root.failed("write", exitCode, "");
             }
-            // Kuyrukta bekleyen yazma varsa en güncel içerikle başlat.
+            // If another write is queued, restart with the latest content.
             if (root._writeQueued) {
                 root._writeQueued = false;
                 writeProc.running = true;

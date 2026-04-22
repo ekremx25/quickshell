@@ -256,9 +256,9 @@ Item {
     }
 
     // ----------------------------------------------------------------
-    // Hyprland: pencere event stream (event-driven, polling yok)
-    // hypr_events.sh → openwindow/closewindow/movewindow olaylarında
-    // 80ms debounce ile refreshWindows() çağırır.
+    // Hyprland: window event stream (event-driven, no polling).
+    // hypr_events.sh forwards openwindow/closewindow/movewindow events
+    // and triggers refreshWindows() with 80 ms of debouncing.
     // ----------------------------------------------------------------
     property bool _hyprFallback: false
 
@@ -297,8 +297,8 @@ Item {
     }
 
     // ----------------------------------------------------------------
-    // Niri: pencere event stream (event-driven, polling yok)
-    // WindowsChanged ve WindowFocusChanged olaylarında günceller.
+    // Niri: window event stream (event-driven, no polling).
+    // Refresh on WindowsChanged / WindowFocusChanged.
     // ----------------------------------------------------------------
     Process {
         id: niriWinEventProc
@@ -329,7 +329,7 @@ Item {
     }
 
     // ----------------------------------------------------------------
-    // Debounce — hızlı ardışık olayları tek refresh'e indirger
+    // Debounce — collapse rapid-fire events into a single refresh.
     // ----------------------------------------------------------------
     Timer {
         id: dockWinDebounce
@@ -340,8 +340,8 @@ Item {
 
     // ----------------------------------------------------------------
     // Polling fallback
-    // MangoWC: her zaman (event API yok)
-    // Hyprland: sadece hypr_events.sh çalışmazsa (socat/nc yok)
+    // MangoWC: always (no event API).
+    // Hyprland: only when hypr_events.sh cannot run (no socat or nc).
     // ----------------------------------------------------------------
     Timer {
         interval: service.windowRefreshInterval
@@ -355,7 +355,7 @@ Item {
 
     Component.onCompleted: {
         dockConfigStore.load();
-        // Event stream başlamadan önce mevcut pencere listesini al
+        // Grab the current window list before the event stream starts emitting.
         service.refreshWindows();
     }
 }

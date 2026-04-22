@@ -56,7 +56,7 @@ Singleton {
     }
 
     function normalizeNotificationContent(notif) {
-        var appName = notif.appName || "Sistem"
+        var appName = notif.appName || "System"
         var summary = stripHtml(notif.summary || "")
         var body = stripHtml(notif.body || "")
 
@@ -64,8 +64,8 @@ Singleton {
             body = summary
             summary = appName
         }
-        if (summary === "") summary = "Yeni Bildirim"
-        if (body === "") body = "İçerik yok."
+        if (summary === "") summary = "New Notification"
+        if (body === "") body = "No content."
 
         return {
             appName: appName,
@@ -207,7 +207,7 @@ Singleton {
         CompositorService.focusAppByName(appName);
     }
 
-    // ── PERSISTENCE (AYARLARI KAYDETME) ──
+    // ── PERSISTENCE (SAVE SETTINGS) ──
     property string configPath: StandardPaths.writableLocation(StandardPaths.HomeLocation).toString().replace("file://", "") + "/.config/quickshell/notification_config.json"
     
     function saveConfig() {

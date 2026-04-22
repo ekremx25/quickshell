@@ -85,7 +85,7 @@ Item {
         anchors.margins: 20
         spacing: 16
 
-        // Başlık + güç toggle
+        // Title + power toggle
         RowLayout {
             Layout.fillWidth: true
 
@@ -115,7 +115,7 @@ Item {
             }
         }
 
-        // Kapalıysa mesaj
+        // Off message
         Text {
             visible: !bluetoothPage.powered && !bluetoothPage.loading
             text: "Bluetooth is off"
@@ -124,7 +124,7 @@ Item {
             Layout.alignment: Qt.AlignHCenter
         }
 
-        // Yükleniyor
+        // Loading
         Text {
             visible: bluetoothPage.loading
             text: "Loading..."
@@ -133,7 +133,7 @@ Item {
             Layout.alignment: Qt.AlignHCenter
         }
 
-        // Cihaz listesi
+        // Device list
         Item {
             Layout.fillWidth: true
             Layout.fillHeight: true
@@ -143,7 +143,7 @@ Item {
                 anchors.fill: parent
                 spacing: 6
 
-                // Başlık
+                // Title
                 Text {
                     text: "Paired Devices"
                     color: SettingsPalette.subtext
@@ -152,7 +152,7 @@ Item {
                     bottomPadding: 4
                 }
 
-                // Boş liste mesajı
+                // Empty list message
                 Text {
                     visible: bluetoothPage.devices.length === 0
                     text: "No paired devices"
@@ -160,7 +160,7 @@ Item {
                     font.pixelSize: 13
                 }
 
-                // Cihaz kartları
+                // Device cards
                 Repeater {
                     model: bluetoothPage.devices
 
@@ -176,7 +176,7 @@ Item {
                             anchors.margins: 12
                             spacing: 12
 
-                            // İkon
+                            // Icon
                             Rectangle {
                                 width: 32; height: 32; radius: 8
                                 color: modelData.connected
@@ -199,7 +199,7 @@ Item {
                                 }
                             }
 
-                            // İsim + durum
+                            // Name + status
                             ColumnLayout {
                                 Layout.fillWidth: true
                                 spacing: 2
@@ -218,7 +218,7 @@ Item {
                                 }
                             }
 
-                            // Bağlan / Kes butonu
+                            // Connect / Disconnect button
                             Rectangle {
                                 width: 80; height: 28; radius: 8
                                 color: modelData.connected

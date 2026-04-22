@@ -15,13 +15,13 @@ Rectangle {
     property color activeColor: Theme.workspacesColor
     property alias activeWorkspaces: workspaceService.activeWorkspaces
 
-    // DMS özelliklerini bar_config.json'dan oku
+    // Read DMS properties from bar_config.json
     property bool showApps: config.showApps !== false
     property bool groupApps: config.groupApps !== false
     property bool scrollEnabled: config.scrollEnabled !== false
     property int iconSize: config.iconSize || 20
-    
-    // Mouse scroll biriktirici
+
+    // Mouse scroll accumulator
     property real mouseAccumulator: 0
     property bool scrollInProgress: false
     
@@ -31,7 +31,7 @@ Rectangle {
         onTriggered: workspaceRoot.scrollInProgress = false
     }
 
-    // Ana arka plan şeffaf, sadece içindeki kutucuklar görünecek
+    // Main background transparent, only the inner boxes are visible
     color: "transparent"
     border.width: 0
 
@@ -44,7 +44,7 @@ Rectangle {
         groupApps: workspaceRoot.groupApps
     }
 
-    // --- FORMAT ÇEVİRİCİ ---
+    // --- FORMAT CONVERTER ---
     function getWorkspaceLabel(numStr) {
         var fmt = config.format || "chinese";
         
@@ -78,7 +78,7 @@ Rectangle {
         
         var currentIndex = wss.findIndex(w => w.is_active);
         var validIndex = currentIndex === -1 ? 0 : currentIndex;
-        // Direction pozitifse sağa (sonraki), negatifse sola (önceki)
+        // If direction is positive go right (next), if negative go left (previous)
         var nextIndex = direction > 0 ? Math.min(validIndex + 1, wss.length - 1) : Math.max(validIndex - 1, 0);
         
         if (nextIndex !== validIndex) {
@@ -86,7 +86,7 @@ Rectangle {
         }
     }
 
-    // Scroll Alanı
+    // Scroll Area
     MouseArea {
         anchors.fill: parent
         acceptedButtons: Qt.NoButton
@@ -106,7 +106,7 @@ Rectangle {
         }
     }
 
-    // --- GÖRSEL DÜZEN (Şık Hap Tasarımı) ---
+    // --- VISUAL LAYOUT (Stylish Pill Design) ---
     Row {
         id: wsRow
         anchors.centerIn: parent
@@ -120,12 +120,12 @@ Rectangle {
                 property bool isActive: wsData.is_active
                 property int winCount: wsData.winCount
 
-                // İçeriğe göre dinamik genişleyen boyut
+                // Dynamically expanding size based on content
                 implicitWidth: wsContent.implicitWidth + 24
                 height: 34
                 radius: style === "square" ? 6 : 17
 
-                // STİL MANTIĞI
+                // STYLE LOGIC
                 color: {
                    if (style === "fill") {
                        if (isActive) return activeColor;
@@ -151,7 +151,7 @@ Rectangle {
                     anchors.centerIn: parent
                     spacing: 8
 
-                    // NUMARA (Formatlı)
+                    // NUMBER (Formatted)
                     Text {
                         text: getWorkspaceLabel(wsData.name)
                         color: isActive ? Theme.workspaceActiveTextColor : Theme.text
@@ -161,17 +161,17 @@ Rectangle {
                         anchors.verticalCenter: parent.verticalCenter
                     }
 
-                    // ARAYA EKLENEN İNCE ÇİZGİ (Ayırıcı)
+                    // THIN LINE INSERTED BETWEEN (Separator)
                     Rectangle {
                         width: 1
                         height: 14
-                        color: (isActive ? Theme.workspaceActiveTextColor : Theme.text) // Dinamik renk
+                        color: (isActive ? Theme.workspaceActiveTextColor : Theme.text) // Dynamic color
                         opacity: 0.25
                         anchors.verticalCenter: parent.verticalCenter
                         visible: winCount > 0 && workspaceRoot.showApps
                     }
 
-                    // UYGULAMA İKONLARI
+                    // APPLICATION ICONS
                     Row {
                         spacing: 6
                         anchors.verticalCenter: parent.verticalCenter
@@ -194,7 +194,7 @@ Rectangle {
                                     anchors.centerIn: parent
                                 }
                                 
-                                // Gruplama balonu (ör: 2 tane aynı app varsa)
+                                // Grouping bubble (e.g. if there are 2 of the same app)
                                 Rectangle {
                                     visible: (modelData.count !== undefined && modelData.count > 1) && !isActive
                                     width: 12
@@ -222,7 +222,7 @@ Rectangle {
                     }
                 }
 
-                // ALT ÇİZGİ (Underline Stili)
+                // BOTTOM LINE (Underline Style)
                 Rectangle {
                     anchors.bottom: parent.bottom
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -233,7 +233,7 @@ Rectangle {
                     visible: style === "underline" && isActive
                 }
 
-                // NOKTA (Dot Stili)
+                // DOT (Dot Style)
                 Rectangle {
                     anchors.top: parent.bottom
                     anchors.topMargin: 2
@@ -245,7 +245,7 @@ Rectangle {
                     visible: style === "dot" && isActive
                 }
 
-                // ÜST ÇİZGİ (Overline Stili)
+                // TOP LINE (Overline Style)
                 Rectangle {
                     anchors.top: parent.top
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -256,7 +256,7 @@ Rectangle {
                     visible: style === "overline" && isActive
                 }
 
-                // YAN ÇİZGİ (Pipe Stili)
+                // SIDE LINE (Pipe Style)
                 Rectangle {
                     anchors.left: parent.left
                     anchors.verticalCenter: parent.verticalCenter
@@ -268,7 +268,7 @@ Rectangle {
                     visible: style === "pipe" && isActive
                 }
 
-                // Tıklama Alanı
+                // Click Area
                 MouseArea {
                     anchors.fill: parent
                     cursorShape: Qt.PointingHandCursor

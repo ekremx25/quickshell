@@ -9,7 +9,7 @@ Rectangle {
     property bool isHovered: ma.containsMouse
     DiskService { id: diskService }
 
-    // --- RENK AYARLARI (Standardize edilmiş) ---
+    // --- COLOR SETTINGS (Standardized) ---
     property color containerColor: Theme.diskColor
     property color iconColor: "#1e1e2e"
     property color textColor: "#1e1e2e"
@@ -25,14 +25,14 @@ Rectangle {
     property alias diskTotal: diskService.diskTotal
     property alias diskPercent: diskService.diskPercent
 
-    // --- GÖRSEL DÜZEN (BARDA GÖRÜNEN KISIM) ---
+    // --- VISUAL LAYOUT (PART VISIBLE IN THE BAR) ---
     RowLayout {
         id: layout
         anchors.centerIn: parent
         spacing: 6
 
         Text {
-            text: "󰋊" // Harddisk İkonu (Nerd Font)
+            text: "󰋊" // Harddisk Icon (Nerd Font)
             color: iconColor
             font.pixelSize: 16
         }
@@ -46,7 +46,7 @@ Rectangle {
         }
     }
 
-    // --- GÜVENLİ ETKİLEŞİM VE TOOLTIP ---
+    // --- SAFE INTERACTION AND TOOLTIP ---
     MouseArea {
         id: ma
         anchors.fill: parent
@@ -59,7 +59,7 @@ Rectangle {
         id: diskPopup
         visible: false
 
-        // ÖNEMLİ: Ekrandaki hiçbir tıklamayı çalmaması için hayalet pencere yapıyoruz!
+        // IMPORTANT: Making it a ghost window so it doesn't steal any clicks on the screen!
         mask: Region {}
 
         anchor.window: diskRoot.QsWindow.window
@@ -81,8 +81,8 @@ Rectangle {
 
         Rectangle {
             anchors.fill: parent
-            color: "#1e1e2e"        // Tooltip Arka Plan: Koyu Lacivert/Siyah
-            border.color: "#89b4fa" // Kenarlık: Mavi (Görünür olması için)
+            color: "#1e1e2e"        // Tooltip Background: Dark Navy/Black
+            border.color: "#89b4fa" // Border: Blue (so it's visible)
             border.width: 1
             radius: 12
 
@@ -93,14 +93,14 @@ Rectangle {
 
                 Text {
                     text: "Root Disk (/)"
-                    color: "#89b4fa" // Görünür Mavi Başlık
+                    color: "#89b4fa" // Visible Blue Title
                     font.bold: true
                     font.pixelSize: 14
                     font.family: "JetBrainsMono Nerd Font"
                     Layout.alignment: Qt.AlignHCenter
                 }
 
-                Rectangle { Layout.fillWidth: true; height: 1; color: "#45475a" } // Ayırıcı çizgi
+                Rectangle { Layout.fillWidth: true; height: 1; color: "#45475a" } // Separator line
 
                 RowLayout {
                     spacing: 12
@@ -118,7 +118,7 @@ Rectangle {
                     }
                     Text {
                         text: diskService.diskUsed + " / " + diskService.diskTotal
-                        color: "#a6e3a1" // Yeşilimsi
+                        color: "#a6e3a1" // Greenish
                         font.bold: true
                         font.pixelSize: 13
                         font.family: "JetBrainsMono Nerd Font"
