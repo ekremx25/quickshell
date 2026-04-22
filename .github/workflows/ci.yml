@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  qml-tests:
+    name: QML unit tests
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:base-devel
+    steps:
+      - name: Install dependencies
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm git qt6-declarative qt6-base xorg-server-xvfb
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run unit tests
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: |
+          /usr/lib/qt6/bin/qmltestrunner -input tests/
+
+  shell-lint:
+    name: ShellCheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install ShellCheck
+        run: sudo apt-get update -qq && sudo apt-get install -y shellcheck
+
+      - name: Lint helper scripts
+        # The atomic_write helper is exec'd from QML with literal argv, but it's
+        # still a good first line of defence against regressions in script logic.
+        run: |
+          shellcheck -S warning scripts/*.sh Services/core/*.sh
+
+  json-lint:
+    name: JSON lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install jq
+        run: sudo apt-get update -qq && sudo apt-get install -y jq
+
+      - name: Validate every tracked JSON file
+        run: |
+          set -e
+          fail=0
+          while IFS= read -r f; do
+            if ! jq empty "$f" >/dev/null 2>&1; then
+              echo "::error file=$f::Invalid JSON"
+              fail=1
+            fi
+          done < <(git ls-files '*.json')
+          exit "$fail"

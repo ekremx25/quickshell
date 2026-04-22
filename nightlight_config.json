@@ -6,5 +6,6 @@
   "scheduleOnHour": 19,
   "scheduleOnMinute": 0,
   "scheduleOffHour": 7,
-  "scheduleOffMinute": 0
+  "scheduleOffMinute": 0,
+  "_schemaVersion": 2
 }

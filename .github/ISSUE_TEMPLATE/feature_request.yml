@@ -1,0 +1,51 @@
+name: Feature request
+description: Suggest a new feature or improvement
+title: "[feature] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Larger features benefit from a quick design discussion in
+        [Discussions](https://github.com/ekremx25/quickshell/discussions)
+        before opening an issue.
+
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use case
+      description: What are you trying to do? Why does it matter?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Where in the shell does this live? How does the user interact with it?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Scope
+      options:
+        - Cross-compositor (Niri + Hyprland + MangoWC)
+        - Hyprland-specific
+        - Niri-specific
+        - MangoWC-specific
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Have you tried existing tools or workarounds?
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Additional context
+      description: Mockups, references to similar features in other shells, etc.

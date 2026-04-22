@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Discussions
+    url: https://github.com/ekremx25/quickshell/discussions
+    about: Questions, ideas, and general chatter belong in Discussions, not Issues.
+  - name: Quickshell framework
+    url: https://github.com/outfoxxed/quickshell
+    about: Bugs in the underlying framework should be reported upstream.

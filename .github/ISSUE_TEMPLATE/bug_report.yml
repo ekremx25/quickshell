@@ -1,0 +1,84 @@
+name: Bug report
+description: Report something that is broken or behaves unexpectedly
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug report. Please fill in as much
+        as you can — the more detail, the faster the fix.
+
+  - type: checkboxes
+    id: prereqs
+    attributes:
+      label: Pre-flight
+      options:
+        - label: I am running the latest `main`.
+          required: true
+        - label: I have searched existing issues for duplicates.
+          required: true
+        - label: All [README dependencies](https://github.com/ekremx25/quickshell#dependencies) are installed.
+          required: true
+
+  - type: input
+    id: compositor
+    attributes:
+      label: Compositor and version
+      description: Output of `niri --version` / `hyprctl version` / `mmsg --version`
+      placeholder: "Hyprland 0.54.3"
+    validations:
+      required: true
+
+  - type: input
+    id: quickshell-version
+    attributes:
+      label: Quickshell framework version
+      description: Output of `pacman -Qi quickshell` (or git commit if built from source)
+      placeholder: "0.x.x or git-abc1234"
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Describe the actual behaviour.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open Settings → Appearance → Night Light
+        2. Toggle the schedule on
+        3. Set on=19:00, off=07:00
+        4. Observe that ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Quickshell logs
+      description: |
+        Output of:
+        ```bash
+        cat /run/user/$(id -u)/quickshell/by-pid/$(pgrep -x quickshell)/log.log | tail -50
+        ```
+      render: shell
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else?
+      description: Screenshots, related issues, workarounds you've tried, etc.

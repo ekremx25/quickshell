@@ -6,6 +6,7 @@
 
 [Niri](https://github.com/YaLTeR/niri) · [Hyprland](https://github.com/hyprwm/Hyprland) · [MangoWC](https://github.com/DreamMaoMao/mango)
 
+[![CI](https://github.com/ekremx25/quickshell/actions/workflows/ci.yml/badge.svg)](https://github.com/ekremx25/quickshell/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Platform: Wayland](https://img.shields.io/badge/platform-Wayland-green.svg)]()
 [![Built with: Quickshell](https://img.shields.io/badge/built%20with-Quickshell-7F60F6.svg)](https://github.com/outfoxxed/quickshell)

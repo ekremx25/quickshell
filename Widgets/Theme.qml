@@ -170,6 +170,50 @@ QtObject {
     property color overlay: "#6c7086"
     property int radius: themeConfig.radius || 12
 
+    // ── Surface tints (white overlays on dark UI) ───────────────────────
+    // Use these instead of inline `Qt.rgba(255, 255, 255, X)` calls.
+    property color surfaceTintFaint:  Qt.rgba(1, 1, 1, 0.03)   // very subtle card background
+    property color surfaceTintLow:    Qt.rgba(1, 1, 1, 0.05)   // soft card background
+    property color surfaceTintMed:    Qt.rgba(1, 1, 1, 0.08)   // hover background
+    property color surfaceTintHigh:   Qt.rgba(1, 1, 1, 0.12)   // pressed / active background
+    property color surfaceTintMax:    Qt.rgba(1, 1, 1, 0.18)   // strong selection background
+    property color borderFaint:       Qt.rgba(1, 1, 1, 0.05)   // subtle separator
+    property color borderSoft:        Qt.rgba(1, 1, 1, 0.08)   // standard border
+    property color borderStrong:      Qt.rgba(1, 1, 1, 0.12)   // emphasis border
+    property color outline:           Qt.rgba(1, 1, 1, 0.20)   // visible outline
+    property color shadowSoft:        Qt.rgba(0, 0, 0, 0.20)   // subtle shadow
+    property color shadowStrong:      Qt.rgba(0, 0, 0, 0.35)   // strong shadow
+
+    // ── Catppuccin Mocha named colors (use these instead of inline hex) ─
+    // Surface scale (darker → lighter)
+    property color cpBase:     "#1e1e2e"
+    property color cpMantle:   "#181825"
+    property color cpCrust:    "#11111b"
+    property color cpSurface0: "#313244"
+    property color cpSurface1: "#45475a"
+    property color cpSurface2: "#585b70"
+    property color cpOverlay0: "#6c7086"
+    property color cpOverlay1: "#7f849c"
+    property color cpOverlay2: "#9399b2"
+    property color cpText:     "#cdd6f4"
+    property color cpSubtext1: "#bac2de"
+    property color cpSubtext0: "#a6adc8"
+    // Accents
+    property color cpRosewater: "#f5e0dc"
+    property color cpFlamingo:  "#f2cdcd"
+    property color cpPink:      "#f5c2e7"
+    property color cpMauve:     "#cba6f7"
+    property color cpRed:       "#f38ba8"
+    property color cpMaroon:    "#eba0ac"
+    property color cpPeach:     "#fab387"
+    property color cpYellow:    "#f9e2af"
+    property color cpGreen:     "#a6e3a1"
+    property color cpTeal:      "#94e2d5"
+    property color cpSky:       "#89dceb"
+    property color cpSapphire:  "#74c7ec"
+    property color cpBlue:      "#89b4fa"
+    property color cpLavender:  "#b4befe"
+
     // External theme switching
     function setTheme(name) {
         if (name && themes[name]) {
