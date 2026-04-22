@@ -65,6 +65,7 @@ PanelWindow {
                 { key: "bar",        icon: "󰒍", label: "Bar Settings" },
                 { key: "dock",       icon: "⚓", label: "Dock Settings" },
                 { key: "layout",     icon: "󰕰", label: "Layout Presets" },
+                { key: "fonts",      icon: "󰛖", label: "Fonts" },
                 { key: "materialyou",icon: "󰏘", label: "Material You" },
                 { key: "nightlight", icon: "󰽥", label: "Night Light" }
             ]
@@ -436,6 +437,17 @@ PanelWindow {
                         anchors.fill: parent
                         visible: settingsPopup.currentPage === "dock"
                         settingsPopup: settingsPopup
+                    }
+
+                    Loader {
+                        anchors.fill: parent
+                        active: settingsPopup.currentPage === "fonts"
+                        visible: status === Loader.Ready
+                        sourceComponent: Component {
+                            FontsPage {
+                                anchors.fill: parent
+                            }
+                        }
                     }
 
                     // ── SYSTEM PAGES ──
