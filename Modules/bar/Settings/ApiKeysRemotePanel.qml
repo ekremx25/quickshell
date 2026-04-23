@@ -240,7 +240,6 @@ Item {
                         inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhSensitiveData
 
                         Text {
-                            font.family: Theme.fontFamily
                             anchors.verticalCenter: parent.verticalCenter
                             visible: keyInput.text.length === 0 && !keyInput.activeFocus
                             text: remotePanel.currentProvider.key_example

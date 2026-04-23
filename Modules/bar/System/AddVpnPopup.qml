@@ -69,7 +69,7 @@ PanelWindow {
                     Text {  text: "Configure a new VPN connection"; color: SettingsPalette.subtext; font.pixelSize: 12; font.family: Theme.fontFamily }
                 }
                 Item { Layout.fillWidth: true }
-                Text {  text: "✕"; color: SettingsPalette.subtext; font.pixelSize: 16; MouseArea { anchors.fill: parent; onClicked: root.close(); cursorShape: Qt.PointingHandCursor }; font.family: Theme.fontFamily }
+                Text { font.family: Theme.fontFamily; text: "✕"; color: SettingsPalette.subtext; font.pixelSize: 16; MouseArea { anchors.fill: parent; onClicked: root.close(); cursorShape: Qt.PointingHandCursor } }
             }
 
             Rectangle { Layout.fillWidth: true; height: 1; color: Qt.rgba(255,255,255,0.1) }
@@ -121,7 +121,7 @@ PanelWindow {
                             color: "#89b4fa"; font.bold: true; Layout.fillWidth: true; elide: Text.ElideMiddle
                         }
                         Text {  text: "Browse"; color: "#89b4fa"; visible: !root.importedFilePath; font.family: Theme.fontFamily }
-                        Text {  text: "Clear"; color: "#f38ba8"; visible: root.importedFilePath !== ""; MouseArea { anchors.fill: parent; onClicked: root.importedFilePath = "" }; font.family: Theme.fontFamily }
+                        Text { font.family: Theme.fontFamily; text: "Clear"; color: "#f38ba8"; visible: root.importedFilePath !== ""; MouseArea { anchors.fill: parent; onClicked: root.importedFilePath = "" } }
                     }
                     
                     MouseArea { 

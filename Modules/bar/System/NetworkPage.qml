@@ -505,7 +505,7 @@ Item {
                     Layout.fillWidth: true
                     Text {  text: "Edit Connection"; color: SettingsPalette.text; font.bold: true; font.pixelSize: 16; font.family: Theme.fontFamily }
                     Item { Layout.fillWidth: true }
-                    Text {  text: "✕"; color: SettingsPalette.subtext; font.pixelSize: 16; MouseArea { anchors.fill: parent; onClicked: editConnPopup.close(); cursorShape: Qt.PointingHandCursor }; font.family: Theme.fontFamily }
+                    Text { font.family: Theme.fontFamily; text: "✕"; color: SettingsPalette.subtext; font.pixelSize: 16; MouseArea { anchors.fill: parent; onClicked: editConnPopup.close(); cursorShape: Qt.PointingHandCursor } }
                 }
 
                 Rectangle { Layout.fillWidth: true; height: 1; color: Qt.rgba(255,255,255,0.1) }
