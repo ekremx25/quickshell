@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
+import "../../../Widgets"
 
 Rectangle {
     id: root
@@ -27,11 +28,13 @@ Rectangle {
             id: tempText
             text: "--°C"
             font.bold: true
+            font.family: Theme.fontFamily
             color: "#1e1e2e"
             font.pixelSize: 14
         }
 
         Text {
+            font.family: Theme.iconFontFamily
             text: "" // If your font has it you can use "󰏈"
             font.pixelSize: 16
             color: "#1e1e2e"

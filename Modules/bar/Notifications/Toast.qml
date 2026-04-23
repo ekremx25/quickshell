@@ -190,12 +190,14 @@ PanelWindow {
                 spacing: 4
 
                 Text {
+                    font.family: Theme.fontFamily
                     text: currentNotif ? currentNotif.appName : "System"
                     font.bold: true; font.pixelSize: 11
                     color: Theme.subtext
                 }
 
                 Text {
+                    font.family: Theme.fontFamily
                     text: currentNotif ? (notifService.privacyMode ? "New notification" : currentNotif.summary) : ""
                     font.bold: true; font.pixelSize: 13
                     color: Theme.text
@@ -206,6 +208,7 @@ PanelWindow {
                 }
 
                 Text {
+                    font.family: Theme.fontFamily
                     text: currentNotif ? (notifService.privacyMode ? "Content hidden" : currentNotif.body) : ""
                     font.pixelSize: 12
                     color: Theme.subtext

@@ -41,6 +41,7 @@ Item {
                     color: nightLightPage.accent
                 }
                 Text {
+                    font.family: Theme.fontFamily
                     text: "Night Light"
                     font.bold: true
                     font.pixelSize: 18
@@ -63,11 +64,13 @@ Item {
                         anchors.centerIn: parent
                         spacing: 6
                         Text {
+                            font.family: Theme.fontFamily
                             text: "●"
                             color: !S.NightLight.available ? "#f38ba8" : (S.NightLight.enabled ? nightLightPage.accent : SettingsPalette.overlay)
                             font.pixelSize: 11
                         }
                         Text {
+                            font.family: Theme.fontFamily
                             text: !S.NightLight.available
                                 ? "gammastep missing"
                                 : (S.NightLight.enabled ? ("On — " + S.NightLight.temperature + "K") : "Off")
@@ -96,12 +99,14 @@ Item {
                     spacing: 6
 
                     Text {
+                        font.family: Theme.fontFamily
                         text: "⚠  gammastep is not installed"
                         color: "#f38ba8"
                         font.pixelSize: 13
                         font.bold: true
                     }
                     Text {
+                        font.family: Theme.fontFamily
                         text: "Night Light uses gammastep to adjust the screen's colour temperature. Install it and reload."
                         color: SettingsPalette.subtext
                         font.pixelSize: 11
@@ -147,12 +152,14 @@ Item {
                         Layout.fillWidth: true
                         spacing: 2
                         Text {
+                            font.family: Theme.fontFamily
                             text: "Blue-light filter"
                             color: SettingsPalette.text
                             font.pixelSize: 14
                             font.bold: true
                         }
                         Text {
+                            font.family: Theme.fontFamily
                             text: "Tints the display warm to reduce eye strain in the evening."
                             color: SettingsPalette.subtext
                             font.pixelSize: 11
@@ -209,6 +216,7 @@ Item {
                     RowLayout {
                         Layout.fillWidth: true
                         Text {
+                            font.family: Theme.fontFamily
                             text: "Colour temperature"
                             color: SettingsPalette.text
                             font.pixelSize: 13
@@ -263,13 +271,14 @@ Item {
 
                     RowLayout {
                         Layout.fillWidth: true
-                        Text { text: "1000 K — very warm"; color: SettingsPalette.subtext; font.pixelSize: 10 }
+                        Text {  text: "1000 K — very warm"; color: SettingsPalette.subtext; font.pixelSize: 10; font.family: Theme.fontFamily }
                         Item { Layout.fillWidth: true }
-                        Text { text: "6500 K — neutral"; color: SettingsPalette.subtext; font.pixelSize: 10 }
+                        Text {  text: "6500 K — neutral"; color: SettingsPalette.subtext; font.pixelSize: 10; font.family: Theme.fontFamily }
                     }
 
                     // Presets
                     Text {
+                        font.family: Theme.fontFamily
                         text: "Presets"
                         color: SettingsPalette.subtext
                         font.pixelSize: 11
@@ -307,6 +316,7 @@ Item {
                                     anchors.centerIn: parent
                                     spacing: 1
                                     Text {
+                                        font.family: Theme.fontFamily
                                         text: presetCard.modelData.label
                                         color: presetCard.isActive ? nightLightPage.accent : SettingsPalette.text
                                         font.pixelSize: 12
@@ -314,6 +324,7 @@ Item {
                                         Layout.alignment: Qt.AlignHCenter
                                     }
                                     Text {
+                                        font.family: Theme.fontFamily
                                         text: presetCard.modelData.k + " K"
                                         color: SettingsPalette.overlay
                                         font.pixelSize: 9
@@ -362,12 +373,14 @@ Item {
                             Layout.fillWidth: true
                             spacing: 2
                             Text {
+                                font.family: Theme.fontFamily
                                 text: "Schedule"
                                 color: SettingsPalette.text
                                 font.pixelSize: 13
                                 font.bold: true
                             }
                             Text {
+                                font.family: Theme.fontFamily
                                 text: "Turn Night Light on and off automatically at fixed times. Windows that cross midnight (19:00 → 07:00) are supported."
                                 color: SettingsPalette.subtext
                                 font.pixelSize: 10
@@ -416,6 +429,7 @@ Item {
                             spacing: 6
 
                             Text {
+                                font.family: Theme.fontFamily
                                 text: "Turn on at"
                                 color: SettingsPalette.subtext
                                 font.pixelSize: 11
@@ -459,6 +473,7 @@ Item {
                                 }
 
                                 Text {
+                                    font.family: Theme.fontFamily
                                     text: ":"
                                     color: SettingsPalette.text
                                     font.pixelSize: 20
@@ -502,6 +517,7 @@ Item {
 
                         // Arrow separator
                         Text {
+                            font.family: Theme.fontFamily
                             text: "→"
                             color: SettingsPalette.subtext
                             font.pixelSize: 16
@@ -514,6 +530,7 @@ Item {
                             spacing: 6
 
                             Text {
+                                font.family: Theme.fontFamily
                                 text: "Turn off at"
                                 color: SettingsPalette.subtext
                                 font.pixelSize: 11
@@ -557,6 +574,7 @@ Item {
                                 }
 
                                 Text {
+                                    font.family: Theme.fontFamily
                                     text: ":"
                                     color: SettingsPalette.text
                                     font.pixelSize: 20
@@ -601,6 +619,7 @@ Item {
 
                     // Schedule status hint
                     Text {
+                        font.family: Theme.iconFontFamily
                         visible: S.NightLight.scheduleEnabled
                         Layout.fillWidth: true
                         Layout.topMargin: 4
@@ -636,6 +655,7 @@ Item {
                     spacing: 10
 
                     Text {
+                        font.family: Theme.fontFamily
                         text: "Behaviour"
                         color: SettingsPalette.text
                         font.pixelSize: 13
@@ -656,6 +676,7 @@ Item {
                             border.width: 1
 
                             Text {
+                                font.family: Theme.fontFamily
                                 anchors.centerIn: parent
                                 visible: S.NightLight.applyOnStartup
                                 text: "✓"
@@ -680,12 +701,14 @@ Item {
                                 anchors.fill: parent
                                 spacing: 2
                                 Text {
+                                    font.family: Theme.fontFamily
                                     text: "Apply on startup"
                                     color: SettingsPalette.text
                                     font.pixelSize: 12
                                     font.bold: true
                                 }
                                 Text {
+                                    font.family: Theme.fontFamily
                                     text: "Restore the saved temperature when the shell starts."
                                     color: SettingsPalette.subtext
                                     font.pixelSize: 10
@@ -721,12 +744,14 @@ Item {
                     spacing: 4
 
                     Text {
+                        font.family: Theme.fontFamily
                         text: "ℹ  How it works"
                         color: SettingsPalette.subtext
                         font.pixelSize: 11
                         font.bold: true
                     }
                     Text {
+                        font.family: Theme.fontFamily
                         text: "Calls gammastep with -O <K> to apply the temperature and -x to reset. Uses the wlr-gamma-control protocol, so it works under Niri, Hyprland and MangoWC. Settings are stored in ~/.config/quickshell/nightlight_config.json."
                         color: SettingsPalette.subtext
                         font.pixelSize: 10

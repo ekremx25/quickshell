@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import "../../../Widgets"
 import "../Settings/SettingsPalette.js" as SettingsPalette
 
 // Draggable monitor layout canvas card.
@@ -26,6 +27,7 @@ Rectangle {
                 spacing: 2
 
                 Text {
+                    font.family: Theme.fontFamily
                     text: "Rearrange your displays"
                     color: SettingsPalette.text
                     font.pixelSize: 15
@@ -33,6 +35,7 @@ Rectangle {
                 }
 
                 Text {
+                    font.family: Theme.fontFamily
                     text: "Drag the display tiles to match how your monitors are physically placed on your desk."
                     color: SettingsPalette.subtext
                     font.pixelSize: 12
@@ -50,6 +53,7 @@ Rectangle {
                 implicitHeight: 30
 
                 Text {
+                    font.family: Theme.fontFamily
                     id: hintText
                     anchors.centerIn: parent
                     text: "Tip: select a display, then drag to snap"
@@ -122,6 +126,7 @@ Rectangle {
                                     border.width: 1
 
                                     Text {
+                                        font.family: Theme.fontFamily
                                         anchors.centerIn: parent
                                         text: page.monitorLabel(index)
                                         color: "white"
@@ -142,6 +147,7 @@ Rectangle {
                                     implicitHeight: 24
 
                                     Text {
+                                        font.family: Theme.fontFamily
                                         id: mainText
                                         anchors.centerIn: parent
                                         text: "Main display"
@@ -155,6 +161,7 @@ Rectangle {
                             Item { Layout.fillHeight: true }
 
                             Text {
+                                font.family: Theme.fontFamily
                                 text: modelData.name
                                 color: "white"
                                 font.pixelSize: Math.max(13, Math.min(17, parent.width / 7))
@@ -163,6 +170,7 @@ Rectangle {
                             }
 
                             Text {
+                                font.family: Theme.fontFamily
                                 text: page.effectiveWidth(modelData) + " x " + page.effectiveHeight(modelData)
                                 color: Qt.rgba(255, 255, 255, 0.86)
                                 font.pixelSize: 10
@@ -170,6 +178,7 @@ Rectangle {
                             }
 
                             Text {
+                                font.family: Theme.fontFamily
                                 text: Math.round(page.outputPosX(modelData)) + ", " + Math.round(page.outputPosY(modelData))
                                 color: Qt.rgba(255, 255, 255, 0.74)
                                 font.pixelSize: 10
@@ -193,6 +202,7 @@ Rectangle {
                             Behavior on opacity { NumberAnimation { duration: 160 } }
 
                             Text {
+                                font.family: Theme.fontFamily
                                 anchors.centerIn: parent
                                 text: page.monitorLabel(index)
                                 color: "white"

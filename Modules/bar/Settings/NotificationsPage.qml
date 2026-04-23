@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
+import "../../../Widgets"
 import "../../../Services" as S
 
 Item {
@@ -63,8 +64,8 @@ Item {
             ColumnLayout {
                 Layout.fillWidth: true
                 spacing: 2
-                Text { text: toggleCard.title; font.pixelSize: 14; color: colorText }
-                Text { text: toggleCard.description; font.pixelSize: 11; color: colorSubtext }
+                Text {  text: toggleCard.title; font.pixelSize: 14; color: colorText; font.family: Theme.fontFamily }
+                Text {  text: toggleCard.description; font.pixelSize: 11; color: colorSubtext; font.family: Theme.fontFamily }
             }
 
             Switch {
@@ -103,6 +104,7 @@ Item {
 
             // Title
             Text { 
+                font.family: Theme.fontFamily
                 text: "Notification Settings" 
                 font.bold: true 
                 font.pixelSize: 24 
@@ -110,6 +112,7 @@ Item {
             }
 
             Text { 
+                font.family: Theme.fontFamily
                 text: "Manage how notifications behave and appear." 
                 font.pixelSize: 14 
                 color: colorSubtext 
@@ -139,8 +142,8 @@ Item {
                     ColumnLayout {
                         Layout.fillWidth: true
                         spacing: 2
-                        Text { text: "Popup Position"; font.pixelSize: 14; color: colorText }
-                        Text { text: "Choose where notification popups appear on screen."; font.pixelSize: 11; color: colorSubtext }
+                        Text {  text: "Popup Position"; font.pixelSize: 14; color: colorText; font.family: Theme.fontFamily }
+                        Text {  text: "Choose where notification popups appear on screen."; font.pixelSize: 11; color: colorSubtext; font.family: Theme.fontFamily }
                     }
                     
                     ComboBox {
@@ -196,8 +199,8 @@ Item {
                     ColumnLayout {
                         Layout.fillWidth: true
                         spacing: 2
-                        Text { text: "Animation Speed"; font.pixelSize: 14; color: colorText }
-                        Text { text: "Control animation duration for notification popups and history."; font.pixelSize: 11; color: colorSubtext }
+                        Text {  text: "Animation Speed"; font.pixelSize: 14; color: colorText; font.family: Theme.fontFamily }
+                        Text {  text: "Control animation duration for notification popups and history."; font.pixelSize: 11; color: colorSubtext; font.family: Theme.fontFamily }
                     }
 
                     RowLayout {
@@ -254,10 +257,10 @@ Item {
                         ColumnLayout {
                             Layout.fillWidth: true
                             spacing: 2
-                            Text { text: "Popup Duration"; font.pixelSize: 14; color: colorText }
-                            Text { text: "How long a notification stays on the screen."; font.pixelSize: 11; color: colorSubtext }
+                            Text {  text: "Popup Duration"; font.pixelSize: 14; color: colorText; font.family: Theme.fontFamily }
+                            Text {  text: "How long a notification stays on the screen."; font.pixelSize: 11; color: colorSubtext; font.family: Theme.fontFamily }
                         }
-                        Text { text: Math.round(notifService.displayDuration / 1000) + "s"; font.pixelSize: 14; color: colorPrimary; font.bold: true }
+                        Text {  text: Math.round(notifService.displayDuration / 1000) + "s"; font.pixelSize: 14; color: colorPrimary; font.bold: true; font.family: Theme.fontFamily }
                     }
                     
                     Slider {
@@ -313,8 +316,8 @@ Item {
                     ColumnLayout {
                         Layout.fillWidth: true
                         spacing: 2
-                        Text { text: "Clear Notification History"; font.pixelSize: 14; color: colorText }
-                        Text { text: "Remove all saved notifications from memory."; font.pixelSize: 11; color: colorSubtext }
+                        Text {  text: "Clear Notification History"; font.pixelSize: 14; color: colorText; font.family: Theme.fontFamily }
+                        Text {  text: "Remove all saved notifications from memory."; font.pixelSize: 11; color: colorSubtext; font.family: Theme.fontFamily }
                     }
                     
                     Rectangle {
@@ -324,6 +327,7 @@ Item {
                         color: clearHover.containsMouse ? Qt.darker("#f38ba8", 1.2) : "#f38ba8"
                         
                         Text {
+                            font.family: Theme.fontFamily
                             anchors.centerIn: parent
                             text: "Clear All"
                             color: "#1e1e2e"

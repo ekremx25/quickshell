@@ -3,6 +3,7 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
 import "../../../Services" as S
+import "../../../Widgets"
 
 PanelWindow {
     id: root
@@ -40,6 +41,7 @@ PanelWindow {
             spacing: 8
 
             Text {
+                font.family: Theme.fontFamily
                 text: "Duration (seconds)"
                 color: "#a6adc8"
                 font.pixelSize: 12

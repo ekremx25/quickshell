@@ -47,6 +47,7 @@ WeatherDataScope {
                         Layout.fillWidth: true
                         spacing: 8
                         Text {
+                            font.family: Theme.fontFamily
                             text: root.cityName
                             color: Theme.subtext
                             font.pixelSize: 13
@@ -54,6 +55,7 @@ WeatherDataScope {
                         }
                         Item { Layout.fillWidth: true }
                         Text {
+                            font.family: Theme.fontFamily
                             text: Qt.formatDateTime(new Date(), "HH:mm")
                             color: Theme.overlay2
                             font.pixelSize: 12
@@ -90,6 +92,7 @@ WeatherDataScope {
                                 font.family: Theme.fontFamily
                             }
                             Text {
+                                font.family: Theme.fontFamily
                                 text: "°"
                                 color: Theme.primary
                                 font.pixelSize: 22
@@ -99,6 +102,7 @@ WeatherDataScope {
                             }
                         }
                         Text {
+                            font.family: Theme.fontFamily
                             text: "Feels like"
                             color: Theme.overlay2
                             font.pixelSize: 11
@@ -106,12 +110,14 @@ WeatherDataScope {
                         }
                         // Actual temperature (small)
                         Text {
+                            font.family: Theme.fontFamily
                             text: root.currentTemp + (root.useFahrenheit ? "°F" : "°C")
                             color: Theme.subtext
                             font.pixelSize: 16
                             Layout.alignment: Qt.AlignHCenter
                         }
                         Text {
+                            font.family: Theme.fontFamily
                             text: root.popupData.desc
                             color: Theme.subtext
                             font.pixelSize: 14
@@ -169,6 +175,7 @@ WeatherDataScope {
 
                     // ═══ 7 DAY FORECAST ═══
                     Text {
+                        font.family: Theme.fontFamily
                         text: "5 Day Forecast"
                         color: Theme.subtext
                         font.pixelSize: 12
@@ -195,6 +202,7 @@ WeatherDataScope {
                                     spacing: 8
 
                                     Text {
+                                        font.family: Theme.fontFamily
                                         text: modelData.day
                                         color: index === 0 ? Theme.primary : Theme.text
                                         font.pixelSize: 12
@@ -216,6 +224,7 @@ WeatherDataScope {
                                     }
                                     Item { Layout.fillWidth: true }
                                     Text {
+                                        font.family: Theme.fontFamily
                                         text: modelData.min + "°"
                                         color: Theme.overlay2
                                         font.pixelSize: 12
@@ -240,6 +249,7 @@ WeatherDataScope {
                                         }
                                     }
                                     Text {
+                                        font.family: Theme.fontFamily
                                         text: modelData.max + "°"
                                         color: Theme.text
                                         font.pixelSize: 12
@@ -285,8 +295,8 @@ WeatherDataScope {
                     }
                     ColumnLayout {
                         spacing: 1
-                        Text { text: label; color: Theme.overlay2; font.pixelSize: 10 }
-                        Text { text: value; color: Theme.text; font.pixelSize: 13; font.bold: true }
+                        Text {  text: label; color: Theme.overlay2; font.pixelSize: 10; font.family: Theme.fontFamily }
+                        Text {  text: value; color: Theme.text; font.pixelSize: 13; font.bold: true; font.family: Theme.fontFamily }
                     }
                 }
             }

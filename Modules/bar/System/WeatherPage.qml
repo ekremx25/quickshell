@@ -37,7 +37,7 @@ Item {
             RowLayout {
                 Layout.fillWidth: true
                 Text { text: "󰖕"; font.pixelSize: 20; font.family: "JetBrainsMono Nerd Font"; color: "#f9e2af" }
-                Text { text: "Weather Settings"; font.bold: true; font.pixelSize: 18; color: SettingsPalette.text }
+                Text {  text: "Weather Settings"; font.bold: true; font.pixelSize: 18; color: SettingsPalette.text; font.family: Theme.fontFamily }
             }
 
             // ═══ ENABLE WEATHER ═══
@@ -90,21 +90,22 @@ Item {
                     RowLayout {
                         spacing: 8
                         Text { text: ""; font.pixelSize: 16; font.family: Theme.fontFamily; color: "#a6e3a1" }
-                        Text { text: "Current Location"; color: "#a6e3a1"; font.bold: true; font.pixelSize: 13 }
+                        Text {  text: "Current Location"; color: "#a6e3a1"; font.bold: true; font.pixelSize: 13; font.family: Theme.fontFamily }
                     }
 
                     RowLayout {
                         spacing: 16
                         Layout.fillWidth: true
-                        Text { text: "📍 " + weatherPage.cityName; color: SettingsPalette.text; font.bold: true; font.pixelSize: 14 }
+                        Text {  text: "📍 " + weatherPage.cityName; color: SettingsPalette.text; font.bold: true; font.pixelSize: 14; font.family: Theme.fontFamily }
                         Item { Layout.fillWidth: true }
-                        Text { text: weatherPage.customLat + "°, " + weatherPage.customLon + "°"; color: SettingsPalette.subtext; font.pixelSize: 11 }
+                        Text {  text: weatherPage.customLat + "°, " + weatherPage.customLon + "°"; color: SettingsPalette.subtext; font.pixelSize: 11; font.family: Theme.fontFamily }
                     }
                 }
             }
 
             // ═══ CUSTOM LOCATION ═══
             Text {
+                font.family: Theme.fontFamily
                 text: "Custom Location"
                 color: SettingsPalette.text; font.bold: true; font.pixelSize: 13
                 visible: !weatherPage.autoLocation
@@ -118,7 +119,7 @@ Item {
                 // Latitude
                 ColumnLayout {
                     Layout.fillWidth: true; spacing: 4
-                    Text { text: "Latitude"; color: SettingsPalette.subtext; font.pixelSize: 11 }
+                    Text {  text: "Latitude"; color: SettingsPalette.subtext; font.pixelSize: 11; font.family: Theme.fontFamily }
                     Rectangle {
                         Layout.fillWidth: true; height: 40; radius: 8
                         color: Qt.rgba(49/255, 50/255, 68/255, 0.6)
@@ -141,7 +142,7 @@ Item {
                 // Longitude
                 ColumnLayout {
                     Layout.fillWidth: true; spacing: 4
-                    Text { text: "Longitude"; color: SettingsPalette.subtext; font.pixelSize: 11 }
+                    Text {  text: "Longitude"; color: SettingsPalette.subtext; font.pixelSize: 11; font.family: Theme.fontFamily }
                     Rectangle {
                         Layout.fillWidth: true; height: 40; radius: 8
                         color: Qt.rgba(49/255, 50/255, 68/255, 0.6)
@@ -164,6 +165,7 @@ Item {
 
             // ═══ LOCATION SEARCH ═══
             Text {
+                font.family: Theme.fontFamily
                 text: "Search City"
                 color: SettingsPalette.text; font.bold: true; font.pixelSize: 13
                 visible: !weatherPage.autoLocation
@@ -180,6 +182,7 @@ Item {
                     anchors.fill: parent; anchors.margins: 10; spacing: 8
 
                     Text {
+                        font.family: Theme.fontFamily
                         text: "🔍"
                         font.pixelSize: 14
                         color: SettingsPalette.subtext
@@ -195,6 +198,7 @@ Item {
                             onTextChanged: weatherPage.searchText = text
 
                         Text {
+                            font.family: Theme.fontFamily
                             anchors.fill: parent
                             text: "Istanbul, London, Tokyo..."
                             color: SettingsPalette.overlay
@@ -213,7 +217,7 @@ Item {
                         width: 70; height: 28; radius: 6
                         color: searchBtnMA.containsMouse ? Qt.lighter(Theme.primary, 1.2) : Theme.primary
                         Behavior on color { ColorAnimation { duration: 100 } }
-                        Text { anchors.centerIn: parent; text: "Search"; color: "#1e1e2e"; font.pixelSize: 12; font.bold: true }
+                        Text {  anchors.centerIn: parent; text: "Search"; color: "#1e1e2e"; font.pixelSize: 12; font.bold: true; font.family: Theme.fontFamily }
                         MouseArea {
                             id: searchBtnMA; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
                             onClicked: weatherService.searchCity()
@@ -224,6 +228,7 @@ Item {
 
             // ═══ SEARCH RESULTS ═══
             Text {
+                font.family: Theme.fontFamily
                 text: weatherPage.searching ? "Searching..." : ""
                 color: SettingsPalette.subtext; font.pixelSize: 12
                 visible: weatherPage.searching
@@ -239,13 +244,15 @@ Item {
 
                     RowLayout {
                         anchors.fill: parent; anchors.margins: 12; spacing: 10
-                        Text { text: "📍"; font.pixelSize: 14 }
+                        Text {  text: "📍"; font.pixelSize: 14; font.family: Theme.fontFamily }
                         Text {
+                            font.family: Theme.fontFamily
                             text: modelData.name
                             color: SettingsPalette.text; font.pixelSize: 13; font.bold: true
                             Layout.fillWidth: true; elide: Text.ElideRight
                         }
                         Text {
+                            font.family: Theme.fontFamily
                             text: modelData.lat + "°, " + modelData.lon + "°"
                             color: SettingsPalette.subtext; font.pixelSize: 11
                         }
@@ -254,7 +261,7 @@ Item {
                             width: 60; height: 28; radius: 6
                             color: selectMA.containsMouse ? Qt.lighter("#a6e3a1", 1.2) : "#a6e3a1"
                             Behavior on color { ColorAnimation { duration: 100 } }
-                            Text { anchors.centerIn: parent; text: "Select"; color: "#1e1e2e"; font.pixelSize: 11; font.bold: true }
+                            Text {  anchors.centerIn: parent; text: "Select"; color: "#1e1e2e"; font.pixelSize: 11; font.bold: true; font.family: Theme.fontFamily }
                             MouseArea {
                                 id: selectMA; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
                                 onClicked: weatherService.selectSearchResult(modelData)
@@ -275,6 +282,7 @@ Item {
             RowLayout {
                 Layout.fillWidth: true
                 Text {
+                    font.family: Theme.fontFamily
                     text: "Weather will refresh after saving settings"
                     color: SettingsPalette.overlay; font.pixelSize: 11
                 }
@@ -283,7 +291,7 @@ Item {
                     width: 160; height: 40; radius: 10
                     color: applyMA.containsMouse ? Qt.lighter(Theme.primary, 1.2) : Theme.primary
                     Behavior on color { ColorAnimation { duration: 150 } }
-                    Text { anchors.centerIn: parent; text: "💾  Save & Apply"; color: "#1e1e2e"; font.pixelSize: 13; font.bold: true }
+                    Text {  anchors.centerIn: parent; text: "💾  Save & Apply"; color: "#1e1e2e"; font.pixelSize: 13; font.bold: true; font.family: Theme.fontFamily }
                     MouseArea {
                         id: applyMA; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
                         onClicked: weatherService.saveConfig()

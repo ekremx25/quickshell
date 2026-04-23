@@ -49,12 +49,14 @@ Rectangle {
             ColumnLayout {
                 spacing: 2
                 Text {
+                    font.family: Theme.fontFamily
                     text: "100% Local Mode"
                     color: "#a6e3a1"
                     font.pixelSize: 15
                     font.bold: true
                 }
                 Text {
+                    font.family: Theme.fontFamily
                     text: "No network, no API key, no data leaves your machine"
                     color: SettingsPalette.subtext
                     font.pixelSize: 11
@@ -69,6 +71,7 @@ Rectangle {
         }
 
         Text {
+            font.family: Theme.fontFamily
             text: "SmartComplete will use only the built-in data on your system:"
             color: SettingsPalette.text
             font.pixelSize: 12
@@ -100,6 +103,7 @@ Rectangle {
                         Layout.preferredWidth: 20
                     }
                     Text {
+                        font.family: Theme.fontFamily
                         text: modelData.label
                         color: SettingsPalette.text
                         font.pixelSize: 11
@@ -107,6 +111,7 @@ Rectangle {
                         Layout.preferredWidth: 150
                     }
                     Text {
+                        font.family: Theme.fontFamily
                         text: modelData.detail
                         color: SettingsPalette.subtext
                         font.pixelSize: 11
@@ -145,6 +150,7 @@ Rectangle {
                         color: "#a6e3a1"
                     }
                     Text {
+                        font.family: Theme.fontFamily
                         text: localPanel.saveStatus === "saving" ? "Saving..." : "Activate Local-Only Mode"
                         color: "#a6e3a1"
                         font.pixelSize: 12
@@ -174,6 +180,7 @@ Rectangle {
                 : Qt.rgba(243/255, 139/255, 168/255, 0.4)
             border.width: 1
             Text {
+                font.family: Theme.fontFamily
                 id: localStatusText
                 anchors.fill: parent
                 anchors.margins: 8

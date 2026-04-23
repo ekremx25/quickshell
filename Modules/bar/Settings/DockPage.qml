@@ -135,8 +135,8 @@ Item {
             y: 24
             spacing: 20
 
-            Text { text: "Dock Settings"; font.bold: true; font.pixelSize: 24; color: colorText }
-            Text { text: "Configure dock appearance and behavior."; font.pixelSize: 14; color: colorSubtext }
+            Text {  text: "Dock Settings"; font.bold: true; font.pixelSize: 24; color: colorText; font.family: Theme.fontFamily }
+            Text {  text: "Configure dock appearance and behavior."; font.pixelSize: 14; color: colorSubtext; font.family: Theme.fontFamily }
 
             Item { height: 10 }
 
@@ -149,8 +149,8 @@ Item {
                 ColumnLayout {
                     anchors.fill: parent; anchors.margins: 12; spacing: 8
                     ColumnLayout { Layout.fillWidth: true; spacing: 2
-                        Text { text: "Position"; font.pixelSize: 14; color: colorText }
-                        Text { text: "Where the dock sits on the screen."; font.pixelSize: 11; color: colorSubtext }
+                        Text {  text: "Position"; font.pixelSize: 14; color: colorText; font.family: Theme.fontFamily }
+                        Text {  text: "Where the dock sits on the screen."; font.pixelSize: 11; color: colorSubtext; font.family: Theme.fontFamily }
                     }
                     RowLayout {
                         Layout.alignment: Qt.AlignHCenter; spacing: 6
@@ -165,6 +165,7 @@ Item {
                                 width: 80; height: 30; radius: 6
                                 color: root.cfg_dockPosition === model.val ? colorPrimary : colorCardStrong
                                 Text {
+                                    font.family: Theme.fontFamily
                                     anchors.centerIn: parent
                                     text: root.cfg_dockPosition === model.val ? "✓ " + model.name : model.name
                                     font.pixelSize: 12; color: root.cfg_dockPosition === model.val ? colorBackground : colorText
@@ -188,8 +189,8 @@ Item {
                 ColumnLayout {
                     anchors.fill: parent; anchors.margins: 12; spacing: 8
                     ColumnLayout { Layout.fillWidth: true; spacing: 2
-                        Text { text: "Alignment"; font.pixelSize: 14; color: colorText }
-                        Text { text: "Align dock to the left, center, or right of the edge."; font.pixelSize: 11; color: colorSubtext }
+                        Text {  text: "Alignment"; font.pixelSize: 14; color: colorText; font.family: Theme.fontFamily }
+                        Text {  text: "Align dock to the left, center, or right of the edge."; font.pixelSize: 11; color: colorSubtext; font.family: Theme.fontFamily }
                     }
                     RowLayout {
                         Layout.alignment: Qt.AlignHCenter; spacing: 6
@@ -203,6 +204,7 @@ Item {
                                 width: 80; height: 30; radius: 6
                                 color: root.cfg_dockAlignment === model.val ? colorPrimary : colorCardStrong
                                 Text {
+                                    font.family: Theme.fontFamily
                                     anchors.centerIn: parent
                                     text: root.cfg_dockAlignment === model.val ? "✓ " + model.name : model.name
                                     font.pixelSize: 12; color: root.cfg_dockAlignment === model.val ? colorBackground : colorText
@@ -228,8 +230,8 @@ Item {
                 RowLayout {
                     anchors.fill: parent; anchors.margins: 12; spacing: 16
                     ColumnLayout { Layout.fillWidth: true; spacing: 2
-                        Text { text: "Show Dock"; font.pixelSize: 14; color: colorText }
-                        Text { text: "Display a dock with pinned and running applications."; font.pixelSize: 11; color: colorSubtext }
+                        Text {  text: "Show Dock"; font.pixelSize: 14; color: colorText; font.family: Theme.fontFamily }
+                        Text {  text: "Display a dock with pinned and running applications."; font.pixelSize: 11; color: colorSubtext; font.family: Theme.fontFamily }
                     }
                     Switch {
                         checked: root.cfg_showDock
@@ -253,8 +255,8 @@ Item {
                 RowLayout {
                     anchors.fill: parent; anchors.margins: 12; spacing: 16
                     ColumnLayout { Layout.fillWidth: true; spacing: 2
-                        Text { text: "Auto-hide Dock"; font.pixelSize: 14; color: colorText }
-                        Text { text: "Reveal when hovering near the dock area."; font.pixelSize: 11; color: colorSubtext }
+                        Text {  text: "Auto-hide Dock"; font.pixelSize: 14; color: colorText; font.family: Theme.fontFamily }
+                        Text {  text: "Reveal when hovering near the dock area."; font.pixelSize: 11; color: colorSubtext; font.family: Theme.fontFamily }
                     }
                     Switch {
                         checked: root.cfg_autoHide
@@ -278,8 +280,8 @@ Item {
                 RowLayout {
                     anchors.fill: parent; anchors.margins: 12; spacing: 16
                     ColumnLayout { Layout.fillWidth: true; spacing: 2
-                        Text { text: "Intelligent Auto-hide"; font.pixelSize: 14; color: colorText }
-                        Text { text: "Show dock when floating windows don't overlap its area."; font.pixelSize: 11; color: colorSubtext }
+                        Text {  text: "Intelligent Auto-hide"; font.pixelSize: 14; color: colorText; font.family: Theme.fontFamily }
+                        Text {  text: "Show dock when floating windows don't overlap its area."; font.pixelSize: 11; color: colorSubtext; font.family: Theme.fontFamily }
                     }
                     Switch {
                         checked: root.cfg_intelligentAutoHide
@@ -307,10 +309,10 @@ Item {
                     RowLayout {
                         Layout.fillWidth: true
                         ColumnLayout { Layout.fillWidth: true; spacing: 2
-                            Text { text: "Dock Scale"; font.pixelSize: 14; color: colorText }
-                            Text { text: "Overall size multiplier (1.0 = normal, 1.5 = 4K)."; font.pixelSize: 11; color: colorSubtext }
+                            Text {  text: "Dock Scale"; font.pixelSize: 14; color: colorText; font.family: Theme.fontFamily }
+                            Text {  text: "Overall size multiplier (1.0 = normal, 1.5 = 4K)."; font.pixelSize: 11; color: colorSubtext; font.family: Theme.fontFamily }
                         }
-                        Text { text: root.cfg_dockScale.toFixed(1) + "x"; font.pixelSize: 14; color: colorPrimary; font.bold: true }
+                        Text {  text: root.cfg_dockScale.toFixed(1) + "x"; font.pixelSize: 14; color: colorPrimary; font.bold: true; font.family: Theme.fontFamily }
                     }
                     Slider {
                         Layout.fillWidth: true
@@ -343,10 +345,10 @@ Item {
                     RowLayout {
                         Layout.fillWidth: true
                         ColumnLayout { Layout.fillWidth: true; spacing: 2
-                            Text { text: "Icon Size"; font.pixelSize: 14; color: colorText }
-                            Text { text: "Size of application icons in the dock."; font.pixelSize: 11; color: colorSubtext }
+                            Text {  text: "Icon Size"; font.pixelSize: 14; color: colorText; font.family: Theme.iconFontFamily }
+                            Text {  text: "Size of application icons in the dock."; font.pixelSize: 11; color: colorSubtext; font.family: Theme.iconFontFamily }
                         }
-                        Text { text: root.cfg_iconSize + "px"; font.pixelSize: 14; color: colorPrimary; font.bold: true }
+                        Text {  text: root.cfg_iconSize + "px"; font.pixelSize: 14; color: colorPrimary; font.bold: true; font.family: Theme.iconFontFamily }
                     }
                     Slider {
                         Layout.fillWidth: true
@@ -379,8 +381,8 @@ Item {
                 RowLayout {
                     anchors.fill: parent; anchors.margins: 12; spacing: 16
                     ColumnLayout { Layout.fillWidth: true; spacing: 2
-                        Text { text: "Show Background"; font.pixelSize: 14; color: colorText }
-                        Text { text: "Semi-transparent panel behind dock items."; font.pixelSize: 11; color: colorSubtext }
+                        Text {  text: "Show Background"; font.pixelSize: 14; color: colorText; font.family: Theme.fontFamily }
+                        Text {  text: "Semi-transparent panel behind dock items."; font.pixelSize: 11; color: colorSubtext; font.family: Theme.fontFamily }
                     }
                     Switch {
                         checked: root.cfg_showBackground
@@ -407,10 +409,10 @@ Item {
                     RowLayout {
                         Layout.fillWidth: true
                         ColumnLayout { Layout.fillWidth: true; spacing: 2
-                            Text { text: "Background Opacity"; font.pixelSize: 14; color: colorText }
-                            Text { text: "How opaque the dock background is."; font.pixelSize: 11; color: colorSubtext }
+                            Text {  text: "Background Opacity"; font.pixelSize: 14; color: colorText; font.family: Theme.fontFamily }
+                            Text {  text: "How opaque the dock background is."; font.pixelSize: 11; color: colorSubtext; font.family: Theme.fontFamily }
                         }
-                        Text { text: Math.round(root.cfg_dockTransparency * 100) + "%"; font.pixelSize: 14; color: colorPrimary; font.bold: true }
+                        Text {  text: Math.round(root.cfg_dockTransparency * 100) + "%"; font.pixelSize: 14; color: colorPrimary; font.bold: true; font.family: Theme.fontFamily }
                     }
                     Slider {
                         Layout.fillWidth: true
@@ -441,8 +443,8 @@ Item {
                 RowLayout {
                     anchors.fill: parent; anchors.margins: 12; spacing: 16
                     ColumnLayout { Layout.fillWidth: true; spacing: 2
-                        Text { text: "Show Border"; font.pixelSize: 14; color: colorText }
-                        Text { text: "Add a border around the dock container."; font.pixelSize: 11; color: colorSubtext }
+                        Text {  text: "Show Border"; font.pixelSize: 14; color: colorText; font.family: Theme.fontFamily }
+                        Text {  text: "Add a border around the dock container."; font.pixelSize: 11; color: colorSubtext; font.family: Theme.fontFamily }
                     }
                     Switch {
                         checked: root.cfg_showBorder
@@ -470,10 +472,10 @@ Item {
                     RowLayout {
                         Layout.fillWidth: true
                         ColumnLayout { Layout.fillWidth: true; spacing: 2
-                            Text { text: "Padding"; font.pixelSize: 14; color: colorText }
-                            Text { text: "Internal padding of the dock container."; font.pixelSize: 11; color: colorSubtext }
+                            Text {  text: "Padding"; font.pixelSize: 14; color: colorText; font.family: Theme.fontFamily }
+                            Text {  text: "Internal padding of the dock container."; font.pixelSize: 11; color: colorSubtext; font.family: Theme.fontFamily }
                         }
-                        Text { text: root.cfg_dockPadding + "px"; font.pixelSize: 14; color: colorPrimary; font.bold: true }
+                        Text {  text: root.cfg_dockPadding + "px"; font.pixelSize: 14; color: colorPrimary; font.bold: true; font.family: Theme.fontFamily }
                     }
                     Slider {
                         Layout.fillWidth: true
@@ -506,10 +508,10 @@ Item {
                     RowLayout {
                         Layout.fillWidth: true
                         ColumnLayout { Layout.fillWidth: true; spacing: 2
-                            Text { text: "Item Spacing"; font.pixelSize: 14; color: colorText }
-                            Text { text: "Space between dock items."; font.pixelSize: 11; color: colorSubtext }
+                            Text {  text: "Item Spacing"; font.pixelSize: 14; color: colorText; font.family: Theme.fontFamily }
+                            Text {  text: "Space between dock items."; font.pixelSize: 11; color: colorSubtext; font.family: Theme.fontFamily }
                         }
-                        Text { text: root.cfg_itemSpacing + "px"; font.pixelSize: 14; color: colorPrimary; font.bold: true }
+                        Text {  text: root.cfg_itemSpacing + "px"; font.pixelSize: 14; color: colorPrimary; font.bold: true; font.family: Theme.fontFamily }
                     }
                     Slider {
                         Layout.fillWidth: true
@@ -542,10 +544,10 @@ Item {
                     RowLayout {
                         Layout.fillWidth: true
                         ColumnLayout { Layout.fillWidth: true; spacing: 2
-                            Text { text: "Bottom Margin"; font.pixelSize: 14; color: colorText }
-                            Text { text: "Distance from screen bottom edge."; font.pixelSize: 11; color: colorSubtext }
+                            Text {  text: "Bottom Margin"; font.pixelSize: 14; color: colorText; font.family: Theme.fontFamily }
+                            Text {  text: "Distance from screen bottom edge."; font.pixelSize: 11; color: colorSubtext; font.family: Theme.fontFamily }
                         }
-                        Text { text: root.cfg_bottomMargin + "px"; font.pixelSize: 14; color: colorPrimary; font.bold: true }
+                        Text {  text: root.cfg_bottomMargin + "px"; font.pixelSize: 14; color: colorPrimary; font.bold: true; font.family: Theme.fontFamily }
                     }
                     Slider {
                         Layout.fillWidth: true
@@ -578,8 +580,8 @@ Item {
                 ColumnLayout {
                     anchors.fill: parent; anchors.margins: 12; spacing: 8
                     ColumnLayout { Layout.fillWidth: true; spacing: 2
-                        Text { text: "Indicator Style"; font.pixelSize: 14; color: colorText }
-                        Text { text: "Running app indicator style on the dock."; font.pixelSize: 11; color: colorSubtext }
+                        Text {  text: "Indicator Style"; font.pixelSize: 14; color: colorText; font.family: Theme.fontFamily }
+                        Text {  text: "Running app indicator style on the dock."; font.pixelSize: 11; color: colorSubtext; font.family: Theme.fontFamily }
                     }
                     RowLayout {
                         Layout.alignment: Qt.AlignHCenter; spacing: 6
@@ -592,6 +594,7 @@ Item {
                                 width: 80; height: 30; radius: 6
                                 color: root.cfg_indicatorStyle === model.val ? colorPrimary : colorCardStrong
                                 Text {
+                                    font.family: Theme.fontFamily
                                     anchors.centerIn: parent
                                     text: root.cfg_indicatorStyle === model.val ? "✓ " + model.name : model.name
                                     font.pixelSize: 12; color: root.cfg_indicatorStyle === model.val ? colorBackground : colorText
@@ -615,8 +618,8 @@ Item {
                 RowLayout {
                     anchors.fill: parent; anchors.margins: 12; spacing: 16
                     ColumnLayout { Layout.fillWidth: true; spacing: 2
-                        Text { text: "Show Launcher Button"; font.pixelSize: 14; color: colorText }
-                        Text { text: "Display an app launcher button in the dock."; font.pixelSize: 11; color: colorSubtext }
+                        Text {  text: "Show Launcher Button"; font.pixelSize: 14; color: colorText; font.family: Theme.fontFamily }
+                        Text {  text: "Display an app launcher button in the dock."; font.pixelSize: 11; color: colorSubtext; font.family: Theme.fontFamily }
                     }
                     Switch {
                         checked: root.cfg_showLauncher

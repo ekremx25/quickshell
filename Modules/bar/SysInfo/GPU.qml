@@ -20,12 +20,14 @@ Rectangle {
     spacing: 6
 
     Text {
+        font.family: Theme.iconFontFamily
       text: "󰢮"
       color: "#1e1e2e"
       font.pixelSize: 16
     }
 
     Text {
+        font.family: Theme.fontFamily
       text: (backend.gpuPercent >= 0 ? backend.gpuPercent + "%" : "-%") +
       (backend.gpuTemp !== "-" && backend.gpuTemp !== "0" && backend.gpuTemp !== "" ? " • " + backend.gpuTemp + "°C" : "")
       color: "#1e1e2e"

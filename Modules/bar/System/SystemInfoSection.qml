@@ -32,9 +32,10 @@ Rectangle {
         RowLayout {
             spacing: 8
             Text { text: root.iconText; font.pixelSize: 16; font.family: "JetBrainsMono Nerd Font"; color: root.accentColor }
-            Text { text: root.title; color: SettingsPalette.text; font.bold: true; font.pixelSize: 14 }
+            Text {  text: root.title; color: SettingsPalette.text; font.bold: true; font.pixelSize: 14; font.family: Theme.fontFamily }
             Item { Layout.fillWidth: true }
             Text {
+                font.family: Theme.fontFamily
                 visible: root.badgeText !== ""
                 text: root.badgeText
                 color: root.badgeColor
@@ -54,6 +55,7 @@ Rectangle {
                 spacing: 8
 
                 Text {
+                    font.family: Theme.fontFamily
                     text: modelData.label + ":"
                     color: SettingsPalette.subtext
                     font.pixelSize: 12
@@ -61,6 +63,7 @@ Rectangle {
                 }
 
                 Text {
+                    font.family: Theme.fontFamily
                     text: modelData.value || "..."
                     color: SettingsPalette.text
                     font.pixelSize: 12

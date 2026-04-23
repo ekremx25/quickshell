@@ -77,7 +77,7 @@ Item {
             RowLayout {
                 Layout.fillWidth: true
                 Text { text: "󰻀"; font.pixelSize: 20; font.family: "JetBrainsMono Nerd Font"; color: Theme.primary }
-                Text { text: "System Info"; font.bold: true; font.pixelSize: 18; color: SettingsPalette.text }
+                Text {  text: "System Info"; font.bold: true; font.pixelSize: 18; color: SettingsPalette.text; font.family: Theme.fontFamily }
             }
 
             // ═══ USER + HOST CARD ═══
@@ -125,6 +125,7 @@ Item {
                             color: Qt.rgba(0, 0, 0, 0.4)
                             visible: avatarMA.containsMouse
                             Text {
+                                font.family: Theme.fontFamily
                                 anchors.centerIn: parent
                                 text: "📷"
                                 font.pixelSize: 18
@@ -145,10 +146,12 @@ Item {
                     ColumnLayout {
                         spacing: 4
                         Text {
+                            font.family: Theme.fontFamily
                             text: sysInfoPage.username || "..."
                             color: SettingsPalette.text; font.bold: true; font.pixelSize: 18
                         }
                         Text {
+                            font.family: Theme.fontFamily
                             text: "@" + (sysInfoPage.hostname || "...")
                             color: Theme.primary; font.pixelSize: 13
                         }
@@ -166,7 +169,7 @@ Item {
                             anchors.centerIn: parent
                             spacing: 6
                             Text { text: sysInfoService.getDistroIcon(sysInfoPage.distro); font.pixelSize: 14; font.family: "JetBrainsMono Nerd Font"; color: "#a6e3a1" }
-                            Text { text: sysInfoPage.distro || "..."; color: "#a6e3a1"; font.pixelSize: 12; font.bold: true }
+                            Text {  text: sysInfoPage.distro || "..."; color: "#a6e3a1"; font.pixelSize: 12; font.bold: true; font.family: Theme.fontFamily }
                         }
                     }
                 }
@@ -202,9 +205,10 @@ Item {
                             RowLayout {
                                 spacing: 6
                                 Text { text: modelData.icon; font.pixelSize: 13; font.family: "JetBrainsMono Nerd Font"; color: modelData.color }
-                                Text { text: modelData.label; color: SettingsPalette.subtext; font.pixelSize: 11 }
+                                Text {  text: modelData.label; color: SettingsPalette.subtext; font.pixelSize: 11; font.family: Theme.fontFamily }
                             }
                             Text {
+                                font.family: Theme.fontFamily
                                 text: modelData.value || "..."
                                 color: SettingsPalette.text; font.pixelSize: 12; font.bold: true
                                 Layout.fillWidth: true
@@ -245,9 +249,10 @@ Item {
                     RowLayout {
                         spacing: 8
                         Text { text: "󰍛"; font.pixelSize: 16; font.family: "JetBrainsMono Nerd Font"; color: "#a6e3a1" }
-                        Text { text: "Memory (RAM)"; color: SettingsPalette.text; font.bold: true; font.pixelSize: 14 }
+                        Text {  text: "Memory (RAM)"; color: SettingsPalette.text; font.bold: true; font.pixelSize: 14; font.family: Theme.fontFamily }
                         Item { Layout.fillWidth: true }
                         Text {
+                            font.family: Theme.fontFamily
                             text: Math.round(sysInfoPage.memPercent * 100) + "%"
                             color: sysInfoPage.memPercent > 0.8 ? "#f38ba8" : (sysInfoPage.memPercent > 0.5 ? "#f9e2af" : "#a6e3a1")
                             font.bold: true; font.pixelSize: 13
@@ -278,16 +283,16 @@ Item {
                             required property var modelData
                             Layout.fillWidth: true
                             spacing: 8
-                            Text { text: modelData.label + ":"; color: SettingsPalette.subtext; font.pixelSize: 12; Layout.preferredWidth: 100 }
-                            Text { text: modelData.value || "..."; color: SettingsPalette.text; font.pixelSize: 12; font.bold: true }
+                            Text {  text: modelData.label + ":"; color: SettingsPalette.subtext; font.pixelSize: 12; Layout.preferredWidth: 100; font.family: Theme.fontFamily }
+                            Text {  text: modelData.value || "..."; color: SettingsPalette.text; font.pixelSize: 12; font.bold: true; font.family: Theme.fontFamily }
                         }
                     }
 
                     // Swap
                     RowLayout {
                         spacing: 8
-                        Text { text: "Swap:"; color: SettingsPalette.subtext; font.pixelSize: 12; Layout.preferredWidth: 100 }
-                        Text { text: (sysInfoPage.swapUsed || "...") + " / " + (sysInfoPage.swapTotal || "..."); color: SettingsPalette.text; font.pixelSize: 12; font.bold: true }
+                        Text {  text: "Swap:"; color: SettingsPalette.subtext; font.pixelSize: 12; Layout.preferredWidth: 100; font.family: Theme.fontFamily }
+                        Text {  text: (sysInfoPage.swapUsed || "...") + " / " + (sysInfoPage.swapTotal || "..."); color: SettingsPalette.text; font.pixelSize: 12; font.bold: true; font.family: Theme.fontFamily }
                     }
                 }
             }

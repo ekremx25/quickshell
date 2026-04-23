@@ -50,7 +50,7 @@ Item {
                 Layout.fillWidth: true
                 spacing: 8
                 Text { text: ""; font.pixelSize: 20; font.family: Theme.fontFamily; color: Theme.primary }
-                Text { text: "About"; font.bold: true; font.pixelSize: 18; color: SettingsPalette.text }
+                Text {  text: "About"; font.bold: true; font.pixelSize: 18; color: SettingsPalette.text; font.family: Theme.fontFamily }
             }
 
             // Logo / branding
@@ -67,12 +67,14 @@ Item {
                     spacing: 6
 
                     Text {
+                        font.family: Theme.fontFamily
                         text: "⚙"
                         font.pixelSize: 36
                         color: Theme.primary
                         Layout.alignment: Qt.AlignHCenter
                     }
                     Text {
+                        font.family: Theme.fontFamily
                         text: "Quickshell Config"
                         font.pixelSize: 18; font.bold: true
                         color: SettingsPalette.text
@@ -116,12 +118,14 @@ Item {
                             Layout.preferredWidth: 20
                         }
                         Text {
+                            font.family: Theme.fontFamily
                             text: modelData.label
                             font.pixelSize: 12; font.bold: true
                             color: SettingsPalette.subtext
                             Layout.preferredWidth: 120
                         }
                         Text {
+                            font.family: Theme.fontFamily
                             text: modelData.value
                             font.pixelSize: 12
                             color: SettingsPalette.text

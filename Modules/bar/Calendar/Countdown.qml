@@ -51,6 +51,7 @@ ColumnLayout {
             radius: 8
             color: saveMA.containsMouse ? "#a6e3a1" : "#94e2d5"
             Text {
+                font.family: Theme.fontFamily
                 anchors.centerIn: parent
                 text: "Save"
                 color: "#1e1e2e"
@@ -72,9 +73,10 @@ ColumnLayout {
         Layout.alignment: Qt.AlignHCenter
         spacing: 8
 
-        Text { text: "Date:"; color: "#a6adc8"; font.pixelSize: 12 }
+        Text {  text: "Date:"; color: "#a6adc8"; font.pixelSize: 12; font.family: Theme.fontFamily }
 
         Text {
+            font.family: Theme.fontFamily
             text: root.selectedDate.getDate() + "/" + (root.selectedDate.getMonth() + 1) + "/" + root.selectedDate.getFullYear()
             color: "#cdd6f4"
             font.bold: true
@@ -87,7 +89,7 @@ ColumnLayout {
         Layout.alignment: Qt.AlignHCenter
         spacing: 8
 
-        Text { text: "Time:"; color: "#a6adc8"; font.pixelSize: 13 }
+        Text {  text: "Time:"; color: "#a6adc8"; font.pixelSize: 13; font.family: Theme.fontFamily }
 
         // --- CUSTOM HOUR INPUT ---
         RowLayout {
@@ -97,7 +99,7 @@ ColumnLayout {
             Rectangle {
                 width: 32; height: 34; radius: 6
                 color: hourMinusMA.containsMouse ? "#45475a" : "#313244"
-                Text { anchors.centerIn: parent; text: "−"; color: "#cdd6f4"; font.pixelSize: 16; font.bold: true }
+                Text {  anchors.centerIn: parent; text: "−"; color: "#cdd6f4"; font.pixelSize: 16; font.bold: true; font.family: Theme.fontFamily }
                 MouseArea {
                     id: hourMinusMA; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
                     onClicked: {
@@ -149,7 +151,7 @@ ColumnLayout {
             Rectangle {
                 width: 32; height: 34; radius: 6
                 color: hourPlusMA.containsMouse ? "#45475a" : "#313244"
-                Text { anchors.centerIn: parent; text: "+"; color: "#cdd6f4"; font.pixelSize: 16; font.bold: true }
+                Text {  anchors.centerIn: parent; text: "+"; color: "#cdd6f4"; font.pixelSize: 16; font.bold: true; font.family: Theme.fontFamily }
                 MouseArea {
                     id: hourPlusMA; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
                     onClicked: {
@@ -162,7 +164,7 @@ ColumnLayout {
             }
         }
 
-        Text { text: ":"; color: "#cdd6f4"; font.bold: true; font.pixelSize: 16 }
+        Text {  text: ":"; color: "#cdd6f4"; font.bold: true; font.pixelSize: 16; font.family: Theme.fontFamily }
 
         // --- CUSTOM MINUTE INPUT ---
         RowLayout {
@@ -172,7 +174,7 @@ ColumnLayout {
             Rectangle {
                 width: 32; height: 34; radius: 6
                 color: minMinusMA.containsMouse ? "#45475a" : "#313244"
-                Text { anchors.centerIn: parent; text: "−"; color: "#cdd6f4"; font.pixelSize: 16; font.bold: true }
+                Text {  anchors.centerIn: parent; text: "−"; color: "#cdd6f4"; font.pixelSize: 16; font.bold: true; font.family: Theme.fontFamily }
                 MouseArea {
                     id: minMinusMA; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
                     onClicked: {
@@ -224,7 +226,7 @@ ColumnLayout {
             Rectangle {
                 width: 32; height: 34; radius: 6
                 color: minPlusMA.containsMouse ? "#45475a" : "#313244"
-                Text { anchors.centerIn: parent; text: "+"; color: "#cdd6f4"; font.pixelSize: 16; font.bold: true }
+                Text {  anchors.centerIn: parent; text: "+"; color: "#cdd6f4"; font.pixelSize: 16; font.bold: true; font.family: Theme.fontFamily }
                 MouseArea {
                     id: minPlusMA; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
                     onClicked: {
@@ -254,6 +256,7 @@ ColumnLayout {
                 onClicked: pickerCal.prevMonth()
             }
             Text {
+                font.family: Theme.fontFamily
                 text: pickerCal.monthName + " " + pickerCal.displayYear
                 color: "#cdd6f4"
                 font.bold: true
@@ -278,6 +281,7 @@ ColumnLayout {
             Repeater {
                 model: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
                 Text {
+                    font.family: Theme.fontFamily
                     text: modelData
                     color: "#a6adc8"
                     font.pixelSize: 10
@@ -293,6 +297,7 @@ ColumnLayout {
                     property bool isSelected: modelData.inMonth && modelData.day === root.selectedDate.getDate() && pickerCal.displayMonth === root.selectedDate.getMonth() && pickerCal.displayYear === root.selectedDate.getFullYear()
                     color: isSelected ? Theme.calendarColor : "transparent"
                     Text {
+                        font.family: Theme.fontFamily
                         anchors.centerIn: parent
                         text: modelData.day
                         color: parent.isSelected ? "#1e1e2e" : (modelData.inMonth ? "#cdd6f4" : "#585b70")
@@ -320,6 +325,7 @@ ColumnLayout {
 
     // --- SAVED EVENTS LIST ---
     Text {
+        font.family: Theme.fontFamily
         text: eventModel.count > 0 ? "Events (" + eventModel.count + ")" : "No events yet"
         color: "#a6adc8"
         font.pixelSize: 11
@@ -354,6 +360,7 @@ ColumnLayout {
 
                 // Event title
                 Text {
+                    font.family: Theme.fontFamily
                     text: model.title || "Event"
                     color: "#cdd6f4"
                     font.pixelSize: 12
@@ -392,6 +399,7 @@ ColumnLayout {
 
                 // Delete button
                 Text {
+                    font.family: Theme.fontFamily
                     text: "✕"
                     color: delMA.containsMouse ? "#f38ba8" : "#6c7086"
                     font.pixelSize: 14

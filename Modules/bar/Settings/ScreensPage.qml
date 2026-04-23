@@ -46,10 +46,11 @@ Item {
             Layout.fillWidth: true
             spacing: 8
             Text { text: "󰍹"; font.pixelSize: 20; font.family: "JetBrainsMono Nerd Font"; color: Theme.primary }
-            Text { text: "Screen Preferences"; font.bold: true; font.pixelSize: 18; color: SettingsPalette.text }
+            Text {  text: "Screen Preferences"; font.bold: true; font.pixelSize: 18; color: SettingsPalette.text; font.family: Theme.fontFamily }
         }
 
         Text {
+            font.family: Theme.fontFamily
             text: "Choose which screens display each component. 'All' shows on every connected monitor."
             color: SettingsPalette.overlay2
             font.pixelSize: 12
@@ -72,7 +73,7 @@ Item {
                 spacing: 8
 
                 Text { text: "󰍹"; font.pixelSize: 14; font.family: "JetBrainsMono Nerd Font"; color: Theme.primary }
-                Text { text: "Connected: " + Quickshell.screens.length + " screen(s)"; font.pixelSize: 12; color: SettingsPalette.text }
+                Text {  text: "Connected: " + Quickshell.screens.length + " screen(s)"; font.pixelSize: 12; color: SettingsPalette.text; font.family: Theme.fontFamily }
                 Item { Layout.fillWidth: true }
 
                 Repeater {
@@ -80,7 +81,7 @@ Item {
                     Rectangle {
                         width: screenNameText.width + 14; height: 22; radius: 6
                         color: Qt.rgba(255,255,255,0.08)
-                        Text { id: screenNameText; anchors.centerIn: parent; text: modelData; font.pixelSize: 10; color: SettingsPalette.subtext }
+                        Text {  id: screenNameText; anchors.centerIn: parent; text: modelData; font.pixelSize: 10; color: SettingsPalette.subtext; font.family: Theme.fontFamily }
                     }
                 }
             }
@@ -128,11 +129,13 @@ Item {
                                     font.pixelSize: 16; font.family: "JetBrainsMono Nerd Font"; color: Theme.primary
                                 }
                                 Text {
+                                    font.family: Theme.fontFamily
                                     text: compId.charAt(0).toUpperCase() + compId.slice(1)
                                     font.pixelSize: 14; font.bold: true; color: SettingsPalette.text
                                 }
                                 Item { Layout.fillWidth: true }
                                 Text {
+                                    font.family: Theme.fontFamily
                                     text: currentPref.indexOf("all") !== -1 ? "All screens" : currentPref.join(", ")
                                     font.pixelSize: 11; color: SettingsPalette.overlay2
                                 }
@@ -151,7 +154,7 @@ Item {
                                     border.width: 1
                                     Behavior on color { ColorAnimation { duration: 150 } }
 
-                                    Text { id: allText; anchors.centerIn: parent; text: "All"; font.pixelSize: 11; color: currentPref.indexOf("all") !== -1 ? Theme.primary : SettingsPalette.subtext }
+                                    Text {  id: allText; anchors.centerIn: parent; text: "All"; font.pixelSize: 11; color: currentPref.indexOf("all") !== -1 ? Theme.primary : SettingsPalette.subtext; font.family: Theme.fontFamily }
                                     MouseArea {
                                         anchors.fill: parent; cursorShape: Qt.PointingHandCursor
                                         onClicked: ScreenManager.setScreenPreference(compId, ["all"])
@@ -166,7 +169,7 @@ Item {
                                     border.width: 1
                                     Behavior on color { ColorAnimation { duration: 150 } }
 
-                                    Text { id: disableText; anchors.centerIn: parent; text: "Disable"; font.pixelSize: 11; color: currentPref.indexOf("none") !== -1 ? Theme.red : SettingsPalette.subtext }
+                                    Text {  id: disableText; anchors.centerIn: parent; text: "Disable"; font.pixelSize: 11; color: currentPref.indexOf("none") !== -1 ? Theme.red : SettingsPalette.subtext; font.family: Theme.fontFamily }
                                     MouseArea {
                                         anchors.fill: parent; cursorShape: Qt.PointingHandCursor
                                         onClicked: ScreenManager.setScreenPreference(compId, ["none"])
@@ -185,7 +188,7 @@ Item {
                                         border.width: 1
                                         Behavior on color { ColorAnimation { duration: 150 } }
 
-                                        Text { id: scrText; anchors.centerIn: parent; text: modelData; font.pixelSize: 11; color: isSelected ? Theme.green : SettingsPalette.subtext }
+                                        Text {  id: scrText; anchors.centerIn: parent; text: modelData; font.pixelSize: 11; color: isSelected ? Theme.green : SettingsPalette.subtext; font.family: Theme.fontFamily }
 
                                         MouseArea {
                                             anchors.fill: parent; cursorShape: Qt.PointingHandCursor

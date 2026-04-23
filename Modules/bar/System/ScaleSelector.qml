@@ -47,6 +47,7 @@ Item {
                 implicitHeight: 34
 
                 Text {
+                    font.family: Theme.fontFamily
                     anchors.centerIn: parent
                     text: "-"
                     color: root.canStepDown ? SettingsPalette.text : SettingsPalette.subtext
@@ -81,6 +82,7 @@ Item {
                         implicitHeight: 34
 
                         Text {
+                            font.family: Theme.fontFamily
                             id: chipLabel
                             anchors.centerIn: parent
                             text: Math.round(modelData * 100) + "%"
@@ -107,6 +109,7 @@ Item {
                 implicitHeight: 34
 
                 Text {
+                    font.family: Theme.fontFamily
                     anchors.centerIn: parent
                     text: "+"
                     color: root.canStepUp ? SettingsPalette.text : SettingsPalette.subtext
@@ -138,6 +141,7 @@ Item {
                     spacing: 1
 
                     Text {
+                        font.family: Theme.fontFamily
                         text: root.summaryText
                         color: Theme.primary
                         font.pixelSize: 13
@@ -146,6 +150,7 @@ Item {
                     }
 
                     Text {
+                        font.family: Theme.fontFamily
                         text: root.detailText
                         color: SettingsPalette.subtext
                         font.pixelSize: 10
@@ -156,6 +161,7 @@ Item {
         }
 
         Text {
+            font.family: Theme.fontFamily
             text: root.helperText
             color: SettingsPalette.subtext
             font.pixelSize: 10

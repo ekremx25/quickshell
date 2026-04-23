@@ -24,8 +24,8 @@ Rectangle {
         ColumnLayout {
             Layout.fillWidth: true
             spacing: 2
-            Text { text: root.title; color: SettingsPalette.text; font.bold: true; font.pixelSize: 14 }
-            Text { text: root.description; color: SettingsPalette.subtext; font.pixelSize: 11 }
+            Text {  text: root.title; color: SettingsPalette.text; font.bold: true; font.pixelSize: 14; font.family: Theme.fontFamily }
+            Text {  text: root.description; color: SettingsPalette.subtext; font.pixelSize: 11; font.family: Theme.fontFamily }
         }
 
         Rectangle {

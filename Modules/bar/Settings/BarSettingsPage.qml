@@ -62,6 +62,7 @@ Item {
             }
 
             Text {
+                font.family: Theme.fontFamily
                 text: "Bar Settings"
                 font.bold: true
                 font.pixelSize: 18
@@ -76,6 +77,7 @@ Item {
             spacing: 8
 
             Text {
+                font.family: Theme.fontFamily
                 text: "Position:"
                 color: SettingsPalette.subtext
                 font.pixelSize: 12
@@ -110,6 +112,7 @@ Item {
                     Behavior on color { ColorAnimation { duration: 150 } }
 
                     Text {
+                        font.family: Theme.fontFamily
                         anchors.centerIn: parent
                         text: modelData.label
                         color: (root.barConfig.barPosition || "top") === modelData.key ? Theme.primary : SettingsPalette.subtext
@@ -133,6 +136,7 @@ Item {
         Item { height: 4 }
 
         Text {
+            font.family: Theme.fontFamily
             text: "Drag and drop modules to reorder"
             color: SettingsPalette.overlay2
             font.pixelSize: 11
@@ -236,6 +240,7 @@ Item {
             Layout.fillWidth: true
 
             Text {
+                font.family: Theme.fontFamily
                 text: "Drag modules to move"
                 color: SettingsPalette.overlay
                 font.pixelSize: 11
@@ -252,6 +257,7 @@ Item {
                 Behavior on color { ColorAnimation { duration: 150 } }
 
                 Text {
+                    font.family: Theme.fontFamily
                     anchors.centerIn: parent
                     text: "💾  Save"
                     color: "#1e1e2e"

@@ -56,6 +56,7 @@ PanelWindow {
             RowLayout {
                 Layout.fillWidth: true
                 Text {
+                    font.family: Theme.fontFamily
                     text: "Bildirimler" // Notifications
                     font.bold: true
                     font.pixelSize: 18
@@ -99,6 +100,7 @@ PanelWindow {
                     spacing: 8
 
                     Text {
+                        font.family: Theme.fontFamily
                         text: "Show for:"
                         color: Theme.subtext
                         font.pixelSize: 14
@@ -134,6 +136,7 @@ PanelWindow {
                     }
 
                     Text {
+                        font.family: Theme.fontFamily
                         text: "seconds"
                         color: Theme.subtext
                         font.pixelSize: 14
@@ -151,7 +154,7 @@ PanelWindow {
                         color: "transparent"
                         border.width: 1; border.color: Theme.surface
                         
-                        Text { anchors.centerIn: parent; text: "-1m"; color: Theme.text; font.pixelSize: 12 }
+                        Text {  anchors.centerIn: parent; text: "-1m"; color: Theme.text; font.pixelSize: 12; font.family: Theme.fontFamily }
                         MouseArea {
                             anchors.fill: parent; cursorShape: Qt.PointingHandCursor
                             onClicked: {
@@ -166,7 +169,7 @@ PanelWindow {
                         color: "transparent"
                         border.width: 1; border.color: Theme.surface
                         
-                        Text { anchors.centerIn: parent; text: "-5s"; color: Theme.text; font.pixelSize: 12 }
+                        Text {  anchors.centerIn: parent; text: "-5s"; color: Theme.text; font.pixelSize: 12; font.family: Theme.fontFamily }
                         MouseArea {
                             anchors.fill: parent; cursorShape: Qt.PointingHandCursor
                             onClicked: {
@@ -181,7 +184,7 @@ PanelWindow {
                         color: "transparent"
                         border.width: 1; border.color: Theme.surface
                         
-                        Text { anchors.centerIn: parent; text: "+5s"; color: Theme.text; font.pixelSize: 12 }
+                        Text {  anchors.centerIn: parent; text: "+5s"; color: Theme.text; font.pixelSize: 12; font.family: Theme.fontFamily }
                         MouseArea {
                             anchors.fill: parent; cursorShape: Qt.PointingHandCursor
                             onClicked: {
@@ -196,7 +199,7 @@ PanelWindow {
                         color: "transparent"
                         border.width: 1; border.color: Theme.surface
                         
-                        Text { anchors.centerIn: parent; text: "+1m"; color: Theme.text; font.pixelSize: 12 }
+                        Text {  anchors.centerIn: parent; text: "+1m"; color: Theme.text; font.pixelSize: 12; font.family: Theme.fontFamily }
                         MouseArea {
                             anchors.fill: parent; cursorShape: Qt.PointingHandCursor
                             onClicked: {
@@ -271,12 +274,14 @@ PanelWindow {
                             RowLayout {
                                 Layout.fillWidth: true
                                 Text {
+                                    font.family: Theme.fontFamily
                                     text: modelData.appName
                                     font.bold: true
                                     font.pixelSize: 12
                                     color: Theme.subtext
                                 }
                                 Text {
+                                    font.family: Theme.fontFamily
                                     text: Qt.formatTime(modelData.timestamp, "HH:mm")
                                     font.pixelSize: 10
                                     color: Theme.overlay2
@@ -284,6 +289,7 @@ PanelWindow {
                             }
 
                             Text {
+                                font.family: Theme.fontFamily
                                 text: backend.notificationSummary(modelData)
                                 font.bold: true
                                 font.pixelSize: 14
@@ -293,6 +299,7 @@ PanelWindow {
                             }
 
                             Text {
+                                font.family: Theme.fontFamily
                                 text: backend.notificationBody(modelData)
                                 font.pixelSize: 13
                                 color: Theme.subtext

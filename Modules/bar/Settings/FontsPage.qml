@@ -67,6 +67,7 @@ Item {
             spacing: 10
 
             Text {
+                font.family: Theme.fontFamily
                 visible: card.title.length > 0
                 text: card.title
                 color: SettingsPalette.text
@@ -75,6 +76,7 @@ Item {
             }
 
             Text {
+                font.family: Theme.fontFamily
                 visible: card.description.length > 0
                 text: card.description
                 color: SettingsPalette.subtext
@@ -112,6 +114,7 @@ Item {
             }
 
             Text {
+                font.family: Theme.fontFamily
                 text: tile.heading
                 color: SettingsPalette.text
                 font.pixelSize: 13
@@ -120,6 +123,7 @@ Item {
             }
 
             Text {
+                font.family: Theme.fontFamily
                 text: tile.summary
                 color: SettingsPalette.subtext
                 font.pixelSize: 11
@@ -127,6 +131,7 @@ Item {
             }
 
             Text {
+                font.family: Theme.fontFamily
                 visible: tile.helper.length > 0
                 text: tile.helper
                 color: tile.accentColor
@@ -154,6 +159,7 @@ Item {
         implicitHeight: 32
 
         Text {
+            font.family: Theme.fontFamily
             id: chipLabel
             anchors.centerIn: parent
             text: chip.label
@@ -186,6 +192,7 @@ Item {
         Behavior on color { ColorAnimation { duration: 100 } }
 
         Text {
+            font.family: Theme.fontFamily
             anchors.centerIn: parent
             text: button.label
             color: button.labelColor
@@ -445,6 +452,7 @@ Item {
                 }
 
                 Text {
+                    font.family: Theme.fontFamily
                     text: "Fonts"
                     font.bold: true
                     font.pixelSize: 18
@@ -467,12 +475,14 @@ Item {
                         spacing: 6
 
                         Text {
+                            font.family: Theme.fontFamily
                             text: "●"
                             color: saveInProgress ? "#f9e2af" : Theme.green
                             font.pixelSize: 11
                         }
 
                         Text {
+                            font.family: Theme.fontFamily
                             text: saveInProgress ? "Saving" : ("Backend: " + backendLabel)
                             color: SettingsPalette.text
                             font.pixelSize: 11
@@ -578,6 +588,7 @@ Item {
                 RowLayout {
                     Layout.fillWidth: true
                     Text {
+                        font.family: Theme.fontFamily
                         text: fontsPage.generalFontFamily
                         color: Theme.primary
                         font.pixelSize: 12
@@ -585,6 +596,7 @@ Item {
                     }
                     Item { Layout.fillWidth: true }
                     Text {
+                        font.family: Theme.fontFamily
                         text: fontsPage.generalFontSize + " pt"
                         color: Theme.primary
                         font.pixelSize: 12
@@ -617,6 +629,7 @@ Item {
                         }
 
                         Text {
+                            font.family: Theme.fontFamily
                             text: fontsPage.generalFontFamily
                             color: SettingsPalette.text
                             font.pixelSize: 12
@@ -626,6 +639,7 @@ Item {
                         }
 
                         Text {
+                            font.family: Theme.fontFamily
                             text: openDropdown === "general" ? "▴" : "▾"
                             color: SettingsPalette.subtext
                             font.pixelSize: 11
@@ -679,6 +693,7 @@ Item {
                             }
 
                             Text {
+                                font.family: Theme.fontFamily
                                 anchors.left: parent.left
                                 anchors.right: parent.right
                                 anchors.verticalCenter: parent.verticalCenter
@@ -692,6 +707,7 @@ Item {
                         }
 
                         Text {
+                            font.family: Theme.fontFamily
                             Layout.fillWidth: true
                             text: fontsPage.loadingCatalog
                                 ? "Building font list..."
@@ -743,6 +759,7 @@ Item {
                                             }
 
                                             Text {
+                                                font.family: Theme.fontFamily
                                                 text: modelData
                                                 color: SettingsPalette.text
                                                 font.pixelSize: 12
@@ -819,6 +836,7 @@ Item {
                 RowLayout {
                     Layout.fillWidth: true
                     Text {
+                        font.family: Theme.fontFamily
                         text: fontsPage.fixedFontFamily
                         color: "#cba6f7"
                         font.pixelSize: 12
@@ -826,6 +844,7 @@ Item {
                     }
                     Item { Layout.fillWidth: true }
                     Text {
+                        font.family: Theme.fontFamily
                         text: fontsPage.fixedFontSize + " pt"
                         color: "#cba6f7"
                         font.pixelSize: 12
@@ -858,6 +877,7 @@ Item {
                         }
 
                         Text {
+                            font.family: Theme.fontFamily
                             text: fontsPage.fixedFontFamily
                             color: SettingsPalette.text
                             font.pixelSize: 12
@@ -867,6 +887,7 @@ Item {
                         }
 
                         Text {
+                            font.family: Theme.fontFamily
                             text: openDropdown === "fixed" ? "▴" : "▾"
                             color: SettingsPalette.subtext
                             font.pixelSize: 11
@@ -920,6 +941,7 @@ Item {
                             }
 
                             Text {
+                                font.family: Theme.fontFamily
                                 anchors.left: parent.left
                                 anchors.right: parent.right
                                 anchors.verticalCenter: parent.verticalCenter
@@ -933,6 +955,7 @@ Item {
                         }
 
                         Text {
+                            font.family: Theme.fontFamily
                             Layout.fillWidth: true
                             text: fontsPage.loadingCatalog
                                 ? "Building font list..."
@@ -984,6 +1007,7 @@ Item {
                                             }
 
                                             Text {
+                                                font.family: Theme.fontFamily
                                                 text: modelData
                                                 color: SettingsPalette.text
                                                 font.pixelSize: 12
@@ -1100,6 +1124,7 @@ Item {
                         }
 
                         Text {
+                            font.family: Theme.fontFamily
                             text: fontsPage.statusMessage
                             color: fontsPage.statusError ? Theme.red : Theme.green
                             font.pixelSize: 11

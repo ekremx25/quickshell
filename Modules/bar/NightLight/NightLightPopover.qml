@@ -60,6 +60,7 @@ PopupWindow {
                 }
 
                 Text {
+                    font.family: Theme.fontFamily
                     text: "Night Light"
                     color: Theme.text
                     font.pixelSize: 14
@@ -120,6 +121,7 @@ PopupWindow {
                 visible: S.NightLight.available
 
                 Text {
+                    font.family: Theme.fontFamily
                     text: "Temperature"
                     color: Theme.subtext
                     font.pixelSize: 11
@@ -200,6 +202,7 @@ PopupWindow {
                         border.width: 1
 
                         Text {
+                            font.family: Theme.fontFamily
                             anchors.centerIn: parent
                             text: modelData.label
                             color: parent.isActive ? "#f9a03c" : Theme.text
@@ -237,6 +240,7 @@ PopupWindow {
                     border.width: 1
 
                     Text {
+                        font.family: Theme.fontFamily
                         anchors.centerIn: parent
                         visible: S.NightLight.applyOnStartup
                         text: "✓"
@@ -253,6 +257,7 @@ PopupWindow {
                 }
 
                 Text {
+                    font.family: Theme.fontFamily
                     text: "Apply on startup"
                     color: Theme.subtext
                     font.pixelSize: 11

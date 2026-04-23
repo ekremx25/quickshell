@@ -35,7 +35,7 @@ Item {
                 Layout.fillWidth: true
                 spacing: 8
                 Text { text: "󰌾"; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 20; color: Theme.primary }
-                Text { text: "Lock Screen"; font.bold: true; font.pixelSize: 18; color: SettingsPalette.text }
+                Text {  text: "Lock Screen"; font.bold: true; font.pixelSize: 18; color: SettingsPalette.text; font.family: Theme.fontFamily }
                 Item { Layout.fillWidth: true }
                 Rectangle {
                     radius: 8
@@ -46,8 +46,8 @@ Item {
                         id: statusRow
                         anchors.centerIn: parent
                         spacing: 6
-                        Text { text: "●"; color: lockService.hyprlandActive ? Theme.green : "#f9e2af"; font.pixelSize: 11 }
-                        Text { text: lockService.hyprlandActive ? "Hyprland active" : "Saved for Hyprland"; color: SettingsPalette.text; font.pixelSize: 11; font.bold: true }
+                        Text {  text: "●"; color: lockService.hyprlandActive ? Theme.green : "#f9e2af"; font.pixelSize: 11; font.family: Theme.fontFamily }
+                        Text {  text: lockService.hyprlandActive ? "Hyprland active" : "Saved for Hyprland"; color: SettingsPalette.text; font.pixelSize: 11; font.bold: true; font.family: Theme.fontFamily }
                     }
                 }
             }
@@ -103,8 +103,9 @@ Item {
                     ColumnLayout {
                         Layout.fillWidth: true
                         spacing: 8
-                        Text { text: "Background"; color: SettingsPalette.text; font.pixelSize: 14; font.bold: true }
+                        Text {  text: "Background"; color: SettingsPalette.text; font.pixelSize: 14; font.bold: true; font.family: Theme.fontFamily }
                         Text {
+                            font.family: Theme.fontFamily
                             Layout.fillWidth: true
                             text: lockService.backgroundPath
                             color: SettingsPalette.subtext
@@ -117,7 +118,7 @@ Item {
                             Rectangle {
                                 width: 110; height: 34; radius: 8
                                 color: Qt.rgba(137/255, 180/255, 250/255, 0.18)
-                                Text { anchors.centerIn: parent; text: "Browse"; color: SettingsPalette.text; font.bold: true; font.pixelSize: 12 }
+                                Text {  anchors.centerIn: parent; text: "Browse"; color: SettingsPalette.text; font.bold: true; font.pixelSize: 12; font.family: Theme.fontFamily }
                                 MouseArea {
                                     anchors.fill: parent
                                     cursorShape: Qt.PointingHandCursor
@@ -127,7 +128,7 @@ Item {
                             Rectangle {
                                 width: 110; height: 34; radius: 8
                                 color: Qt.rgba(255,255,255,0.08)
-                                Text { anchors.centerIn: parent; text: "Lock now"; color: SettingsPalette.text; font.bold: true; font.pixelSize: 12 }
+                                Text {  anchors.centerIn: parent; text: "Lock now"; color: SettingsPalette.text; font.bold: true; font.pixelSize: 12; font.family: Theme.fontFamily }
                                 MouseArea {
                                     anchors.fill: parent
                                     cursorShape: Qt.PointingHandCursor
@@ -158,9 +159,9 @@ Item {
                         spacing: 8
                         RowLayout {
                             Layout.fillWidth: true
-                            Text { text: "Dim screen"; color: SettingsPalette.text; font.pixelSize: 14; font.bold: true }
+                            Text {  text: "Dim screen"; color: SettingsPalette.text; font.pixelSize: 14; font.bold: true; font.family: Theme.fontFamily }
                             Item { Layout.fillWidth: true }
-                            Text { text: lockService.dimTimeoutMinutes + " min"; color: Theme.primary; font.pixelSize: 12; font.bold: true }
+                            Text {  text: lockService.dimTimeoutMinutes + " min"; color: Theme.primary; font.pixelSize: 12; font.bold: true; font.family: Theme.fontFamily }
                         }
                         Slider {
                             Layout.fillWidth: true
@@ -177,9 +178,9 @@ Item {
                         spacing: 8
                         RowLayout {
                             Layout.fillWidth: true
-                            Text { text: "Lock session"; color: SettingsPalette.text; font.pixelSize: 14; font.bold: true }
+                            Text {  text: "Lock session"; color: SettingsPalette.text; font.pixelSize: 14; font.bold: true; font.family: Theme.fontFamily }
                             Item { Layout.fillWidth: true }
-                            Text { text: lockService.lockTimeoutMinutes + " min"; color: "#f9e2af"; font.pixelSize: 12; font.bold: true }
+                            Text {  text: lockService.lockTimeoutMinutes + " min"; color: "#f9e2af"; font.pixelSize: 12; font.bold: true; font.family: Theme.fontFamily }
                         }
                         Slider {
                             Layout.fillWidth: true
@@ -196,9 +197,9 @@ Item {
                         spacing: 8
                         RowLayout {
                             Layout.fillWidth: true
-                            Text { text: "Screen off"; color: SettingsPalette.text; font.pixelSize: 14; font.bold: true }
+                            Text {  text: "Screen off"; color: SettingsPalette.text; font.pixelSize: 14; font.bold: true; font.family: Theme.fontFamily }
                             Item { Layout.fillWidth: true }
-                            Text { text: lockService.screenOffTimeoutMinutes + " min"; color: "#94e2d5"; font.pixelSize: 12; font.bold: true }
+                            Text {  text: lockService.screenOffTimeoutMinutes + " min"; color: "#94e2d5"; font.pixelSize: 12; font.bold: true; font.family: Theme.fontFamily }
                         }
                         Slider {
                             Layout.fillWidth: true
@@ -215,9 +216,9 @@ Item {
                         spacing: 8
                         RowLayout {
                             Layout.fillWidth: true
-                            Text { text: "Suspend"; color: SettingsPalette.text; font.pixelSize: 14; font.bold: true }
+                            Text {  text: "Suspend"; color: SettingsPalette.text; font.pixelSize: 14; font.bold: true; font.family: Theme.fontFamily }
                             Item { Layout.fillWidth: true }
-                            Text { text: lockService.suspendTimeoutMinutes + " min"; color: "#cba6f7"; font.pixelSize: 12; font.bold: true }
+                            Text {  text: lockService.suspendTimeoutMinutes + " min"; color: "#cba6f7"; font.pixelSize: 12; font.bold: true; font.family: Theme.fontFamily }
                         }
                         Slider {
                             Layout.fillWidth: true
@@ -235,7 +236,7 @@ Item {
 
                         RowLayout {
                             Layout.fillWidth: true
-                            Text { text: "Lock during media playback"; color: SettingsPalette.text; font.pixelSize: 14; font.bold: true }
+                            Text {  text: "Lock during media playback"; color: SettingsPalette.text; font.pixelSize: 14; font.bold: true; font.family: Theme.fontFamily }
                             Item { Layout.fillWidth: true }
                             Rectangle {
                                 width: 52
@@ -261,6 +262,7 @@ Item {
                         }
 
                         Text {
+                            font.family: Theme.fontFamily
                             Layout.fillWidth: true
                             text: lockService.ignoreMediaInhibit ? "Auto lock runs even if YouTube or other apps request idle inhibit." : "Media playback can temporarily prevent auto lock."
                             color: SettingsPalette.subtext
@@ -270,6 +272,7 @@ Item {
                     }
 
                     Text {
+                        font.family: Theme.fontFamily
                         Layout.fillWidth: true
                         visible: !lockService.brightnessctlAvailable
                         text: "brightnessctl was not found. The dim screen rule will be skipped, and the remaining lock rules will continue to work."
@@ -287,6 +290,7 @@ Item {
                 implicitHeight: statusText.implicitHeight + 24
 
                 Text {
+                    font.family: Theme.fontFamily
                     id: statusText
                     anchors.fill: parent
                     anchors.margins: 12
@@ -303,7 +307,7 @@ Item {
                 Rectangle {
                     width: 110; height: 38; radius: 10
                     color: Qt.rgba(255,255,255,0.10)
-                    Text { anchors.centerIn: parent; text: "Reload"; color: SettingsPalette.text; font.pixelSize: 13; font.bold: true }
+                    Text {  anchors.centerIn: parent; text: "Reload"; color: SettingsPalette.text; font.pixelSize: 13; font.bold: true; font.family: Theme.fontFamily }
                     MouseArea {
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
@@ -313,7 +317,7 @@ Item {
                 Rectangle {
                     width: 150; height: 38; radius: 10
                     color: lockService.isBusy ? Qt.rgba(137/255, 180/255, 250/255, 0.45) : Theme.primary
-                    Text { anchors.centerIn: parent; text: lockService.isBusy ? "Working..." : "Apply"; color: "#1e1e2e"; font.pixelSize: 13; font.bold: true }
+                    Text {  anchors.centerIn: parent; text: lockService.isBusy ? "Working..." : "Apply"; color: "#1e1e2e"; font.pixelSize: 13; font.bold: true; font.family: Theme.fontFamily }
                     MouseArea {
                         anchors.fill: parent
                         enabled: !lockService.isBusy

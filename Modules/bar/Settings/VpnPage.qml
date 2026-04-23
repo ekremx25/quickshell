@@ -21,7 +21,7 @@ Item {
             Layout.fillWidth: true
             spacing: 8
             Text { text: "󰦝"; font.pixelSize: 20; font.family: "JetBrainsMono Nerd Font"; color: Theme.primary }
-            Text { text: "VPN Management"; font.bold: true; font.pixelSize: 18; color: SettingsPalette.text }
+            Text {  text: "VPN Management"; font.bold: true; font.pixelSize: 18; color: SettingsPalette.text; font.family: Theme.fontFamily }
             Item { Layout.fillWidth: true }
 
             // Status indicator
@@ -35,6 +35,7 @@ Item {
                     spacing: 6
                     Rectangle { width: 8; height: 8; radius: 4; color: VpnService.connected ? Theme.green : SettingsPalette.overlay2 }
                     Text {
+                        font.family: Theme.fontFamily
                         text: VpnService.connected ? VpnService.activeName : "Disconnected"
                         font.pixelSize: 11
                         color: VpnService.connected ? Theme.green : SettingsPalette.subtext
@@ -50,6 +51,7 @@ Item {
             height: 36; radius: 8
             color: Qt.rgba(243/255, 139/255, 168/255, 0.15)
             Text {
+                font.family: Theme.fontFamily
                 anchors.centerIn: parent
                 text: "⚠ " + VpnService.errorMessage
                 font.pixelSize: 12
@@ -67,8 +69,8 @@ Item {
             RowLayout {
                 anchors.centerIn: parent
                 spacing: 8
-                Text { text: "+"; font.pixelSize: 16; font.bold: true; color: "#1e1e2e" }
-                Text { text: "Add VPN Connection"; font.pixelSize: 13; font.bold: true; color: "#1e1e2e" }
+                Text {  text: "+"; font.pixelSize: 16; font.bold: true; color: "#1e1e2e"; font.family: Theme.fontFamily }
+                Text {  text: "Add VPN Connection"; font.pixelSize: 13; font.bold: true; color: "#1e1e2e"; font.family: Theme.fontFamily }
             }
 
             MouseArea {
@@ -93,8 +95,8 @@ Item {
                 anchors.margins: 12
                 spacing: 8
 
-                Text { text: "Single VPN mode"; color: SettingsPalette.text; font.pixelSize: 13 }
-                Text { text: "(disconnect others when connecting)"; color: SettingsPalette.overlay2; font.pixelSize: 10 }
+                Text {  text: "Single VPN mode"; color: SettingsPalette.text; font.pixelSize: 13; font.family: Theme.fontFamily }
+                Text {  text: "(disconnect others when connecting)"; color: SettingsPalette.overlay2; font.pixelSize: 10; font.family: Theme.fontFamily }
                 Item { Layout.fillWidth: true }
 
                 Rectangle {
@@ -121,6 +123,7 @@ Item {
 
         // Profile list
         Text {
+            font.family: Theme.fontFamily
             text: VpnService.profiles.length > 0 ? "VPN Profiles (" + VpnService.profiles.length + ")" : "No VPN profiles configured"
             font.pixelSize: 13
             font.bold: VpnService.profiles.length > 0
@@ -175,12 +178,14 @@ Item {
                                 spacing: 2
                                 Layout.fillWidth: true
                                 Text {
+                                    font.family: Theme.fontFamily
                                     text: modelData.name
                                     font.pixelSize: 13
                                     font.bold: true
                                     color: SettingsPalette.text
                                 }
                                 Text {
+                                    font.family: Theme.fontFamily
                                     text: modelData.type.toUpperCase() + (modelData.autoconnect ? " • Autoconnect" : "")
                                     font.pixelSize: 10
                                     color: SettingsPalette.overlay2
@@ -198,6 +203,7 @@ Item {
                                 Behavior on color { ColorAnimation { duration: 150 } }
 
                                 Text {
+                                    font.family: Theme.fontFamily
                                     anchors.centerIn: parent
                                     text: VpnService.isBusy ? "..." : (VpnService.isActiveUuid(modelData.uuid) ? "Disconnect" : "Connect")
                                     font.pixelSize: 11
@@ -229,6 +235,7 @@ Item {
             Behavior on color { ColorAnimation { duration: 150 } }
 
             Text {
+                font.family: Theme.fontFamily
                 anchors.centerIn: parent
                 text: "Disconnect All VPNs"
                 font.pixelSize: 12

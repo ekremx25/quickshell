@@ -35,6 +35,7 @@ ColumnLayout {
             color: Theme.primary
         }
         Text {
+            font.family: Theme.fontFamily
             text: "Disk Management"
             font.bold: true
             font.pixelSize: 20
@@ -45,7 +46,7 @@ ColumnLayout {
         Rectangle {
             width: 32; height: 32; radius: 16
             color: refreshMA.containsMouse ? SettingsPalette.surface : "transparent"
-            Text { anchors.centerIn: parent; text: "↻"; color: SettingsPalette.text; font.pixelSize: 18 }
+            Text {  anchors.centerIn: parent; text: "↻"; color: SettingsPalette.text; font.pixelSize: 18; font.family: Theme.fontFamily }
             MouseArea {
                 id: refreshMA; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
                 onClicked: diskService.refresh()
@@ -65,6 +66,7 @@ ColumnLayout {
         implicitHeight: statusText.implicitHeight + 18
 
         Text {
+            font.family: Theme.fontFamily
             id: statusText
             anchors.fill: parent
             anchors.margins: 9
@@ -147,6 +149,7 @@ ColumnLayout {
                         }
 
                         Text {
+                            font.family: Theme.fontFamily
                             anchors.centerIn: parent
                             text: modelData.usePercent ? modelData.usePercent : "?"
                             font.pixelSize: 10
@@ -179,6 +182,7 @@ ColumnLayout {
                     // Name and Mount Point
                     RowLayout {
                         Text {
+                            font.family: Theme.fontFamily
                             text: modelData.name
                             color: SettingsPalette.text
                             font.bold: true
@@ -186,6 +190,7 @@ ColumnLayout {
                         }
                         
                         Text {
+                            font.family: Theme.fontFamily
                             visible: modelData.mountpoint !== ""
                             text: " (" + modelData.mountpoint + ")"
                             color: SettingsPalette.subtext
@@ -197,6 +202,7 @@ ColumnLayout {
 
                     // Details (Used / Total / Free)
                     Text {
+                        font.family: Theme.fontFamily
                         text: {
                             if (modelData.mountpoint && modelData.fsused) {
                                 return "Used: " + modelData.fsused + " / " + modelData.size + "  •  Free: " + modelData.fsavail
@@ -211,6 +217,7 @@ ColumnLayout {
                     
                     // FSType (small info)
                     Text {
+                        font.family: Theme.fontFamily
                         visible: modelData.fstype !== ""
                         text: modelData.fstype.toUpperCase()
                         color: SettingsPalette.overlay
@@ -218,6 +225,7 @@ ColumnLayout {
                     }
 
                     Text {
+                        font.family: Theme.fontFamily
                         visible: modelData.uuid !== ""
                         text: "UUID: " + modelData.uuid
                         color: SettingsPalette.overlay2
@@ -241,6 +249,7 @@ ColumnLayout {
                         implicitHeight: badgeText.implicitHeight + 8
 
                         Text {
+                            font.family: Theme.fontFamily
                             id: badgeText
                             anchors.centerIn: parent
                             text: "fstab"
@@ -259,6 +268,7 @@ ColumnLayout {
                         opacity: diskService.busyDeviceName === modelData.name ? 0.75 : 1
 
                         Text {
+                            font.family: Theme.fontFamily
                             anchors.centerIn: parent
                             text: diskService.busyDeviceName === modelData.name
                                 ? "Working..."
@@ -294,6 +304,7 @@ ColumnLayout {
                         opacity: diskService.busyDeviceName === modelData.name ? 0.75 : 1
 
                         Text {
+                            font.family: Theme.fontFamily
                             anchors.centerIn: parent
                             text: diskService.busyDeviceName === modelData.name
                                 ? "Working..."
@@ -317,6 +328,7 @@ ColumnLayout {
                     }
 
                     Text {
+                        font.family: Theme.fontFamily
                         visible: modelData.inFstab && modelData.fstabMountpoint !== ""
                         text: modelData.fstabMountpoint
                         color: SettingsPalette.subtext
@@ -362,9 +374,10 @@ ColumnLayout {
 
                 RowLayout {
                     Layout.fillWidth: true
-                    Text { text: "Bind Disk to fstab"; color: SettingsPalette.text; font.pixelSize: 17; font.bold: true }
+                    Text {  text: "Bind Disk to fstab"; color: SettingsPalette.text; font.pixelSize: 17; font.bold: true; font.family: Theme.fontFamily }
                     Item { Layout.fillWidth: true }
                     Text {
+                        font.family: Theme.fontFamily
                         text: "✕"
                         color: SettingsPalette.subtext
                         font.pixelSize: 15
@@ -375,6 +388,7 @@ ColumnLayout {
                 Rectangle { Layout.fillWidth: true; height: 1; color: SettingsPalette.surface }
 
                 Text {
+                    font.family: Theme.fontFamily
                     Layout.fillWidth: true
                     wrapMode: Text.Wrap
                     text: selectedDisk
@@ -385,6 +399,7 @@ ColumnLayout {
                 }
 
                 Text {
+                    font.family: Theme.fontFamily
                     text: "Mount Point"
                     color: SettingsPalette.text
                     font.pixelSize: 12
@@ -407,7 +422,7 @@ ColumnLayout {
                         height: 34
                         radius: 8
                         color: Qt.rgba(255,255,255,0.08)
-                        Text { anchors.centerIn: parent; text: "Browse folders"; color: SettingsPalette.text; font.pixelSize: 12; font.bold: true }
+                        Text {  anchors.centerIn: parent; text: "Browse folders"; color: SettingsPalette.text; font.pixelSize: 12; font.bold: true; font.family: Theme.fontFamily }
                         MouseArea {
                             anchors.fill: parent
                             cursorShape: Qt.PointingHandCursor
@@ -419,6 +434,7 @@ ColumnLayout {
                 }
 
                 Text {
+                    font.family: Theme.fontFamily
                     Layout.fillWidth: true
                     wrapMode: Text.Wrap
                     color: SettingsPalette.overlay2
@@ -439,7 +455,7 @@ ColumnLayout {
                         height: 36
                         radius: 10
                         color: SettingsPalette.surface
-                        Text { anchors.centerIn: parent; text: "Cancel"; color: SettingsPalette.text; font.pixelSize: 12; font.bold: true }
+                        Text {  anchors.centerIn: parent; text: "Cancel"; color: SettingsPalette.text; font.pixelSize: 12; font.bold: true; font.family: Theme.fontFamily }
                         MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: mountDialogVisible = false }
                     }
 
@@ -448,7 +464,7 @@ ColumnLayout {
                         height: 36
                         radius: 10
                         color: Qt.lighter(Theme.primary, 1.04)
-                        Text { anchors.centerIn: parent; text: "Bind & Mount"; color: "#1e1e2e"; font.pixelSize: 12; font.bold: true }
+                        Text {  anchors.centerIn: parent; text: "Bind & Mount"; color: "#1e1e2e"; font.pixelSize: 12; font.bold: true; font.family: Theme.fontFamily }
                         MouseArea {
                             anchors.fill: parent
                             cursorShape: Qt.PointingHandCursor

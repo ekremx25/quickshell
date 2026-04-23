@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import "../../../Widgets"
 
 Rectangle {
     id: root
@@ -30,6 +31,7 @@ Rectangle {
         spacing: 8
 
         Text {
+            font.family: Theme.iconFontFamily
             text: "" // Clock Icon (changed to match user screenshot potentially, or keep Gentoo if desired. User screenshot had a clock icon in image 4)
             // Original had Gentoo logo: 
             // User screenshot 4 shows a clock icon: 🕒 (or similar nerd font)
@@ -44,6 +46,7 @@ Rectangle {
         }
 
         Text {
+            font.family: Theme.fontFamily
             id: clockText
             text: Qt.formatTime(new Date(), "HH:mm")
             font.pixelSize: 13
@@ -69,6 +72,7 @@ Rectangle {
             }
 
             Text {
+                font.family: Theme.fontFamily
                 text: Qt.formatDate(new Date(), "yyyy, d MMMM dddd")
                 font.pixelSize: 13
                 font.bold: true

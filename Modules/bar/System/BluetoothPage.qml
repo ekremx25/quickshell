@@ -90,7 +90,7 @@ Item {
             Layout.fillWidth: true
 
             Text { text: "󰂯"; font.pixelSize: 20; font.family: "JetBrainsMono Nerd Font"; color: Theme.primary }
-            Text { text: "Bluetooth"; font.bold: true; font.pixelSize: 18; color: SettingsPalette.text; Layout.fillWidth: true }
+            Text {  text: "Bluetooth"; font.bold: true; font.pixelSize: 18; color: SettingsPalette.text; Layout.fillWidth: true; font.family: Theme.fontFamily }
 
             // Power toggle
             Rectangle {
@@ -117,6 +117,7 @@ Item {
 
         // Off message
         Text {
+            font.family: Theme.fontFamily
             visible: !bluetoothPage.powered && !bluetoothPage.loading
             text: "Bluetooth is off"
             color: SettingsPalette.subtext
@@ -126,6 +127,7 @@ Item {
 
         // Loading
         Text {
+            font.family: Theme.fontFamily
             visible: bluetoothPage.loading
             text: "Loading..."
             color: SettingsPalette.subtext
@@ -145,6 +147,7 @@ Item {
 
                 // Title
                 Text {
+                    font.family: Theme.fontFamily
                     text: "Paired Devices"
                     color: SettingsPalette.subtext
                     font.pixelSize: 12
@@ -154,6 +157,7 @@ Item {
 
                 // Empty list message
                 Text {
+                    font.family: Theme.fontFamily
                     visible: bluetoothPage.devices.length === 0
                     text: "No paired devices"
                     color: Qt.rgba(205/255, 214/255, 244/255, 0.4)
@@ -204,6 +208,7 @@ Item {
                                 Layout.fillWidth: true
                                 spacing: 2
                                 Text {
+                                    font.family: Theme.fontFamily
                                     text: modelData.name
                                     color: SettingsPalette.text
                                     font.bold: true
@@ -212,6 +217,7 @@ Item {
                                     Layout.fillWidth: true
                                 }
                                 Text {
+                                    font.family: Theme.fontFamily
                                     text: modelData.connected ? "Connected" : "Paired"
                                     color: modelData.connected ? Theme.primary : SettingsPalette.subtext
                                     font.pixelSize: 11
@@ -227,6 +233,7 @@ Item {
                                 Behavior on color { ColorAnimation { duration: 120 } }
 
                                 Text {
+                                    font.family: Theme.fontFamily
                                     anchors.centerIn: parent
                                     text: modelData.connected ? "Disconnect" : "Connect"
                                     color: modelData.connected ? "#f38ba8" : Theme.primary

@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import "../../../Widgets"
 
 // Sink (output) and source (input) volume/mute controls row.
 // All audio state flows through the `eq` reference (the parent Equalizer root item).
@@ -27,6 +28,7 @@ RowLayout {
                 spacing: 8
                 Text { text: "󰓃"; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 15; color: eq.sinkAccent }
                 Text {
+                    font.family: Theme.fontFamily
                     Layout.fillWidth: true
                     text: eq.sinkDisplayName
                     color: eq.softText
@@ -35,6 +37,7 @@ RowLayout {
                     elide: Text.ElideRight
                 }
                 Text {
+                    font.family: Theme.fontFamily
                     text: eq.sinkVolumePercent + "%"
                     color: eq.softText
                     font.bold: true
@@ -104,6 +107,7 @@ RowLayout {
                 spacing: 8
                 Text { text: "󰍬"; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 15; color: eq.sourceAccent }
                 Text {
+                    font.family: Theme.fontFamily
                     Layout.fillWidth: true
                     text: eq.sourceDisplayName
                     color: eq.softText
@@ -112,6 +116,7 @@ RowLayout {
                     elide: Text.ElideRight
                 }
                 Text {
+                    font.family: Theme.fontFamily
                     text: eq.sourceVolumePercent + "%"
                     color: eq.softText
                     font.bold: true

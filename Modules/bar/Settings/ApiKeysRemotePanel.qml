@@ -56,6 +56,7 @@ Item {
                 visible: remotePanel.currentProvider.signup_url.length > 0
 
                 Text {
+                    font.family: Theme.fontFamily
                     text: "Get an API key: "
                     color: SettingsPalette.subtext
                     font.pixelSize: 12
@@ -68,6 +69,7 @@ Item {
                     border.color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.3)
                     border.width: 1
                     Text {
+                        font.family: Theme.fontFamily
                         id: linkText
                         anchors.centerIn: parent
                         text: remotePanel.currentProvider.signup_url
@@ -88,6 +90,7 @@ Item {
                 spacing: 12
 
                 Text {
+                    font.family: Theme.fontFamily
                     text: "Model"
                     color: SettingsPalette.subtext
                     font.pixelSize: 12
@@ -116,6 +119,7 @@ Item {
                             border.width: 1
 
                             Text {
+                                font.family: Theme.fontFamily
                                 id: modelLabel
                                 anchors.centerIn: parent
                                 text: parent.modelData
@@ -163,6 +167,7 @@ Item {
                 spacing: 12
 
                 Text {
+                    font.family: Theme.fontFamily
                     text: "API Base"
                     color: SettingsPalette.subtext
                     font.pixelSize: 12
@@ -202,6 +207,7 @@ Item {
                 spacing: 12
 
                 Text {
+                    font.family: Theme.fontFamily
                     text: "API Key"
                     color: SettingsPalette.subtext
                     font.pixelSize: 12
@@ -234,6 +240,7 @@ Item {
                         inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhSensitiveData
 
                         Text {
+                            font.family: Theme.fontFamily
                             anchors.verticalCenter: parent.verticalCenter
                             visible: keyInput.text.length === 0 && !keyInput.activeFocus
                             text: remotePanel.currentProvider.key_example
@@ -301,6 +308,7 @@ Item {
                             }
                         }
                         Text {
+                            font.family: Theme.fontFamily
                             text: remotePanel.testStatus === "testing" ? "Testing..." : "Test connection"
                             color: SettingsPalette.text
                             font.pixelSize: 12
@@ -342,6 +350,7 @@ Item {
                             color: Theme.primary
                         }
                         Text {
+                            font.family: Theme.fontFamily
                             text: remotePanel.saveStatus === "saving" ? "Saving..." : "Save & Activate"
                             color: Theme.primary
                             font.pixelSize: 12
@@ -384,6 +393,7 @@ Item {
                     spacing: 4
 
                     Text {
+                        font.family: Theme.fontFamily
                         visible: remotePanel.testStatus !== ""
                         text: "🧪 " + (remotePanel.testStatus === "success" ? "✓ " : (remotePanel.testStatus === "error" ? "✗ " : "… ")) + remotePanel.testMessage
                         color: {
@@ -397,6 +407,7 @@ Item {
                     }
 
                     Text {
+                        font.family: Theme.fontFamily
                         visible: remotePanel.saveStatus !== ""
                         text: "💾 " + (remotePanel.saveStatus === "saved" ? "✓ " : (remotePanel.saveStatus === "error" ? "✗ " : "… ")) + remotePanel.saveMessage
                         color: {

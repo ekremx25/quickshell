@@ -32,6 +32,7 @@ Rectangle {
         spacing: 6
 
         Text {
+            font.family: Theme.iconFontFamily
             text: "󰋊" // Harddisk Icon (Nerd Font)
             color: iconColor
             font.pixelSize: 16

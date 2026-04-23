@@ -31,6 +31,7 @@ Rectangle {
             border.width: 1
 
             Text {
+                font.family: Theme.fontFamily
                 anchors.centerIn: parent
                 text: root.page.outputs.length
                 color: Theme.primary
@@ -44,6 +45,7 @@ Rectangle {
             spacing: 2
 
             Text {
+                font.family: Theme.fontFamily
                 text: "Displays"
                 color: SettingsPalette.text
                 font.pixelSize: 20
@@ -51,6 +53,7 @@ Rectangle {
             }
 
             Text {
+                font.family: Theme.fontFamily
                 text: root.page.selectedOutput
                     ? (root.page.displayCountText() + " connected. Arrange your displays, choose the main screen, and tune resolution, scale, and color.")
                     : "No active display detected."
@@ -71,6 +74,7 @@ Rectangle {
             implicitHeight: 34
 
             Text {
+                font.family: Theme.fontFamily
                 id: statusText
                 anchors.centerIn: parent
                 text: root.page.pendingChanges() ? "Unsaved changes" : "Up to date"
@@ -89,6 +93,7 @@ Rectangle {
             border.width: 1
 
             Text {
+                font.family: Theme.fontFamily
                 anchors.centerIn: parent
                 text: "R"
                 color: SettingsPalette.text
@@ -114,6 +119,7 @@ Rectangle {
             implicitHeight: 38
 
             Text {
+                font.family: Theme.fontFamily
                 id: identifyHeaderText
                 anchors.centerIn: parent
                 text: "Identify"

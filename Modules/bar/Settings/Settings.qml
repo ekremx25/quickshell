@@ -261,11 +261,13 @@ PanelWindow {
                             spacing: 8
 
                             Text {
+                                font.family: Theme.fontFamily
                                 text: "⚙"
                                 font.pixelSize: 18
                                 color: Theme.primary
                             }
                             Text {
+                                font.family: Theme.fontFamily
                                 text: "Settings"
                                 color: sidebarTitleColor
                                 font.pixelSize: 16
@@ -276,7 +278,7 @@ PanelWindow {
                                 width: 24; height: 24; radius: 12
                                 color: closeMA.containsMouse ? Theme.red : "transparent"
                                 Behavior on color { ColorAnimation { duration: 150 } }
-                                Text { anchors.centerIn: parent; text: "✕"; color: sidebarTitleColor; font.pixelSize: 11 }
+                                Text {  anchors.centerIn: parent; text: "✕"; color: sidebarTitleColor; font.pixelSize: 11; font.family: Theme.fontFamily }
                                 MouseArea {
                                     id: closeMA; anchors.fill: parent; hoverEnabled: true
                                     cursorShape: Qt.PointingHandCursor
@@ -332,6 +334,7 @@ PanelWindow {
                                             }
 
                                             Text {
+                                                font.family: Theme.fontFamily
                                                 text: modelData.title
                                                 color: headerMA.containsMouse ? sidebarTitleColor : sidebarMutedColor
                                                 font.pixelSize: 11
@@ -393,6 +396,7 @@ PanelWindow {
                                                     }
 
                                                     Text {
+                                                        font.family: Theme.fontFamily
                                                         text: modelData.label
                                                         color: settingsPopup.currentPage === modelData.key ? sidebarTitleColor : sidebarMutedColor
                                                         font.pixelSize: 13

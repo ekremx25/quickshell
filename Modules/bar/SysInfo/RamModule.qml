@@ -24,9 +24,11 @@ Rectangle {
         Text {
             text: backend.ramUsageVal
             font.bold: true
+            font.family: Theme.fontFamily
             color: "#1e1e2e"
         }
         Text {
+            font.family: Theme.iconFontFamily
             text: "" // RAM Icon
             font.pixelSize: 14
             color: "#1e1e2e"

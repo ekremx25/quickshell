@@ -54,13 +54,14 @@ PopupWindow {
             // Header Row
             RowLayout {
                 Layout.fillWidth: true
-                Text { text: root.title; color: "#cdd6f4"; font.bold: true; font.pixelSize: 14 }
+                Text {  text: root.title; color: "#cdd6f4"; font.bold: true; font.pixelSize: 14; font.family: Theme.fontFamily }
                 Item { Layout.fillWidth: true }
-                Text { text: root.valueText; color: root.accentColor; font.bold: true; font.pixelSize: 14 }
+                Text {  text: root.valueText; color: root.accentColor; font.bold: true; font.pixelSize: 14; font.family: Theme.fontFamily }
             }
 
             // Subtext if any
             Text {
+                font.family: Theme.fontFamily
                 visible: root.subText !== ""
                 text: root.subText
                 color: "#a6adc8"

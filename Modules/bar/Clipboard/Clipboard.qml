@@ -42,6 +42,7 @@ Rectangle {
         }
         
         Text {
+            font.family: Theme.fontFamily
             text: clipboardModel.count > 0 ? clipboardModel.count : ""
             visible: clipboardModel.count > 0
             font.bold: true
@@ -95,9 +96,10 @@ Rectangle {
                 // Header
                 RowLayout {
                     Layout.fillWidth: true
-                    Text { text: "Clipboard History"; color: "#cba6f7"; font.bold: true }
+                    Text {  text: "Clipboard History"; color: "#cba6f7"; font.bold: true; font.family: Theme.fontFamily }
                     Item { Layout.fillWidth: true }
                     Text { 
+                        font.family: Theme.fontFamily
                         text: "Clear All"; color: "#f38ba8"; font.pixelSize: 11
                         MouseArea {
                             anchors.fill: parent
@@ -112,6 +114,7 @@ Rectangle {
                         width: 22; height: 22; radius: 11
                         color: closeMA.containsMouse ? Qt.rgba(255,255,255,0.1) : "transparent"
                         Text {
+                            font.family: Theme.fontFamily
                             anchors.centerIn: parent
                             text: "✕"; color: "#a6adc8"; font.pixelSize: 12
                         }
@@ -147,6 +150,7 @@ Rectangle {
                             spacing: 8
                             
                             Text {
+                                font.family: Theme.fontFamily
                                 text: model.text.replace(/\n/g, " ")
                                 color: "#cdd6f4"
                                 elide: Text.ElideRight
@@ -163,6 +167,7 @@ Rectangle {
                             }
                             
                             Text {
+                                font.family: Theme.fontFamily
                                 text: "✕"; color: "#f38ba8"
                                 MouseArea {
                                     anchors.fill: parent
@@ -181,6 +186,7 @@ Rectangle {
                     }
                     
                     Text {
+                        font.family: Theme.fontFamily
                         anchors.centerIn: parent
                         text: "No history"
                         visible: clipboardModel.count === 0

@@ -26,6 +26,7 @@ Rectangle {
             spacing: 2
 
             Text {
+                font.family: Theme.fontFamily
                 text: "Display settings"
                 color: SettingsPalette.text
                 font.pixelSize: 15
@@ -33,6 +34,7 @@ Rectangle {
             }
 
             Text {
+                font.family: Theme.fontFamily
                 text: page.selectedOutput
                     ? "Choose the sharpest mode first, then tune scale and placement."
                     : "Select a display above to edit its settings."
@@ -47,6 +49,7 @@ Rectangle {
             spacing: 12
 
             Text {
+                font.family: Theme.fontFamily
                 text: "Display resolution"
                 color: SettingsPalette.subtext
                 font.pixelSize: 12
@@ -71,6 +74,7 @@ Rectangle {
                         implicitHeight: 34
 
                         Text {
+                            font.family: Theme.fontFamily
                             id: resolutionText
                             anchors.verticalCenter: parent.verticalCenter
                             anchors.left: parent.left
@@ -94,6 +98,7 @@ Rectangle {
                             implicitHeight: 20
 
                             Text {
+                                font.family: Theme.fontFamily
                                 id: recommendedText
                                 anchors.centerIn: parent
                                 text: "Recommended"
@@ -124,6 +129,7 @@ Rectangle {
             spacing: 12
 
             Text {
+                font.family: Theme.fontFamily
                 text: "Refresh rate"
                 color: SettingsPalette.subtext
                 font.pixelSize: 12
@@ -148,6 +154,7 @@ Rectangle {
                         implicitHeight: 34
 
                         Text {
+                            font.family: Theme.fontFamily
                             id: refreshText
                             anchors.centerIn: parent
                             text: parseFloat(modelData.hz).toFixed(1) + " Hz"
@@ -172,6 +179,7 @@ Rectangle {
             spacing: 16
 
             Text {
+                font.family: Theme.fontFamily
                 text: "Scale"
                 color: SettingsPalette.subtext
                 font.pixelSize: 12
@@ -199,6 +207,7 @@ Rectangle {
             spacing: 12
 
             Text {
+                font.family: Theme.fontFamily
                 text: "Position"
                 color: SettingsPalette.subtext
                 font.pixelSize: 12
@@ -227,6 +236,7 @@ Rectangle {
                         implicitHeight: 32
 
                         Text {
+                            font.family: Theme.fontFamily
                             anchors.centerIn: parent
                             text: modelData.label
                             color: SettingsPalette.text
@@ -256,6 +266,7 @@ Rectangle {
                 implicitHeight: 32
 
                 Text {
+                    font.family: Theme.fontFamily
                     anchors.centerIn: parent
                     text: "X: " + page.selPosX
                     color: SettingsPalette.text
@@ -273,6 +284,7 @@ Rectangle {
                 implicitHeight: 32
 
                 Text {
+                    font.family: Theme.fontFamily
                     anchors.centerIn: parent
                     text: "Y: " + page.selPosY
                     color: SettingsPalette.text
@@ -290,6 +302,7 @@ Rectangle {
                 implicitHeight: 32
 
                 Text {
+                    font.family: Theme.fontFamily
                     anchors.centerIn: parent
                     text: "Reset Y"
                     color: SettingsPalette.text

@@ -26,6 +26,7 @@ Rectangle {
         spacing: 12
 
         Text {
+            font.family: Theme.fontFamily
             text: "Advanced color"
             color: SettingsPalette.text
             font.pixelSize: 15
@@ -38,6 +39,7 @@ Rectangle {
             spacing: 12
 
             Text {
+                font.family: Theme.fontFamily
                 text: "HDR"
                 color: SettingsPalette.subtext
                 font.pixelSize: 12
@@ -75,6 +77,7 @@ Rectangle {
             Item { Layout.fillWidth: true }
 
             Text {
+                font.family: Theme.fontFamily
                 text: page.selHdr ? "High dynamic range is enabled" : "Use SDR for a more stable desktop"
                 color: SettingsPalette.subtext
                 font.pixelSize: 11
@@ -87,6 +90,7 @@ Rectangle {
             spacing: 12
 
             Text {
+                font.family: Theme.fontFamily
                 text: "Bit depth"
                 color: SettingsPalette.subtext
                 font.pixelSize: 12
@@ -107,6 +111,7 @@ Rectangle {
                     implicitHeight: 32
 
                     Text {
+                        font.family: Theme.fontFamily
                         anchors.centerIn: parent
                         text: modelData + "-bit"
                         color: page.selBitdepth === modelData ? Theme.primary : SettingsPalette.text
@@ -129,6 +134,7 @@ Rectangle {
             spacing: 12
 
             Text {
+                font.family: Theme.fontFamily
                 text: "Variable refresh rate"
                 color: SettingsPalette.subtext
                 font.pixelSize: 12
@@ -153,6 +159,7 @@ Rectangle {
                     implicitHeight: 32
 
                     Text {
+                        font.family: Theme.fontFamily
                         id: vrrLabel
                         anchors.centerIn: parent
                         text: modelData.label
@@ -176,6 +183,7 @@ Rectangle {
             spacing: 12
 
             Text {
+                font.family: Theme.fontFamily
                 text: "Color profile"
                 color: SettingsPalette.subtext
                 font.pixelSize: 12
@@ -206,6 +214,7 @@ Rectangle {
                         implicitHeight: 32
 
                         Text {
+                            font.family: Theme.fontFamily
                             id: profileText
                             anchors.centerIn: parent
                             text: modelData.label
@@ -240,6 +249,7 @@ Rectangle {
                 spacing: 16
 
                 Text {
+                    font.family: Theme.fontFamily
                     text: "SDR luminance"
                     color: SettingsPalette.subtext
                     font.pixelSize: 12
@@ -290,6 +300,7 @@ Rectangle {
                 }
 
                 Text {
+                    font.family: Theme.fontFamily
                     text: page.selSdrLuminance + " nits"
                     color: Theme.primary
                     font.pixelSize: 12
@@ -305,6 +316,7 @@ Rectangle {
                 spacing: 16
 
                 Text {
+                    font.family: Theme.fontFamily
                     text: "SDR brightness"
                     color: SettingsPalette.subtext
                     font.pixelSize: 12
@@ -355,6 +367,7 @@ Rectangle {
                 }
 
                 Text {
+                    font.family: Theme.fontFamily
                     text: page.selSdrBrightness.toFixed(1) + "x"
                     color: Theme.primary
                     font.pixelSize: 12
@@ -370,6 +383,7 @@ Rectangle {
                 spacing: 16
 
                 Text {
+                    font.family: Theme.fontFamily
                     text: "SDR saturation"
                     color: SettingsPalette.subtext
                     font.pixelSize: 12
@@ -420,6 +434,7 @@ Rectangle {
                 }
 
                 Text {
+                    font.family: Theme.fontFamily
                     text: page.selSdrSaturation.toFixed(1) + "x"
                     color: Theme.primary
                     font.pixelSize: 12

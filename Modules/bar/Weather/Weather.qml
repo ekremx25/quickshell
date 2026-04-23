@@ -137,12 +137,13 @@ Rectangle {
 
                         RowLayout {
                             spacing: 5
-                            Text { text: root.popupData && root.popupData.feelsLike ? root.popupData.feelsLike : "-"; color: Theme.text; font.pixelSize: 36; font.bold: true }
-                            Text { text: "°"; color: Theme.primary; font.pixelSize: 20; font.bold: true; Layout.alignment: Qt.AlignTop | Qt.AlignLeft; Layout.topMargin: 4 }
+                            Text {  text: root.popupData && root.popupData.feelsLike ? root.popupData.feelsLike : "-"; color: Theme.text; font.pixelSize: 36; font.bold: true; font.family: Theme.fontFamily }
+                            Text {  text: "°"; color: Theme.primary; font.pixelSize: 20; font.bold: true; Layout.alignment: Qt.AlignTop | Qt.AlignLeft; Layout.topMargin: 4; font.family: Theme.fontFamily }
                         }
-                        Text { text: "Feels like"; color: Theme.overlay2; font.pixelSize: 11 }
-                        Text { text: root.currentTemp + (root.useFahrenheit ? "°F" : "°C"); color: Theme.subtext; font.pixelSize: 14 }
+                        Text {  text: "Feels like"; color: Theme.overlay2; font.pixelSize: 11; font.family: Theme.fontFamily }
+                        Text {  text: root.currentTemp + (root.useFahrenheit ? "°F" : "°C"); color: Theme.subtext; font.pixelSize: 14; font.family: Theme.fontFamily }
                         Text {
+                            font.family: Theme.fontFamily
                             text: root.popupData && root.popupData.desc ? root.popupData.desc : ""
                             color: Theme.text
                             font.pixelSize: 16
@@ -180,7 +181,7 @@ Rectangle {
                         ColumnLayout {
                             spacing: 5
                             Layout.alignment: Qt.AlignHCenter
-                            Text { text: modelData.day; color: Theme.subtext; font.pixelSize: 11; Layout.alignment: Qt.AlignHCenter }
+                            Text {  text: modelData.day; color: Theme.subtext; font.pixelSize: 11; Layout.alignment: Qt.AlignHCenter; font.family: Theme.fontFamily }
                             Text {
                                 text: modelData.icon
                                 color: Theme.primary
@@ -194,7 +195,7 @@ Rectangle {
                                 Layout.preferredHeight: 28
                                 Layout.alignment: Qt.AlignHCenter
                             }
-                            Text { text: modelData.min + "°/" + modelData.max + "°"; color: Theme.text; font.pixelSize: 10; font.bold: true; Layout.alignment: Qt.AlignHCenter }
+                            Text {  text: modelData.min + "°/" + modelData.max + "°"; color: Theme.text; font.pixelSize: 10; font.bold: true; Layout.alignment: Qt.AlignHCenter; font.family: Theme.fontFamily }
                         }
                     }
                 }
@@ -223,8 +224,8 @@ Rectangle {
         }
         ColumnLayout {
             spacing: 2
-            Text { text: label; color: Theme.subtext; font.pixelSize: 11 }
-            Text { text: value; color: Theme.text; font.pixelSize: 13; font.bold: true }
+            Text {  text: label; color: Theme.subtext; font.pixelSize: 11; font.family: Theme.fontFamily }
+            Text {  text: value; color: Theme.text; font.pixelSize: 13; font.bold: true; font.family: Theme.fontFamily }
         }
     }
 }

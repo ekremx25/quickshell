@@ -63,11 +63,12 @@ Item {
                 Layout.fillWidth: true
                 spacing: 8
                 Text { text: ""; font.pixelSize: 20; font.family: Theme.fontFamily; color: Theme.primary }
-                Text { text: "Layout Presets"; font.bold: true; font.pixelSize: 18; color: SettingsPalette.text }
+                Text {  text: "Layout Presets"; font.bold: true; font.pixelSize: 18; color: SettingsPalette.text; font.family: Theme.fontFamily }
                 Item { Layout.fillWidth: true }
             }
 
             Text {
+                font.family: Theme.fontFamily
                 text: "Select a preset to change your bar layout. Your current config will be overwritten."
                 color: SettingsPalette.overlay2
                 font.pixelSize: 12
@@ -89,8 +90,8 @@ Item {
                     anchors.fill: parent
                     anchors.margins: 10
                     spacing: 8
-                    Text { text: "💾"; font.pixelSize: 14 }
-                    Text { text: "Save current layout as Custom"; color: SettingsPalette.text; font.pixelSize: 13 }
+                    Text {  text: "💾"; font.pixelSize: 14; font.family: Theme.fontFamily }
+                    Text {  text: "Save current layout as Custom"; color: SettingsPalette.text; font.pixelSize: 13; font.family: Theme.fontFamily }
                 }
 
                 MouseArea {
@@ -143,6 +144,7 @@ Item {
                                     color: layoutPage.activePreset === modelData.key ? Theme.primary : SettingsPalette.subtext
                                 }
                                 Text {
+                                    font.family: Theme.fontFamily
                                     text: modelData.name
                                     font.pixelSize: 14
                                     font.bold: true
@@ -160,6 +162,7 @@ Item {
                             }
 
                             Text {
+                                font.family: Theme.fontFamily
                                 text: modelData.desc
                                 font.pixelSize: 10
                                 color: SettingsPalette.overlay2

@@ -19,7 +19,7 @@ Item {
             Layout.fillWidth: true
             spacing: 8
             Text { text: ""; font.pixelSize: 20; font.family: Theme.fontFamily; color: Theme.primary }
-            Text { text: "Compositor"; font.bold: true; font.pixelSize: 18; color: SettingsPalette.text }
+            Text {  text: "Compositor"; font.bold: true; font.pixelSize: 18; color: SettingsPalette.text; font.family: Theme.fontFamily }
         }
 
         // Niri info card
@@ -54,8 +54,8 @@ Item {
 
                     ColumnLayout {
                         spacing: 2
-                        Text { text: "Niri"; font.pixelSize: 18; font.bold: true; color: SettingsPalette.text }
-                        Text { text: "Scrolling Tiling Wayland Compositor"; font.pixelSize: 12; color: SettingsPalette.overlay2 }
+                        Text {  text: "Niri"; font.pixelSize: 18; font.bold: true; color: SettingsPalette.text; font.family: Theme.fontFamily }
+                        Text {  text: "Scrolling Tiling Wayland Compositor"; font.pixelSize: 12; color: SettingsPalette.overlay2; font.family: Theme.fontFamily }
                     }
 
                     Item { Layout.fillWidth: true }
@@ -67,7 +67,7 @@ Item {
         Rectangle { Layout.fillWidth: true; height: 1; color: SettingsPalette.surface }
 
         // Details
-        Text { text: "Details"; font.pixelSize: 14; font.bold: true; color: SettingsPalette.text }
+        Text {  text: "Details"; font.pixelSize: 14; font.bold: true; color: SettingsPalette.text; font.family: Theme.fontFamily }
 
         Repeater {
             model: [
@@ -85,8 +85,8 @@ Item {
 
                 RowLayout {
                     anchors.fill: parent; anchors.margins: 12
-                    Text { text: modelData.label; font.pixelSize: 12; color: SettingsPalette.subtext; Layout.preferredWidth: 120 }
-                    Text { text: modelData.value; font.pixelSize: 12; color: SettingsPalette.text; Layout.fillWidth: true; elide: Text.ElideMiddle }
+                    Text {  text: modelData.label; font.pixelSize: 12; color: SettingsPalette.subtext; Layout.preferredWidth: 120; font.family: Theme.fontFamily }
+                    Text {  text: modelData.value; font.pixelSize: 12; color: SettingsPalette.text; Layout.fillWidth: true; elide: Text.ElideMiddle; font.family: Theme.fontFamily }
                 }
             }
         }
@@ -94,7 +94,7 @@ Item {
         Rectangle { Layout.fillWidth: true; height: 1; color: SettingsPalette.surface }
 
         // Connected Monitors
-        Text { text: "Connected Monitors"; font.pixelSize: 14; font.bold: true; color: SettingsPalette.text; visible: CompositorService.monitors.length > 0 }
+        Text {  text: "Connected Monitors"; font.pixelSize: 14; font.bold: true; color: SettingsPalette.text; visible: CompositorService.monitors.length > 0; font.family: Theme.fontFamily }
 
         Flickable {
             Layout.fillWidth: true
@@ -127,11 +127,11 @@ Item {
 
                             ColumnLayout {
                                 spacing: 2; Layout.fillWidth: true
-                                Text { text: modelData.name; font.pixelSize: 13; font.bold: true; color: SettingsPalette.text }
-                                Text { text: modelData.make + " " + modelData.model + " — " + modelData.width + "×" + modelData.height + " @ " + modelData.refreshRate + "Hz"; font.pixelSize: 10; color: SettingsPalette.overlay2 }
+                                Text {  text: modelData.name; font.pixelSize: 13; font.bold: true; color: SettingsPalette.text; font.family: Theme.fontFamily }
+                                Text {  text: modelData.make + " " + modelData.model + " — " + modelData.width + "×" + modelData.height + " @ " + modelData.refreshRate + "Hz"; font.pixelSize: 10; color: SettingsPalette.overlay2; font.family: Theme.fontFamily }
                             }
 
-                            Text { text: modelData.scale + "×"; font.pixelSize: 11; color: SettingsPalette.subtext }
+                            Text {  text: modelData.scale + "×"; font.pixelSize: 11; color: SettingsPalette.subtext; font.family: Theme.fontFamily }
                         }
                     }
                 }
@@ -146,7 +146,7 @@ Item {
                 Layout.fillWidth: true; height: 36; radius: 8
                 color: powerOnMA.containsMouse ? Qt.rgba(166/255, 227/255, 161/255, 0.15) : Qt.rgba(255,255,255,0.04)
                 Behavior on color { ColorAnimation { duration: 150 } }
-                Text { anchors.centerIn: parent; text: "Power On Monitors"; font.pixelSize: 12; color: Theme.green }
+                Text {  anchors.centerIn: parent; text: "Power On Monitors"; font.pixelSize: 12; color: Theme.green; font.family: Theme.fontFamily }
                 MouseArea { id: powerOnMA; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: CompositorService.powerOnMonitors() }
             }
 
@@ -154,7 +154,7 @@ Item {
                 Layout.fillWidth: true; height: 36; radius: 8
                 color: powerOffMA.containsMouse ? Qt.rgba(243/255, 139/255, 168/255, 0.15) : Qt.rgba(255,255,255,0.04)
                 Behavior on color { ColorAnimation { duration: 150 } }
-                Text { anchors.centerIn: parent; text: "Power Off Monitors"; font.pixelSize: 12; color: Theme.red }
+                Text {  anchors.centerIn: parent; text: "Power Off Monitors"; font.pixelSize: 12; color: Theme.red; font.family: Theme.fontFamily }
                 MouseArea { id: powerOffMA; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: CompositorService.powerOffMonitors() }
             }
         }

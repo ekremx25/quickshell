@@ -36,6 +36,7 @@ Rectangle {
             spacing: 6
 
             Text {
+                font.family: Theme.fontFamily
                 text: card.providerData.name
                 color: SettingsPalette.text
                 font.pixelSize: 13
@@ -44,6 +45,7 @@ Rectangle {
                 elide: Text.ElideRight
             }
             Text {
+                font.family: Theme.fontFamily
                 visible: card.selected
                 text: "✓"
                 color: Theme.primary
@@ -53,6 +55,7 @@ Rectangle {
         }
 
         Text {
+            font.family: Theme.fontFamily
             text: card.providerData.description
             color: SettingsPalette.subtext
             font.pixelSize: 10

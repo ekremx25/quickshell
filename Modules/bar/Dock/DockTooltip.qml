@@ -25,6 +25,7 @@ Rectangle {
     Behavior on opacity { NumberAnimation { duration: 150 } }
 
     Text {
+        font.family: Theme.fontFamily
         id: tooltipText
         anchors.centerIn: parent
         text: tooltip.label

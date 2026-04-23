@@ -22,6 +22,7 @@ ColumnLayout {
     spacing: 6
 
     Text {
+        font.family: Theme.fontFamily
         text: root.title
         color: root.groupColor
         font.pixelSize: 13
@@ -101,6 +102,7 @@ ColumnLayout {
                         spacing: 10
 
                         Text {
+                            font.family: Theme.fontFamily
                             text: "⠿"
                             color: SettingsPalette.overlay
                             font.pixelSize: 16
@@ -114,6 +116,7 @@ ColumnLayout {
                         }
 
                         Text {
+                            font.family: Theme.fontFamily
                             text: delegateRoot.info.label
                             color: SettingsPalette.text
                             font.pixelSize: 12

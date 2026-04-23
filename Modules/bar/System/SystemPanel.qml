@@ -102,6 +102,7 @@ PanelWindow {
                                 color: Theme.primary
                             }
                             Text {
+                                font.family: Theme.fontFamily
                                 text: "Settings"
                                 color: SettingsPalette.text
                                 font.pixelSize: 16
@@ -113,7 +114,7 @@ PanelWindow {
                                 z: 999 // Force on top
                                 color: closeMA.containsMouse ? Theme.red : Qt.rgba(255,255,255,0.1)
                                 Behavior on color { ColorAnimation { duration: 150 } }
-                                Text { anchors.centerIn: parent; text: "✕"; color: SettingsPalette.text; font.pixelSize: 14; font.bold: true }
+                                Text {  anchors.centerIn: parent; text: "✕"; color: SettingsPalette.text; font.pixelSize: 14; font.bold: true; font.family: Theme.fontFamily }
                                 MouseArea {
                                     id: closeMA; anchors.fill: parent; hoverEnabled: true
                                     cursorShape: Qt.PointingHandCursor
@@ -169,6 +170,7 @@ PanelWindow {
                                 }
 
                                 Text {
+                                    font.family: Theme.fontFamily
                                     text: modelData.label
                                     color: root.currentPage === modelData.key ? SettingsPalette.text : SettingsPalette.subtext
                                     font.pixelSize: 13

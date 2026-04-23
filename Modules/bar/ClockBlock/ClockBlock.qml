@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Effects
+import "../../../Widgets"
 
 Rectangle {
     id: clockRoot
@@ -36,6 +37,7 @@ Rectangle {
                 anchors.verticalCenter: parent.verticalCenter
             }
             Text {
+                font.family: Theme.fontFamily
                 id: dateText
                 text: ""
                 color: "#3A3A3C"
@@ -58,6 +60,7 @@ Rectangle {
                 anchors.verticalCenter: parent.verticalCenter
             }
             Text {
+                font.family: Theme.fontFamily
                 id: timeText
                 text: ""
                 color: "#3A3A3C"

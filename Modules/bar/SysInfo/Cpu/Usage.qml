@@ -3,6 +3,7 @@ import QtQuick.Layouts
 import QtQuick.Controls
 import Quickshell
 import "."
+import "../../../../Widgets"
 
 Rectangle {
     id: root
@@ -21,9 +22,11 @@ Rectangle {
             id: mainText
             text: backend.totalUsage
             font.bold: true
+            font.family: Theme.fontFamily
             color: "#1e1e2e"
         }
         Text {
+            font.family: Theme.iconFontFamily
             text: ""
             font.pixelSize: 14
             color: "#1e1e2e"
@@ -62,6 +65,7 @@ Rectangle {
                     Text {
                         text: "Total Load: " + mainText.text
                         font.bold: true
+                        font.family: Theme.fontFamily
                         color: "#cba6f7"
                         Layout.alignment: Qt.AlignHCenter
                     }
@@ -83,6 +87,7 @@ Rectangle {
                                     text: model.name
                                     color: "#bac2de"
                                     font.pixelSize: 12
+                                    font.family: Theme.fontFamily
                                     width: 50 // Fixed width (so alignment is clean)
                                 }
                                 Text {
@@ -90,6 +95,7 @@ Rectangle {
                                     color: "#a6e3a1" // Green Numbers
                                     font.bold: true
                                     font.pixelSize: 12
+                                    font.family: Theme.fontFamily
                                     Layout.alignment: Qt.AlignRight
                                 }
                             }

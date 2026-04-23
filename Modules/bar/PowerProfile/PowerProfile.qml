@@ -154,6 +154,7 @@ Rectangle {
                             }
 
                             Text {
+                                font.family: Theme.fontFamily
                                 visible: isActive
                                 text: "✓"
                                 font.pixelSize: 14

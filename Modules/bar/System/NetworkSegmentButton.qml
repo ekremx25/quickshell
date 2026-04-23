@@ -29,6 +29,7 @@ Row {
             }
 
             Text {
+                font.family: Theme.fontFamily
                 id: segText
                 anchors.centerIn: parent
                 text: modelData

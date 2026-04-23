@@ -31,6 +31,7 @@ Rectangle {
             spacing: 8
             Text { text: root.iconText; font.pixelSize: 16; font.family: "JetBrainsMono Nerd Font"; color: root.accentColor }
             Text {
+                font.family: Theme.fontFamily
                 text: root.title
                 color: SettingsPalette.text
                 font.bold: true
@@ -39,6 +40,7 @@ Rectangle {
                 Layout.fillWidth: true
             }
             Text {
+                font.family: Theme.fontFamily
                 text: root.volumePercent + "%"
                 color: root.accentColor
                 font.bold: true

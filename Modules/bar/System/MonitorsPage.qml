@@ -468,6 +468,7 @@ Item {
                                 border.width: 1
 
                                 Text {
+                                    font.family: Theme.fontFamily
                                     anchors.centerIn: parent
                                     text: page.selectedOutput ? page.monitorLabel(page.selectedIdx) : "-"
                                     color: Theme.primary
@@ -481,6 +482,7 @@ Item {
                                 spacing: 4
 
                                 Text {
+                                    font.family: Theme.fontFamily
                                     text: page.selectedOutput ? page.selectedOutput.name : "No display selected"
                                     color: SettingsPalette.text
                                     font.pixelSize: 19
@@ -488,6 +490,7 @@ Item {
                                 }
 
                                 Text {
+                                    font.family: Theme.fontFamily
                                     text: page.selectedOutput ? (page.selectedOutput.desc || "Connected display") : ""
                                     color: SettingsPalette.subtext
                                     font.pixelSize: 12
@@ -496,6 +499,7 @@ Item {
                                 }
 
                                 Text {
+                                    font.family: Theme.fontFamily
                                     text: page.selectedModeText()
                                     color: page.selectedOutput ? SettingsPalette.text : SettingsPalette.subtext
                                     font.pixelSize: 12
@@ -512,6 +516,7 @@ Item {
                                 implicitHeight: 38
 
                                 Text {
+                                    font.family: Theme.fontFamily
                                     id: mainDisplayText
                                     anchors.centerIn: parent
                                     text: page.defaultMonitorName === (page.selectedOutput ? page.selectedOutput.name : "") ? "This is my main display" : "Make main"
@@ -548,8 +553,8 @@ Item {
                                     anchors.margins: 12
                                     spacing: 3
 
-                                    Text { text: "Mode"; color: SettingsPalette.subtext; font.pixelSize: 11; font.bold: true }
-                                    Text { text: page.selectedModeText(); color: SettingsPalette.text; font.pixelSize: 13; font.bold: true; Layout.fillWidth: true; wrapMode: Text.WordWrap }
+                                    Text {  text: "Mode"; color: SettingsPalette.subtext; font.pixelSize: 11; font.bold: true; font.family: Theme.fontFamily }
+                                    Text {  text: page.selectedModeText(); color: SettingsPalette.text; font.pixelSize: 13; font.bold: true; Layout.fillWidth: true; wrapMode: Text.WordWrap; font.family: Theme.fontFamily }
                                 }
                             }
 
@@ -566,8 +571,8 @@ Item {
                                     anchors.margins: 12
                                     spacing: 3
 
-                                    Text { text: "Scale"; color: SettingsPalette.subtext; font.pixelSize: 11; font.bold: true }
-                                    Text { text: page.selectedScaleText(); color: SettingsPalette.text; font.pixelSize: 13; font.bold: true; Layout.fillWidth: true; wrapMode: Text.WordWrap }
+                                    Text {  text: "Scale"; color: SettingsPalette.subtext; font.pixelSize: 11; font.bold: true; font.family: Theme.fontFamily }
+                                    Text {  text: page.selectedScaleText(); color: SettingsPalette.text; font.pixelSize: 13; font.bold: true; Layout.fillWidth: true; wrapMode: Text.WordWrap; font.family: Theme.fontFamily }
                                 }
                             }
 
@@ -584,9 +589,9 @@ Item {
                                     anchors.margins: 12
                                     spacing: 3
 
-                                    Text { text: "Layout"; color: SettingsPalette.subtext; font.pixelSize: 11; font.bold: true }
-                                    Text { text: page.selectedLayoutText(); color: SettingsPalette.text; font.pixelSize: 13; font.bold: true }
-                                    Text { text: page.defaultMonitorName === (page.selectedOutput ? page.selectedOutput.name : "") ? "Main display" : "Secondary display"; color: SettingsPalette.subtext; font.pixelSize: 11 }
+                                    Text {  text: "Layout"; color: SettingsPalette.subtext; font.pixelSize: 11; font.bold: true; font.family: Theme.fontFamily }
+                                    Text {  text: page.selectedLayoutText(); color: SettingsPalette.text; font.pixelSize: 13; font.bold: true; font.family: Theme.fontFamily }
+                                    Text {  text: page.defaultMonitorName === (page.selectedOutput ? page.selectedOutput.name : "") ? "Main display" : "Secondary display"; color: SettingsPalette.subtext; font.pixelSize: 11; font.family: Theme.fontFamily }
                                 }
                             }
 
@@ -603,8 +608,8 @@ Item {
                                     anchors.margins: 12
                                     spacing: 3
 
-                                    Text { text: "Color"; color: SettingsPalette.subtext; font.pixelSize: 11; font.bold: true }
-                                    Text { text: page.selectedColorText(); color: SettingsPalette.text; font.pixelSize: 13; font.bold: true; Layout.fillWidth: true; wrapMode: Text.WordWrap }
+                                    Text {  text: "Color"; color: SettingsPalette.subtext; font.pixelSize: 11; font.bold: true; font.family: Theme.fontFamily }
+                                    Text {  text: page.selectedColorText(); color: SettingsPalette.text; font.pixelSize: 13; font.bold: true; Layout.fillWidth: true; wrapMode: Text.WordWrap; font.family: Theme.fontFamily }
                                 }
                             }
                         }
@@ -632,6 +637,7 @@ Item {
                                     border.width: 1
 
                                     Text {
+                                        font.family: Theme.fontFamily
                                         anchors.centerIn: parent
                                         text: pendingChanges() ? "!" : "i"
                                         color: pendingChanges() ? "white" : "#a6e3a1"
@@ -641,6 +647,7 @@ Item {
                                 }
 
                                 Text {
+                                    font.family: Theme.fontFamily
                                     Layout.fillWidth: true
                                     text: page.selectedHintText()
                                     color: SettingsPalette.subtext
@@ -668,6 +675,7 @@ Item {
                                     implicitHeight: 34
 
                                     Text {
+                                        font.family: Theme.fontFamily
                                         id: chipLabel
                                         anchors.centerIn: parent
                                         text: page.identifyText(modelData, index)

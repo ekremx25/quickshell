@@ -25,6 +25,7 @@ Rectangle {
             spacing: 2
 
             Text {
+                font.family: Theme.fontFamily
                 text: root.page.pendingChanges()
                     ? "Review your changes before applying them."
                     : "Your current display configuration is saved."
@@ -34,6 +35,7 @@ Rectangle {
             }
 
             Text {
+                font.family: Theme.fontFamily
                 text: root.page.selectedOutput
                     ? ("Selected display: " + root.page.selectedOutput.name + " | Position " + root.page.selPosX + ", " + root.page.selPosY)
                     : "No display selected."
@@ -53,6 +55,7 @@ Rectangle {
             implicitHeight: 40
 
             Text {
+                font.family: Theme.fontFamily
                 anchors.centerIn: parent
                 text: "Revert"
                 color: revertArea.enabled ? SettingsPalette.text : SettingsPalette.subtext
@@ -81,6 +84,7 @@ Rectangle {
             implicitHeight: 40
 
             Text {
+                font.family: Theme.fontFamily
                 anchors.centerIn: parent
                 text: root.page.pendingChanges() ? "Apply" : "Saved"
                 color: applyArea.enabled ? "#11151b" : SettingsPalette.subtext

@@ -50,9 +50,9 @@ PopupWindow {
 
             RowLayout {
                 Layout.fillWidth: true
-                Text { text: root.primaryLineLeft; color: root.textColor; font.bold: true }
-                Text { text: "|"; color: root.accentColor; font.bold: true; visible: root.primaryLineRight.length > 0 }
-                Text { text: root.primaryLineRight; color: root.accentColor; visible: root.primaryLineRight.length > 0 }
+                Text {  text: root.primaryLineLeft; color: root.textColor; font.bold: true; font.family: Theme.fontFamily }
+                Text {  text: "|"; color: root.accentColor; font.bold: true; visible: root.primaryLineRight.length > 0; font.family: Theme.fontFamily }
+                Text {  text: root.primaryLineRight; color: root.accentColor; visible: root.primaryLineRight.length > 0; font.family: Theme.fontFamily }
                 Item { Layout.fillWidth: true }
             }
 

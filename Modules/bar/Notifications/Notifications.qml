@@ -136,6 +136,7 @@ Rectangle {
                 }
                 
                 Text {
+                    font.family: Theme.fontFamily
                     text: (notifService.displayDuration / 1000) + "s"
                     font.bold: true
                     font.pixelSize: 12

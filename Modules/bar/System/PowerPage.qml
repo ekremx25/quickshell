@@ -32,7 +32,7 @@ Item {
         RowLayout {
             Layout.fillWidth: true
             Text { text: "⏻"; font.pixelSize: 20; font.family: "JetBrainsMono Nerd Font"; color: Theme.primary }
-            Text { text: "Power Options"; font.bold: true; font.pixelSize: 18; color: SettingsPalette.text }
+            Text {  text: "Power Options"; font.bold: true; font.pixelSize: 18; color: SettingsPalette.text; font.family: Theme.fontFamily }
         }
 
         Item { height: 8 }
@@ -74,6 +74,7 @@ Item {
                         }
 
                         Text {
+                            font.family: Theme.fontFamily
                             text: modelData.label
                             color: SettingsPalette.text
                             font.pixelSize: 12

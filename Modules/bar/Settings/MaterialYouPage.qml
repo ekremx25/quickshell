@@ -31,7 +31,7 @@ Item {
                 Layout.fillWidth: true
                 spacing: 8
                 Text { text: ""; font.pixelSize: 20; font.family: Theme.fontFamily; color: Theme.primary }
-                Text { text: "Material You"; font.bold: true; font.pixelSize: 18; color: SettingsPalette.text }
+                Text {  text: "Material You"; font.bold: true; font.pixelSize: 18; color: SettingsPalette.text; font.family: Theme.fontFamily }
                 Item { Layout.fillWidth: true }
 
                 // Availability badge
@@ -40,6 +40,7 @@ Item {
                     color: ColorPaletteService.available ? Qt.rgba(166/255, 227/255, 161/255, 0.15) : Qt.rgba(243/255, 139/255, 168/255, 0.15)
 
                     Text {
+                        font.family: Theme.fontFamily
                         id: availText; anchors.centerIn: parent
                         text: ColorPaletteService.available ? "matugen ✓" : "matugen ✗"
                         font.pixelSize: 10
@@ -57,11 +58,11 @@ Item {
 
                 RowLayout {
                     anchors.fill: parent; anchors.margins: 12; spacing: 8
-                    Text { text: "⚠"; font.pixelSize: 18 }
+                    Text {  text: "⚠"; font.pixelSize: 18; font.family: Theme.fontFamily }
                     ColumnLayout {
                         spacing: 2
-                        Text { text: "matugen is not installed"; font.pixelSize: 12; font.bold: true; color: Theme.yellow }
-                        Text { text: "Install with: cargo install matugen"; font.pixelSize: 10; color: SettingsPalette.overlay2 }
+                        Text {  text: "matugen is not installed"; font.pixelSize: 12; font.bold: true; color: Theme.yellow; font.family: Theme.fontFamily }
+                        Text {  text: "Install with: cargo install matugen"; font.pixelSize: 10; color: SettingsPalette.overlay2; font.family: Theme.fontFamily }
                     }
                 }
             }
@@ -78,8 +79,8 @@ Item {
                     Text { text: ""; font.pixelSize: 16; font.family: Theme.fontFamily; color: Theme.primary }
                     ColumnLayout {
                         spacing: 1
-                        Text { text: "Enable Material You"; font.pixelSize: 13; color: SettingsPalette.text }
-                        Text { text: "Extract theme colors from wallpaper"; font.pixelSize: 10; color: SettingsPalette.overlay2 }
+                        Text {  text: "Enable Material You"; font.pixelSize: 13; color: SettingsPalette.text; font.family: Theme.fontFamily }
+                        Text {  text: "Extract theme colors from wallpaper"; font.pixelSize: 10; color: SettingsPalette.overlay2; font.family: Theme.fontFamily }
                     }
                     Item { Layout.fillWidth: true }
 
@@ -109,7 +110,7 @@ Item {
             Rectangle { Layout.fillWidth: true; height: 1; color: SettingsPalette.surface }
 
             // Dark / Light mode
-            Text { text: "Color Mode"; font.pixelSize: 13; font.bold: true; color: SettingsPalette.text }
+            Text {  text: "Color Mode"; font.pixelSize: 13; font.bold: true; color: SettingsPalette.text; font.family: Theme.fontFamily }
 
             RowLayout {
                 Layout.fillWidth: true
@@ -131,7 +132,7 @@ Item {
                         RowLayout {
                             anchors.centerIn: parent; spacing: 8
                             Text { text: modelData.icon; font.pixelSize: 16; font.family: "JetBrainsMono Nerd Font"; color: ColorPaletteService.mode === modelData.key ? materialPage.chipSelectedText : SettingsPalette.subtext }
-                            Text { text: modelData.label; font.pixelSize: 13; color: ColorPaletteService.mode === modelData.key ? SettingsPalette.text : SettingsPalette.subtext }
+                            Text {  text: modelData.label; font.pixelSize: 13; color: ColorPaletteService.mode === modelData.key ? SettingsPalette.text : SettingsPalette.subtext; font.family: Theme.fontFamily }
                         }
 
                         MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: ColorPaletteService.setMode(modelData.key) }
@@ -140,7 +141,7 @@ Item {
             }
 
             // Matugen scheme type
-            Text { text: "Color Scheme Type"; font.pixelSize: 13; font.bold: true; color: SettingsPalette.text }
+            Text {  text: "Color Scheme Type"; font.pixelSize: 13; font.bold: true; color: SettingsPalette.text; font.family: Theme.fontFamily }
 
             Flow {
                 Layout.fillWidth: true
@@ -157,6 +158,7 @@ Item {
                         Behavior on color { ColorAnimation { duration: 150 } }
 
                         Text {
+                            font.family: Theme.fontFamily
                             id: schemeText; anchors.centerIn: parent
                             text: modelData.replace("scheme-", "")
                             font.pixelSize: 11
@@ -171,7 +173,7 @@ Item {
             Item { height: 4 }
 
             // Wallpaper path input
-            Text { text: "Wallpaper Path"; font.pixelSize: 13; font.bold: true; color: SettingsPalette.text }
+            Text {  text: "Wallpaper Path"; font.pixelSize: 13; font.bold: true; color: SettingsPalette.text; font.family: Theme.fontFamily }
 
             Rectangle {
                 Layout.fillWidth: true
@@ -208,6 +210,7 @@ Item {
                         }
 
                         Text {
+                            font.family: Theme.fontFamily
                             anchors.centerIn: parent
                             text: "Live"
                             font.pixelSize: 9; font.bold: true
@@ -232,7 +235,7 @@ Item {
                             anchors.centerIn: parent
                             spacing: 4
                             Text { text: "󰁯"; font.family: "JetBrainsMono Nerd Font"; color: SettingsPalette.text; font.pixelSize: 12 }
-                            Text { text: "Auto"; font.pixelSize: 11; font.bold: true; color: SettingsPalette.text }
+                            Text {  text: "Auto"; font.pixelSize: 11; font.bold: true; color: SettingsPalette.text; font.family: Theme.fontFamily }
                         }
 
                         MouseArea {
@@ -246,7 +249,7 @@ Item {
                         width: 26; height: 26; radius: 6
                         color: browseMA.containsMouse ? Qt.rgba(255,255,255,0.1) : Qt.rgba(255,255,255,0.05)
                         Behavior on color { ColorAnimation { duration: 150 } }
-                        Text { anchors.centerIn: parent; text: "📂"; font.pixelSize: 11 } // Folder icon
+                        Text {  anchors.centerIn: parent; text: "📂"; font.pixelSize: 11; font.family: Theme.fontFamily }
 
                         MouseArea {
                             id: browseMA; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
@@ -260,7 +263,7 @@ Item {
                         color: genMA.containsMouse ? Qt.lighter(Theme.primary, 1.2) : Theme.primary
                         Behavior on color { ColorAnimation { duration: 150 } }
 
-                        Text { id: genBtn; anchors.centerIn: parent; text: ColorPaletteService.isBusy ? "⏳" : "Generate"; font.pixelSize: 11; font.bold: true; color: "#1e1e2e" }
+                        Text {  id: genBtn; anchors.centerIn: parent; text: ColorPaletteService.isBusy ? "⏳" : "Generate"; font.pixelSize: 11; font.bold: true; color: "#1e1e2e"; font.family: Theme.iconFontFamily }
 
                         MouseArea {
                             id: genMA; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
@@ -286,7 +289,7 @@ Item {
                 visible: ColorPaletteService.errorMessage.length > 0
                 Layout.fillWidth: true; height: 32; radius: 6
                 color: Qt.rgba(243/255, 139/255, 168/255, 0.1)
-                Text { anchors.centerIn: parent; text: ColorPaletteService.errorMessage; font.pixelSize: 11; color: Theme.red }
+                Text {  anchors.centerIn: parent; text: ColorPaletteService.errorMessage; font.pixelSize: 11; color: Theme.red; font.family: Theme.fontFamily }
             }
 
             // Color preview
@@ -297,7 +300,7 @@ Item {
 
                 RowLayout {
                     anchors.fill: parent; anchors.margins: 10; spacing: 8
-                    Text { text: "Preview:"; font.pixelSize: 11; color: SettingsPalette.subtext }
+                    Text {  text: "Preview:"; font.pixelSize: 11; color: SettingsPalette.subtext; font.family: Theme.fontFamily }
 
                     Repeater {
                         model: [

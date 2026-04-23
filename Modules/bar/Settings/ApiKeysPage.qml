@@ -247,12 +247,14 @@ Item {
                 ColumnLayout {
                     spacing: 2
                     Text {
+                        font.family: Theme.fontFamily
                         text: "API Keys"
                         color: SettingsPalette.text
                         font.pixelSize: 22
                         font.bold: true
                     }
                     Text {
+                        font.family: Theme.fontFamily
                         text: "Configure the AI provider used by SmartComplete keyboard prediction"
                         color: SettingsPalette.subtext
                         font.pixelSize: 12
@@ -264,6 +266,7 @@ Item {
 
             // ── Provider picker (card grid) ────────────────────────────
             Text {
+                font.family: Theme.fontFamily
                 text: "Provider"
                 color: SettingsPalette.text
                 font.pixelSize: 14
@@ -336,12 +339,14 @@ Item {
                     spacing: 4
 
                     Text {
+                        font.family: Theme.fontFamily
                         text: "ℹ  How it works"
                         color: SettingsPalette.subtext
                         font.pixelSize: 11
                         font.bold: true
                     }
                     Text {
+                        font.family: Theme.fontFamily
                         text: "Your key is saved to ~/.config/linuxcomplete/api_keys.json (chmod 600 — user-readable only). SmartComplete reads this file on every AI rerank, so switching providers is instant after clicking Save (fcitx5 restarts automatically). Core prediction works without AI — if the network fails, local ranking stays."
                         color: SettingsPalette.subtext
                         font.pixelSize: 10

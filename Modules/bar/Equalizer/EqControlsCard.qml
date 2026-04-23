@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import "../../../Widgets"
 
 // 10-band EQ controls: wave canvas, band sliders, preset chips, status bar.
 // All state flows through `eq` (Equalizer root) and `backend` (EqualizerBackend).
@@ -21,7 +22,7 @@ Rectangle {
         property color textColor: card.eq.softText
         radius: 9; color: fillColor; border.width: 1; border.color: strokeColor
         implicitWidth: metaChipText.implicitWidth + 16; implicitHeight: 26
-        Text { id: metaChipText; anchors.centerIn: parent; text: parent.label; color: parent.textColor; font.pixelSize: 10; font.bold: true }
+        Text {  id: metaChipText; anchors.centerIn: parent; text: parent.label; color: parent.textColor; font.pixelSize: 10; font.bold: true; font.family: Theme.fontFamily }
     }
 
     component PresetChip: Rectangle {
@@ -35,7 +36,7 @@ Rectangle {
             width: 5; height: parent.height - 14; radius: 2.5
             visible: card.eq.selectedPreset === parent.presetName; color: card.eq.eqAccent
         }
-        Text { anchors.centerIn: parent; text: parent.presetName; color: card.eq.selectedPreset === parent.presetName ? card.eq.softText : card.eq.dimText; font.pixelSize: 10; font.bold: card.eq.selectedPreset === parent.presetName }
+        Text {  anchors.centerIn: parent; text: parent.presetName; color: card.eq.selectedPreset === parent.presetName ? card.eq.softText : card.eq.dimText; font.pixelSize: 10; font.bold: card.eq.selectedPreset === parent.presetName; font.family: Theme.fontFamily }
         MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: card.eq.applyPreset(parent.presetName) }
     }
 
@@ -47,8 +48,8 @@ Rectangle {
 
         RowLayout {
             Layout.fillWidth: true
-            Text { text: "Equalizer"; color: eq.softText; font.bold: true; font.pixelSize: 15 }
-            Text { text: "10-band"; color: eq.dimText; font.pixelSize: 11 }
+            Text {  text: "Equalizer"; color: eq.softText; font.bold: true; font.pixelSize: 15; font.family: Theme.fontFamily }
+            Text {  text: "10-band"; color: eq.dimText; font.pixelSize: 11; font.family: Theme.fontFamily }
             Item { Layout.fillWidth: true }
         }
 
@@ -94,7 +95,7 @@ Rectangle {
                                 onReleased: backend.commitBandDrag(); onCanceled: backend.commitBandDrag()
                             }
                         }
-                        Text { Layout.alignment: Qt.AlignHCenter; text: modelData; color: eq.dimText; font.pixelSize: 10; font.bold: true }
+                        Text {  Layout.alignment: Qt.AlignHCenter; text: modelData; color: eq.dimText; font.pixelSize: 10; font.bold: true; font.family: Theme.fontFamily }
                     }
                 }
             }
@@ -109,8 +110,8 @@ Rectangle {
                     anchors.fill: parent; anchors.margins: 10; spacing: 10
                     ColumnLayout {
                         spacing: 1
-                        Text { text: "Sound Profiles"; color: eq.softText; font.pixelSize: 11; font.bold: true }
-                        Text { text: "Curated starting points for quick tuning."; color: eq.dimText; font.pixelSize: 9 }
+                        Text {  text: "Sound Profiles"; color: eq.softText; font.pixelSize: 11; font.bold: true; font.family: Theme.fontFamily }
+                        Text {  text: "Curated starting points for quick tuning."; color: eq.dimText; font.pixelSize: 9; font.family: Theme.fontFamily }
                     }
                     Item { Layout.fillWidth: true }
                     MetaChip { label: eq.eqModeLabel; fillColor: Qt.rgba(255,255,255,0.045); strokeColor: Qt.rgba(255,255,255,0.08); textColor: eq.softText }
@@ -142,7 +143,7 @@ Rectangle {
                 Rectangle {
                     implicitWidth: disableEqText.implicitWidth + 28; implicitHeight: 28; radius: 9
                     color: Qt.rgba(243/255,139/255,168/255,0.12); border.width: 1; border.color: Qt.rgba(243/255,139/255,168/255,0.26)
-                    Text { id: disableEqText; anchors.centerIn: parent; text: eq.eqIsBypassed ? "EQ Bypassed" : "Bypass EQ"; color: "#f7b4c5"; font.bold: true; font.pixelSize: 11 }
+                    Text {  id: disableEqText; anchors.centerIn: parent; text: eq.eqIsBypassed ? "EQ Bypassed" : "Bypass EQ"; color: "#f7b4c5"; font.bold: true; font.pixelSize: 11; font.family: Theme.fontFamily }
                     MouseArea { anchors.fill: parent; enabled: !backend.isBusy && !eq.eqIsBypassed; cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor; onClicked: eq.disablePipeWireEq() }
                 }
             }

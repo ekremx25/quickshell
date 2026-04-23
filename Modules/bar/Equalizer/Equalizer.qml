@@ -152,6 +152,7 @@ Rectangle {
         }
 
         Text {
+            font.family: Theme.fontFamily
             text: "EQ"
             font.bold: true
             font.pixelSize: 12
@@ -261,6 +262,7 @@ Rectangle {
                             border.color: Qt.rgba(root.eqAccent.r, root.eqAccent.g, root.eqAccent.b, 0.40)
 
                             Text {
+                                font.family: Theme.fontFamily
                                 anchors.centerIn: parent
                                 text: "EQ"
                                 color: root.softText
@@ -272,8 +274,8 @@ Rectangle {
                         ColumnLayout {
                             spacing: 1
 
-                            Text { text: "Sound Tuning"; color: root.softText; font.bold: true; font.pixelSize: 17 }
-                            Text { text: root.selectedPreset + " profile"; color: root.dimText; font.pixelSize: 11 }
+                            Text {  text: "Sound Tuning"; color: root.softText; font.bold: true; font.pixelSize: 17; font.family: Theme.fontFamily }
+                            Text {  text: root.selectedPreset + " profile"; color: root.dimText; font.pixelSize: 11; font.family: Theme.fontFamily }
                         }
 
                         Item { Layout.fillWidth: true }
@@ -284,7 +286,7 @@ Rectangle {
                             color: Qt.rgba(255,255,255,0.08)
                             border.width: 1
                             border.color: root.glassStroke
-                            Text { anchors.centerIn: parent; text: "✕"; color: root.softText; font.pixelSize: 12 }
+                            Text {  anchors.centerIn: parent; text: "✕"; color: root.softText; font.pixelSize: 12; font.family: Theme.fontFamily }
                             MouseArea {
                                 anchors.fill: parent
                                 cursorShape: Qt.PointingHandCursor
@@ -347,6 +349,7 @@ Rectangle {
                                     spacing: 2
 
                                     Text {
+                                        font.family: Theme.fontFamily
                                         Layout.fillWidth: true
                                         text: root.currentPlayer ? (root.currentPlayer.trackTitle || "Unknown Track") : "No media playing"
                                         color: root.softText
@@ -356,6 +359,7 @@ Rectangle {
                                     }
 
                                     Text {
+                                        font.family: Theme.fontFamily
                                         Layout.fillWidth: true
                                         text: root.currentPlayer ? (root.currentPlayer.trackArtist || "Unknown Artist") : "Open Spotify / Browser / Player"
                                         color: root.dimText
@@ -364,6 +368,7 @@ Rectangle {
                                     }
 
                                     Text {
+                                        font.family: Theme.fontFamily
                                         Layout.fillWidth: true
                                         text: root.sinkDisplayName
                                         color: Qt.rgba(216/255, 225/255, 238/255, 0.72)
@@ -391,7 +396,7 @@ Rectangle {
                                     color: root.eqAccent
                                     border.width: 1
                                     border.color: Qt.rgba(255,255,255,0.18)
-                                    Text { anchors.centerIn: parent; text: root.isPlaying ? "⏸" : "⏵"; color: root.adaptiveOnPrimary; font.pixelSize: 18; font.bold: true }
+                                    Text {  anchors.centerIn: parent; text: root.isPlaying ? "⏸" : "⏵"; color: root.adaptiveOnPrimary; font.pixelSize: 18; font.bold: true; font.family: Theme.iconFontFamily }
                                     MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: if (root.currentPlayer) root.currentPlayer.togglePlaying() }
                                 }
 
@@ -435,6 +440,7 @@ Rectangle {
                             Layout.fillWidth: true
                             Text { text: "󰓃"; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 15; color: root.sinkAccent }
                             Text {
+                                font.family: Theme.fontFamily
                                 text: "Output Devices"
                                 color: root.softText
                                 font.bold: true
@@ -442,6 +448,7 @@ Rectangle {
                             }
                             Item { Layout.fillWidth: true }
                             Text {
+                                font.family: Theme.fontFamily
                                 text: backend.isBusy ? "Applying..." : ""
                                 color: root.dimText
                                 font.pixelSize: 10
@@ -481,6 +488,7 @@ Rectangle {
                                         spacing: 2
 
                                         Text {
+                                            font.family: Theme.fontFamily
                                             Layout.fillWidth: true
                                             text: modelData.label
                                             color: root.softText
@@ -490,6 +498,7 @@ Rectangle {
                                         }
 
                                         Text {
+                                            font.family: Theme.fontFamily
                                             text: modelData.state.toLowerCase()
                                             color: root.dimText
                                             font.pixelSize: 9
