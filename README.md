@@ -247,7 +247,7 @@ Click any of these on the bar to reveal an inline popover.
 | `hyprsunset` | Night Light on Hyprland (required) |
 | `gammastep` | Night Light on Niri / MangoWC (required) |
 | `kconfig` | Fonts picker (`kreadconfig6` / `kwriteconfig6` write to `kdeglobals`) |
-| `qt6ct` | Fonts picker also writes to `qt6ct.conf` when `QT_QPA_PLATFORMTHEME=qt6ct` |
+| `qt6ct-kde` (AUR) | Fonts picker also writes to `qt6ct.conf` when `QT_QPA_PLATFORMTHEME=qt6ct` |
 | `fontconfig` | Fonts picker catalogue via `fc-list` (pre-installed on most distros) |
 | `inotify-tools` | Event-driven config file watching (otherwise falls back to polling) |
 | `grim` + `slurp` | Screenshot helpers |
@@ -258,8 +258,11 @@ Click any of these on the bar to reveal an inline popover.
 ```bash
 sudo pacman -S quickshell networkmanager bluez bluez-utils pipewire \
   pipewire-pulse wireplumber libpulse jq inotify-tools \
-  kconfig qt6ct fontconfig \
+  kconfig fontconfig \
   ttf-jetbrains-mono-nerd ttf-inter ttf-font-awesome
+
+# qt6ct (AUR fork with KDE integration)
+yay -S qt6ct-kde
 ```
 
 ## Installation
