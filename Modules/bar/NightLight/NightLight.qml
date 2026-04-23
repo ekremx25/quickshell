@@ -41,7 +41,7 @@ Rectangle {
             text: root.on ? (root.temp + "K") : "Off"
             font.bold: true
             font.pixelSize: 12
-            font.family: "JetBrainsMono Nerd Font"
+            font.family: Theme.fontFamily
             color: root.on ? "#1e1e2e" : Theme.text
         }
     }

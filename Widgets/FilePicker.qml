@@ -91,7 +91,7 @@ Rectangle {
                 Text {
                     text: root.currentPath
                     color: Theme.subtext
-                    font.family: "JetBrainsMono Nerd Font"
+                    font.family: Theme.fontFamily
                     elide: Text.ElideMiddle
                     Layout.fillWidth: true
                 }

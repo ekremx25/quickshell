@@ -195,7 +195,7 @@ Item {
 
                     Rectangle {
                         width: 30; height: 30; color: Qt.rgba(137/255, 180/255, 250/255, 0.1); radius: 8
-                        Text { anchors.centerIn: parent; text: ""; color: Theme.primary; font.family: "JetBrainsMono Nerd Font" }
+                        Text { anchors.centerIn: parent; text: ""; color: Theme.primary; font.family: Theme.fontFamily }
                     }
 
                     ColumnLayout {

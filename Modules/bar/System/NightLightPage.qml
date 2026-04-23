@@ -120,7 +120,7 @@ Item {
                             anchors.centerIn: parent
                             text: "sudo pacman -S gammastep"
                             color: SettingsPalette.text
-                            font.family: "JetBrainsMono Nerd Font"
+                            font.family: Theme.fontFamily
                             font.pixelSize: 11
                         }
                     }
@@ -220,7 +220,7 @@ Item {
                             color: nightLightPage.accent
                             font.pixelSize: 14
                             font.bold: true
-                            font.family: "JetBrainsMono Nerd Font"
+                            font.family: Theme.fontFamily
                         }
                     }
 
@@ -442,7 +442,7 @@ Item {
                                         color: SettingsPalette.text
                                         font.pixelSize: 18
                                         font.bold: true
-                                        font.family: "JetBrainsMono Nerd Font"
+                                        font.family: Theme.fontFamily
                                         text: String(S.NightLight.scheduleOnHour).padStart(2, '0')
                                         selectByMouse: true
                                         inputMethodHints: Qt.ImhDigitsOnly
@@ -482,7 +482,7 @@ Item {
                                         color: SettingsPalette.text
                                         font.pixelSize: 18
                                         font.bold: true
-                                        font.family: "JetBrainsMono Nerd Font"
+                                        font.family: Theme.fontFamily
                                         text: String(S.NightLight.scheduleOnMinute).padStart(2, '0')
                                         selectByMouse: true
                                         inputMethodHints: Qt.ImhDigitsOnly
@@ -540,7 +540,7 @@ Item {
                                         color: SettingsPalette.text
                                         font.pixelSize: 18
                                         font.bold: true
-                                        font.family: "JetBrainsMono Nerd Font"
+                                        font.family: Theme.fontFamily
                                         text: String(S.NightLight.scheduleOffHour).padStart(2, '0')
                                         selectByMouse: true
                                         inputMethodHints: Qt.ImhDigitsOnly
@@ -580,7 +580,7 @@ Item {
                                         color: SettingsPalette.text
                                         font.pixelSize: 18
                                         font.bold: true
-                                        font.family: "JetBrainsMono Nerd Font"
+                                        font.family: Theme.fontFamily
                                         text: String(S.NightLight.scheduleOffMinute).padStart(2, '0')
                                         selectByMouse: true
                                         inputMethodHints: Qt.ImhDigitsOnly

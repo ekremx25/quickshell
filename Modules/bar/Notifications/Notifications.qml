@@ -3,6 +3,7 @@ import QtQuick.Layouts
 import Quickshell
 // We use the singleton from Services directly or via import
 import "../../../Services" as S
+import "../../../Widgets"
 
 // This component is the button in the bar
 Rectangle {
@@ -87,7 +88,7 @@ Rectangle {
                 Text {
                     text: count > 0 ? count : ""
                     font.bold: true
-                    font.family: "JetBrainsMono Nerd Font"
+                    font.family: Theme.fontFamily
                     color: "#1e1e2e"
                     visible: count > 0
                 }

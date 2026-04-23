@@ -79,9 +79,9 @@ Item {
                         RowLayout {
                             anchors.fill: parent; anchors.margins: 10; spacing: 12
                             Text { text: "Interface:"; color: SettingsPalette.subtext; font.pixelSize: 12 }
-                            Text { text: networkPage.ifaceName || "—"; color: SettingsPalette.text; font.bold: true; font.pixelSize: 12; font.family: "JetBrainsMono Nerd Font" }
+                            Text { text: networkPage.ifaceName || "—"; color: SettingsPalette.text; font.bold: true; font.pixelSize: 12; font.family: Theme.fontFamily }
                             Text { text: "IP:"; color: SettingsPalette.subtext; font.pixelSize: 12 }
-                            Text { text: networkPage.ipAddr || "—"; color: SettingsPalette.text; font.bold: true; font.pixelSize: 12; font.family: "JetBrainsMono Nerd Font" }
+                            Text { text: networkPage.ipAddr || "—"; color: SettingsPalette.text; font.bold: true; font.pixelSize: 12; font.family: Theme.fontFamily }
                             Item { Layout.fillWidth: true }
                         }
                     }
@@ -174,7 +174,7 @@ Item {
 
                     RowLayout {
                         spacing: 8
-                        Text { text: ""; font.pixelSize: 16; font.family: "JetBrainsMono Nerd Font"; color: "#fab387" }
+                        Text { text: ""; font.pixelSize: 16; font.family: Theme.fontFamily; color: "#fab387" }
                         Text { text: "IP Configuration"; font.bold: true; font.pixelSize: 16; color: SettingsPalette.text }
                     }
 
@@ -226,7 +226,7 @@ Item {
 
                     RowLayout {
                         spacing: 8
-                        Text { text: ""; font.pixelSize: 16; font.family: "JetBrainsMono Nerd Font"; color: "#89b4fa" }
+                        Text { text: ""; font.pixelSize: 16; font.family: Theme.fontFamily; color: "#89b4fa" }
                         Text { text: "Proxy Configuration"; font.bold: true; font.pixelSize: 16; color: SettingsPalette.text }
                     }
 
@@ -261,7 +261,7 @@ Item {
 
                     RowLayout {
                         spacing: 8
-                        Text { text: ""; font.pixelSize: 16; font.family: "JetBrainsMono Nerd Font"; color: "#f5c2e7" }
+                        Text { text: ""; font.pixelSize: 16; font.family: Theme.fontFamily; color: "#f5c2e7" }
                         Text { text: "Advanced Settings"; font.bold: true; font.pixelSize: 16; color: SettingsPalette.text }
                     }
 
@@ -345,7 +345,7 @@ Item {
                     // Show current MAC
                     Text {
                         text: "Current: " + (networkPage.macAddr || "—")
-                        color: SettingsPalette.overlay; font.pixelSize: 11; font.family: "JetBrainsMono Nerd Font"
+                        color: SettingsPalette.overlay; font.pixelSize: 11; font.family: Theme.fontFamily
                     }
                 }
             }

@@ -112,7 +112,7 @@ PanelWindow {
                 
                 // Icon
                 Text {
-                    font.family: "JetBrainsMono Nerd Font"
+                    font.family: Theme.fontFamily
                     font.pixelSize: 26
                     color: Volume.sinkMuted ? Theme.red : Theme.primary
                     text: {

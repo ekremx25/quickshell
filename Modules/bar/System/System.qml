@@ -22,7 +22,7 @@ Rectangle {
 		Text {
 			text: "⚙"
 			font.pixelSize: 16
-			font.family: "JetBrainsMono Nerd Font"
+			font.family: Theme.fontFamily
 			color: SettingsPalette.text
 		}
 
@@ -30,7 +30,7 @@ Rectangle {
 			text: "Sistem"
 			font.bold: true
 			font.pixelSize: 12
-			font.family: "JetBrainsMono Nerd Font"
+			font.family: Theme.fontFamily
 			color: SettingsPalette.text
 		}
 	}

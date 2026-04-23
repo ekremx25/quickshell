@@ -98,7 +98,7 @@ PanelWindow {
                             Text {
                                 text: "⚙"
                                 font.pixelSize: 18
-                                font.family: "JetBrainsMono Nerd Font"
+                                font.family: Theme.fontFamily
                                 color: Theme.primary
                             }
                             Text {

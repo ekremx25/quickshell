@@ -89,7 +89,7 @@ Item {
 
                     RowLayout {
                         spacing: 8
-                        Text { text: ""; font.pixelSize: 16; font.family: "JetBrainsMono Nerd Font"; color: "#a6e3a1" }
+                        Text { text: ""; font.pixelSize: 16; font.family: Theme.fontFamily; color: "#a6e3a1" }
                         Text { text: "Current Location"; color: "#a6e3a1"; font.bold: true; font.pixelSize: 13 }
                     }
 

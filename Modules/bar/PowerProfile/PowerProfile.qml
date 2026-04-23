@@ -108,7 +108,7 @@ Rectangle {
                     text: "powerprofilesctl not found"
                     color: Theme.overlay2
                     font.pixelSize: 12
-                    font.family: "JetBrainsMono Nerd Font"
+                    font.family: Theme.fontFamily
                     Layout.alignment: Qt.AlignHCenter
                 }
 
@@ -146,7 +146,7 @@ Rectangle {
 
                             Text {
                                 text: pData.label
-                                font.family: "JetBrainsMono Nerd Font"
+                                font.family: Theme.fontFamily
                                 font.pixelSize: 13
                                 font.bold: isActive
                                 color: isActive ? pData.color : Theme.text

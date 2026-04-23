@@ -19,6 +19,10 @@ QtObject {
     property string fontFamily: "Inter"
     property string monoFontFamily: "JetBrainsMono Nerd Font"
     readonly property string iconFontFamily: "JetBrainsMono Nerd Font"
+    readonly property string homeDir: Quickshell.env("HOME") || ""
+    readonly property string qtPlatformTheme: Quickshell.env("QT_QPA_PLATFORMTHEME") || ""
+    readonly property bool qt6ctActive: qtPlatformTheme === "qt6ct"
+    readonly property string qt6ctConfigPath: homeDir + "/.config/qt6ct/qt6ct.conf"
 
     function _applyFontValue(raw, target) {
         if (!raw) return;
@@ -43,19 +47,29 @@ QtObject {
     }
 
     property Process loadGeneralFont: Process {
-        command: ["kreadconfig6", "--file", "kdeglobals", "--group", "General", "--key", "font"]
+        command: root.qt6ctActive
+            ? ["kreadconfig6", "--file", root.qt6ctConfigPath, "--group", "Fonts", "--key", "general"]
+            : ["kreadconfig6", "--file", "kdeglobals", "--group", "General", "--key", "font"]
         running: true
         property string buffer: ""
         stdout: SplitParser { onRead: data => loadGeneralFont.buffer += data }
-        onExited: root._applyFontValue(loadGeneralFont.buffer, "general")
+        onExited: {
+            root._applyFontValue(loadGeneralFont.buffer, "general");
+            loadGeneralFont.buffer = "";
+        }
     }
 
     property Process loadMonoFont: Process {
-        command: ["kreadconfig6", "--file", "kdeglobals", "--group", "General", "--key", "fixed"]
+        command: root.qt6ctActive
+            ? ["kreadconfig6", "--file", root.qt6ctConfigPath, "--group", "Fonts", "--key", "fixed"]
+            : ["kreadconfig6", "--file", "kdeglobals", "--group", "General", "--key", "fixed"]
         running: true
         property string buffer: ""
         stdout: SplitParser { onRead: data => loadMonoFont.buffer += data }
-        onExited: root._applyFontValue(loadMonoFont.buffer, "mono")
+        onExited: {
+            root._applyFontValue(loadMonoFont.buffer, "mono");
+            loadMonoFont.buffer = "";
+        }
     }
 
     // --- ANIMATION DURATIONS ---

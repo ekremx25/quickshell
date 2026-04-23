@@ -109,7 +109,7 @@ PopupWindow {
                     text: "gammastep is not installed. Run:\n  sudo pacman -S gammastep"
                     color: "#f38ba8"
                     font.pixelSize: 11
-                    font.family: "JetBrainsMono Nerd Font"
+                    font.family: Theme.fontFamily
                     wrapMode: Text.WordWrap
                 }
             }
@@ -130,7 +130,7 @@ PopupWindow {
                     color: S.NightLight.enabled ? "#f9a03c" : Theme.text
                     font.pixelSize: 12
                     font.bold: true
-                    font.family: "JetBrainsMono Nerd Font"
+                    font.family: Theme.fontFamily
                 }
             }
 

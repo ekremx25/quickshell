@@ -18,7 +18,7 @@ Item {
         RowLayout {
             Layout.fillWidth: true
             spacing: 8
-            Text { text: ""; font.pixelSize: 20; font.family: "JetBrainsMono Nerd Font"; color: Theme.primary }
+            Text { text: ""; font.pixelSize: 20; font.family: Theme.fontFamily; color: Theme.primary }
             Text { text: "Compositor"; font.bold: true; font.pixelSize: 18; color: SettingsPalette.text }
         }
 
@@ -47,7 +47,7 @@ Item {
                             anchors.centerIn: parent
                             text: ""
                             font.pixelSize: 24
-                            font.family: "JetBrainsMono Nerd Font"
+                            font.family: Theme.fontFamily
                             color: Theme.primary
                         }
                     }

@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
+import "../../../Widgets"
 import "../../../Services/core/Log.js" as Log
 
 Item {
@@ -112,7 +113,7 @@ Item {
                             text: model.preview
                             font.pixelSize: 20
                             font.bold: true
-                            font.family: "JetBrainsMono Nerd Font"
+                            font.family: Theme.fontFamily
                             color: root.selectedFormat === model.value ? colorPrimary : colorText
                         }
 

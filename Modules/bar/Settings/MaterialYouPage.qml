@@ -30,7 +30,7 @@ Item {
             RowLayout {
                 Layout.fillWidth: true
                 spacing: 8
-                Text { text: ""; font.pixelSize: 20; font.family: "JetBrainsMono Nerd Font"; color: Theme.primary }
+                Text { text: ""; font.pixelSize: 20; font.family: Theme.fontFamily; color: Theme.primary }
                 Text { text: "Material You"; font.bold: true; font.pixelSize: 18; color: SettingsPalette.text }
                 Item { Layout.fillWidth: true }
 
@@ -75,7 +75,7 @@ Item {
                 RowLayout {
                     anchors.fill: parent; anchors.margins: 14; spacing: 10
 
-                    Text { text: ""; font.pixelSize: 16; font.family: "JetBrainsMono Nerd Font"; color: Theme.primary }
+                    Text { text: ""; font.pixelSize: 16; font.family: Theme.fontFamily; color: Theme.primary }
                     ColumnLayout {
                         spacing: 1
                         Text { text: "Enable Material You"; font.pixelSize: 13; color: SettingsPalette.text }

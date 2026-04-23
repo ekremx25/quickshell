@@ -187,7 +187,7 @@ Item {
                         verticalAlignment: TextInput.AlignVCenter
                         color: SettingsPalette.text
                         font.pixelSize: 11
-                        font.family: "JetBrainsMono Nerd Font"
+                        font.family: Theme.fontFamily
                         text: remotePanel.apiBase
                         selectByMouse: true
                         readOnly: remotePanel.selectedProviderId !== "custom"
@@ -226,7 +226,7 @@ Item {
                         verticalAlignment: TextInput.AlignVCenter
                         color: SettingsPalette.text
                         font.pixelSize: 11
-                        font.family: "JetBrainsMono Nerd Font"
+                        font.family: Theme.fontFamily
                         text: remotePanel.apiKey
                         selectByMouse: true
                         echoMode: remotePanel.keyVisible ? TextInput.Normal : TextInput.Password
@@ -337,7 +337,7 @@ Item {
                         spacing: 6
                         Text {
                             text: "💾"
-                            font.family: "JetBrainsMono Nerd Font"
+                            font.family: Theme.fontFamily
                             font.pixelSize: 14
                             color: Theme.primary
                         }

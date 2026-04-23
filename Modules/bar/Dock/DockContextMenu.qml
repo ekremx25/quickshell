@@ -43,7 +43,7 @@ Rectangle {
             color: parent.labelColor
             font.pixelSize: 12 * menu.dockScale
             font.bold: true
-            font.family: "JetBrainsMono Nerd Font"
+            font.family: Theme.fontFamily
         }
 
         MouseArea {

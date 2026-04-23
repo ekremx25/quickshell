@@ -185,7 +185,7 @@ Item {
                                 Text {
                                     anchors.centerIn: parent
                                     font.pixelSize: 16
-                                    font.family: "JetBrainsMono Nerd Font"
+                                    font.family: Theme.fontFamily
                                     color: modelData.connected ? Theme.primary : SettingsPalette.subtext
                                     text: {
                                         var ic = modelData.icon || ""

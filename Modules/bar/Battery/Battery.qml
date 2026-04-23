@@ -51,7 +51,7 @@ Rectangle {
             text: root.hasBattery ? root.batteryLevel + "%" : "AC"
             font.bold: true
             font.pixelSize: 12
-            font.family: "JetBrainsMono Nerd Font"
+            font.family: Theme.fontFamily
             color: "#1e1e2e"
         }
     }
@@ -86,7 +86,7 @@ Rectangle {
             }
             color: Theme.text
             font.pixelSize: 11
-            font.family: "JetBrainsMono Nerd Font"
+            font.family: Theme.fontFamily
         }
     }
 }

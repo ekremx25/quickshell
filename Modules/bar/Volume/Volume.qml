@@ -49,7 +49,7 @@ Rectangle {
 		Text {
 			text: Math.round(root.vol * 100) + "%"
 			font.bold: true
-			font.family: "JetBrainsMono Nerd Font"
+			font.family: Theme.fontFamily
 			color: "#1e1e2e"
 		}
 	}

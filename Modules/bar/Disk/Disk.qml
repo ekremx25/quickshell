@@ -42,7 +42,7 @@ Rectangle {
             color: textColor
             font.bold: true
             font.pixelSize: 13
-            font.family: "JetBrainsMono Nerd Font"
+            font.family: Theme.fontFamily
         }
     }
 
@@ -96,7 +96,7 @@ Rectangle {
                     color: "#89b4fa" // Visible Blue Title
                     font.bold: true
                     font.pixelSize: 14
-                    font.family: "JetBrainsMono Nerd Font"
+                    font.family: Theme.fontFamily
                     Layout.alignment: Qt.AlignHCenter
                 }
 
@@ -114,14 +114,14 @@ Rectangle {
                         text: "Used:"
                         color: "#cdd6f4"
                         font.pixelSize: 13
-                        font.family: "JetBrainsMono Nerd Font"
+                        font.family: Theme.fontFamily
                     }
                     Text {
                         text: diskService.diskUsed + " / " + diskService.diskTotal
                         color: "#a6e3a1" // Greenish
                         font.bold: true
                         font.pixelSize: 13
-                        font.family: "JetBrainsMono Nerd Font"
+                        font.family: Theme.fontFamily
                     }
                 }
             }

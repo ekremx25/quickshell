@@ -157,7 +157,7 @@ Rectangle {
                         color: isActive ? Theme.workspaceActiveTextColor : Theme.text
                         font.bold: true
                         font.pixelSize: 14
-                        font.family: "JetBrainsMono Nerd Font"
+                        font.family: Theme.fontFamily
                         anchors.verticalCenter: parent.verticalCenter
                     }
 

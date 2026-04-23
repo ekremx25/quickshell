@@ -100,6 +100,47 @@ PanelWindow {
         });
     }
 
+    function shouldApplyUiFont(item) {
+        if (!item || item.text === undefined || item.font === undefined) return false;
+
+        var text = String(item.text || "");
+        var family = String(item.font.family || "");
+
+        if (!text.length) return false;
+        if (family === Theme.iconFontFamily || family.indexOf("Nerd") !== -1) return false;
+        if (text.length <= 2 && !/[A-Za-z0-9]/.test(text)) return false;
+        return true;
+    }
+
+    function applyUiFont(item) {
+        if (!item) return;
+
+        if (shouldApplyUiFont(item)) {
+            item.font.family = Theme.fontFamily;
+        }
+
+        var kids = item.children || [];
+        for (var i = 0; i < kids.length; ++i) {
+            applyUiFont(kids[i]);
+        }
+    }
+
+    function scheduleApplyUiFont() {
+        if (!settingsPopup.visible || settingsPopup.currentPage === "fonts") return;
+        Qt.callLater(function() {
+            applyUiFont(settingsContent);
+        });
+    }
+
+    onCurrentPageChanged: scheduleApplyUiFont()
+
+    Connections {
+        target: Theme
+        function onFontFamilyChanged() {
+            settingsPopup.scheduleApplyUiFont();
+        }
+    }
+
 
 
     ListModel { id: leftModel }
@@ -110,10 +151,17 @@ PanelWindow {
     ListModel { id: dockRightModel }
 
     onVisibleChanged: {
-        if (visible) loadConfig();
+        if (visible) {
+            loadConfig();
+            Theme.reloadSystemFonts();
+            scheduleApplyUiFont();
+        }
     }
 
-    Component.onCompleted: loadConfig()
+    Component.onCompleted: {
+        loadConfig();
+        scheduleApplyUiFont();
+    }
 
     // ── Background dim ──
     Rectangle {

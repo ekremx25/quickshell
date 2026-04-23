@@ -150,7 +150,7 @@ Rectangle {
                             Layout.fillWidth: true
                             wrapMode: Text.WordWrap
                         }
-                        Text { text: " " + root.cityName; color: Theme.subtext; font.pixelSize: 13; font.family: "JetBrainsMono Nerd Font" }
+                        Text { text: " " + root.cityName; color: Theme.subtext; font.pixelSize: 13; font.family: Theme.fontFamily }
                     }
                 }
 

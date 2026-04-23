@@ -115,11 +115,11 @@ Rectangle {
         Rectangle { Layout.fillWidth: true; height: 1; color: "#fab387"; opacity: 0.3; Layout.topMargin: 2; Layout.bottomMargin: 2 }
 
         // ROW 3: DETAILS
-        Text { text: "Temp: " + backend.cpuTempC + " °C"; color: "#cdd6f4"; font.family: "Monospace" }
-        Text { text: "Gov: " + backend.governor; color: "#cdd6f4"; font.family: "Monospace" }
-        Text { text: "CPU: " + backend.cpuModelName; color: "#fab387"; font.family: "Monospace"; font.pixelSize: 11; elide: Text.ElideRight; Layout.fillWidth: true }
-        Text { text: "vCPUs: " + backend.vCpuCount; color: "#cdd6f4"; font.family: "Monospace" }
-        Text { text: "Freq: " + backend.cpuFreqGHz + " GHz (core0)"; color: "#cdd6f4"; font.family: "Monospace" }
+        Text { text: "Temp: " + backend.cpuTempC + " °C"; color: "#cdd6f4"; font.family: Theme.monoFontFamily }
+        Text { text: "Gov: " + backend.governor; color: "#cdd6f4"; font.family: Theme.monoFontFamily }
+        Text { text: "CPU: " + backend.cpuModelName; color: "#fab387"; font.family: Theme.monoFontFamily; font.pixelSize: 11; elide: Text.ElideRight; Layout.fillWidth: true }
+        Text { text: "vCPUs: " + backend.vCpuCount; color: "#cdd6f4"; font.family: Theme.monoFontFamily }
+        Text { text: "Freq: " + backend.cpuFreqGHz + " GHz (core0)"; color: "#cdd6f4"; font.family: Theme.monoFontFamily }
       }
     }
   }

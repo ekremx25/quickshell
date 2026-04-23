@@ -77,7 +77,7 @@ Rectangle {
                     color: "#f9e2af"
                     font.bold: true
                     font.pixelSize: 16
-                    font.family: "JetBrainsMono Nerd Font"
+                    font.family: Theme.fontFamily
                     Layout.alignment: Qt.AlignHCenter
                 }
 
@@ -91,7 +91,7 @@ Rectangle {
                         placeholderText: "Take a note here..."
                         color: "#cdd6f4"
                         font.pixelSize: 13
-                        font.family: "JetBrainsMono Nerd Font"
+                        font.family: Theme.fontFamily
                         wrapMode: TextEdit.Wrap
                         selectByMouse: true
                         

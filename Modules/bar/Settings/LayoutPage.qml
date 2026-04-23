@@ -62,7 +62,7 @@ Item {
             RowLayout {
                 Layout.fillWidth: true
                 spacing: 8
-                Text { text: ""; font.pixelSize: 20; font.family: "JetBrainsMono Nerd Font"; color: Theme.primary }
+                Text { text: ""; font.pixelSize: 20; font.family: Theme.fontFamily; color: Theme.primary }
                 Text { text: "Layout Presets"; font.bold: true; font.pixelSize: 18; color: SettingsPalette.text }
                 Item { Layout.fillWidth: true }
             }

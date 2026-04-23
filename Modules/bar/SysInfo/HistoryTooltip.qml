@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
+import "../../../Widgets"
 
 PopupWindow {
     id: root
@@ -92,7 +93,7 @@ PopupWindow {
                     required property var modelData
                     text: modelData.text || ""
                     color: modelData.accent ? root.accentColor : root.textColor
-                    font.family: "Monospace"
+                    font.family: Theme.monoFontFamily
                     font.pixelSize: modelData.small ? 11 : 12
                     elide: Text.ElideRight
                     visible: modelData.visible === undefined ? true : !!modelData.visible

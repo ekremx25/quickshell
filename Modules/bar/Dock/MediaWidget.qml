@@ -143,7 +143,7 @@ Rectangle {
                 Text {
                     anchors.centerIn: parent
                     text: ""
-                    font.family: "JetBrainsMono Nerd Font"
+                    font.family: Theme.fontFamily
                     font.pixelSize: 14 * dockScale
                     color: mediaWidget.adaptiveSubtext
                 }
@@ -192,7 +192,7 @@ Rectangle {
                     Text {
                         anchors.centerIn: parent
                         text: ""
-                        font.family: "JetBrainsMono Nerd Font"
+                        font.family: Theme.fontFamily
                         font.pixelSize: 16 * dockScale
                         color: Theme.primary
                     }

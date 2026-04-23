@@ -146,7 +146,7 @@ PanelWindow {
         Text {
             anchors { top: parent.top; right: parent.right; margins: 8 }
             text: ""
-            font.family: "JetBrainsMono Nerd Font"
+            font.family: Theme.fontFamily
             color: Theme.subtext
             z: 10
             MouseArea {
@@ -177,7 +177,7 @@ PanelWindow {
                 Text {
                     anchors.centerIn: parent
                     text: ""
-                    font.family: "JetBrainsMono Nerd Font"
+                    font.family: Theme.fontFamily
                     font.pixelSize: 20
                     color: Theme.text
                     visible: !((currentNotif && currentNotif.appIcon) && currentNotif.appIcon != "")
