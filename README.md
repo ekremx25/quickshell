@@ -95,42 +95,42 @@ Built on top of [outfoxxed's Quickshell framework](https://github.com/outfoxxed/
 
 <table>
   <tr>
-    <td align="center" valign="middle" width="36%">
-      <img src="docs/screenshots/settings-bar.png" alt="Bar Settings (drag-drop layout)" width="100%" />
+    <td align="center" valign="middle" width="50%">
+      <img src="docs/screenshots/settings-bar.png" alt="Bar Settings (drag-drop layout)" />
       <sub><b>Bar Settings</b> — drag-drop module layout, four positions, per-screen visibility</sub>
     </td>
-    <td align="center" valign="middle" width="64%">
-      <img src="docs/screenshots/settings-monitors.png" alt="Monitor settings with HDR/VRR/colour management" width="100%" />
+    <td align="center" valign="middle" width="50%">
+      <img src="docs/screenshots/settings-monitors.png" alt="Monitor settings with HDR/VRR/colour management" />
       <sub><b>Monitors</b> — resolution, scale, HDR, VRR, colour management, drag-to-arrange canvas</sub>
     </td>
   </tr>
   <tr>
     <td align="center" valign="middle">
-      <img src="docs/screenshots/settings-nightlight.png" alt="Night Light blue-light filter with schedule" width="100%" />
+      <img src="docs/screenshots/settings-nightlight.png" alt="Night Light blue-light filter with schedule" />
       <sub><b>Night Light</b> — temperature slider, presets, fixed-time schedule (hyprsunset / gammastep)</sub>
     </td>
     <td align="center" valign="middle">
-      <img src="docs/screenshots/settings-materialyou.png" alt="Material You theme settings" width="100%" />
+      <img src="docs/screenshots/settings-materialyou.png" alt="Material You theme settings" />
       <sub><b>Material You</b> — wallpaper-derived palette, light/dark, multiple scheme types</sub>
     </td>
   </tr>
   <tr>
     <td align="center" valign="middle">
-      <img src="docs/screenshots/settings-dock.png" alt="Dock settings (auto-hide, indicators, scale)" width="100%" />
+      <img src="docs/screenshots/settings-dock.png" alt="Dock settings (auto-hide, indicators, scale)" />
       <sub><b>Dock Settings</b> — auto-hide, indicator style, icon scale, alignment</sub>
     </td>
     <td align="center" valign="middle">
-      <img src="docs/screenshots/settings-apikeys.png" alt="API Keys for SmartComplete AI providers" width="100%" />
+      <img src="docs/screenshots/settings-apikeys.png" alt="API Keys for SmartComplete AI providers" />
       <sub><b>API Keys</b> — local-only or any of 7 cloud providers for SmartComplete</sub>
     </td>
   </tr>
   <tr>
     <td align="center" valign="middle">
-      <img src="docs/screenshots/settings-systeminfo.png" alt="System Info dashboard" width="100%" />
+      <img src="docs/screenshots/settings-systeminfo.png" alt="System Info dashboard" />
       <sub><b>System Info</b> — CPU, RAM, GPU, storage, environment</sub>
     </td>
     <td align="center" valign="middle">
-      <img src="docs/screenshots/settings-fonts.png" alt="Fonts picker" width="100%" />
+      <img src="docs/screenshots/settings-fonts.png" alt="Fonts picker" />
       <sub><b>Fonts</b> — system-wide Qt/KDE font picker with live preview, searchable <code>fc-list</code> catalogue</sub>
     </td>
   </tr>
