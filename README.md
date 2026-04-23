@@ -130,8 +130,8 @@ Built on top of [outfoxxed's Quickshell framework](https://github.com/outfoxxed/
       <sub><b>System Info</b> — CPU, RAM, GPU, storage, environment</sub>
     </td>
     <td align="center">
-      <img src="docs/screenshots/settings-workspaces.png" alt="Workspaces settings" />
-      <sub><b>Workspaces</b> — numeral style (Roman / Japan / Decimal), grouping, scroll behaviour</sub>
+      <img src="docs/screenshots/settings-fonts.png" alt="Fonts picker" />
+      <sub><b>Fonts</b> — system-wide Qt/KDE font picker with live preview, searchable <code>fc-list</code> catalogue</sub>
     </td>
   </tr>
 </table>
@@ -163,41 +163,48 @@ Click any of these on the bar to reveal an inline popover.
 <table>
   <tr>
     <td align="center">
+      <img src="docs/screenshots/settings-workspaces.png" alt="Workspaces settings" />
+      <sub><b>Workspaces</b> — numeral style (Roman / Japan / Decimal), grouping, scroll behaviour</sub>
+    </td>
+    <td align="center">
       <img src="docs/screenshots/settings-layout-presets.png" alt="Layout presets" />
       <sub><b>Layout Presets</b> — macOS, Windows 11, GNOME, KDE, Unity, ZorinOS, Custom</sub>
     </td>
+  </tr>
+  <tr>
     <td align="center">
       <img src="docs/screenshots/settings-notifications.png" alt="Notification settings" />
       <sub><b>Notifications</b> — DND, popup position, animation speed, filters</sub>
     </td>
-  </tr>
-  <tr>
     <td align="center">
       <img src="docs/screenshots/settings-weather.png" alt="Weather settings" />
       <sub><b>Weather</b> — location and provider configuration</sub>
     </td>
+  </tr>
+  <tr>
     <td align="center">
       <img src="docs/screenshots/settings-lockscreen.png" alt="Lock screen settings" />
       <sub><b>Lock Screen</b> — wallpaper, dim/lock/suspend timeouts, media inhibit</sub>
     </td>
-  </tr>
-  <tr>
     <td align="center">
       <img src="docs/screenshots/settings-mouse.png" alt="Mouse settings" />
       <sub><b>Mouse</b> — sensitivity, scroll factor, accel profile, cursor theme</sub>
     </td>
+  </tr>
+  <tr>
     <td align="center">
       <img src="docs/screenshots/settings-network.png" alt="Network settings (Ethernet / Wi-Fi)" />
       <sub><b>Network</b> — Ethernet, Wi-Fi, DNS, proxy, advanced</sub>
     </td>
-  </tr>
-  <tr>
     <td align="center">
       <img src="docs/screenshots/settings-disks.png" alt="Disk management" />
       <sub><b>Disks</b> — mount points, removable drives, fstab helper</sub>
     </td>
-    <td align="center">
-      <img src="docs/screenshots/settings-screen-prefs.png" alt="Per-screen module preferences" />
+  </tr>
+  <tr>
+    <td align="center" colspan="2">
+      <img src="docs/screenshots/settings-screen-prefs.png" alt="Per-screen module preferences" width="49%" />
+      <br>
       <sub><b>Screen Prefs</b> — assign each component (bar, dock, OSD, notif) to specific monitors</sub>
     </td>
   </tr>
