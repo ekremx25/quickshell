@@ -246,6 +246,9 @@ Click any of these on the bar to reveal an inline popover.
 |---------|---------|
 | `hyprsunset` | Night Light on Hyprland (required) |
 | `gammastep` | Night Light on Niri / MangoWC (required) |
+| `kconfig` | Fonts picker (`kreadconfig6` / `kwriteconfig6` write to `kdeglobals`) |
+| `qt6ct` | Fonts picker also writes to `qt6ct.conf` when `QT_QPA_PLATFORMTHEME=qt6ct` |
+| `fontconfig` | Fonts picker catalogue via `fc-list` (pre-installed on most distros) |
 | `inotify-tools` | Event-driven config file watching (otherwise falls back to polling) |
 | `grim` + `slurp` | Screenshot helpers |
 | `socat` or `ncat` | Hyprland event stream (used by the dock's live running indicators) |
@@ -255,6 +258,7 @@ Click any of these on the bar to reveal an inline popover.
 ```bash
 sudo pacman -S quickshell networkmanager bluez bluez-utils pipewire \
   pipewire-pulse wireplumber libpulse jq inotify-tools \
+  kconfig qt6ct fontconfig \
   ttf-jetbrains-mono-nerd ttf-inter ttf-font-awesome
 ```
 
