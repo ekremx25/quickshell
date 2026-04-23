@@ -753,7 +753,7 @@ Item {
                                             Text {
                                                 text: "Aa"
                                                 color: fontsPage.generalFontFamily === modelData ? Theme.primary : SettingsPalette.subtext
-                                                font.family: modelData
+                                                font.family: modelData && modelData.length > 0 ? modelData : Theme.fontFamily
                                                 font.pixelSize: 14
                                                 font.bold: true
                                             }
@@ -1001,7 +1001,7 @@ Item {
                                             Text {
                                                 text: "</>"
                                                 color: fontsPage.fixedFontFamily === modelData ? "#cba6f7" : SettingsPalette.subtext
-                                                font.family: modelData
+                                                font.family: modelData && modelData.length > 0 ? modelData : Theme.fontFamily
                                                 font.pixelSize: 13
                                                 font.bold: true
                                             }
