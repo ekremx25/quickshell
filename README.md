@@ -60,6 +60,13 @@ Built on top of [outfoxxed's Quickshell framework](https://github.com/outfoxxed/
 - Seven built-in layout presets (macOS, Windows 11, GNOME, KDE, Unity, ZorinOS, Custom)
 - Material You theme editor with live wallpaper colour extraction
 
+### Fonts
+- System-wide font picker for general and monospace families (writes to `kdeglobals` and `qt6ct.conf`)
+- Live preview tiles with the current selection rendered in situ
+- Searchable catalogue of every installed family, sourced via `fc-list` (includes user fonts in `~/.local/share/fonts`)
+- Applies without a shell restart: the Theme singleton re-reads the system font and every bar / dock / popup / settings module updates on the fly
+- Nerd Font glyphs stay pinned to `JetBrainsMono Nerd Font` so icons keep rendering after the switch
+
 ### Monitor Management
 - Resolution, refresh rate, and scale per output
 - HDR, VRR, 10-bit colour, wide-gamut colour management (sRGB / DCI-P3 / Adobe RGB / Rec.2020)
