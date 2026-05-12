@@ -1,0 +1,19 @@
+{
+    "left": [
+        "Launcher",
+        "Calendar"
+    ],
+    "center": [
+        "Workspaces"
+    ],
+    "right": [
+        "Volume",
+        "Tray"
+    ],
+    "inactive": [],
+    "workspaces": {
+        "format": "number",
+        "style": "pill"
+    },
+    "theme": "Catppuccin Mocha"
+}

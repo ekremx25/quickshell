@@ -1,0 +1,9 @@
+{
+  "materialYou": true,
+  "wallpaperPath": "~/Pictures/Wal/MinnesotaWaters.jpg",
+  "mode": "light",
+  "matugenType": "scheme-rainbow",
+  "applyToKitty": true,
+  "applyToGtk": false,
+  "liveUpdate": true
+}

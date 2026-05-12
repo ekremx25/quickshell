@@ -1,0 +1,15 @@
+{
+  "displayDuration": 7000,
+  "dnd": false,
+  "popupPosition": 3,
+  "overlayEnabled": false,
+  "compactMode": false,
+  "popupShadowEnabled": true,
+  "privacyMode": false,
+  "animationSpeed": 2,
+  "historyRetentionMs": 300000,
+  "filteredApps": [
+    "Spotify"
+  ],
+  "notificationServerEnabled": true
+}
