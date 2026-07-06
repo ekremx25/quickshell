@@ -1,0 +1,5 @@
+module Services.Core
+JsonDataStore 1.0 JsonDataStore.qml
+TextDataStore 1.0 TextDataStore.qml
+FileChangeWatcher 1.0 FileChangeWatcher.qml
+singleton PathService 1.0 PathService.qml
