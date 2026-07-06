@@ -22,10 +22,10 @@
       "appId": "dolphin"
     },
     {
-      "name": "telegram-desktop",
+      "name": "Telegram",
       "icon": "org.telegram.desktop",
-      "cmd": "/usr/bin/telegram-desktop --",
-      "appId": "org.telegram.desktop"
+      "cmd": "Telegram",
+      "appId": "TelegramDesktop"
     },
     {
       "name": "Virt-manager",

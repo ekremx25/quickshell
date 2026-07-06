@@ -59,6 +59,7 @@ var FALLBACK_COMMAND_RULES = [
 
 var NORMALIZED_IDS = {
     "telegram": "telegram-desktop",
+    "telegramdesktop": "TelegramDesktop",
     "org.kde.dolphin": "dolphin",
     "firefox-esr": "firefox",
     "microsoft-edge": "microsoft-edge-stable",
