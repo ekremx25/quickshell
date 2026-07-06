@@ -25,7 +25,7 @@
       "name": "Telegram",
       "icon": "org.telegram.desktop",
       "cmd": "Telegram",
-      "appId": "TelegramDesktop"
+      "appId": "org.telegram.desktop"
     },
     {
       "name": "Virt-manager",
