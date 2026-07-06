@@ -110,10 +110,7 @@ Item {
         }
 
         var rawIcon = pinnedApp.icon && pinnedApp.icon !== "" ? pinnedApp.icon : getIcon(pinnedApp.appId);
-        var resolvedCmd = getCmd(pinnedApp.appId);
-        if (pinnedApp.cmd && (!resolvedCmd || resolvedCmd === "" || resolvedCmd === pinnedApp.appId)) {
-            resolvedCmd = pinnedApp.cmd;
-        }
+        var resolvedCmd = pinnedApp.cmd || getCmd(pinnedApp.appId);
 
         return {
             name: getAppName(pinnedApp.appId) || pinnedApp.name || pinnedApp.appId,

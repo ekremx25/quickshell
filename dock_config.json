@@ -42,7 +42,7 @@
     {
       "name": "VS Code",
       "icon": "codex",
-      "cmd": "__desktop__:Codex",
+      "cmd": "codex-desktop",
       "appId": "codex"
     },
     {
@@ -54,13 +54,13 @@
     {
       "name": "Antigravity",
       "icon": "antigravity-ide",
-      "cmd": "__desktop__:antigravity-ide",
+      "cmd": "/usr/bin/antigravity-ide",
       "appId": "antigravity-ide"
     },
     {
       "name": "Brave",
       "icon": "brave-browser",
-      "cmd": "__desktop__:brave-browser",
+      "cmd": "brave",
       "appId": "brave-browser"
     },
     {
