@@ -110,7 +110,15 @@ Item {
         }
 
         var rawIcon = pinnedApp.icon && pinnedApp.icon !== "" ? pinnedApp.icon : getIcon(pinnedApp.appId);
-        var resolvedCmd = pinnedApp.cmd || getCmd(pinnedApp.appId);
+        var resolvedCmd = pinnedApp.cmd || "";
+        var desktopCmd = getCmd(pinnedApp.appId);
+        if (desktopCmd && desktopCmd !== pinnedApp.appId) {
+            var normalizedPinnedId = normalizeAppId(pinnedApp.appId);
+            if (!resolvedCmd || resolvedCmd === pinnedApp.appId || resolvedCmd === normalizedPinnedId) {
+                resolvedCmd = desktopCmd;
+            }
+        }
+        if (!resolvedCmd) resolvedCmd = desktopCmd;
 
         return {
             name: getAppName(pinnedApp.appId) || pinnedApp.name || pinnedApp.appId,

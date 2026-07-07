@@ -58,6 +58,12 @@
       "appId": "antigravity-ide"
     },
     {
+      "name": "Zen",
+      "icon": "zen-browser",
+      "cmd": "/opt/zen-browser-bin/zen-bin",
+      "appId": "zen"
+    },
+    {
       "name": "Brave",
       "icon": "brave-browser",
       "cmd": "brave",
