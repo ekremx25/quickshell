@@ -19,6 +19,8 @@ Thumbs.db
 # Build artifacts (if any)
 build/
 dist/
+__pycache__/
+*.py[cod]
 
 # Local configuration
 notes.txt
@@ -28,6 +30,9 @@ assets/profile_avatar.jpg
 
 # User-specific config (generated at runtime)
 monitor_config.json
+monitor_config.pre-roles-backup.json
+monitor_role_profiles.json
+monitor_runtime.json
 weather_config.json
 countdown.json
 screen_config.json

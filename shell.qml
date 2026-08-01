@@ -31,6 +31,11 @@ ShellRoot {
         source: "Services/ShellBootstrap.qml"
     }
 
+    Loader {
+        active: true
+        source: "Services/MonitorHotplugService.qml"
+    }
+
     Bar {}
 
     // ── Stage 2: background services (after 300ms) ───────────────────

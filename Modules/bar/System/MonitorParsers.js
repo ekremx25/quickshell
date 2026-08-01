@@ -12,6 +12,8 @@ function parseHyprlandOutputs(text) {
         var outObj = {
             name: info.name,
             desc: (info.make || "") + " " + (info.model || ""),
+            physicalWidth: info.physicalWidth || 0,
+            physicalHeight: info.physicalHeight || 0,
             res: info.width + "x" + info.height,
             hz: info.refreshRate ? info.refreshRate.toFixed(3) : "60.000",
             scale: info.scale ? info.scale.toFixed(2) : "1.00",
@@ -58,6 +60,8 @@ function parseNiriOutputs(text) {
         var outObj = {
             name: name,
             desc: (info.make || "") + " " + (info.model || ""),
+            physicalWidth: info.physical_size ? (info.physical_size.width || 0) : 0,
+            physicalHeight: info.physical_size ? (info.physical_size.height || 0) : 0,
             res: "",
             hz: "",
             scale: "1.0",
@@ -112,6 +116,8 @@ function parseMangoOutputs(text) {
             current = {
                 name: outName,
                 desc: descPart || outName,
+                physicalWidth: 0,
+                physicalHeight: 0,
                 res: "",
                 hz: "",
                 scale: "1.00",

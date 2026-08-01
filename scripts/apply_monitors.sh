@@ -8,6 +8,12 @@ CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 CONFIG_FILE="$CONFIG_HOME/quickshell/monitor_config.json"
 HYPR_MONITOR_APPLY="$CONFIG_HOME/quickshell/scripts/hypr_monitor_apply.sh"
 
+# Hyprland uses the port-independent role manager. The legacy code below is
+# retained for Niri and Mango until they expose equivalent hot-plug metadata.
+if [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ] || hyprctl systeminfo >/dev/null 2>&1; then
+    exec "$CONFIG_HOME/quickshell/scripts/monitor_role_manager.py"
+fi
+
 if [ ! -f "$CONFIG_FILE" ]; then
     exit 0
 fi

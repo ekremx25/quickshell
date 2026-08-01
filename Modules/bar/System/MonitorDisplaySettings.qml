@@ -196,8 +196,10 @@ Rectangle {
                 helperText: page.scaleSupportText()
                 canStepDown: page.canStepScale(-1)
                 canStepUp: page.canStepScale(1)
+                automatic: page.selAutoScale
                 onScaleSelected: value => page.setScaleValue(value)
                 onStepRequested: direction => page.stepScale(direction)
+                onAutoRequested: page.enableAutomaticScale()
             }
         }
 

@@ -15,7 +15,7 @@ function effectiveWidth(output, ctx) {
     var scale = output.name === ctx.selectedName ? ctx.selScale : parseFloat(output.scale || 1);
     var parts = String(res || "0x0").split("x");
     var width = parts.length > 0 ? parseInt(parts[0]) : 0;
-    return scale > 0 ? Math.round(width / scale) : width;
+    return scale > 0 ? Math.ceil(width / scale) : width;
 }
 
 function effectiveHeight(output, ctx) {
@@ -24,7 +24,7 @@ function effectiveHeight(output, ctx) {
     var scale = output.name === ctx.selectedName ? ctx.selScale : parseFloat(output.scale || 1);
     var parts = String(res || "0x0").split("x");
     var height = parts.length > 1 ? parseInt(parts[1]) : 0;
-    return scale > 0 ? Math.round(height / scale) : height;
+    return scale > 0 ? Math.ceil(height / scale) : height;
 }
 
 function outputPosX(output, ctx) {

@@ -80,6 +80,12 @@ TestCase {
         compare(Layout.logicalHeight(o), 1728);
     }
 
+    function test_logicalWidth_nonDivisibleScale_roundsUp() {
+        var o = makeOutput("DP-1", "3840x2160", 60, 0, 0, 1.33);
+        compare(Layout.logicalWidth(o), 2888);
+        compare(Layout.logicalHeight(o), 1625);
+    }
+
     function test_logicalWidth_invalidScale() {
         var o = makeOutput("DP-1", "1920x1080", 60, 0, 0, 0);
         compare(Layout.logicalWidth(o), 1920);
@@ -158,5 +164,56 @@ TestCase {
         outs[0].isDefault = true;
         var arranged = Layout.autoArrangeOutputs(outs, {});
         verify(!Layout.outputsOverlap(arranged[0], arranged[1]));
+    }
+
+    function test_reflow_scaleChange_movesRightMonitor() {
+        var original = [
+            makeOutput("A", "3840x2160", 160, 0, 0, 1.5),
+            makeOutput("B", "1920x1080", 165, 2560, 135, 1)
+        ];
+        var updated = [
+            makeOutput("A", "3840x2160", 160, 0, 0, 1.25),
+            makeOutput("B", "1920x1080", 165, 2560, 135, 1)
+        ];
+
+        Layout.reflowForGeometryChange(original, updated, "A");
+
+        compare(updated[1].posX, 3072);
+        compare(updated[1].posY, 135);
+        verify(!Layout.outputsOverlap(updated[0], updated[1]));
+    }
+
+    function test_reflow_scaleChange_closesGap() {
+        var original = [
+            makeOutput("A", "3840x2160", 160, 0, 0, 1.25),
+            makeOutput("B", "1920x1080", 165, 3072, 135, 1)
+        ];
+        var updated = [
+            makeOutput("A", "3840x2160", 160, 0, 0, 1.5),
+            makeOutput("B", "1920x1080", 165, 3072, 135, 1)
+        ];
+
+        Layout.reflowForGeometryChange(original, updated, "A");
+
+        compare(updated[1].posX, 2560);
+        compare(updated[1].posY, 135);
+        verify(!Layout.outputsOverlap(updated[0], updated[1]));
+    }
+
+    function test_reflow_preservesLeftMonitorAnchor() {
+        var original = [
+            makeOutput("A", "1920x1080", 165, 0, 135, 1),
+            makeOutput("B", "3840x2160", 160, 1920, 0, 1.5)
+        ];
+        var updated = [
+            makeOutput("A", "1920x1080", 165, 0, 135, 1),
+            makeOutput("B", "3840x2160", 160, 1920, 0, 1.25)
+        ];
+
+        Layout.reflowForGeometryChange(original, updated, "B");
+
+        compare(updated[0].posX, 0);
+        compare(updated[0].posY, 135);
+        verify(!Layout.outputsOverlap(updated[0], updated[1]));
     }
 }

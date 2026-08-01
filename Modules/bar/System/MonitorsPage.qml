@@ -25,6 +25,7 @@ Item {
     property string selRes: ""
     property string selHz: ""
     property real selScale: 1.0
+    property bool selAutoScale: true
     property int selPosX: 0
     property int selPosY: 0
     property string defaultMonitorName: ""
@@ -71,6 +72,7 @@ Item {
         selRes = draft && draft.res !== undefined ? draft.res : selectedOutput.res;
         selHz = draft && draft.hz !== undefined ? draft.hz : selectedOutput.hz;
         selScale = draft && draft.scale !== undefined ? draft.scale : parseFloat(selectedOutput.scale);
+        selAutoScale = draft && draft.autoScale !== undefined ? draft.autoScale : (selectedOutput.autoScale !== false);
         selPosX = draft && draft.posX !== undefined ? draft.posX : Math.round(selectedOutput.posX || 0);
         selPosY = draft && draft.posY !== undefined ? draft.posY : Math.round(selectedOutput.posY || 0);
         if (!defaultMonitorName || !hasOutput(defaultMonitorName)) defaultMonitorName = getDefaultMonitorName();
@@ -93,6 +95,7 @@ Item {
             res: selRes,
             hz: selHz,
             scale: selScale,
+            autoScale: selAutoScale,
             posX: selPosX,
             posY: selPosY,
             hdr: selHdr,
@@ -172,7 +175,7 @@ Item {
             return;
         }
         saveCurrentDraft();
-        backend.applySettings(outputs, selectedOutput.name, selRes, selHz, selScale, selPosX, selPosY, selHdr, selBitdepth, selVrr, selSdrLuminance, selSdrBrightness, selSdrSaturation, selColorManagement, selIccProfile, selSdrEotf, defaultMonitorName);
+        backend.applySettings(outputs, selectedOutput.name, selRes, selHz, selScale, selPosX, selPosY, selHdr, selBitdepth, selVrr, selSdrLuminance, selSdrBrightness, selSdrSaturation, selColorManagement, selIccProfile, selSdrEotf, defaultMonitorName, selAutoScale);
         draftSettings = ({});
     }
 
@@ -197,6 +200,7 @@ Item {
         return selRes !== selectedOutput.res
             || Math.abs(parseFloat(selHz || "0") - parseFloat(selectedOutput.hz || "0")) >= 0.01
             || Math.abs(selScale - currentScale) >= 0.01
+            || selAutoScale !== (selectedOutput.autoScale !== false)
             || selPosX !== Math.round(selectedOutput.posX || 0)
             || selPosY !== Math.round(selectedOutput.posY || 0)
             || defaultMonitorName !== getDefaultMonitorName()
@@ -357,11 +361,41 @@ Item {
                 }
             }
             selScale = best;
+            selAutoScale = false;
         } else {
             if (next < 0.5) next = 0.5;
             if (next > 2.0) next = 2.0;
             selScale = Math.round(next * 20) / 20;
+            selAutoScale = false;
         }
+    }
+
+    function enableAutomaticScale() {
+        if (!selectedOutput || !selRes) return;
+        var widthMm = parseFloat(selectedOutput.physicalWidth || 0);
+        var heightMm = parseFloat(selectedOutput.physicalHeight || 0);
+        var parts = String(selRes).split("x");
+        var widthPx = parseInt(parts[0]) || 0;
+        var heightPx = parseInt(parts[1]) || 0;
+        var desired = 1.0;
+        if (widthMm >= 100 && heightMm >= 100 && widthPx > 0 && heightPx > 0) {
+            var diagonalPx = Math.sqrt(widthPx * widthPx + heightPx * heightPx);
+            var diagonalIn = Math.sqrt(widthMm * widthMm + heightMm * heightMm) / 25.4;
+            var dpi = diagonalPx / Math.max(0.01, diagonalIn);
+            if (dpi >= 125) desired = Math.max(1.0, Math.min(2.0, dpi / 120.0));
+        }
+        var scales = getScaleCandidates();
+        var best = scales[0];
+        var distance = Math.abs(best - desired);
+        for (var i = 1; i < scales.length; i++) {
+            var nextDistance = Math.abs(scales[i] - desired);
+            if (nextDistance < distance) {
+                best = scales[i];
+                distance = nextDistance;
+            }
+        }
+        selScale = best;
+        selAutoScale = true;
     }
 
     function stepScale(direction) {
@@ -405,7 +439,7 @@ Item {
 
     function scaleSupportText() {
         return CompositorService.isHyprland
-            ? "Only clean fractional scales for this resolution are shown."
+            ? (selAutoScale ? "Automatic DPI scaling is enabled for this display role." : "Manual scale is active. Choose Auto to follow the connected display DPI.")
             : "Common scaling presets are shown here for quicker adjustment.";
     }
 

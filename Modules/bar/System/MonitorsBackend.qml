@@ -24,6 +24,7 @@ Item {
     readonly property string configHome: Quickshell.env("XDG_CONFIG_HOME") || (homeDir + "/.config")
     readonly property string configDir: configHome + "/quickshell"
     readonly property string monitorConfigPath: configDir + "/monitor_config.json"
+    readonly property string hyprMonitorApplyPath: configDir + "/scripts/hypr_monitor_apply.sh"
     property bool _pendingMangoReload: false
     property var _applyQueue: []
     property int _applyStep: 0
@@ -91,9 +92,11 @@ Item {
                 continue;
             }
             var nextEntry = {
+                role: outObj.name === defaultName ? "primary" : (i === 1 ? "secondary" : (i === 2 ? "tertiary" : "display-" + (i + 1))),
                 res: outObj.res,
                 hz: parseFloat(outObj.hz || "60").toFixed(2),
                 scale: String(parseFloat(outObj.scale || "1")),
+                autoScale: true,
                 posX: String(Math.round(outObj.posX || 0)),
                 posY: String(Math.round(outObj.posY || 0)),
                 default: outObj.name === defaultName,
@@ -149,6 +152,8 @@ Item {
         if (saved.sdrSaturation !== undefined) outObj.sdrSaturation = saved.sdrSaturation;
         if (saved.iccProfile !== undefined) outObj.iccProfile = saved.iccProfile;
         if (saved.sdrEotf !== undefined) outObj.sdrEotf = saved.sdrEotf;
+        if (saved.autoScale !== undefined) outObj.autoScale = !!saved.autoScale;
+        if (saved.role !== undefined) outObj.role = saved.role;
     }
 
     function finalizeOutputs(outs) {
@@ -192,7 +197,7 @@ Item {
         return unique;
     }
 
-    function recalcPositions(outputs, selectedOutputName, selRes, selHz, selScale, selPosX, selPosY, selHdr, selBitdepth, selVrr, selSdrLuminance, selSdrBrightness, selSdrSaturation, selColorManagement, selIccProfile, selSdrEotf, defaultMonitorName) {
+    function recalcPositions(outputs, selectedOutputName, selRes, selHz, selScale, selPosX, selPosY, selHdr, selBitdepth, selVrr, selSdrLuminance, selSdrBrightness, selSdrSaturation, selColorManagement, selIccProfile, selSdrEotf, defaultMonitorName, selAutoScale) {
         if (outputs.length === 0) return outputs;
         var updated = [];
         for (var i = 0; i < outputs.length; i++) {
@@ -200,9 +205,13 @@ Item {
             updated.push({
                 name: outputs[i].name,
                 desc: outputs[i].desc,
+                physicalWidth: outputs[i].physicalWidth || 0,
+                physicalHeight: outputs[i].physicalHeight || 0,
                 res: isSel ? selRes : outputs[i].res,
                 hz: isSel ? selHz : outputs[i].hz,
                 scale: isSel ? selScale : parseFloat(outputs[i].scale),
+                autoScale: isSel ? selAutoScale : (outputs[i].autoScale !== false),
+                role: outputs[i].role || "",
                 posX: isSel ? Math.round(selPosX) : Math.round(outputs[i].posX || 0),
                 posY: isSel ? Math.round(selPosY) : Math.round(outputs[i].posY || 0),
                 isDefault: outputs[i].name === defaultMonitorName,
@@ -218,11 +227,26 @@ Item {
                 modes: outputs[i].modes
             });
         }
+        updated = Layout.reflowForGeometryChange(outputs, updated, selectedOutputName);
+        if (Layout.needsAutoLayout(updated)) {
+            updated = Layout.autoArrangeOutputs(updated, backend.savedConfig);
+        }
+        // Mark outputs moved by reflow/auto-layout. HyprMonitorCommands sees
+        // the recalculated object, not the old live coordinates, so it needs
+        // this explicit signal to apply neighbouring monitor moves.
+        for (var u = 0; u < updated.length; u++) {
+            for (var o = 0; o < outputs.length; o++) {
+                if (updated[u].name !== outputs[o].name) continue;
+                updated[u].layoutChanged = Math.round(updated[u].posX || 0) !== Math.round(outputs[o].posX || 0)
+                    || Math.round(updated[u].posY || 0) !== Math.round(outputs[o].posY || 0);
+                break;
+            }
+        }
         return updated;
     }
 
     // Builds the save-config object for all monitors (no shell / jq needed).
-    function buildSaveConfig(updatedOutputs, selectedOutputName, selRes, selHz, selScale, selPosX, selPosY, selHdr, selBitdepth, selVrr, selSdrLuminance, selSdrBrightness, selSdrSaturation, selColorManagement, selIccProfile, selSdrEotf, defaultOutputName) {
+    function buildSaveConfig(updatedOutputs, selectedOutputName, selRes, selHz, selScale, selPosX, selPosY, selHdr, selBitdepth, selVrr, selSdrLuminance, selSdrBrightness, selSdrSaturation, selColorManagement, selIccProfile, selSdrEotf, defaultOutputName, selAutoScale) {
         var config = {};
         for (var i = 0; i < updatedOutputs.length; i++) {
             var mon = updatedOutputs[i];
@@ -232,13 +256,18 @@ Item {
             var monRes   = isSelected ? (isSelected ? selRes : mon.res) : (saved.res   || mon.res);
             var monHz    = isSelected ? parseFloat(selHz).toFixed(2)    : (saved.hz    || parseFloat(mon.hz).toFixed(2));
             var monScale = isSelected ? String(parseFloat(selScale))    : (saved.scale || String(parseFloat(mon.scale)));
-            var monPosX  = isSelected ? String(Math.round(mon.posX))   : (saved.posX !== undefined ? String(saved.posX) : String(Math.round(mon.posX)));
-            var monPosY  = isSelected ? String(Math.round(mon.posY))   : (saved.posY !== undefined ? String(saved.posY) : String(Math.round(mon.posY)));
+            // recalcPositions may move neighbouring outputs after a scale or
+            // resolution change. Persist the resulting coordinates for every
+            // output so a restart cannot restore an overlapping layout.
+            var monPosX  = String(Math.round(mon.posX));
+            var monPosY  = String(Math.round(mon.posY));
 
             config[mon.name] = {
+                role:            saved.role || (mon.name === defaultOutputName ? "primary" : (i === 1 ? "secondary" : (i === 2 ? "tertiary" : "display-" + (i + 1)))),
                 res:             monRes,
                 hz:              monHz,
                 scale:           monScale,
+                autoScale:       isSelected ? !!selAutoScale : (mon.autoScale !== false),
                 posX:            monPosX,
                 posY:            monPosY,
                 "default":       (mon.name === defaultOutputName),
@@ -275,10 +304,12 @@ Item {
                       sdrLuminance: selSdrLuminance, sdrBrightness: selSdrBrightness,
                       sdrSaturation: selSdrSaturation, colorManagement: selColorManagement,
                       iccProfile: selIccProfile, sdrEotf: selSdrEotf },
-                    backend.savedConfig);
+                    backend.savedConfig,
+                    !!hMon.layoutChanged,
+                    backend.hyprMonitorApplyPath);
                 if (hyprCmd) hyprCmds.push(hyprCmd);
             }
-            return HyprMonitorCommands.assembleSteps(hyprCmds, defaultOutputName);
+            return HyprMonitorCommands.assembleSteps(hyprCmds, defaultOutputName, backend.hyprMonitorApplyPath);
         }
 
         var steps = [];
@@ -331,8 +362,8 @@ Item {
         }
     }
 
-    function applySettings(outputs, selectedOutputName, selRes, selHz, selScale, selPosX, selPosY, selHdr, selBitdepth, selVrr, selSdrLuminance, selSdrBrightness, selSdrSaturation, selColorManagement, selIccProfile, selSdrEotf, defaultMonitorName) {
-        var updatedOutputs = recalcPositions(outputs, selectedOutputName, selRes, selHz, selScale, selPosX, selPosY, selHdr, selBitdepth, selVrr, selSdrLuminance, selSdrBrightness, selSdrSaturation, selColorManagement, selIccProfile, selSdrEotf, defaultMonitorName);
+    function applySettings(outputs, selectedOutputName, selRes, selHz, selScale, selPosX, selPosY, selHdr, selBitdepth, selVrr, selSdrLuminance, selSdrBrightness, selSdrSaturation, selColorManagement, selIccProfile, selSdrEotf, defaultMonitorName, selAutoScale) {
+        var updatedOutputs = recalcPositions(outputs, selectedOutputName, selRes, selHz, selScale, selPosX, selPosY, selHdr, selBitdepth, selVrr, selSdrLuminance, selSdrBrightness, selSdrSaturation, selColorManagement, selIccProfile, selSdrEotf, defaultMonitorName, selAutoScale);
         var defaultOutputName = defaultMonitorName;
         if (!defaultOutputName && updatedOutputs.length > 0) {
             for (var d = 0; d < updatedOutputs.length; d++) {
@@ -345,7 +376,7 @@ Item {
         // Save config via JsonDataStore (atomic write, no shell needed)
         configStore.save(buildSaveConfig(updatedOutputs, selectedOutputName, selRes, selHz, selScale,
             selPosX, selPosY, selHdr, selBitdepth, selVrr, selSdrLuminance, selSdrBrightness,
-            selSdrSaturation, selColorManagement, selIccProfile, selSdrEotf, defaultOutputName));
+            selSdrSaturation, selColorManagement, selIccProfile, selSdrEotf, defaultOutputName, selAutoScale));
 
         // Build and run compositor apply steps (direct argv, no sh -c)
         var steps = buildApplySteps(updatedOutputs, selectedOutputName, selRes, selHz, selScale,

@@ -4,7 +4,6 @@
 // isHdrColorMode / isRiskyColorMode to this library.
 var RISKY_COLOR_MODES = ["dcip3", "dp3", "adobe"];
 var HDR_COLOR_MODES   = ["hdr", "hdredid", "hdrp3", "hdrapple", "hdradobe"];
-var HYPR_MONITOR_APPLY = "/home/ekrem/.config/quickshell/scripts/hypr_monitor_apply.sh";
 
 function isRiskyColorMode(mode) { return RISKY_COLOR_MODES.indexOf(mode) >= 0; }
 function isHdrColorMode(mode)   { return HDR_COLOR_MODES.indexOf(mode) >= 0; }
@@ -61,7 +60,7 @@ function buildMonitorArg(monName, monRes, monHz, monPosX, monPosY, monScale,
 // Builds structured output data for one Hyprland monitor.
 // Returns { steps: [{argv, delayAfter?}], batchArg: string|null } or null.
 function buildOutputCmd(mon, monRes, monHz, monScale, monPosX, monPosY,
-                        isSelected, selParams, savedConfig) {
+                        isSelected, selParams, savedConfig, forceApply, helperPath) {
     var savedMon = savedConfig[mon.name] || {};
 
     var monHdr     = isSelected ? selParams.hdr      : (savedMon.hdr      !== undefined ? savedMon.hdr      : (mon.hdr      || false));
@@ -78,7 +77,11 @@ function buildOutputCmd(mon, monRes, monHz, monScale, monPosX, monPosY,
 
     var changed = monitorSettingChanged(mon, monRes, monHz, monScale, monPosX, monPosY,
                                         monHdr, monBd, monVrr, monSdrLum, monSdrBri, monSdrSat, monCm, monEotf, monIcc);
-    if (!isSelected && !changed) return null;
+    // A neighbouring output may have been moved by the layout reflow after
+    // the selected output changed scale/resolution. In that case `mon`
+    // already contains the new coordinates, so the normal comparison cannot
+    // detect the move. forceApply ensures the compositor receives it.
+    if (!isSelected && !changed && !forceApply) return null;
 
     var monitorArg = buildMonitorArg(mon.name, monRes, monHz, monPosX, monPosY, monScale,
                                      monHdr, monBd, monVrr, monSdrLum, monSdrBri, monSdrSat, monCm, monEotf, monIcc);
@@ -88,19 +91,19 @@ function buildOutputCmd(mon, monRes, monHz, monScale, monPosX, monPosY,
         var resetArg = mon.name + "," + monRes + "@" + monHz + "," + monPosX + "x" + monPosY + "," + monScale + ",bitdepth,10,vrr,0,cm,srgb";
         return {
             steps: [
-                { argv: [HYPR_MONITOR_APPLY, "monitor", resetArg], delayAfter: 200 },
-                { argv: [HYPR_MONITOR_APPLY, "monitor", monitorArg] }
+                { argv: [helperPath, "monitor", resetArg], delayAfter: 200 },
+                { argv: [helperPath, "monitor", monitorArg] }
             ],
             batchArg: null
         };
     }
 
-    return { steps: [{ argv: [HYPR_MONITOR_APPLY, "monitor", monitorArg] }], batchArg: null };
+    return { steps: [{ argv: [helperPath, "monitor", monitorArg] }], batchArg: null };
 }
 
 // Assembles all per-output results into a flat step queue.
 // Returns array of { argv: [...], delayAfter?: number }.
-function assembleSteps(cmds, defaultOutputName) {
+function assembleSteps(cmds, defaultOutputName, helperPath) {
     var steps     = [];
     var batchArgs = [];
 
@@ -115,7 +118,7 @@ function assembleSteps(cmds, defaultOutputName) {
         if (defaultOutputName) batchArgs.push("dispatch focusmonitor " + defaultOutputName);
         steps.push({ argv: ["hyprctl", "--batch", batchArgs.join(" ; ")] });
     } else if (defaultOutputName) {
-        steps.push({ argv: [HYPR_MONITOR_APPLY, "focus", defaultOutputName] });
+        steps.push({ argv: [helperPath, "focus", defaultOutputName] });
     }
 
     return steps;

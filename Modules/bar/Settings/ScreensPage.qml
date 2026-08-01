@@ -81,7 +81,7 @@ Item {
                     Rectangle {
                         width: screenNameText.width + 14; height: 22; radius: 6
                         color: Qt.rgba(255,255,255,0.08)
-                        Text {  id: screenNameText; anchors.centerIn: parent; text: modelData; font.pixelSize: 10; color: SettingsPalette.subtext; font.family: Theme.fontFamily }
+                        Text {  id: screenNameText; anchors.centerIn: parent; text: ScreenManager.screenLabel(modelData); font.pixelSize: 10; color: SettingsPalette.subtext; font.family: Theme.fontFamily }
                     }
                 }
             }
@@ -136,7 +136,7 @@ Item {
                                 Item { Layout.fillWidth: true }
                                 Text {
                                     font.family: Theme.fontFamily
-                                    text: currentPref.indexOf("all") !== -1 ? "All screens" : currentPref.join(", ")
+                                    text: currentPref.indexOf("all") !== -1 ? "All screens" : currentPref.map(function(value) { return ScreenManager.screenLabel(value); }).join(", ")
                                     font.pixelSize: 11; color: SettingsPalette.overlay2
                                 }
                             }
@@ -188,7 +188,7 @@ Item {
                                         border.width: 1
                                         Behavior on color { ColorAnimation { duration: 150 } }
 
-                                        Text {  id: scrText; anchors.centerIn: parent; text: modelData; font.pixelSize: 11; color: isSelected ? Theme.green : SettingsPalette.subtext; font.family: Theme.fontFamily }
+                                        Text {  id: scrText; anchors.centerIn: parent; text: ScreenManager.screenLabel(modelData); font.pixelSize: 11; color: isSelected ? Theme.green : SettingsPalette.subtext; font.family: Theme.fontFamily }
 
                                         MouseArea {
                                             anchors.fill: parent; cursorShape: Qt.PointingHandCursor

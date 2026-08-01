@@ -21,14 +21,16 @@ function logicalWidth(outObj) {
     var dims = parseResParts(outObj.res);
     var scale = parseFloat(outObj.scale || "1");
     if (!isFinite(scale) || scale <= 0) scale = 1;
-    return Math.round(dims.width / scale);
+    // Never round a fractional logical edge down: even a sub-pixel overlap is
+    // rejected by Hyprland's monitor-layout validator.
+    return Math.ceil(dims.width / scale);
 }
 
 function logicalHeight(outObj) {
     var dims = parseResParts(outObj.res);
     var scale = parseFloat(outObj.scale || "1");
     if (!isFinite(scale) || scale <= 0) scale = 1;
-    return Math.round(dims.height / scale);
+    return Math.ceil(dims.height / scale);
 }
 
 function getSavedPosition(outObj, savedConfig) {
@@ -246,4 +248,64 @@ function needsAutoLayout(outs) {
         }
     }
     return false;
+}
+
+// Preserve the physical layout relationship when one output changes logical
+// size (resolution or scale). Outputs that were completely on the right/bottom
+// of the changed output follow its moving edge; outputs on the left/top remain
+// anchored. This avoids both overlaps and gaps without destroying intentional
+// per-monitor offsets such as a custom vertical alignment.
+function reflowForGeometryChange(originalOutputs, updatedOutputs, changedName) {
+    if (!originalOutputs || !updatedOutputs || originalOutputs.length <= 1) {
+        return updatedOutputs;
+    }
+
+    var originalChanged = null;
+    var updatedChanged = null;
+    for (var i = 0; i < originalOutputs.length; i++) {
+        if (originalOutputs[i].name === changedName) {
+            originalChanged = originalOutputs[i];
+            break;
+        }
+    }
+    for (var j = 0; j < updatedOutputs.length; j++) {
+        if (updatedOutputs[j].name === changedName) {
+            updatedChanged = updatedOutputs[j];
+            break;
+        }
+    }
+    if (!originalChanged || !updatedChanged) return updatedOutputs;
+
+    var oldLeft = Math.round(originalChanged.posX || 0);
+    var oldTop = Math.round(originalChanged.posY || 0);
+    var oldRight = oldLeft + logicalWidth(originalChanged);
+    var oldBottom = oldTop + logicalHeight(originalChanged);
+    var newLeft = Math.round(updatedChanged.posX || 0);
+    var newTop = Math.round(updatedChanged.posY || 0);
+    var newRight = newLeft + logicalWidth(updatedChanged);
+    var newBottom = newTop + logicalHeight(updatedChanged);
+    var rightDelta = newRight - oldRight;
+    var bottomDelta = newBottom - oldBottom;
+
+    for (var k = 0; k < updatedOutputs.length; k++) {
+        var output = updatedOutputs[k];
+        if (output.name === changedName) continue;
+
+        var original = null;
+        for (var n = 0; n < originalOutputs.length; n++) {
+            if (originalOutputs[n].name === output.name) {
+                original = originalOutputs[n];
+                break;
+            }
+        }
+        if (!original) continue;
+
+        var originalLeft = Math.round(original.posX || 0);
+        var originalTop = Math.round(original.posY || 0);
+
+        if (originalLeft >= oldRight) output.posX = Math.round(output.posX || 0) + rightDelta;
+        if (originalTop >= oldBottom) output.posY = Math.round(output.posY || 0) + bottomDelta;
+    }
+
+    return updatedOutputs;
 }

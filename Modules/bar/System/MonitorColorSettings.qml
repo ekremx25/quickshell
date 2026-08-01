@@ -26,7 +26,7 @@ Rectangle {
             parts.pop();
             return parts.join("/") || "/";
         }
-        return Quickshell.env("HOME") || "/home/ekrem";
+        return Quickshell.env("HOME") || "/";
     }
 
     ColumnLayout {

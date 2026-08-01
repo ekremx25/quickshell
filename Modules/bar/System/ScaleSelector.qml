@@ -13,9 +13,11 @@ Item {
     required property string helperText
     required property bool canStepDown
     required property bool canStepUp
+    required property bool automatic
 
     signal scaleSelected(real value)
     signal stepRequested(int direction)
+    signal autoRequested()
 
     implicitWidth: selectorLayout.implicitWidth
     implicitHeight: selectorLayout.implicitHeight
@@ -37,6 +39,30 @@ Item {
         RowLayout {
             Layout.fillWidth: true
             spacing: 8
+
+            Rectangle {
+                radius: 9
+                color: root.automatic ? root.activeChipColor : root.chipColor
+                border.color: root.automatic ? root.activeChipBorder : root.chipBorder
+                border.width: 1
+                implicitWidth: 52
+                implicitHeight: 34
+
+                Text {
+                    anchors.centerIn: parent
+                    text: "Auto"
+                    color: root.automatic ? Theme.primary : SettingsPalette.text
+                    font.family: Theme.fontFamily
+                    font.pixelSize: 11
+                    font.bold: root.automatic
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: root.autoRequested()
+                }
+            }
 
             Rectangle {
                 radius: 9
