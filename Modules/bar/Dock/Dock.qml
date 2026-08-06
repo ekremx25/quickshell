@@ -13,6 +13,7 @@ import "../Workspaces"
 import "../power"
 import "../Notepad"
 import "../Launcher"
+import "../Calendar"
 import "../Settings"
 import "../Clipboard"
 
@@ -163,6 +164,7 @@ Variants {
             "Power": powerComp,
             "Clipboard": clipboardComp,
             "Launcher": launcherComp,
+            "Calendar": calendarComp,
             "Media": mediaComp
         })
 
@@ -172,6 +174,7 @@ Variants {
         Component { id: trayComp; Tray { } }
         Component { id: powerComp; Power { } }
         Component { id: clipboardComp; Clipboard { } }
+        Component { id: calendarComp; Calendar { } }
         Component { id: mediaComp; MediaWidget { dockScale: dockWindow.dockScale } }
 
         Settings {
