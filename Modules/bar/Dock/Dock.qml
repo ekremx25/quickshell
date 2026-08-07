@@ -2,6 +2,7 @@ import QtQuick
 import Qt.labs.platform
 import QtQuick.Layouts
 import "."
+import ".." as BarModules
 import Quickshell
 import Quickshell.Wayland
 import "../../../Widgets"
@@ -105,6 +106,10 @@ Variants {
             }
         }
 
+        BarModules.BarBackend {
+            id: dockBarBackend
+        }
+
         // ── State ──
         property alias pinnedApps: dockBackend.pinnedApps
         property alias runningWindows: dockBackend.runningWindows
@@ -165,6 +170,7 @@ Variants {
             "Clipboard": clipboardComp,
             "Launcher": launcherComp,
             "Calendar": calendarComp,
+            "Workspaces": workspacesComp,
             "Media": mediaComp
         })
 
@@ -175,6 +181,13 @@ Variants {
         Component { id: powerComp; Power { } }
         Component { id: clipboardComp; Clipboard { } }
         Component { id: calendarComp; Calendar { } }
+        Component {
+            id: workspacesComp
+            Workspaces {
+                monitorName: dockWindow.modelData.name
+                config: dockBarBackend.workspacesConfig
+            }
+        }
         Component { id: mediaComp; MediaWidget { dockScale: dockWindow.dockScale } }
 
         Settings {

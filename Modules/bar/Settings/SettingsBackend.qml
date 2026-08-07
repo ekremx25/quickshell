@@ -54,7 +54,7 @@ Item {
     ]
 
     readonly property var dockPlacementNames: [
-        "Launcher", "Calendar", "Weather", "Volume", "Tray",
+        "Launcher", "Calendar", "Workspaces", "Weather", "Volume", "Tray",
         "Notepad", "Power", "Clipboard", "Media"
     ]
 

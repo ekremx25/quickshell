@@ -78,6 +78,7 @@ Item {
         var allowed = ({
             "Launcher": true,
             "Calendar": true,
+            "Workspaces": true,
             "Weather": true,
             "Volume": true,
             "Tray": true,
