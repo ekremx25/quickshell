@@ -407,6 +407,10 @@ The shell boots in three phases to speed up the first visible frame:
 | `FileChangeWatcher.qml` | `inotifywait` with automatic polling fallback when `inotify-tools` is missing |
 | `atomic_write.sh` | Argv-based write helper — zero shell interpretation, no injection risk |
 
+### Central module registry
+
+Bar and dock modules are declared once in [`ModuleRegistry.js`](Modules/bar/ModuleRegistry.js), while [`ModuleCatalog.qml`](Modules/bar/ModuleCatalog.qml) owns their visual factories. The registry provides stable IDs, placement capabilities, alias migrations, automatic layout normalization and a runtime catalog health check. See the [module registry contributor guide](docs/MODULE_REGISTRY.md) for the schema and extension workflow.
+
 ### Compositor abstraction — [`Services/CompositorService.qml`](Services/CompositorService.qml)
 
 A singleton that detects the active compositor from environment variables and exposes a uniform API (`monitors`, `focusWindow`, `powerOnMonitors`, …) so modules never need to special-case Hyprland vs. Niri vs. Mango.

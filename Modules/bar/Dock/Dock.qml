@@ -7,16 +7,7 @@ import Quickshell
 import Quickshell.Wayland
 import "../../../Widgets"
 import "../../../Services" as S
-import "../Weather"
-import "../Volume"
-import "../Tray"
-import "../Workspaces"
-import "../power"
-import "../Notepad"
-import "../Launcher"
-import "../Calendar"
 import "../Settings"
-import "../Clipboard"
 
 Variants {
     id: dockRoot
@@ -160,49 +151,21 @@ Variants {
             return !!(prev && curr && prev.isPinned && !curr.isPinned && !prev.isModule && !curr.isModule);
         }
 
-        // ── Module component map ──
-        property var moduleMap: ({
-            "Weather": weatherComp,
-            "Volume": volumeComp,
-            "Tray": trayComp,
-            "Notepad": notepadComp,
-            "Power": powerComp,
-            "Clipboard": clipboardComp,
-            "Launcher": launcherComp,
-            "Calendar": calendarComp,
-            "Workspaces": workspacesComp,
-            "Media": mediaComp
-        })
-
-        Component { id: weatherComp; Weather { } }
-        Component { id: notepadComp; Notepad { } }
-        Component { id: volumeComp; Volume { } }
-        Component { id: trayComp; Tray { } }
-        Component { id: powerComp; Power { } }
-        Component { id: clipboardComp; Clipboard { } }
-        Component { id: calendarComp; Calendar { } }
-        Component {
-            id: workspacesComp
-            Workspaces {
-                monitorName: dockWindow.modelData.name
-                config: dockBarBackend.workspacesConfig
-            }
-        }
-        Component { id: mediaComp; MediaWidget { dockScale: dockWindow.dockScale } }
+        // Visual construction and placement metadata are centralized in the
+        // ModuleCatalog/ModuleRegistry pair.
+        readonly property var moduleMap: moduleCatalog.componentMap
 
         Settings {
             id: settingsMenu
         }
 
-        Component {
-            id: launcherComp
-            Launcher {
-                Component.onCompleted: {
-                    settingsRequested.connect(function() {
-                        settingsMenu.visible = !settingsMenu.visible;
-                    });
-                }
-            }
+        BarModules.ModuleCatalog {
+            id: moduleCatalog
+            screenData: dockWindow.modelData
+            workspacesConfig: dockBarBackend.workspacesConfig
+            launcherLogo: dockBarBackend.barLayout.launcherLogo || ""
+            settingsMenu: settingsMenu
+            dockScale: dockWindow.dockScale
         }
 
         // ── Drag-and-drop finalisation ──

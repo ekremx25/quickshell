@@ -154,8 +154,12 @@ Item {
                 groupColor: "#a6e3a1"
                 moduleInfo: root.backend ? root.backend.moduleInfo : ({})
                 dragLayer: root.dragLayer
-                onDragStarted: root.beginDrag(groupName, sourceIndex, moduleName)
-                onDropRequested: root.handleDrop(groupName, targetIndex)
+                onDragStarted: function(groupName, sourceIndex, moduleName) {
+                    root.beginDrag(groupName, sourceIndex, moduleName);
+                }
+                onDropRequested: function(groupName, targetIndex) {
+                    root.handleDrop(groupName, targetIndex);
+                }
                 onDragFinished: root.resetDragState()
             }
 
@@ -168,8 +172,12 @@ Item {
                 groupColor: "#cba6f7"
                 moduleInfo: root.backend ? root.backend.moduleInfo : ({})
                 dragLayer: root.dragLayer
-                onDragStarted: root.beginDrag(groupName, sourceIndex, moduleName)
-                onDropRequested: root.handleDrop(groupName, targetIndex)
+                onDragStarted: function(groupName, sourceIndex, moduleName) {
+                    root.beginDrag(groupName, sourceIndex, moduleName);
+                }
+                onDropRequested: function(groupName, targetIndex) {
+                    root.handleDrop(groupName, targetIndex);
+                }
                 onDragFinished: root.resetDragState()
             }
 
@@ -182,8 +190,12 @@ Item {
                 groupColor: "#89b4fa"
                 moduleInfo: root.backend ? root.backend.moduleInfo : ({})
                 dragLayer: root.dragLayer
-                onDragStarted: root.beginDrag(groupName, sourceIndex, moduleName)
-                onDropRequested: root.handleDrop(groupName, targetIndex)
+                onDragStarted: function(groupName, sourceIndex, moduleName) {
+                    root.beginDrag(groupName, sourceIndex, moduleName);
+                }
+                onDropRequested: function(groupName, targetIndex) {
+                    root.handleDrop(groupName, targetIndex);
+                }
                 onDragFinished: root.resetDragState()
             }
 
@@ -196,8 +208,12 @@ Item {
                 groupColor: "#6c7086"
                 moduleInfo: root.backend ? root.backend.moduleInfo : ({})
                 dragLayer: root.dragLayer
-                onDragStarted: root.beginDrag(groupName, sourceIndex, moduleName)
-                onDropRequested: root.handleDrop(groupName, targetIndex)
+                onDragStarted: function(groupName, sourceIndex, moduleName) {
+                    root.beginDrag(groupName, sourceIndex, moduleName);
+                }
+                onDropRequested: function(groupName, targetIndex) {
+                    root.handleDrop(groupName, targetIndex);
+                }
                 onDragFinished: root.resetDragState()
             }
 
@@ -210,8 +226,12 @@ Item {
                 groupColor: "#fab387"
                 moduleInfo: root.backend ? root.backend.moduleInfo : ({})
                 dragLayer: root.dragLayer
-                onDragStarted: root.beginDrag(groupName, sourceIndex, moduleName)
-                onDropRequested: root.handleDrop(groupName, targetIndex)
+                onDragStarted: function(groupName, sourceIndex, moduleName) {
+                    root.beginDrag(groupName, sourceIndex, moduleName);
+                }
+                onDropRequested: function(groupName, targetIndex) {
+                    root.handleDrop(groupName, targetIndex);
+                }
                 onDragFinished: root.resetDragState()
             }
 
@@ -224,8 +244,12 @@ Item {
                 groupColor: "#f9e2af"
                 moduleInfo: root.backend ? root.backend.moduleInfo : ({})
                 dragLayer: root.dragLayer
-                onDragStarted: root.beginDrag(groupName, sourceIndex, moduleName)
-                onDropRequested: root.handleDrop(groupName, targetIndex)
+                onDragStarted: function(groupName, sourceIndex, moduleName) {
+                    root.beginDrag(groupName, sourceIndex, moduleName);
+                }
+                onDropRequested: function(groupName, targetIndex) {
+                    root.handleDrop(groupName, targetIndex);
+                }
                 onDragFinished: root.resetDragState()
             }
         }

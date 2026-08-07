@@ -7,23 +7,7 @@ import Quickshell.Wayland
 import "."
 import "BarDefaults.js" as BarDefaults
 
-import "Launcher"
-import "./Workspaces"
-import "./Tray"
-import "./SysInfo"
-import "./Volume"
-import "./power"
-import "./Calendar"
-import "./Notepad"
-import "./Weather"
-import "./Notifications"
-import "./Clipboard"
 import "./Settings"
-import "./Equalizer"
-import "./NightLight"
-
-import "./Group"
-import "./System" as Sys
 import "../../Widgets"
 import "../../Services" as S
 
@@ -59,41 +43,6 @@ Variants {
     }
 
 
-    // Module component map (excluding Launcher)
-    property var moduleMap: ({
-        "Calendar": calendarComp,
-        "Notepad": notepadComp,
-        "Notifications": notificationsComp,
-        "Weather": weatherComp,
-        "Volume": volumeComp,
-        "Equalizer": equalizerComp,
-        "Tray": trayComp,
-        "Clipboard": clipboardComp,
-        "Power": powerComp,
-        "NightLight": nightLightComp,
-
-        "PowerGroup": powerGroupComp,
-        "SysInfoGroup": sysInfoGroupComp,
-        "RamModule": ramModuleComp,
-        "RAM": ramComp
-    })
-
-    Component { id: calendarComp; Calendar {} }
-    Component { id: notepadComp; Notepad {} }
-    Component { id: notificationsComp; Notifications {} }
-    Component { id: weatherComp; Weather {} }
-    Component { id: volumeComp; Volume {} }
-    Component { id: equalizerComp; Equalizer {} }
-    Component { id: trayComp; Tray {} }
-    Component { id: clipboardComp; Clipboard {} }
-    Component { id: powerComp; Power {} }
-    Component { id: nightLightComp; NightLight {} }
-
-    Component { id: powerGroupComp; PowerGroup {} }
-    Component { id: sysInfoGroupComp; SysInfoGroup {} }
-    Component { id: ramModuleComp; RamModule {} }
-    Component { id: ramComp; RamModule {} }
-
     Item {
         id: screenItem
         required property var modelData
@@ -108,8 +57,6 @@ Variants {
             }
             return prefs.indexOf(modelData.name) !== -1;
         }
-
-        Component { id: workspacesComp; Workspaces { monitorName: modelData.name; config: root.workspacesConfig } }
 
         PanelWindow {
             id: barWindow
@@ -145,20 +92,12 @@ Variants {
                     }
                 }
 
-
-
-
-            // Launcher Component — signal connection
-            Component {
-                id: launcherComp
-                Launcher {
-                    logo: root.barLayout.launcherLogo || ""
-                    Component.onCompleted: {
-                        settingsRequested.connect(function() {
-                            settingsMenu.visible = !settingsMenu.visible;
-                        });
-                    }
-                }
+            ModuleCatalog {
+                id: moduleCatalog
+                screenData: modelData
+                workspacesConfig: root.workspacesConfig
+                launcherLogo: root.barLayout.launcherLogo || ""
+                settingsMenu: settingsMenu
             }
 
             Rectangle {
@@ -194,11 +133,7 @@ Variants {
                             id: leftLoader
                             property int itemIndex: index
                             active: (modelData === "Workspaces") ? screenItem.showWorkspaces : true
-                            sourceComponent: {
-                                if (modelData === "Launcher") return launcherComp;
-                                if (modelData === "Workspaces") return workspacesComp;
-                                return root.moduleMap[modelData] || null;
-                            }
+                            sourceComponent: moduleCatalog.componentFor(modelData)
                             opacity: 0
                             scale: 0.7
                             Timer {
@@ -222,11 +157,7 @@ Variants {
                             id: centerLoader
                             property int itemIndex: index
                             active: (modelData === "Workspaces") ? screenItem.showWorkspaces : true
-                            sourceComponent: {
-                                if (modelData === "Launcher") return launcherComp;
-                                if (modelData === "Workspaces") return workspacesComp;
-                                return root.moduleMap[modelData] || null;
-                            }
+                            sourceComponent: moduleCatalog.componentFor(modelData)
                             opacity: 0
                             scale: 0.7
                             Timer {
@@ -251,11 +182,7 @@ Variants {
                             id: rightLoader
                             property int itemIndex: index
                             active: (modelData === "Workspaces") ? screenItem.showWorkspaces : true
-                            sourceComponent: {
-                                if (modelData === "Launcher") return launcherComp;
-                                if (modelData === "Workspaces") return workspacesComp;
-                                return root.moduleMap[modelData] || null;
-                            }
+                            sourceComponent: moduleCatalog.componentFor(modelData)
                             opacity: 0
                             scale: 0.7
                             Timer {
@@ -284,11 +211,7 @@ Variants {
                             Loader {
                                 id: vLeftLoader
                                 active: (modelData === "Workspaces") ? screenItem.showWorkspaces : true
-                                sourceComponent: {
-                                    if (modelData === "Launcher") return launcherComp;
-                                    if (modelData === "Workspaces") return workspacesComp;
-                                    return root.moduleMap[modelData] || null;
-                                }
+                                sourceComponent: moduleCatalog.componentFor(modelData)
                                 anchors.centerIn: parent
                                 rotation: -90
                             }
@@ -310,11 +233,7 @@ Variants {
                             Loader {
                                 id: vCenterLoader
                                 active: (modelData === "Workspaces") ? screenItem.showWorkspaces : true
-                                sourceComponent: {
-                                    if (modelData === "Launcher") return launcherComp;
-                                    if (modelData === "Workspaces") return workspacesComp;
-                                    return root.moduleMap[modelData] || null;
-                                }
+                                sourceComponent: moduleCatalog.componentFor(modelData)
                                 anchors.centerIn: parent
                                 rotation: -90
                             }
@@ -336,11 +255,7 @@ Variants {
                             Loader {
                                 id: vRightLoader
                                 active: (modelData === "Workspaces") ? screenItem.showWorkspaces : true
-                                sourceComponent: {
-                                    if (modelData === "Launcher") return launcherComp;
-                                    if (modelData === "Workspaces") return workspacesComp;
-                                    return root.moduleMap[modelData] || null;
-                                }
+                                sourceComponent: moduleCatalog.componentFor(modelData)
                                 anchors.centerIn: parent
                                 rotation: -90
                             }

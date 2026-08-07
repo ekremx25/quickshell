@@ -3,6 +3,7 @@ import Quickshell.Io
 import "../../../Services" as S
 import "../../../Services/core" as Core
 import "../../../Services/core/Log.js" as Log
+import "../ModuleRegistry.js" as ModuleRegistry
 
 Item {
     id: service
@@ -71,49 +72,12 @@ Item {
         return obj;
     }
 
-    function normalizeModuleList(list) {
-        var normalized = [];
-        if (!Array.isArray(list)) return normalized;
-
-        var allowed = ({
-            "Launcher": true,
-            "Calendar": true,
-            "Workspaces": true,
-            "Weather": true,
-            "Volume": true,
-            "Tray": true,
-            "Notepad": true,
-            "Power": true,
-            "Clipboard": true,
-            "Media": true
-        });
-        var seen = ({});
-
-        for (var i = 0; i < list.length; i++) {
-            var name = list[i];
-            if (!allowed[name] || seen[name]) continue;
-            seen[name] = true;
-            normalized.push(name);
-        }
-
-        return normalized;
-    }
-
     function normalizeDockConfig(cfg) {
         var normalized = cfg || {};
-        var legacyModules = normalizeModuleList(normalized.modules || []);
-        var left = normalizeModuleList(normalized.leftModules || []);
-        var right = normalizeModuleList(normalized.rightModules || []);
-
-        if (left.length === 0 && right.length === 0 && legacyModules.length > 0) {
-            left = legacyModules.indexOf("Weather") !== -1 ? ["Weather"] : [];
-            right = legacyModules.filter(function(name) {
-                return name !== "Weather" && name !== "Launcher";
-            });
-        }
-
-        normalized.leftModules = left;
-        normalized.rightModules = right;
+        var layout = ModuleRegistry.normalizeDockLayout(normalized);
+        normalized.leftModules = layout.leftModules;
+        normalized.rightModules = layout.rightModules;
+        normalized.moduleSchemaVersion = ModuleRegistry.schemaVersion();
         delete normalized.modules;
 
         if (normalized.showDock === undefined) normalized.showDock = true;

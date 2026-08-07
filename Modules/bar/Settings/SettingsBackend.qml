@@ -3,6 +3,7 @@ import Qt.labs.platform
 import "."
 import "SettingsPalette.js" as SettingsPalette
 import "../BarDefaults.js" as BarDefaults
+import "../ModuleRegistry.js" as ModuleRegistry
 import "../../../Services/core" as Core
 import "../../../Services/core/Log.js" as Log
 
@@ -28,42 +29,11 @@ Item {
     property var dockLeftModel: null
     property var dockRightModel: null
 
-    readonly property var moduleInfo: ({
-        "Launcher": { icon: "\ue7e6", label: "Launcher", color: "#1e66f5" },
-        "Calendar": { icon: "", label: "Calendar", color: "#f5c2e7" },
-        "Notepad": { icon: "󰠮", label: "Notepad", color: "#f9e2af" },
-        "Workspaces": { icon: "", label: "Workspaces", color: "#cba6f7" },
-        "Notifications": { icon: "󰂚", label: "Notifications", color: "#fab387" },
-        "Weather": { icon: "󰖕", label: "Weather", color: "#f9e2af" },
-        "Volume": { icon: "󰕾", label: "Volume", color: "#89b4fa" },
-        "Equalizer": { icon: "󱞙", label: "Equalizer", color: "#89dceb" },
-        "Tray": { icon: "󰇚", label: "Tray", color: "#a6adc8" },
-        "Clipboard": { icon: "󰅍", label: "Clipboard", color: "#fab387" },
-        "Power": { icon: "⏻", label: "Power", color: "#f38ba8" },
-        "PowerGroup": { icon: "", label: "Power Group", color: "#a6e3a1" },
-        "SysInfoGroup": { icon: "", label: "System Group", color: "#f9e2af" },
-        "RamModule": { icon: "󰘚", label: "Memory", color: "#a6e3a1" },
-        "Media": { icon: "♫", label: "Media", color: "#f5c2e7" }
-    })
-
-    readonly property var barPlacementNames: [
-        "Launcher", "Calendar", "Notepad",
-        "Workspaces", "Notifications", "Weather",
-        "Volume", "Equalizer", "Tray", "Clipboard", "Power",
-        "PowerGroup", "SysInfoGroup", "RamModule"
-    ]
-
-    readonly property var dockPlacementNames: [
-        "Launcher", "Calendar", "Workspaces", "Weather", "Volume", "Tray",
-        "Notepad", "Power", "Clipboard", "Media"
-    ]
-
-    readonly property var allModuleNames: [
-        "Launcher", "Calendar", "Notepad",
-        "Workspaces", "Notifications", "Weather",
-        "Volume", "Equalizer", "Tray", "Clipboard",
-        "Power", "PowerGroup", "SysInfoGroup", "RamModule", "Media"
-    ]
+    readonly property var moduleInfo: ModuleRegistry.moduleInfo()
+    readonly property var barPlacementNames: ModuleRegistry.namesForPlacement("bar")
+    readonly property var dockPlacementNames: ModuleRegistry.namesForPlacement("dock")
+    readonly property var allModuleNames: ModuleRegistry.allNames()
+    readonly property var registryHealth: ModuleRegistry.validateDefinitions()
 
     Core.JsonDataStore {
         id: barConfigStore
@@ -125,12 +95,7 @@ Item {
     }
 
     function canAssignToGroup(name, groupName) {
-        if (!name || !groupName) return false;
-        if (groupName === "inactive") return allModuleNames.indexOf(name) !== -1;
-        if (groupName === "dockLeft" || groupName === "dockRight") {
-            return dockPlacementNames.indexOf(name) !== -1;
-        }
-        return barPlacementNames.indexOf(name) !== -1;
+        return ModuleRegistry.canAssignToGroup(name, groupName);
     }
 
     function indexOfName(model, name) {
@@ -172,19 +137,6 @@ Item {
         return true;
     }
 
-    function collectUniqueNames(list, supportedNames, seen) {
-        var output = [];
-        var safeSeen = seen || ({});
-        for (var i = 0; i < list.length; ++i) {
-            var name = list[i];
-            if (supportedNames.indexOf(name) === -1) continue;
-            if (safeSeen[name]) continue;
-            safeSeen[name] = true;
-            output.push(name);
-        }
-        return output;
-    }
-
     function renderBarDefaults(cfg) {
         var normalized = normalizeBarConfig(cfg);
         var workspaces = normalized.workspaces || BarDefaults.createWorkspacesConfig();
@@ -203,7 +155,8 @@ Item {
             + "        inactive: " + JSON.stringify(normalized.inactive) + ",\n"
             + "        workspaces: createWorkspacesConfig(),\n"
             + "        theme: " + JSON.stringify(normalized.theme || "") + ",\n"
-            + "        barPosition: " + JSON.stringify(normalized.barPosition || "top") + "\n"
+            + "        barPosition: " + JSON.stringify(normalized.barPosition || "top") + ",\n"
+            + "        moduleSchemaVersion: " + ModuleRegistry.schemaVersion() + "\n"
             + "    };\n"
             + "}\n\n"
             + "function clone(value) {\n"
@@ -228,6 +181,13 @@ Item {
         return names;
     }
 
+    function currentDockModuleNames() {
+        if (dockLeftModel && dockRightModel) {
+            return getModelNames(dockLeftModel).concat(getModelNames(dockRightModel));
+        }
+        return dockLeftModulesList.concat(dockRightModulesList);
+    }
+
     function applyDockModuleLists(cfg) {
         var normalized = normalizeDockConfig(cfg);
         syncListModel(dockLeftModel, normalized.leftModules);
@@ -239,12 +199,10 @@ Item {
 
     function normalizeDockConfig(cfg) {
         var normalized = cloneValue(cfg || {});
-        if (!Array.isArray(normalized.leftModules)) normalized.leftModules = [];
-        if (!Array.isArray(normalized.rightModules)) normalized.rightModules = [];
-
-        var seen = {};
-        normalized.leftModules = collectUniqueNames(normalized.leftModules, dockPlacementNames, seen);
-        normalized.rightModules = collectUniqueNames(normalized.rightModules, dockPlacementNames, seen);
+        var layout = ModuleRegistry.normalizeDockLayout(normalized);
+        normalized.leftModules = layout.leftModules;
+        normalized.rightModules = layout.rightModules;
+        normalized.moduleSchemaVersion = ModuleRegistry.schemaVersion();
         delete normalized.modules;
         return normalized;
     }
@@ -258,28 +216,15 @@ Item {
         if (!normalized.workspaces) normalized.workspaces = BarDefaults.createWorkspacesConfig();
         if (!normalized.barPosition) normalized.barPosition = initialBarConfig.barPosition || "top";
 
-        var dockSeen = {};
-        collectUniqueNames(dockLeftModulesList.concat(dockRightModulesList), allModuleNames, dockSeen);
-
-        var seen = {};
-        normalized.left = collectUniqueNames(normalized.left, barPlacementNames, seen);
-        normalized.center = collectUniqueNames(normalized.center, barPlacementNames, seen);
-        normalized.right = collectUniqueNames(normalized.right, barPlacementNames, seen);
-
-        var inactiveNames = [];
-        for (var j = 0; j < normalized.inactive.length; ++j) {
-            var inactiveName = normalized.inactive[j];
-            if (allModuleNames.indexOf(inactiveName) === -1) continue;
-            if (seen[inactiveName] || dockSeen[inactiveName]) continue;
-            seen[inactiveName] = true;
-            inactiveNames.push(inactiveName);
-        }
-        normalized.inactive = inactiveNames;
-
-        for (var i = 0; i < allModuleNames.length; ++i) {
-            var moduleName = allModuleNames[i];
-            if (!seen[moduleName] && !dockSeen[moduleName]) normalized.inactive.push(moduleName);
-        }
+        // Read the live models so moving a module from dock to bar is reflected
+        // immediately, before either config file has been persisted.
+        var reserved = currentDockModuleNames();
+        var layout = ModuleRegistry.normalizeBarLayout(normalized, reserved);
+        normalized.left = layout.left;
+        normalized.center = layout.center;
+        normalized.right = layout.right;
+        normalized.inactive = layout.inactive;
+        normalized.moduleSchemaVersion = ModuleRegistry.schemaVersion();
         return normalized;
     }
 
