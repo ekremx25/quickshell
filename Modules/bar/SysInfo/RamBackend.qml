@@ -26,8 +26,16 @@ Item {
                 backend.ramTotal = parts[2] + " GB";
                 backend.swapUsed = parts[3] + " GB";
                 backend.swapTotal = parts[4] + " GB";
-                backend.ramHistory.push(parseInt(backend.ramUsagePct));
-                if (backend.ramHistory.length > backend.ramHistMax) backend.ramHistory.shift();
+                var usage = parseInt(backend.ramUsagePct);
+                if (!isNaN(usage)) {
+                    // QML does not emit a property change when a JavaScript
+                    // array is mutated in place. Publish a fresh array so the
+                    // history Canvas receives a repaint signal.
+                    var nextHistory = backend.ramHistory.slice();
+                    nextHistory.push(Math.max(0, Math.min(100, usage)));
+                    if (nextHistory.length > backend.ramHistMax) nextHistory.shift();
+                    backend.ramHistory = nextHistory;
+                }
             }
             memProc.buf = "";
         }

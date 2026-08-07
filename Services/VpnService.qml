@@ -3,6 +3,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import "./core/Log.js" as Log
+import "./core/VpnIdentifierLogic.js" as VpnIdentifierLogic
 
 Singleton {
     id: root
@@ -45,10 +46,25 @@ Singleton {
     }
 
     function runVpnCommand(proc, command) {
-        proc.buf = "";
+        // NetworkManager may emit several DBus events for one state change.
+        // The in-flight query already observes the latest state, so do not kill
+        // and restart it for every duplicate refresh event.
+        if (proc.running) return;
+        proc.stdoutBuf = "";
+        proc.stderrBuf = "";
         proc.command = command;
-        proc.running = false;
         proc.running = true;
+    }
+
+    function processMessage(proc) {
+        var stderrText = String(proc.stderrBuf || "").trim();
+        var stdoutText = String(proc.stdoutBuf || "").trim();
+        return stderrText || stdoutText;
+    }
+
+    function selectorArgs(identifier) {
+        var selected = VpnIdentifierLogic.selector(identifier, root.profiles);
+        return [selected.kind, selected.value];
     }
 
     function parseProfiles(text) {
@@ -112,11 +128,20 @@ Singleton {
         id: getProfiles
         command: ["nmcli", "-t", "-f", "NAME,UUID,TYPE,AUTOCONNECT", "connection", "show"]
         running: false
-        property string buf: ""
-        stdout: SplitParser { onRead: data => { getProfiles.buf += data + "\n"; } }
-        onExited: {
-            root.profiles = root.parseProfiles(getProfiles.buf);
-            getProfiles.buf = "";
+        property string stdoutBuf: ""
+        property string stderrBuf: ""
+        stdout: SplitParser { onRead: data => { getProfiles.stdoutBuf += data + "\n"; } }
+        stderr: SplitParser { onRead: data => { getProfiles.stderrBuf += data + "\n"; } }
+        onExited: (exitCode) => {
+            if (exitCode === 0) {
+                root.available = true;
+                root.profiles = root.parseProfiles(getProfiles.stdoutBuf);
+            } else {
+                root.available = false;
+                Log.warn("VpnService", root.processMessage(getProfiles) || "Failed to list VPN profiles");
+            }
+            getProfiles.stdoutBuf = "";
+            getProfiles.stderrBuf = "";
         }
     }
 
@@ -148,14 +173,21 @@ Singleton {
         id: getActive
         command: ["nmcli", "-t", "-f", "NAME,UUID,TYPE,DEVICE,STATE", "connection", "show", "--active"]
         running: false
-        property string buf: ""
-        stdout: SplitParser { onRead: data => { getActive.buf += data + "\n"; } }
-        onExited: {
-            var act = root.parseActiveConnections(getActive.buf);
-            root.activeConnections = act;
-            root.activeUuids = act.map(function(a) { return a.uuid; }).filter(function(u) { return !!u; });
-            root.activeNames = act.map(function(a) { return a.name; }).filter(function(n) { return !!n; });
-            getActive.buf = "";
+        property string stdoutBuf: ""
+        property string stderrBuf: ""
+        stdout: SplitParser { onRead: data => { getActive.stdoutBuf += data + "\n"; } }
+        stderr: SplitParser { onRead: data => { getActive.stderrBuf += data + "\n"; } }
+        onExited: (exitCode) => {
+            if (exitCode === 0) {
+                var act = root.parseActiveConnections(getActive.stdoutBuf);
+                root.activeConnections = act;
+                root.activeUuids = act.map(function(a) { return a.uuid; }).filter(function(u) { return !!u; });
+                root.activeNames = act.map(function(a) { return a.name; }).filter(function(n) { return !!n; });
+            } else {
+                Log.warn("VpnService", root.processMessage(getActive) || "Failed to read active VPN connections");
+            }
+            getActive.stdoutBuf = "";
+            getActive.stderrBuf = "";
         }
     }
 
@@ -171,10 +203,6 @@ Singleton {
 
     function isActiveUuid(uuid) {
         return root.activeUuids && root.activeUuids.indexOf(uuid) !== -1;
-    }
-
-    function _looksLikeUuid(s) {
-        return s && s.indexOf('-') !== -1 && s.length >= 8;
     }
 
     property var _vpnStepQueue: []
@@ -209,16 +237,12 @@ Singleton {
             for (var i = 0; i < root.activeUuids.length; i++) {
                 steps.push(["nmcli", "connection", "down", "uuid", root.activeUuids[i]]);
             }
-            steps.push(_looksLikeUuid(uuidOrName)
-                ? ["nmcli", "connection", "up", "uuid", uuidOrName]
-                : ["nmcli", "connection", "up", "id", uuidOrName]);
+            steps.push(["nmcli", "connection", "up"].concat(selectorArgs(uuidOrName)));
             _vpnStepQueue = steps;
             _vpnStepIdx = 0;
             _runNextVpnStep();
         } else {
-            runVpnCommand(vpnUp, _looksLikeUuid(uuidOrName)
-                ? ["nmcli", "connection", "up", "uuid", uuidOrName]
-                : ["nmcli", "connection", "up", "id", uuidOrName]);
+            runVpnCommand(vpnUp, ["nmcli", "connection", "up"].concat(selectorArgs(uuidOrName)));
         }
     }
 
@@ -231,9 +255,7 @@ Singleton {
 
         root.isBusy = true;
         root.errorMessage = "";
-        runVpnCommand(vpnDown, _looksLikeUuid(uuidOrName)
-            ? ["nmcli", "connection", "down", "uuid", uuidOrName]
-            : ["nmcli", "connection", "down", "id", uuidOrName]);
+        runVpnCommand(vpnDown, ["nmcli", "connection", "down"].concat(selectorArgs(uuidOrName)));
     }
 
     function toggle(uuid) {
@@ -251,23 +273,25 @@ Singleton {
         if (root.isBusy) return;
         root.isBusy = true;
         root.errorMessage = "";
-        runVpnCommand(vpnDelete, _looksLikeUuid(uuidOrName)
-            ? ["nmcli", "connection", "delete", "uuid", uuidOrName]
-            : ["nmcli", "connection", "delete", "id", uuidOrName]);
+        runVpnCommand(vpnDelete, ["nmcli", "connection", "delete"].concat(selectorArgs(uuidOrName)));
     }
 
     Process {
         id: vpnUp
         running: false
-        property string buf: ""
-        stdout: SplitParser { onRead: data => { vpnUp.buf += data; } }
+        property string stdoutBuf: ""
+        property string stderrBuf: ""
+        stdout: SplitParser { onRead: data => { vpnUp.stdoutBuf += data + "\n"; } }
+        stderr: SplitParser { onRead: data => { vpnUp.stderrBuf += data + "\n"; } }
         onExited: (exitCode) => {
             root.isBusy = false;
-            if (exitCode !== 0 && !vpnUp.buf.toLowerCase().includes("successfully")) {
-                root.errorMessage = vpnUp.buf.trim() || "Failed to connect VPN";
+            var message = root.processMessage(vpnUp);
+            if (exitCode !== 0 && !message.toLowerCase().includes("successfully")) {
+                root.errorMessage = message || "Failed to connect VPN";
                 Log.warn("VpnService", root.errorMessage);
             }
-            vpnUp.buf = "";
+            vpnUp.stdoutBuf = "";
+            vpnUp.stderrBuf = "";
             refreshAll();
         }
     }
@@ -275,15 +299,18 @@ Singleton {
     Process {
         id: vpnDown
         running: false
-        property string buf: ""
-        stdout: SplitParser { onRead: data => { vpnDown.buf += data; } }
+        property string stdoutBuf: ""
+        property string stderrBuf: ""
+        stdout: SplitParser { onRead: data => { vpnDown.stdoutBuf += data + "\n"; } }
+        stderr: SplitParser { onRead: data => { vpnDown.stderrBuf += data + "\n"; } }
         onExited: (exitCode) => {
             root.isBusy = false;
             if (exitCode !== 0) {
-                root.errorMessage = vpnDown.buf.trim() || "Failed to disconnect VPN";
+                root.errorMessage = root.processMessage(vpnDown) || "Failed to disconnect VPN";
                 Log.warn("VpnService", root.errorMessage);
             }
-            vpnDown.buf = "";
+            vpnDown.stdoutBuf = "";
+            vpnDown.stderrBuf = "";
             refreshAll();
         }
     }
@@ -291,13 +318,20 @@ Singleton {
     Process {
         id: vpnSwitch
         running: false
-        property string buf: ""
-        stdout: SplitParser { onRead: data => { vpnSwitch.buf += data; } }
+        property string stdoutBuf: ""
+        property string stderrBuf: ""
+        stdout: SplitParser { onRead: data => { vpnSwitch.stdoutBuf += data + "\n"; } }
+        stderr: SplitParser { onRead: data => { vpnSwitch.stderrBuf += data + "\n"; } }
         onExited: (exitCode) => {
-            vpnSwitch.buf = "";
+            var message = root.processMessage(vpnSwitch);
+            vpnSwitch.stdoutBuf = "";
+            vpnSwitch.stderrBuf = "";
             if (root._vpnStepQueue.length > 0) {
                 // Step queue active — continue to next step
-                if (exitCode !== 0) Log.warn("VpnService", "Step failed (exit " + exitCode + ")");
+                if (exitCode !== 0) {
+                    root.errorMessage = message || ("VPN step failed (exit " + exitCode + ")");
+                    Log.warn("VpnService", root.errorMessage);
+                }
                 root._runNextVpnStep();
             } else {
                 root.isBusy = false;
@@ -313,15 +347,18 @@ Singleton {
     Process {
         id: vpnDelete
         running: false
-        property string buf: ""
-        stdout: SplitParser { onRead: data => { vpnDelete.buf += data; } }
+        property string stdoutBuf: ""
+        property string stderrBuf: ""
+        stdout: SplitParser { onRead: data => { vpnDelete.stdoutBuf += data + "\n"; } }
+        stderr: SplitParser { onRead: data => { vpnDelete.stderrBuf += data + "\n"; } }
         onExited: (exitCode) => {
             root.isBusy = false;
             if (exitCode !== 0) {
-                root.errorMessage = vpnDelete.buf.trim() || "Failed to delete VPN";
+                root.errorMessage = root.processMessage(vpnDelete) || "Failed to delete VPN";
                 Log.warn("VpnService", root.errorMessage);
             }
-            vpnDelete.buf = "";
+            vpnDelete.stdoutBuf = "";
+            vpnDelete.stderrBuf = "";
             refreshAll();
         }
     }
@@ -343,20 +380,25 @@ Singleton {
         root.isBusy = true;
         root.errorMessage = "";
         var value = enabled ? "yes" : "no";
-        runVpnCommand(setAutoconnectProcess, _looksLikeUuid(uuidOrName)
-            ? ["nmcli", "connection", "modify", "uuid", uuidOrName, "connection.autoconnect", value]
-            : ["nmcli", "connection", "modify", "id", uuidOrName, "connection.autoconnect", value]);
+        runVpnCommand(setAutoconnectProcess,
+            ["nmcli", "connection", "modify"].concat(selectorArgs(uuidOrName)).concat(["connection.autoconnect", value]));
     }
 
     Process {
         id: setAutoconnectProcess
         running: false
+        property string stdoutBuf: ""
+        property string stderrBuf: ""
+        stdout: SplitParser { onRead: data => { setAutoconnectProcess.stdoutBuf += data + "\n"; } }
+        stderr: SplitParser { onRead: data => { setAutoconnectProcess.stderrBuf += data + "\n"; } }
         onExited: (exitCode) => {
             root.isBusy = false;
             if (exitCode !== 0 && root.errorMessage === "") {
-                root.errorMessage = "Failed to update autoconnect";
+                root.errorMessage = root.processMessage(setAutoconnectProcess) || "Failed to update autoconnect";
                 Log.warn("VpnService", root.errorMessage);
             }
+            setAutoconnectProcess.stdoutBuf = "";
+            setAutoconnectProcess.stderrBuf = "";
             refreshAll();
         }
     }

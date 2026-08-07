@@ -44,6 +44,12 @@ Item {
         return labels;
     }
 
+    function addFilteredAppFromInput() {
+        if (notifService.addFilteredApp(filteredAppInput.text)) {
+            filteredAppInput.text = "";
+        }
+    }
+
     component ToggleSettingCard : Rectangle {
         id: toggleCard
         property string title: ""
@@ -182,6 +188,162 @@ Item {
                 description: "Hide notification content until expanded."
                 checked: notifService.privacyMode
                 onToggled: checked => notifService.privacyMode = checked
+            }
+
+            // Per-application notification filter
+            Rectangle {
+                Layout.fillWidth: true
+                height: filterContent.implicitHeight + 24
+                color: Qt.rgba(colorSurface.r, colorSurface.g, colorSurface.b, 0.3)
+                radius: 10
+
+                ColumnLayout {
+                    id: filterContent
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.top: parent.top
+                    anchors.margins: 12
+                    spacing: 10
+
+                    Text {
+                        text: "Muted Applications"
+                        font.pixelSize: 14
+                        color: colorText
+                        font.family: Theme.fontFamily
+                    }
+
+                    Text {
+                        Layout.fillWidth: true
+                        text: "Notifications from these exact application names are ignored."
+                        font.pixelSize: 11
+                        color: colorSubtext
+                        font.family: Theme.fontFamily
+                        wrapMode: Text.Wrap
+                    }
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 8
+
+                        Rectangle {
+                            Layout.fillWidth: true
+                            height: 38
+                            radius: 8
+                            color: Qt.rgba(colorSurface.r, colorSurface.g, colorSurface.b, 0.8)
+                            border.color: filteredAppInput.activeFocus ? colorPrimary : Qt.rgba(255, 255, 255, 0.08)
+                            border.width: 1
+
+                            TextInput {
+                                id: filteredAppInput
+                                anchors.fill: parent
+                                anchors.leftMargin: 12
+                                anchors.rightMargin: 12
+                                verticalAlignment: TextInput.AlignVCenter
+                                color: colorText
+                                font.pixelSize: 12
+                                font.family: Theme.fontFamily
+                                selectByMouse: true
+                                clip: true
+                                onAccepted: root.addFilteredAppFromInput()
+
+                                Text {
+                                    anchors.fill: parent
+                                    verticalAlignment: Text.AlignVCenter
+                                    text: "Application name (for example Spotify)"
+                                    color: colorSubtext
+                                    font.pixelSize: 12
+                                    font.family: Theme.fontFamily
+                                    visible: filteredAppInput.text.length === 0 && !filteredAppInput.activeFocus
+                                }
+                            }
+                        }
+
+                        Rectangle {
+                            width: 74
+                            height: 38
+                            radius: 8
+                            color: addFilteredAppArea.containsMouse ? Qt.lighter(colorPrimary, 1.15) : colorPrimary
+                            opacity: filteredAppInput.text.trim().length > 0 ? 1.0 : 0.45
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: "Add"
+                                color: colorBackground
+                                font.pixelSize: 12
+                                font.bold: true
+                                font.family: Theme.fontFamily
+                            }
+
+                            MouseArea {
+                                id: addFilteredAppArea
+                                anchors.fill: parent
+                                enabled: filteredAppInput.text.trim().length > 0
+                                hoverEnabled: true
+                                cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
+                                onClicked: root.addFilteredAppFromInput()
+                            }
+                        }
+                    }
+
+                    Flow {
+                        Layout.fillWidth: true
+                        spacing: 8
+                        visible: notifService.filteredApps.length > 0
+
+                        Repeater {
+                            model: notifService.filteredApps
+
+                            Rectangle {
+                                required property var modelData
+                                radius: 8
+                                width: filteredAppLabel.implicitWidth + 42
+                                height: 30
+                                color: Qt.rgba(colorPrimary.r, colorPrimary.g, colorPrimary.b, 0.12)
+                                border.color: Qt.rgba(colorPrimary.r, colorPrimary.g, colorPrimary.b, 0.35)
+                                border.width: 1
+
+                                Row {
+                                    anchors.centerIn: parent
+                                    spacing: 8
+
+                                    Text {
+                                        id: filteredAppLabel
+                                        text: modelData
+                                        color: colorText
+                                        font.pixelSize: 11
+                                        font.family: Theme.fontFamily
+                                    }
+
+                                    Text {
+                                        text: "×"
+                                        color: removeFilteredAppArea.containsMouse ? "#f38ba8" : colorSubtext
+                                        font.pixelSize: 15
+                                        font.bold: true
+                                        font.family: Theme.fontFamily
+
+                                        MouseArea {
+                                            id: removeFilteredAppArea
+                                            anchors.fill: parent
+                                            anchors.margins: -6
+                                            hoverEnabled: true
+                                            cursorShape: Qt.PointingHandCursor
+                                            onClicked: notifService.removeFilteredApp(modelData)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    Text {
+                        visible: notifService.filteredApps.length === 0
+                        text: "No applications are muted."
+                        color: colorSubtext
+                        font.pixelSize: 11
+                        font.italic: true
+                        font.family: Theme.fontFamily
+                    }
+                }
             }
 
             // Animation Speed

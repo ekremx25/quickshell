@@ -23,6 +23,12 @@ PopupWindow {
     implicitWidth: 320
     implicitHeight: col.implicitHeight + 20
 
+    onHistoryValuesChanged: refreshGraph()
+    onHistoryMaxChanged: refreshGraph()
+    onVisibleChanged: {
+        if (visible) Qt.callLater(refreshGraph);
+    }
+
     anchor.window: ownerItem && ownerItem.QsWindow ? ownerItem.QsWindow.window : null
     anchor.onAnchoring: {
         if (!anchor.window || !ownerItem) return;
@@ -62,6 +68,8 @@ PopupWindow {
                 id: historyCanvas
                 Layout.fillWidth: true
                 Layout.preferredHeight: 50
+                onWidthChanged: requestPaint()
+                onHeightChanged: requestPaint()
                 onPaint: {
                     var ctx = getContext("2d");
                     ctx.clearRect(0, 0, width, height);
@@ -70,11 +78,15 @@ PopupWindow {
                     ctx.fillStyle = root.accentColor;
 
                     var barW = width / Math.max(1, root.historyMax);
-                    for (var i = 0; i < root.historyValues.length; i++) {
-                        var val = root.historyValues[i];
+                    var values = Array.isArray(root.historyValues) ? root.historyValues : [];
+                    var startX = Math.max(0, root.historyMax - values.length) * barW;
+                    for (var i = 0; i < values.length; i++) {
+                        var val = Number(values[i]);
+                        if (!isFinite(val)) continue;
+                        val = Math.max(0, Math.min(100, val));
                         var h = (val / 100) * height;
                         if (h < 1 && val > 0) h = 1;
-                        ctx.fillRect(i * barW, height - h, barW - 1, h);
+                        ctx.fillRect(startX + i * barW, height - h, Math.max(1, barW - 1), h);
                     }
 
                     ctx.strokeStyle = root.accentColor;

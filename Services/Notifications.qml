@@ -50,6 +50,33 @@ Singleton {
     property bool notificationServerEnabled: true
     property bool notificationServerReady: false
 
+    function normalizeFilteredApp(appName) {
+        return String(appName || "").trim()
+    }
+
+    function addFilteredApp(appName) {
+        var normalized = normalizeFilteredApp(appName)
+        if (normalized.length === 0) return false
+
+        var normalizedLower = normalized.toLowerCase()
+        for (var i = 0; i < root.filteredApps.length; ++i) {
+            if (normalizeFilteredApp(root.filteredApps[i]).toLowerCase() === normalizedLower) return false
+        }
+
+        root.filteredApps = root.filteredApps.concat([normalized])
+        return true
+    }
+
+    function removeFilteredApp(appName) {
+        var normalizedLower = normalizeFilteredApp(appName).toLowerCase()
+        var next = root.filteredApps.filter(function(entry) {
+            return normalizeFilteredApp(entry).toLowerCase() !== normalizedLower
+        })
+        if (next.length === root.filteredApps.length) return false
+        root.filteredApps = next
+        return true
+    }
+
     function stripHtml(html) {
         if (!html) return ""
         return html.replace(/<[^>]*>/g, "")
@@ -127,7 +154,10 @@ Singleton {
     }
 
     function addNotification(notif) {
-        if (root.filteredApps.some(function(app) { return app.toLowerCase() === (notif.appName || "").toLowerCase() })) return
+        var incomingApp = root.normalizeFilteredApp(notif.appName).toLowerCase()
+        if (root.filteredApps.some(function(app) {
+            return root.normalizeFilteredApp(app).toLowerCase() === incomingApp
+        })) return
 
         var now = new Date()
         var normalized = normalizeNotificationContent(notif)

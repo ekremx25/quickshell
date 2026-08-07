@@ -22,6 +22,8 @@ Singleton {
     property bool applyToKitty: true
     property bool applyToGtk: false
     property bool liveUpdate: false
+    property string autoDetectBackend: "unknown"
+    property string pendingWallpaperPath: ""
 
     // Extracted colors (Material You palette)
     property color primaryColor: "#6750A4"
@@ -50,6 +52,7 @@ Singleton {
     readonly property string configPath: Core.PathService.configPath("theme_config.json")
     readonly property string scriptPath: Core.PathService.configPath("scripts/matugen-worker.sh")
     readonly property string autoDetectScriptPath: Core.PathService.configPath("scripts/get-active-wallpaper.sh")
+    readonly property string waypaperConfigPath: Core.PathService.configHome + "/waypaper/config.ini"
 
     Component.onCompleted: {
         checkMatugen();
@@ -163,6 +166,7 @@ Singleton {
             if (exitCode !== 0) {
                 root.errorMessage = "matugen failed (exit " + exitCode + ")";
                 matugenProc.buf = "";
+                Qt.callLater(root.flushPendingWallpaper);
                 return;
             }
             try {
@@ -174,7 +178,15 @@ Singleton {
                 root.errorMessage = "Failed to parse matugen output: " + e;
             }
             matugenProc.buf = "";
+            Qt.callLater(root.flushPendingWallpaper);
         }
+    }
+
+    function flushPendingWallpaper() {
+        if (root.isBusy || matugenProc.running || root.pendingWallpaperPath.length === 0) return;
+        var nextPath = root.pendingWallpaperPath;
+        root.pendingWallpaperPath = "";
+        if (nextPath !== root.wallpaperPath) root.generateFromWallpaper(nextPath);
     }
 
     function applyPalette(palette) {
@@ -269,7 +281,11 @@ Singleton {
     }
     function setApplyToKitty(v) { root.applyToKitty = v; saveConfig(); }
     function setApplyToGtk(v) { root.applyToGtk = v; saveConfig(); }
-    function setLiveUpdate(v) { root.liveUpdate = v; saveConfig(); }
+    function setLiveUpdate(v) {
+        root.liveUpdate = v;
+        saveConfig();
+        if (v) wallpaperDetectDebounce.restart();
+    }
 
     // Available matugen types
     readonly property var availableTypes: [
@@ -290,35 +306,62 @@ Singleton {
     // Auto-detect wallpaper
     Process {
         id: autoDetectProc
-        command: ["bash", root.autoDetectScriptPath]
+        command: ["bash", root.autoDetectScriptPath, "--with-backend"]
         property string output: ""
         stdout: SplitParser { onRead: data => autoDetectProc.output += data }
         onExited: (exitCode) => {
-            // Trim any whitespace/newlines from the script output
-            var path = Core.PathService.expandHome(autoDetectProc.output.toString().trim());
+            var detected = autoDetectProc.output.toString().trim();
+            var separator = detected.indexOf("\t");
+            var backend = separator >= 0 ? detected.substring(0, separator).trim() : "unknown";
+            var rawPath = separator >= 0 ? detected.substring(separator + 1).trim() : detected;
+            var path = Core.PathService.expandHome(rawPath);
+
             if (path.length > 0) {
-                root.wallpaperPath = path;
-                root.generateFromWallpaper(path);
+                root.autoDetectBackend = backend;
+                root.errorMessage = "";
+                if (path !== root.wallpaperPath) {
+                    if (root.isBusy || matugenProc.running) {
+                        root.pendingWallpaperPath = path;
+                    } else {
+                        root.generateFromWallpaper(path);
+                    }
+                }
             } else {
+                root.autoDetectBackend = "unknown";
                 root.errorMessage = "Could not detect active wallpaper";
             }
-            root.isBusy = false;
             autoDetectProc.output = "";
         }
     }
 
     function detectCurrentWallpaper() {
-        if (root.isBusy) return;
-        root.isBusy = true;
-        root.errorMessage = "";
+        if (autoDetectProc.running) return;
         autoDetectProc.running = true;
     }
 
     Timer {
-        interval: 5000 // Check every 5 seconds
-        running: root.enabled && root.liveUpdate
-        repeat: true
+        id: wallpaperDetectDebounce
+        interval: 250
+        repeat: false
         onTriggered: root.detectCurrentWallpaper()
+    }
+
+    Core.FileChangeWatcher {
+        path: root.waypaperConfigPath
+        active: root.enabled && root.liveUpdate && root.autoDetectBackend === "waypaper"
+        interval: 2000
+        onChanged: wallpaperDetectDebounce.restart()
+    }
+
+    // swww and swaybg do not expose a portable config file to watch. Keep a
+    // slower safety check for those backends; unchanged paths no longer invoke
+    // matugen, so this remains inexpensive.
+    Timer {
+        interval: 15000
+        running: root.enabled && root.liveUpdate && root.autoDetectBackend !== "waypaper"
+        repeat: true
+        triggeredOnStart: true
+        onTriggered: wallpaperDetectDebounce.restart()
     }
 
     Core.JsonDataStore {
@@ -357,6 +400,7 @@ Singleton {
                 } else {
                     root.detectCurrentWallpaper();
                 }
+                if (root.liveUpdate) wallpaperDetectDebounce.restart();
             }
         }
         onFailed: function(phase, exitCode, details) {

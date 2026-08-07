@@ -64,16 +64,22 @@
       "appId": "zen"
     },
     {
-      "name": "Brave",
-      "icon": "brave-browser",
-      "cmd": "brave",
-      "appId": "brave-browser"
-    },
-    {
       "name": "Affinity.exe",
       "icon": "affinity.exe",
       "cmd": "__desktop__:Affinity",
       "appId": "affinity.exe"
+    },
+    {
+      "name": "Lutris",
+      "icon": "net.lutris.lutris",
+      "cmd": "__desktop__:net.lutris.Lutris",
+      "appId": "net.lutris.Lutris"
+    },
+    {
+      "name": "Steam",
+      "icon": "steam",
+      "cmd": "__desktop__:steam",
+      "appId": "steam"
     },
     {
       "name": "OBS Studio",
@@ -88,6 +94,8 @@
   "rightModules": [
     "Power",
     "Media",
-    "Tray"
-  ]
+    "Tray",
+    "Calendar"
+  ],
+  "moduleSchemaVersion": 1
 }

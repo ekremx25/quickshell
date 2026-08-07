@@ -5,6 +5,21 @@ command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
+WITH_BACKEND=false
+if [ "${1:-}" = "--with-backend" ]; then
+    WITH_BACKEND=true
+fi
+
+print_result() {
+    local backend="$1"
+    local path="$2"
+    if [ "$WITH_BACKEND" = true ]; then
+        printf '%s\t%s\n' "$backend" "$path"
+    else
+        printf '%s\n' "$path"
+    fi
+}
+
 # Detect running wallpaper process
 # Supports: swww, waypaper, swaybg
 
@@ -21,7 +36,7 @@ if command_exists swww && { pgrep -x "swww-daemon" > /dev/null || pgrep -x "swww
     fi
 
     if [ -f "$WALLPAPER_PATH" ]; then
-        echo "$WALLPAPER_PATH"
+        print_result "swww" "$WALLPAPER_PATH"
         exit 0
     fi
 fi
@@ -35,7 +50,7 @@ if [ -f "$WAYPAPER_CONFIG" ]; then
     WALLPAPER_PATH="${WALLPAPER_PATH/#\~/$HOME}"
     
     if [ -f "$WALLPAPER_PATH" ]; then
-        echo "$WALLPAPER_PATH"
+        print_result "waypaper" "$WALLPAPER_PATH"
         exit 0
     fi
 fi
@@ -46,7 +61,7 @@ if pgrep -x "swaybg" > /dev/null; then
     WALLPAPER_PATH=$(printf '%s\n' "$CMDLINE" | grep -oP '(?<=-i\s)[^\s]*' || true)
     
     if [ -f "$WALLPAPER_PATH" ]; then
-        echo "$WALLPAPER_PATH"
+        print_result "swaybg" "$WALLPAPER_PATH"
         exit 0
     fi
 fi

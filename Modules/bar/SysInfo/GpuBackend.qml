@@ -55,8 +55,12 @@ Item {
                     backend.gpuPower = parts[7] || "-";
                     backend.gpuDriver = parts[8] || "-";
                 }
-                backend.gpuHistory.push(backend.gpuPercent);
-                if (backend.gpuHistory.length > backend.gpuHistMax) backend.gpuHistory.shift();
+                // Reassign instead of mutating in place so QML observers and
+                // history canvases are notified for every sample.
+                var nextHistory = backend.gpuHistory.slice();
+                nextHistory.push(Math.max(0, Math.min(100, backend.gpuPercent)));
+                if (nextHistory.length > backend.gpuHistMax) nextHistory.shift();
+                backend.gpuHistory = nextHistory;
             }
         }
     }

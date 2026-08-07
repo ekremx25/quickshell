@@ -1,9 +1,10 @@
 {
   "materialYou": true,
-  "wallpaperPath": "~/Pictures/Wal/LibertyManhattan.jpg",
+  "wallpaperPath": "~/Pictures/Wal/AvilaSpain.jpg",
   "mode": "light",
-  "matugenType": "scheme-rainbow",
+  "matugenType": "scheme-catppuccin",
   "applyToKitty": true,
   "applyToGtk": false,
-  "liveUpdate": true
+  "liveUpdate": true,
+  "_schemaVersion": 1
 }
