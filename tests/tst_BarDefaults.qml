@@ -10,10 +10,53 @@ TestCase {
         verify(w.format !== undefined);
         verify(w.style !== undefined);
         verify(typeof w.transparent === "boolean");
+        compare(w.displayMode, "role");
+        verify(typeof w.workspaceCount === "number");
+        verify(typeof w.showEmpty === "boolean");
+        verify(typeof w.showSpecial === "boolean");
         verify(typeof w.showApps === "boolean");
         verify(typeof w.groupApps === "boolean");
         verify(typeof w.scrollEnabled === "boolean");
+        verify(typeof w.wrapAround === "boolean");
+        verify(typeof w.reverseScroll === "boolean");
         verify(typeof w.iconSize === "number");
+        verify(typeof w.maxIcons === "number");
+    }
+
+    function test_workspaces_normalizesInvalidValues() {
+        var w = BarDefaults.normalizeWorkspacesConfig({
+            format: "invalid",
+            displayMode: "invalid",
+            workspaceCount: 99,
+            iconSize: 2,
+            maxIcons: "7",
+            showApps: "yes"
+        });
+
+        compare(w.format, "roman");
+        compare(w.displayMode, "role");
+        compare(w.workspaceCount, 20);
+        compare(w.iconSize, 10);
+        compare(w.maxIcons, 7);
+        compare(w.showApps, true);
+    }
+
+    function test_workspaces_preservesSupportedValues() {
+        var w = BarDefaults.normalizeWorkspacesConfig({
+            format: "arabic",
+            style: "dot",
+            displayMode: "occupied",
+            workspaceCount: 8,
+            showEmpty: false,
+            reverseScroll: true
+        });
+
+        compare(w.format, "arabic");
+        compare(w.style, "dot");
+        compare(w.displayMode, "occupied");
+        compare(w.workspaceCount, 8);
+        compare(w.showEmpty, false);
+        compare(w.reverseScroll, true);
     }
 
     function test_workspaces_returnsFreshObject() {

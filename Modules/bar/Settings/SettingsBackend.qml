@@ -213,7 +213,7 @@ Item {
         if (!Array.isArray(normalized.center)) normalized.center = [];
         if (!Array.isArray(normalized.right)) normalized.right = [];
         if (!Array.isArray(normalized.inactive)) normalized.inactive = [];
-        if (!normalized.workspaces) normalized.workspaces = BarDefaults.createWorkspacesConfig();
+        normalized.workspaces = BarDefaults.normalizeWorkspacesConfig(normalized.workspaces);
         if (!normalized.barPosition) normalized.barPosition = initialBarConfig.barPosition || "top";
 
         // Read the live models so moving a module from dock to bar is reflected

@@ -1,25 +1,41 @@
 import QtQuick
 import QtQuick.Layouts
+import QtQuick.Controls
 import Quickshell
 import Quickshell.Wayland
-import "."
 import "../../../Widgets"
 import "../../../Services"
 
 Rectangle {
     id: workspaceRoot
     required property string monitorName
-    property var config: ({ format: "arabic", style: "fill", transparent: false, activeColor: "" })
+    property var config: ({
+        format: "roman",
+        style: "square",
+        transparent: true,
+        displayMode: "role",
+        workspaceCount: 5,
+        showEmpty: true,
+        showSpecial: false,
+        wrapAround: true,
+        reverseScroll: false,
+        maxIcons: 4
+    })
     property string style: config.style || "fill"
     property bool isTransparent: config.transparent === true
     property color activeColor: Theme.workspacesColor
-    property alias activeWorkspaces: workspaceService.activeWorkspaces
+    property int workspaceRevision: WorkspaceService.revision
+    property var activeWorkspaces: {
+        var currentRevision = workspaceRoot.workspaceRevision
+        return WorkspaceService.workspacesForMonitor(workspaceRoot.monitorName, workspaceRoot.config)
+    }
 
     // Read DMS properties from bar_config.json
     property bool showApps: config.showApps !== false
     property bool groupApps: config.groupApps !== false
     property bool scrollEnabled: config.scrollEnabled !== false
     property int iconSize: config.iconSize || 20
+    property int maxIcons: Math.max(1, Math.min(12, config.maxIcons || 4))
 
     // Mouse scroll accumulator
     property real mouseAccumulator: 0
@@ -37,12 +53,6 @@ Rectangle {
 
     implicitHeight: 34
     implicitWidth: wsRow.implicitWidth
-
-    WorkspacesService {
-        id: workspaceService
-        monitorName: workspaceRoot.monitorName
-        groupApps: workspaceRoot.groupApps
-    }
 
     // --- FORMAT CONVERTER ---
     function getWorkspaceLabel(numStr) {
@@ -68,18 +78,19 @@ Rectangle {
     }
 
     function switchToWorkspace(targetName) {
-        workspaceService.switchToWorkspace(targetName);
+        WorkspaceService.activateWorkspace(workspaceRoot.monitorName, targetName);
     }
 
     function scrollWorkspaces(direction) {
         if (!workspaceRoot.scrollEnabled) return;
-        var wss = workspaceService.activeWorkspaces.filter(w => !isNaN(parseInt(w.name)));
+        var wss = workspaceRoot.activeWorkspaces.filter(function(workspace) {
+            return !workspace.is_special && /^\d+$/.test(String(workspace.name || ""));
+        });
         if (wss.length < 2) return;
         
         var currentIndex = wss.findIndex(w => w.is_active);
         var validIndex = currentIndex === -1 ? 0 : currentIndex;
-        // If direction is positive go right (next), if negative go left (previous)
-        var nextIndex = direction > 0 ? Math.min(validIndex + 1, wss.length - 1) : Math.max(validIndex - 1, 0);
+        var nextIndex = WorkspaceService.nextWorkspaceIndex(wss, validIndex, direction, workspaceRoot.config);
         
         if (nextIndex !== validIndex) {
             switchToWorkspace(wss[nextIndex].name);
@@ -119,6 +130,8 @@ Rectangle {
                 property var wsData: modelData
                 property bool isActive: wsData.is_active
                 property int winCount: wsData.winCount
+                property var visibleApps: (wsData.groupedWindows || []).slice(0, workspaceRoot.maxIcons)
+                property int hiddenAppCount: Math.max(0, (wsData.groupedWindows || []).length - visibleApps.length)
 
                 // Dynamically expanding size based on content
                 implicitWidth: wsContent.implicitWidth + 24
@@ -148,6 +161,7 @@ Rectangle {
 
                 Row {
                     id: wsContent
+                    z: 2
                     anchors.centerIn: parent
                     spacing: 8
 
@@ -178,7 +192,7 @@ Rectangle {
                         visible: winCount > 0 && workspaceRoot.showApps
 
                         Repeater {
-                            model: wsData.groupedWindows
+                            model: wsBox.visibleApps
                             
                             Item {
                                 width: iconText.implicitWidth
@@ -192,6 +206,16 @@ Rectangle {
                                     font.pixelSize: workspaceRoot.iconSize
                                     font.family: "JetBrainsMono Nerd Font"
                                     anchors.centerIn: parent
+                                }
+
+                                MouseArea {
+                                    anchors.fill: parent
+                                    enabled: !!modelData.windowId
+                                    cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
+                                    onClicked: mouse => {
+                                        mouse.accepted = true
+                                        WorkspaceService.focusWindow(modelData.windowId)
+                                    }
                                 }
                                 
                                 // Grouping bubble (e.g. if there are 2 of the same app)
@@ -219,6 +243,18 @@ Rectangle {
                                     }
                                 }
                             }
+                        }
+
+
+                        Text {
+                            visible: wsBox.hiddenAppCount > 0
+                            text: "+" + wsBox.hiddenAppCount
+                            color: isActive ? Theme.workspaceActiveTextColor : Theme.text
+                            opacity: 0.8
+                            font.pixelSize: Math.max(9, workspaceRoot.iconSize - 7)
+                            font.bold: true
+                            font.family: Theme.fontFamily
+                            anchors.verticalCenter: parent.verticalCenter
                         }
                     }
                 }
@@ -271,9 +307,26 @@ Rectangle {
 
                 // Click Area
                 MouseArea {
+                    z: 1
                     anchors.fill: parent
                     cursorShape: Qt.PointingHandCursor
                     onClicked: workspaceRoot.switchToWorkspace(wsData.name)
+                }
+
+                HoverHandler { id: workspaceHover }
+
+                ToolTip.visible: workspaceHover.hovered
+                ToolTip.delay: 450
+                ToolTip.text: {
+                    var title = wsData.is_special ? wsData.name : "Workspace " + getWorkspaceLabel(wsData.name)
+                    var windows = wsData.windows || []
+                    if (windows.length === 0) return title + "\nEmpty"
+                    var lines = []
+                    for (var i = 0; i < windows.length && i < 6; ++i) {
+                        lines.push("• " + (windows[i].title || windows[i].app_id || "Application"))
+                    }
+                    if (windows.length > 6) lines.push("+" + (windows.length - 6) + " more")
+                    return title + " · " + windows.length + " window" + (windows.length === 1 ? "" : "s") + "\n" + lines.join("\n")
                 }
             }
         }

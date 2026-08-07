@@ -30,7 +30,7 @@ Item {
         if (!Array.isArray(normalized.left)) normalized.left = initialBarConfig.left.slice();
         if (!Array.isArray(normalized.center)) normalized.center = initialBarConfig.center.slice();
         if (!Array.isArray(normalized.right)) normalized.right = initialBarConfig.right.slice();
-        if (!normalized.workspaces) normalized.workspaces = BarDefaults.createWorkspacesConfig();
+        normalized.workspaces = BarDefaults.normalizeWorkspacesConfig(normalized.workspaces);
         if (!normalized.barPosition) normalized.barPosition = initialBarConfig.barPosition || "top";
         return normalized;
     }

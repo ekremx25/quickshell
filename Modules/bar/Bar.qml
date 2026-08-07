@@ -132,7 +132,7 @@ Variants {
                         Loader {
                             id: leftLoader
                             property int itemIndex: index
-                            active: (modelData === "Workspaces") ? screenItem.showWorkspaces : true
+                            active: !root.isVertical && ((modelData === "Workspaces") ? screenItem.showWorkspaces : true)
                             sourceComponent: moduleCatalog.componentFor(modelData)
                             opacity: 0
                             scale: 0.7
@@ -156,7 +156,7 @@ Variants {
                         Loader {
                             id: centerLoader
                             property int itemIndex: index
-                            active: (modelData === "Workspaces") ? screenItem.showWorkspaces : true
+                            active: !root.isVertical && ((modelData === "Workspaces") ? screenItem.showWorkspaces : true)
                             sourceComponent: moduleCatalog.componentFor(modelData)
                             opacity: 0
                             scale: 0.7
@@ -181,7 +181,7 @@ Variants {
                         Loader {
                             id: rightLoader
                             property int itemIndex: index
-                            active: (modelData === "Workspaces") ? screenItem.showWorkspaces : true
+                            active: !root.isVertical && ((modelData === "Workspaces") ? screenItem.showWorkspaces : true)
                             sourceComponent: moduleCatalog.componentFor(modelData)
                             opacity: 0
                             scale: 0.7
@@ -210,7 +210,7 @@ Variants {
                             Layout.alignment: Qt.AlignHCenter
                             Loader {
                                 id: vLeftLoader
-                                active: (modelData === "Workspaces") ? screenItem.showWorkspaces : true
+                                active: root.isVertical && ((modelData === "Workspaces") ? screenItem.showWorkspaces : true)
                                 sourceComponent: moduleCatalog.componentFor(modelData)
                                 anchors.centerIn: parent
                                 rotation: -90
@@ -232,7 +232,7 @@ Variants {
                             Layout.alignment: Qt.AlignHCenter
                             Loader {
                                 id: vCenterLoader
-                                active: (modelData === "Workspaces") ? screenItem.showWorkspaces : true
+                                active: root.isVertical && ((modelData === "Workspaces") ? screenItem.showWorkspaces : true)
                                 sourceComponent: moduleCatalog.componentFor(modelData)
                                 anchors.centerIn: parent
                                 rotation: -90
@@ -254,7 +254,7 @@ Variants {
                             Layout.alignment: Qt.AlignHCenter
                             Loader {
                                 id: vRightLoader
-                                active: (modelData === "Workspaces") ? screenItem.showWorkspaces : true
+                                active: root.isVertical && ((modelData === "Workspaces") ? screenItem.showWorkspaces : true)
                                 sourceComponent: moduleCatalog.componentFor(modelData)
                                 anchors.centerIn: parent
                                 rotation: -90

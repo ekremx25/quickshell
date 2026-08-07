@@ -36,7 +36,7 @@ Built on top of [outfoxxed's Quickshell framework](https://github.com/outfoxxed/
 ## Features
 
 ### Top Bar
-- **Workspaces** — Roman / Japan / decimal numerals, scrollable, per-monitor visibility
+- **Workspaces** — Per-monitor role ranges, occupied/global modes, app grouping, scrolling and Roman / Chinese / decimal labels
 - **System Info** — CPU, RAM, temperature, disk usage, groupable
 - **Audio** — Volume control, mute, 10-band parametric equaliser
 - **Weather** — Current conditions with optional desktop widget
@@ -57,6 +57,7 @@ Built on top of [outfoxxed's Quickshell framework](https://github.com/outfoxxed/
 - Drag-and-drop bar module arrangement
 - Bar position toggle (top / bottom / left / right)
 - Per-screen module assignment (OSD on one monitor, notifications on another)
+- Workspace ranges by monitor role (primary 1–5, secondary 6–10, …), independent of HDMI/DP port names
 - Seven built-in layout presets (macOS, Windows 11, GNOME, KDE, Unity, ZorinOS, Custom)
 - Material You theme editor with live wallpaper colour extraction
 
@@ -410,6 +411,10 @@ The shell boots in three phases to speed up the first visible frame:
 ### Central module registry
 
 Bar and dock modules are declared once in [`ModuleRegistry.js`](Modules/bar/ModuleRegistry.js), while [`ModuleCatalog.qml`](Modules/bar/ModuleCatalog.qml) owns their visual factories. The registry provides stable IDs, placement capabilities, alias migrations, automatic layout normalization and a runtime catalog health check. See the [module registry contributor guide](docs/MODULE_REGISTRY.md) for the schema and extension workflow.
+
+### Central workspace model
+
+[`WorkspaceService.qml`](Services/WorkspaceService.qml) owns one compositor event stream and one normalized workspace model for every bar and dock consumer. Active workspaces are tracked per monitor, role-based numbering remains stable when HDMI/DP ports change, and old occupied workspaces stay visible during layout migration. Display mode, range size, empty/special visibility, scrolling and icon limits are persisted in `bar_config.json`.
 
 ### Compositor abstraction — [`Services/CompositorService.qml`](Services/CompositorService.qml)
 

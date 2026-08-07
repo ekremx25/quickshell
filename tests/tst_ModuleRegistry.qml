@@ -97,7 +97,7 @@ TestCase {
         compare(info.Workspaces.label, "Workspaces");
         compare(info.Workspaces.settingsPage, "workspaces");
         verify(info.Workspaces.placements.indexOf("dock") !== -1);
-        verify(info.Workspaces.services.indexOf("WorkspacesService") !== -1);
+        verify(info.Workspaces.services.indexOf("WorkspaceService") !== -1);
         compare(info.Media.component, "MediaWidget");
     }
 

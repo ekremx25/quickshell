@@ -62,7 +62,7 @@ var _modules = [
         color: "#cba6f7",
         placements: ["bar", "dock"],
         settingsPage: "workspaces",
-        services: ["WorkspacesService", "CompositorService"],
+        services: ["WorkspaceService", "CompositorService", "ScreenManager"],
         contexts: ["screenData", "workspacesConfig"]
     },
     {
