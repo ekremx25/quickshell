@@ -40,14 +40,14 @@ Rectangle {
     // Mouse scroll accumulator
     property real mouseAccumulator: 0
     property bool scrollInProgress: false
-    
+
     Timer {
         id: scrollCooldown
         interval: 100
         onTriggered: workspaceRoot.scrollInProgress = false
     }
 
-    // Main background transparent, only the inner boxes are visible
+    // Main background transparent
     color: "transparent"
     border.width: 0
 
@@ -57,14 +57,14 @@ Rectangle {
     // --- FORMAT CONVERTER ---
     function getWorkspaceLabel(numStr) {
         var fmt = config.format || "chinese";
-        
+
         if (fmt === "roman") {
             var romans = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
             var n = parseInt(numStr);
             if (!isNaN(n) && n >= 1 && n <= 10) return romans[n];
             return numStr;
-        } 
-        
+        }
+
         if (fmt === "chinese") {
             var map = {
                 "1": "一", "2": "二", "3": "三", "4": "四", "5": "五",
@@ -87,11 +87,11 @@ Rectangle {
             return !workspace.is_special && /^\d+$/.test(String(workspace.name || ""));
         });
         if (wss.length < 2) return;
-        
+
         var currentIndex = wss.findIndex(w => w.is_active);
         var validIndex = currentIndex === -1 ? 0 : currentIndex;
         var nextIndex = WorkspaceService.nextWorkspaceIndex(wss, validIndex, direction, workspaceRoot.config);
-        
+
         if (nextIndex !== validIndex) {
             switchToWorkspace(wss[nextIndex].name);
         }
@@ -101,7 +101,7 @@ Rectangle {
     MouseArea {
         anchors.fill: parent
         acceptedButtons: Qt.NoButton
-        
+
         onWheel: wheel => {
             if (!workspaceRoot.scrollEnabled || scrollInProgress) return;
 
@@ -110,18 +110,18 @@ Rectangle {
             if (Math.abs(workspaceRoot.mouseAccumulator) < 120) return;
             var direction = workspaceRoot.mouseAccumulator < 0 ? 1 : -1;
             workspaceRoot.scrollWorkspaces(direction);
-            
+
             workspaceRoot.scrollInProgress = true;
             scrollCooldown.restart();
             workspaceRoot.mouseAccumulator = 0;
         }
     }
 
-    // --- VISUAL LAYOUT (Stylish Pill Design) ---
+    // --- VISUAL LAYOUT (Professional Glassmorphism Design) ---
     Row {
         id: wsRow
         anchors.centerIn: parent
-        spacing: 8
+        spacing: 6
 
         Repeater {
             model: workspaceRoot.activeWorkspaces
@@ -132,80 +132,159 @@ Rectangle {
                 property int winCount: wsData.winCount
                 property var visibleApps: (wsData.groupedWindows || []).slice(0, workspaceRoot.maxIcons)
                 property int hiddenAppCount: Math.max(0, (wsData.groupedWindows || []).length - visibleApps.length)
+                property bool isHovered: workspaceHover.hovered
 
-                // Dynamically expanding size based on content
-                implicitWidth: wsContent.implicitWidth + 24
+                // Label toggle state
+                // Workspace numbers must remain visible for every workspace.
+                property bool labelVisible: true
+                property bool labelForced: false
+                property bool showLabel: labelVisible || labelForced
+
+                Timer {
+                    id: labelHideTimer
+                    interval: 2000
+                    onTriggered: wsBox.labelForced = false
+                }
+
+                // Size
+                implicitWidth: wsContentRow.implicitWidth + 22
                 height: 34
-                radius: style === "square" ? 6 : 17
+                radius: style === "square" ? 8 : 17
 
-                // STYLE LOGIC
+                // Hover scale
+                scale: isHovered ? 1.05 : 1.0
+                Behavior on scale { NumberAnimation { duration: 200; easing.type: Easing.OutBack } }
+
+                // --- GLASSMORPHISM BACKGROUND ---
                 color: {
-                   if (style === "fill") {
-                       if (isActive) return activeColor;
-                       return isTransparent ? "transparent" : Theme.surface;
-                   }
-                   if (style === "square" || style === "circle") {
-                       return isActive ? Qt.rgba(activeColor.r, activeColor.g, activeColor.b, 0.4) : Qt.rgba(Theme.surface.r, Theme.surface.g, Theme.surface.b, 0.2); 
-                   }
-                   return "transparent";
+                    if (isActive) return Qt.rgba(activeColor.r, activeColor.g, activeColor.b, 0.25)
+                    if (isHovered) return Qt.rgba(Theme.text.r, Theme.text.g, Theme.text.b, 0.08)
+                    return Qt.rgba(Theme.surface.r, Theme.surface.g, Theme.surface.b, 0.15)
                 }
 
-                border.width: (style === "outline" || style === "square" || style === "circle") ? 2 : 0
+                border.width: 1
                 border.color: {
-                    if (style === "outline" || style === "square" || style === "circle") return isActive ? activeColor : (isTransparent ? "transparent" : Theme.surface);
-                    return "transparent";
+                    if (isActive) return Qt.rgba(activeColor.r, activeColor.g, activeColor.b, 0.45)
+                    if (isHovered) return Qt.rgba(Theme.text.r, Theme.text.g, Theme.text.b, 0.12)
+                    return Qt.rgba(Theme.text.r, Theme.text.g, Theme.text.b, 0.06)
                 }
 
-                Behavior on color { ColorAnimation { duration: 200 } }
-                Behavior on implicitWidth { NumberAnimation { duration: 250; easing.type: Easing.OutQuint } }
+                Behavior on color { ColorAnimation { duration: 250; easing.type: Easing.OutCubic } }
+                Behavior on border.color { ColorAnimation { duration: 250; easing.type: Easing.OutCubic } }
+                Behavior on implicitWidth { NumberAnimation { duration: 300; easing.type: Easing.OutQuint } }
 
-                Row {
-                    id: wsContent
-                    z: 2
+                // --- GLOW LAYERS (behind box, active only) ---
+                Rectangle {
+                    z: -2
                     anchors.centerIn: parent
-                    spacing: 8
+                    width: parent.implicitWidth + 6
+                    height: parent.height + 6
+                    radius: parent.radius + 3
+                    color: Qt.rgba(activeColor.r, activeColor.g, activeColor.b, 0.12)
+                    visible: isActive
+                    opacity: isActive ? 1.0 : 0.0
+                    Behavior on opacity { NumberAnimation { duration: 350; easing.type: Easing.OutCubic } }
+                }
+                Rectangle {
+                    z: -3
+                    anchors.centerIn: parent
+                    width: parent.implicitWidth + 12
+                    height: parent.height + 12
+                    radius: parent.radius + 6
+                    color: Qt.rgba(activeColor.r, activeColor.g, activeColor.b, 0.06)
+                    visible: isActive
+                    opacity: isActive ? 1.0 : 0.0
+                    Behavior on opacity { NumberAnimation { duration: 350; easing.type: Easing.OutCubic } }
+                }
 
-                    // NUMBER (Formatted)
+                // Glass top-edge highlight
+                Rectangle {
+                    anchors.top: parent.top
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.margins: 1
+                    height: 1
+                    radius: parent.radius
+                    color: Qt.rgba(1, 1, 1, isActive ? 0.12 : 0.05)
+                    Behavior on color { ColorAnimation { duration: 200 } }
+                }
+
+                // --- CONTENT ROW ---
+                Row {
+                    id: wsContentRow
+                    anchors.centerIn: parent
+                    spacing: 7
+
+                    // Minimal dot indicator (when label is hidden)
+                    Rectangle {
+                        width: 5
+                        height: 5
+                        radius: 2.5
+                        anchors.verticalCenter: parent.verticalCenter
+                        visible: !wsBox.showLabel
+                        color: {
+                            if (isActive) return activeColor
+                            if (winCount > 0) return Qt.rgba(Theme.text.r, Theme.text.g, Theme.text.b, 0.4)
+                            return Qt.rgba(Theme.text.r, Theme.text.g, Theme.text.b, 0.15)
+                        }
+                        Behavior on color { ColorAnimation { duration: 200 } }
+                    }
+
+                    // Workspace label (animated)
                     Text {
+                        id: labelText
+                        visible: wsBox.showLabel
                         text: getWorkspaceLabel(wsData.name)
                         color: isActive ? Theme.workspaceActiveTextColor : Theme.text
                         font.bold: true
-                        font.pixelSize: 14
+                        font.pixelSize: 13
                         font.family: Theme.fontFamily
+                        font.letterSpacing: 0.5
                         anchors.verticalCenter: parent.verticalCenter
+                        opacity: wsBox.showLabel ? 1.0 : 0.0
+                        Behavior on opacity { NumberAnimation { duration: 250; easing.type: Easing.OutCubic } }
                     }
 
-                    // THIN LINE INSERTED BETWEEN (Separator)
+                    // Gradient separator
                     Rectangle {
                         width: 1
-                        height: 14
-                        color: (isActive ? Theme.workspaceActiveTextColor : Theme.text) // Dynamic color
-                        opacity: 0.25
+                        height: 16
                         anchors.verticalCenter: parent.verticalCenter
-                        visible: winCount > 0 && workspaceRoot.showApps
+                        visible: winCount > 0 && workspaceRoot.showApps && wsBox.showLabel
+                        gradient: Gradient {
+                            GradientStop { position: 0.0; color: "transparent" }
+                            GradientStop { position: 0.3; color: Qt.rgba(Theme.text.r, Theme.text.g, Theme.text.b, 0.25) }
+                            GradientStop { position: 0.7; color: Qt.rgba(Theme.text.r, Theme.text.g, Theme.text.b, 0.25) }
+                            GradientStop { position: 1.0; color: "transparent" }
+                        }
                     }
 
                     // APPLICATION ICONS
                     Row {
-                        spacing: 6
+                        spacing: 5
                         anchors.verticalCenter: parent.verticalCenter
                         visible: winCount > 0 && workspaceRoot.showApps
 
                         Repeater {
                             model: wsBox.visibleApps
-                            
+
                             Item {
-                                width: iconText.implicitWidth
+                                width: appIconText.implicitWidth
                                 height: workspaceRoot.iconSize + 4
-                                
+
                                 Text {
-                                    id: iconText
+                                    id: appIconText
                                     text: modelData.icon
-                                    color: (isActive || modelData.active) ? (isActive ? Theme.workspaceActiveTextColor : Theme.primary) : Theme.text
-                                    opacity: modelData.active ? 1.0 : (isActive ? 0.9 : 0.6)
+                                    color: {
+                                        if (isActive && modelData.active) return Theme.workspaceActiveTextColor
+                                        if (modelData.active) return Theme.primary
+                                        if (isActive) return Qt.rgba(Theme.workspaceActiveTextColor.r, Theme.workspaceActiveTextColor.g, Theme.workspaceActiveTextColor.b, 0.85)
+                                        return Qt.rgba(Theme.text.r, Theme.text.g, Theme.text.b, 0.7)
+                                    }
                                     font.pixelSize: workspaceRoot.iconSize
                                     font.family: "JetBrainsMono Nerd Font"
                                     anchors.centerIn: parent
+                                    Behavior on color { ColorAnimation { duration: 200 } }
                                 }
 
                                 MouseArea {
@@ -217,18 +296,18 @@ Rectangle {
                                         WorkspaceService.focusWindow(modelData.windowId)
                                     }
                                 }
-                                
-                                // Grouping bubble (e.g. if there are 2 of the same app)
+
+                                // Grouping bubble (modern pill)
                                 Rectangle {
                                     visible: (modelData.count !== undefined && modelData.count > 1) && !isActive
-                                    width: 12
-                                    height: 12
-                                    radius: 6
-                                    color: Theme.surface
-                                    border.color: Theme.text
+                                    width: 14
+                                    height: 14
+                                    radius: 7
+                                    color: Qt.rgba(activeColor.r, activeColor.g, activeColor.b, 0.2)
+                                    border.color: Qt.rgba(activeColor.r, activeColor.g, activeColor.b, 0.4)
                                     border.width: 1
                                     anchors.right: parent.right
-                                    anchors.rightMargin: -6
+                                    anchors.rightMargin: -5
                                     anchors.bottom: parent.bottom
                                     anchors.bottomMargin: -2
                                     z: 2
@@ -238,96 +317,114 @@ Rectangle {
                                         anchors.centerIn: parent
                                         text: modelData.count !== undefined ? String(modelData.count) : ""
                                         font.pixelSize: 8
-                                        color: Theme.text
                                         font.bold: true
+                                        color: Theme.text
                                     }
                                 }
                             }
                         }
 
-
-                        Text {
+                        // Hidden app count pill
+                        Rectangle {
                             visible: wsBox.hiddenAppCount > 0
-                            text: "+" + wsBox.hiddenAppCount
-                            color: isActive ? Theme.workspaceActiveTextColor : Theme.text
-                            opacity: 0.8
-                            font.pixelSize: Math.max(9, workspaceRoot.iconSize - 7)
-                            font.bold: true
-                            font.family: Theme.fontFamily
+                            width: hiddenCountText.implicitWidth + 8
+                            height: 16
+                            radius: 8
+                            color: Qt.rgba(Theme.text.r, Theme.text.g, Theme.text.b, 0.08)
                             anchors.verticalCenter: parent.verticalCenter
+
+                            Text {
+                                id: hiddenCountText
+                                text: "+" + wsBox.hiddenAppCount
+                                color: isActive ? Theme.workspaceActiveTextColor : Qt.rgba(Theme.text.r, Theme.text.g, Theme.text.b, 0.7)
+                                font.pixelSize: Math.max(9, workspaceRoot.iconSize - 7)
+                                font.bold: true
+                                font.family: Theme.fontFamily
+                                anchors.centerIn: parent
+                            }
                         }
                     }
                 }
 
-                // BOTTOM LINE (Underline Style)
+                // --- UNDERLINE STYLE ---
                 Rectangle {
                     anchors.bottom: parent.bottom
+                    anchors.bottomMargin: 2
                     anchors.horizontalCenter: parent.horizontalCenter
-                    width: parent.width * 0.6
-                    height: 3
-                    radius: 1.5
+                    width: isActive ? parent.implicitWidth * 0.5 : 0
+                    height: 2.5
+                    radius: 1.25
                     color: activeColor
-                    visible: style === "underline" && isActive
+                    visible: style === "underline"
+                    opacity: isActive ? 1.0 : 0.0
+                    Behavior on width { NumberAnimation { duration: 300; easing.type: Easing.OutQuint } }
+                    Behavior on opacity { NumberAnimation { duration: 200 } }
                 }
 
-                // DOT (Dot Style)
+                // --- DOT STYLE ---
                 Rectangle {
                     anchors.top: parent.bottom
-                    anchors.topMargin: 2
+                    anchors.topMargin: 3
                     anchors.horizontalCenter: parent.horizontalCenter
-                    width: 4
-                    height: 4
-                    radius: 2
+                    width: isActive ? 5 : 3
+                    height: isActive ? 5 : 3
+                    radius: width / 2
                     color: activeColor
-                    visible: style === "dot" && isActive
+                    visible: style === "dot"
+                    opacity: isActive ? 1.0 : 0.3
+                    Behavior on width { NumberAnimation { duration: 250; easing.type: Easing.OutBack } }
+                    Behavior on opacity { NumberAnimation { duration: 200 } }
                 }
 
-                // TOP LINE (Overline Style)
+                // --- OVERLINE STYLE ---
                 Rectangle {
                     anchors.top: parent.top
+                    anchors.topMargin: 2
                     anchors.horizontalCenter: parent.horizontalCenter
-                    width: parent.width * 0.6
-                    height: 3
-                    radius: 1.5
+                    width: isActive ? parent.implicitWidth * 0.5 : 0
+                    height: 2.5
+                    radius: 1.25
                     color: activeColor
-                    visible: style === "overline" && isActive
+                    visible: style === "overline"
+                    opacity: isActive ? 1.0 : 0.0
+                    Behavior on width { NumberAnimation { duration: 300; easing.type: Easing.OutQuint } }
+                    Behavior on opacity { NumberAnimation { duration: 200 } }
                 }
 
-                // SIDE LINE (Pipe Style)
+                // --- PIPE STYLE ---
                 Rectangle {
                     anchors.left: parent.left
                     anchors.verticalCenter: parent.verticalCenter
-                    anchors.leftMargin: 4
-                    width: 3
-                    height: parent.height * 0.6
-                    radius: 1.5
+                    anchors.leftMargin: 3
+                    width: 2.5
+                    height: isActive ? parent.height * 0.55 : 0
+                    radius: 1.25
                     color: activeColor
-                    visible: style === "pipe" && isActive
+                    visible: style === "pipe"
+                    opacity: isActive ? 1.0 : 0.0
+                    Behavior on height { NumberAnimation { duration: 300; easing.type: Easing.OutQuint } }
+                    Behavior on opacity { NumberAnimation { duration: 200 } }
                 }
 
-                // Click Area
+                // --- CLICK AREA ---
                 MouseArea {
                     z: 1
                     anchors.fill: parent
                     cursorShape: Qt.PointingHandCursor
-                    onClicked: workspaceRoot.switchToWorkspace(wsData.name)
+                    onClicked: {
+                        if (!wsBox.isActive) {
+                            workspaceRoot.switchToWorkspace(wsData.name)
+                        }
+                        wsBox.labelForced = !wsBox.labelForced
+                        if (wsBox.labelForced) {
+                            labelHideTimer.restart()
+                        } else {
+                            labelHideTimer.stop()
+                        }
+                    }
                 }
 
                 HoverHandler { id: workspaceHover }
-
-                ToolTip.visible: workspaceHover.hovered
-                ToolTip.delay: 450
-                ToolTip.text: {
-                    var title = wsData.is_special ? wsData.name : "Workspace " + getWorkspaceLabel(wsData.name)
-                    var windows = wsData.windows || []
-                    if (windows.length === 0) return title + "\nEmpty"
-                    var lines = []
-                    for (var i = 0; i < windows.length && i < 6; ++i) {
-                        lines.push("• " + (windows[i].title || windows[i].app_id || "Application"))
-                    }
-                    if (windows.length > 6) lines.push("+" + (windows.length - 6) + " more")
-                    return title + " · " + windows.length + " window" + (windows.length === 1 ? "" : "s") + "\n" + lines.join("\n")
-                }
             }
         }
     }
