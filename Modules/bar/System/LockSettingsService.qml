@@ -84,7 +84,7 @@ Item {
         var bg = backgroundPath.length > 0 ? backgroundPath : defaultBackgroundPath
         return "# Managed by Quickshell\n" +
                "general {\n" +
-               "    disable_loading_bar = false\n" +
+               "    hide_cursor = false\n" +
                "}\n\n" +
                "background {\n" +
                "    path = " + bg + "\n" +
@@ -96,7 +96,7 @@ Item {
                "    rounding = -1\n" +
                "    fade_on_empty = true\n" +
                "    placeholder_text = <span foreground=\"##cba6f7\">Enter Password</span>\n" +
-               "    font_size = 24\n" +
+               "    font_family = " + Theme.fontFamily + "\n" +
                "    shadow_passes = 0\n" +
                "    halign = center\n" +
                "    valign = center\n" +
@@ -108,7 +108,7 @@ Item {
                "    halign = center\n" +
                "    valign = top\n" +
                "    text_align = center\n" +
-               "    pos = 0, 100\n" +
+               "    position = 0, 100\n" +
                "}\n"
     }
 
@@ -255,10 +255,10 @@ Item {
     Process {
         id: reloadProc
         command: [
-            "/bin/bash",
-            "-lc",
-            "pkill hypridle >/dev/null 2>&1 || true; " +
-            "hyprctl dispatch exec \"hypridle -c " + service.hypridleConfigPath.replace(/"/g, "\\\"") + "\""
+            "/usr/bin/systemctl",
+            "--user",
+            "restart",
+            "hypridle.service"
         ]
         running: false
         onExited: function(exitCode) {
