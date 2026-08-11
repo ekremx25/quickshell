@@ -41,6 +41,23 @@ Item {
         return Core.PathService.expandHome(path)
     }
 
+    function portableHomePath(path) {
+        var normalized = normalizePath(path)
+        if (normalized === homePath) return "$HOME"
+        var prefix = homePath + "/"
+        return normalized.indexOf(prefix) === 0 ? "$HOME/" + normalized.substring(prefix.length) : normalized
+    }
+
+    function shellQuotedPath(path) {
+        var normalized = normalizePath(path)
+        var prefix = homePath + "/"
+        if (normalized === homePath || normalized.indexOf(prefix) === 0) {
+            var suffix = normalized.substring(homePath.length).replace(/([\\"`$])/g, "\\$1")
+            return "\"$HOME" + suffix + "\""
+        }
+        return "'" + normalized.replace(/'/g, "'\\''") + "'"
+    }
+
     function applySnapshot(cfg) {
         backgroundPath = normalizePath(cfg.backgroundPath || defaultBackgroundPath)
         dimTimeoutMinutes = clampMinutes(cfg.dimTimeoutMinutes !== undefined ? cfg.dimTimeoutMinutes : 20, 1, 240)
@@ -69,7 +86,7 @@ Item {
     }
 
     function hyprlockLaunchCommand() {
-        return "pidof hyprlock || hyprlock -c '" + hyprlockConfigPath.replace(/'/g, "'\\''") + "'"
+        return "pidof hyprlock || hyprlock -c " + shellQuotedPath(hyprlockConfigPath)
     }
 
     function dimScreenTimeoutBlock() {
@@ -88,7 +105,7 @@ Item {
                "    hide_cursor = false\n" +
                "}\n\n" +
                "background {\n" +
-               "    path = " + bg + "\n" +
+               "    path = " + portableHomePath(bg) + "\n" +
                "}\n\n" +
                "input-field {\n" +
                "    monitor =\n" +
