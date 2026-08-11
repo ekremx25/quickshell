@@ -2,6 +2,7 @@ import QtQuick
 import Qt.labs.platform
 import Quickshell
 import Quickshell.Io
+import "../../../Widgets"
 import "../../../Services"
 import "../../../Services/core" as Core
 import "../../../Services/core/Log.js" as Log
@@ -144,6 +145,12 @@ Item {
         isBusy = true
         statusMessage = "Applying lock settings..."
         saveSettings()
+        // Do not make the live configuration depend on the asynchronous JSON
+        // save callback.  A settings page can be unloaded before that callback
+        // is delivered, leaving lock_config.json newer than hypridle.conf.
+        // Start the live configuration chain immediately; TextDataStore keeps
+        // each write atomic and queues overlapping writes safely.
+        hyprlockStore.write(hyprlockText())
     }
 
     function lockNow() {
@@ -201,7 +208,6 @@ Item {
         }
         onSavedValue: function(cfg) {
             service.applySnapshot(cfg)
-            hyprlockStore.write(service.hyprlockText())
         }
         onFailed: function(phase, exitCode, details) {
             if (phase === "parse") {
