@@ -89,7 +89,6 @@ PanelWindow {
                 { key: "screens",    icon: "󰹑", label: "Screen Prefs" },
                 { key: "sound",      icon: "󰕾", label: "Sound" },
                 { key: "network",    icon: "󰤨", label: "Network" },
-                { key: "bluetooth",  icon: "󰂯", label: "Bluetooth" }
             ]
         }
     ]
@@ -592,12 +591,6 @@ PanelWindow {
                         z: visible ? 100 : 0
                     }
 
-                    // ── BLUETOOTH ──
-                    Sys.BluetoothPage {
-                        anchors.fill: parent
-                        visible: settingsPopup.currentPage === "bluetooth"
-                        z: visible ? 100 : 0
-                    }
                 }
             }
         }

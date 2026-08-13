@@ -40,12 +40,6 @@
       "appId": "discord"
     },
     {
-      "name": "VS Code",
-      "icon": "codex",
-      "cmd": "codex-desktop",
-      "appId": "codex"
-    },
-    {
       "name": "Iriunwebcam",
       "icon": "iriunwebcam",
       "cmd": "iriunwebcam",
@@ -80,6 +74,18 @@
       "icon": "steam",
       "cmd": "__desktop__:steam",
       "appId": "steam"
+    },
+    {
+      "name": "Codex",
+      "icon": "chatgpt",
+      "cmd": "__desktop__:chatgpt",
+      "appId": "Chatgpt"
+    },
+    {
+      "name": "Youtube-dl-gui",
+      "icon": "youtube-dl-gui",
+      "cmd": "youtube-dl-gui",
+      "appId": "youtube-dl-gui"
     },
     {
       "name": "OBS Studio",

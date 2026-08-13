@@ -48,11 +48,7 @@ cd ~/quickshell-dev
 QS_CONFIG_HOME="$PWD" quickshell
 ```
 
-Install the dependencies listed in the [README](README.md#dependencies). For test infrastructure additionally install:
-
-```bash
-sudo pacman -S qt6-declarative   # provides qmltestrunner
-```
+Install the dependencies listed in the [README](README.md#dependencies).
 
 ### Project layout
 
@@ -67,7 +63,6 @@ Modules/OSD/                  Volume / brightness OSD
 Widgets/                      Shared widgets (Theme, FilePicker)
 Components/                   Tiny reusable QML components
 scripts/                      Helper bash scripts
-tests/                        Unit tests for pure-JS modules
 ```
 
 See [README — Architecture](README.md#architecture) for more.
@@ -93,16 +88,6 @@ See [README — Architecture](README.md#architecture) for more.
 1. Create `Modules/bar/System/MyPage.qml` (model the structure on `LockPage.qml` or `NightLightPage.qml`).
 2. Add a sidebar item to `menuCategories` in `Settings.qml`.
 3. Add the page container under the existing `Sys.NightLightPage { ... }` style block, with `visible: settingsPopup.currentPage === "myKey"`.
-
-### Tests
-
-Pure-JS modules under `tests/` are runnable with:
-
-```bash
-qmltestrunner -input tests/
-```
-
-Add a new test by creating `tests/tst_<name>.qml` — see [tests/README.md](tests/README.md) for the convention.
 
 ### Commits
 

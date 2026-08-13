@@ -99,10 +99,11 @@ Item {
     function buildPinnedDockItem(pinnedApp) {
         var isRunning = false;
         var windowId = -1;
+        var normalizedPinnedId = normalizeAppId(pinnedApp.appId);
 
         for (var i = 0; i < runningWindows.length; i++) {
             var runningId = normalizeAppId(runningWindows[i].app_id);
-            if (runningId === pinnedApp.appId) {
+            if (runningId === normalizedPinnedId) {
                 isRunning = true;
                 windowId = runningWindows[i].id;
                 break;
@@ -113,7 +114,6 @@ Item {
         var resolvedCmd = pinnedApp.cmd || "";
         var desktopCmd = getCmd(pinnedApp.appId);
         if (desktopCmd && desktopCmd !== pinnedApp.appId) {
-            var normalizedPinnedId = normalizeAppId(pinnedApp.appId);
             if (!resolvedCmd || resolvedCmd === pinnedApp.appId || resolvedCmd === normalizedPinnedId) {
                 resolvedCmd = desktopCmd;
             }
@@ -153,7 +153,7 @@ Item {
 
         for (var i = 0; i < pinnedApps.length; i++) {
             var pinned = pinnedApps[i];
-            pinnedIds[pinned.appId] = true;
+            pinnedIds[normalizeAppId(pinned.appId)] = true;
             items.push(buildPinnedDockItem(pinned));
         }
 

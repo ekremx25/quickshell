@@ -24,7 +24,6 @@ PanelWindow {
         { key: "monitors",   icon: "󰍹", label: "Monitors" },
         { key: "sound",      icon: "󰕾", label: "Sound" },
         { key: "network",    icon: "󰤨", label: "Network" },
-        { key: "bluetooth",  icon: "󰂯", label: "Bluetooth" },
     ]
 
     // Background click-to-close
@@ -227,14 +226,6 @@ PanelWindow {
                     id: vpnPopup
                     onSuccess: netPage.refresh()
                 }
-
-                BluetoothPage {
-                    anchors.fill: parent
-                    visible: root.currentPage === "bluetooth"
-                }
-
-
-
 
             }
         }

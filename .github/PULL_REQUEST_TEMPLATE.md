@@ -17,7 +17,7 @@
 - [ ] Tested on Hyprland
 - [ ] Tested on Niri
 - [ ] Tested on MangoWC
-- [ ] `qmltestrunner -input tests/` passes
+- [ ] Relevant QML files pass `qmllint`
 - [ ] Quickshell logs are clean (no new warnings/errors)
 - [ ] Visual change verified in the relevant Settings page
 

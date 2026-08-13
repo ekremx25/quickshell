@@ -59,8 +59,7 @@ Do not add module allow-lists to `Bar.qml`, `Dock.qml`, `SettingsBackend.qml`, o
 ## Verification
 
 ```bash
-QT_QPA_PLATFORM=offscreen /usr/lib/qt6/bin/qmltestrunner -input tests/
 qmllint Modules/bar/ModuleCatalog.qml Modules/bar/Settings/SettingsBackend.qml Modules/bar/Dock/DockDataService.qml
 ```
 
-The pure-JavaScript tests cover schema validation, aliases, ID resolution, placement capabilities, deduplication, legacy migration and the catalog contract. A live Quickshell reload remains the integration check because the catalog imports Quickshell-specific modules unavailable to the standalone Qt test runner.
+A live Quickshell reload remains the integration check because the catalog imports Quickshell-specific modules unavailable to the standalone Qt tooling.
