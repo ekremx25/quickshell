@@ -1,11 +1,10 @@
 {
-  "enabled": false,
+  "enabled": true,
   "temperature": 6100,
   "applyOnStartup": true,
   "scheduleEnabled": true,
   "scheduleOnHour": 19,
   "scheduleOnMinute": 0,
   "scheduleOffHour": 7,
-  "scheduleOffMinute": 0,
-  "_schemaVersion": 2
+  "scheduleOffMinute": 0
 }
