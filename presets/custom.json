@@ -2,7 +2,8 @@
   "left": [
     "Launcher",
     "RamModule",
-    "SysInfoGroup"
+    "SysInfoGroup",
+    "CurrencyConverter"
   ],
   "center": [
     "Workspaces",
@@ -25,7 +26,7 @@
     "displayMode": "role",
     "workspaceCount": 5,
     "showEmpty": true,
-    "showSpecial": false,
+    "showSpecial": true,
     "showApps": true,
     "groupApps": true,
     "scrollEnabled": true,
@@ -37,5 +38,5 @@
   "theme": "",
   "barPosition": "top",
   "_description": "This file stores the current bar layout.",
-  "moduleSchemaVersion": 1
+  "moduleSchemaVersion": 3
 }

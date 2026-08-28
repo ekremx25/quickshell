@@ -31,10 +31,10 @@ PanelWindow {
 
     Rectangle {
         anchors.fill: parent
-        color: "#1e1e2e" // Base color
+        color: Theme.background
         radius: 12
         border.width: 1
-        border.color: "#cdd6f4" // Surface/Text color
+        border.color: Theme.surface
 
         ColumnLayout {
             anchors.centerIn: parent
@@ -43,14 +43,14 @@ PanelWindow {
             Text {
                 font.family: Theme.fontFamily
                 text: "Duration (seconds)"
-                color: "#a6adc8"
+                color: Theme.subtext
                 font.pixelSize: 12
                 Layout.alignment: Qt.AlignHCenter
             }
 
             Rectangle {
                 width: 100; height: 30
-                color: "#313244"
+                color: Theme.surface
                 radius: 5
                 
                 TextInput {
@@ -61,7 +61,7 @@ PanelWindow {
                     horizontalAlignment: TextInput.AlignHCenter
                     
                     text: (root.notifService.displayDuration / 1000).toString()
-                    color: "#cdd6f4"
+                    color: Theme.text
                     font.pixelSize: 14
                     
                     validator: IntValidator { bottom: 1; top: 3600 }

@@ -17,6 +17,30 @@ ColumnLayout {
     signal dragStarted(string groupName, int sourceIndex, string moduleName)
     signal dragFinished()
 
+    function moduleThemeColor(moduleName, fallbackColor) {
+        var candidate = fallbackColor;
+        switch (moduleName) {
+        case "Launcher":          candidate = Theme.launcherColor; break;
+        case "Calendar":          candidate = Theme.calendarColor; break;
+        case "Notepad":           candidate = Theme.yellow; break;
+        case "Workspaces":        candidate = Theme.workspacesColor; break;
+        case "Notifications":     candidate = Theme.notificationColor; break;
+        case "Weather":           candidate = Theme.weatherColor; break;
+        case "Volume":            candidate = Theme.mediaColor; break;
+        case "Equalizer":         candidate = Theme.equalizerColor; break;
+        case "Tray":              candidate = Theme.trayColor; break;
+        case "Clipboard":         candidate = Theme.clipboardColor; break;
+        case "Power":             candidate = Theme.powerColor; break;
+        case "NightLight":        candidate = Theme.yellow; break;
+        case "PowerGroup":        candidate = Theme.powerProfileColor; break;
+        case "SysInfoGroup":      candidate = Theme.cpuColor; break;
+        case "RamModule":         candidate = Theme.ramColor; break;
+        case "Media":             candidate = Theme.mediaColor; break;
+        case "CurrencyConverter": candidate = Theme.currencyColor; break;
+        }
+        return SettingsPalette.readableAccent(candidate, SettingsPalette.card);
+    }
+
     Layout.fillWidth: true
     Layout.fillHeight: true
     spacing: 6
@@ -73,9 +97,7 @@ ColumnLayout {
                     width: delegateRoot.width
                     height: delegateRoot.height
                     radius: 10
-                    color: dragArea.containsMouse
-                        ? Qt.rgba(49 / 255, 50 / 255, 68 / 255, 0.9)
-                        : Qt.rgba(49 / 255, 50 / 255, 68 / 255, 0.4)
+                    color: dragArea.containsMouse ? SettingsPalette.cardStrong : SettingsPalette.card
                     border.color: dragArea.drag.active ? root.groupColor : "transparent"
                     border.width: dragArea.drag.active ? 2 : 0
 
@@ -110,7 +132,7 @@ ColumnLayout {
 
                         Text {
                             text: delegateRoot.info.icon
-                            color: delegateRoot.info.color
+                            color: root.moduleThemeColor(model.name, delegateRoot.info.color)
                             font.pixelSize: 16
                             font.family: "JetBrainsMono Nerd Font"
                         }

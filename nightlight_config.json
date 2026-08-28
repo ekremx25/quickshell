@@ -1,6 +1,6 @@
 {
-  "enabled": true,
-  "temperature": 6400,
+  "enabled": false,
+  "temperature": 6100,
   "applyOnStartup": true,
   "scheduleEnabled": true,
   "scheduleOnHour": 19,

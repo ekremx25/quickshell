@@ -23,6 +23,12 @@ Rectangle {
     implicitWidth: barRow.implicitWidth + 24
     implicitHeight: 34
     color: Theme.weatherColor
+    border.width: 1
+    border.color: Qt.rgba(
+        Theme.foregroundFor(root.color).r,
+        Theme.foregroundFor(root.color).g,
+        Theme.foregroundFor(root.color).b,
+        0.18)
 
     RowLayout {
         id: barRow
@@ -31,7 +37,7 @@ Rectangle {
 
         Text {
             text: root.weatherIcon
-            color: "#1e1e2e"
+            color: Theme.foregroundFor(root.color)
             font.family: "JetBrainsMono Nerd Font Mono"
             font.pixelSize: 16
             renderType: Text.NativeRendering
@@ -44,7 +50,7 @@ Rectangle {
         Text {
             text: (root.currentTemp !== "-" ? root.currentTemp + (root.useFahrenheit ? "°F" : "°C") : "-")
                 + (root.popupData && root.popupData.desc ? " • " + root.popupData.desc : "")
-            color: "#1e1e2e"
+            color: Theme.foregroundFor(root.color)
             font.bold: true
             font.pixelSize: 13
             font.family: Theme.fontFamily
@@ -121,7 +127,7 @@ Rectangle {
 
                     Text {
                         text: root.weatherIcon
-                        color: Theme.primary
+                        color: Theme.weatherColor
                         font.pixelSize: 64
                         font.family: "JetBrainsMono Nerd Font"
                         renderType: Text.NativeRendering
@@ -138,7 +144,7 @@ Rectangle {
                         RowLayout {
                             spacing: 5
                             Text {  text: root.popupData && root.popupData.feelsLike ? root.popupData.feelsLike : "-"; color: Theme.text; font.pixelSize: 36; font.bold: true; font.family: Theme.fontFamily }
-                            Text {  text: "°"; color: Theme.primary; font.pixelSize: 20; font.bold: true; Layout.alignment: Qt.AlignTop | Qt.AlignLeft; Layout.topMargin: 4; font.family: Theme.fontFamily }
+                            Text {  text: "°"; color: Theme.weatherColor; font.pixelSize: 20; font.bold: true; Layout.alignment: Qt.AlignTop | Qt.AlignLeft; Layout.topMargin: 4; font.family: Theme.fontFamily }
                         }
                         Text {  text: "Feels like"; color: Theme.overlay2; font.pixelSize: 11; font.family: Theme.fontFamily }
                         Text {  text: root.currentTemp + (root.useFahrenheit ? "°F" : "°C"); color: Theme.subtext; font.pixelSize: 14; font.family: Theme.fontFamily }
@@ -163,10 +169,10 @@ Rectangle {
                     rowSpacing: 15
                     columnSpacing: 30
 
-                    DetailRow { icon: ""; label: "Humidity"; value: "%" + (root.popupData && root.popupData.humidity ? root.popupData.humidity : "-"); iconColor: Theme.primary }
-                    DetailRow { icon: "󰖝"; label: "Wind"; value: (root.popupData && root.popupData.wind ? root.popupData.wind : "-") + " km/h"; iconColor: Theme.primary }
-                    DetailRow { icon: ""; label: "Sunrise"; value: root.popupData && root.popupData.sunrise ? root.popupData.sunrise : "-"; iconColor: "#f9e2af" }
-                    DetailRow { icon: ""; label: "Sunset"; value: root.popupData && root.popupData.sunset ? root.popupData.sunset : "-"; iconColor: "#f38ba8" }
+                    DetailRow { icon: ""; label: "Humidity"; value: "%" + (root.popupData && root.popupData.humidity ? root.popupData.humidity : "-"); iconColor: Theme.weatherColor }
+                    DetailRow { icon: "󰖝"; label: "Wind"; value: (root.popupData && root.popupData.wind ? root.popupData.wind : "-") + " km/h"; iconColor: Theme.weatherColor }
+                    DetailRow { icon: ""; label: "Sunrise"; value: root.popupData && root.popupData.sunrise ? root.popupData.sunrise : "-"; iconColor: Theme.calendarColor }
+                    DetailRow { icon: ""; label: "Sunset"; value: root.popupData && root.popupData.sunset ? root.popupData.sunset : "-"; iconColor: Theme.gpuColor }
                 }
 
                 Rectangle { Layout.fillWidth: true; height: 1; color: Theme.surface }
@@ -184,7 +190,7 @@ Rectangle {
                             Text {  text: modelData.day; color: Theme.subtext; font.pixelSize: 11; Layout.alignment: Qt.AlignHCenter; font.family: Theme.fontFamily }
                             Text {
                                 text: modelData.icon
-                                color: Theme.primary
+                                color: Theme.weatherColor
                                 font.pixelSize: 22
                                 font.family: "JetBrainsMono Nerd Font"
                                 renderType: Text.NativeRendering

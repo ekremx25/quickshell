@@ -11,8 +11,8 @@ Rectangle {
 
     // --- COLOR SETTINGS (Standardized) ---
     property color containerColor: Theme.diskColor
-    property color iconColor: "#1e1e2e"
-    property color textColor: "#1e1e2e"
+    property color iconColor: Theme.foregroundFor(containerColor)
+    property color textColor: Theme.foregroundFor(containerColor)
 
     implicitHeight: 34
     implicitWidth: layout.implicitWidth + 24
@@ -82,8 +82,8 @@ Rectangle {
 
         Rectangle {
             anchors.fill: parent
-            color: "#1e1e2e"        // Tooltip Background: Dark Navy/Black
-            border.color: "#89b4fa" // Border: Blue (so it's visible)
+            color: Theme.background
+            border.color: Theme.diskColor
             border.width: 1
             radius: 12
 
@@ -94,32 +94,32 @@ Rectangle {
 
                 Text {
                     text: "Root Disk (/)"
-                    color: "#89b4fa" // Visible Blue Title
+                    color: Theme.diskColor
                     font.bold: true
                     font.pixelSize: 14
                     font.family: Theme.fontFamily
                     Layout.alignment: Qt.AlignHCenter
                 }
 
-                Rectangle { Layout.fillWidth: true; height: 1; color: "#45475a" } // Separator line
+                Rectangle { Layout.fillWidth: true; height: 1; color: Theme.surface }
 
                 RowLayout {
                     spacing: 12
                     Text {
                         text: "󰋊" // Icon
-                        color: "#cdd6f4"
+                        color: Theme.text
                         font.pixelSize: 16
                         font.family: "JetBrainsMono Nerd Font"
                     }
                     Text {
                         text: "Used:"
-                        color: "#cdd6f4"
+                        color: Theme.text
                         font.pixelSize: 13
                         font.family: Theme.fontFamily
                     }
                     Text {
                         text: diskService.diskUsed + " / " + diskService.diskTotal
-                        color: "#a6e3a1" // Greenish
+                        color: Theme.diskColor
                         font.bold: true
                         font.pixelSize: 13
                         font.family: Theme.fontFamily

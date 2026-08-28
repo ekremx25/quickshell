@@ -2,9 +2,10 @@
 """Port-independent Hyprland monitor role manager.
 
 Treats monitor_config.json entries as role profiles instead of permanent
-connector identities. Connected outputs are matched by capabilities, assigned
-primary/secondary/tertiary roles, auto-scaled from physical DPI and laid out
-without overlap. Manufacturer/model/serial values are intentionally ignored.
+connector identities. Physical displays are remembered by EDID identity
+(manufacturer/model/serial), so a display keeps its primary/secondary role
+when it is moved between HDMI and DisplayPort connectors. Capability matching
+is retained as a safe fallback for displays without useful EDID metadata.
 """
 
 from __future__ import annotations
@@ -132,6 +133,21 @@ def output_capability_area(output: dict) -> int:
     return max(areas or [0])
 
 
+def monitor_identity(output: dict) -> str:
+    """Return a stable, port-independent identity for a physical display."""
+    make = str(output.get("make") or "").strip()
+    model = str(output.get("model") or "").strip()
+    serial = str(output.get("serial") or "").strip()
+    description = str(output.get("description") or "").strip()
+
+    parts = [make, model, serial]
+    if any(parts):
+        return "edid:" + "|".join(part.casefold() for part in parts)
+    if description:
+        return "description:" + description.casefold()
+    return ""
+
+
 def profile_match_score(profile: dict, output: dict) -> tuple:
     requested = resolution_parts(str(profile.get("res") or ""))
     requested_area = requested[0] * requested[1]
@@ -143,21 +159,54 @@ def profile_match_score(profile: dict, output: dict) -> tuple:
     return (0 if supports_exact else 1, area_distance, -max_rate, str(output.get("name") or ""))
 
 
-def assign_roles(outputs: list[dict], profiles: list[dict]) -> list[tuple[dict, dict]]:
+def assign_roles(
+    outputs: list[dict],
+    profiles: list[dict],
+    identity_roles: dict[str, str] | None = None,
+) -> list[tuple[dict, dict]]:
+    identity_roles = identity_roles or {}
     remaining = list(outputs)
     assignments = []
+    configured_roles = {str(profile.get("role") or "") for profile in profiles}
+
     for profile in profiles:
         if not remaining:
             break
-        selected = min(remaining, key=lambda output: profile_match_score(profile, output))
+        role = str(profile.get("role") or "")
+        remembered = [
+            output for output in remaining
+            if identity_roles.get(monitor_identity(output)) == role
+        ]
+        if remembered:
+            selected = min(remembered, key=lambda output: str(output.get("name") or ""))
+        else:
+            # Do not steal a display remembered for another configured role.
+            # This matters when two monitors expose identical capabilities.
+            unclaimed = [
+                output for output in remaining
+                if identity_roles.get(monitor_identity(output), role) in (role, "")
+                or identity_roles.get(monitor_identity(output)) not in configured_roles
+            ]
+            selected = min(unclaimed or remaining, key=lambda output: profile_match_score(profile, output))
         assignments.append((selected, profile))
         remaining.remove(selected)
 
-    remaining.sort(key=lambda output: (-output_capability_area(output), str(output.get("name") or "")))
+    role_rank = {role: index for index, role in enumerate(ROLE_NAMES)}
+    remaining.sort(key=lambda output: (
+        role_rank.get(identity_roles.get(monitor_identity(output), ""), len(ROLE_NAMES)),
+        -output_capability_area(output),
+        str(output.get("name") or ""),
+    ))
+    used_roles = {str(profile.get("role") or "") for _, profile in assignments}
     for output in remaining:
-        index = len(assignments)
-        role = ROLE_NAMES[index] if index < len(ROLE_NAMES) else f"display-{index + 1}"
+        remembered_role = identity_roles.get(monitor_identity(output), "")
+        if remembered_role and remembered_role not in used_roles:
+            role = remembered_role
+        else:
+            available_roles = [candidate for candidate in ROLE_NAMES if candidate not in used_roles]
+            role = available_roles[0] if available_roles else f"display-{len(assignments) + 1}"
         assignments.append((output, {"role": role, "autoScale": True}))
+        used_roles.add(role)
     return assignments
 
 
@@ -171,9 +220,9 @@ def normalize_eotf(value) -> str:
     return str(value)
 
 
-def build_plan(outputs: list[dict], config: dict) -> list[dict]:
+def build_plan(outputs: list[dict], config: dict, identity_roles: dict[str, str] | None = None) -> list[dict]:
     profiles = profile_order(config)
-    assignments = assign_roles(outputs, profiles)
+    assignments = assign_roles(outputs, profiles, identity_roles)
     plan = []
     for output, profile in assignments:
         resolution, rate = preferred_mode(output, profile)
@@ -302,11 +351,21 @@ def public_config(plan: list[dict]) -> dict:
         result[item["name"]]["scale"] = str(round(item["scale"], 6))
         result[item["name"]]["posX"] = str(item["posX"])
         result[item["name"]]["posY"] = str(item["posY"])
+        result[item["name"]]["identity"] = monitor_identity(item.get("_live") or {})
     return result
 
 
 def runtime_roles(plan: list[dict]) -> dict:
     return {item["role"]: item["name"] for item in plan}
+
+
+def updated_identity_roles(existing: dict, plan: list[dict]) -> dict:
+    result = dict(existing or {})
+    for item in plan:
+        identity = monitor_identity(item.get("_live") or {})
+        if identity:
+            result[identity] = item["role"]
+    return result
 
 
 def merge_role_profiles(existing: dict, plan: list[dict]) -> dict:
@@ -339,6 +398,46 @@ def config_from_role_profiles(role_profiles: dict) -> dict:
         item["posY"] = "0"
         config[role] = item
     return config
+
+
+def merge_connected_profiles(
+    config: dict,
+    outputs: list[dict],
+    role_profiles: dict,
+    identity_roles: dict[str, str],
+) -> tuple[dict, dict[str, str]]:
+    """Import live UI changes without trusting stale connector names.
+
+    monitor_config.json is keyed by connector for compositor compatibility.
+    After a cable swap, those keys may point at different physical displays.
+    The stored identity guard prevents old connector entries from overwriting
+    the role already remembered for the newly connected display.
+    """
+    merged_profiles = dict(role_profiles or {})
+    merged_identities = dict(identity_roles or {})
+    outputs_by_name = {str(output.get("name") or ""): output for output in outputs}
+
+    for connector, value in (config or {}).items():
+        if connector not in outputs_by_name or not isinstance(value, dict):
+            continue
+        role = value.get("role")
+        if not role:
+            continue
+
+        live_identity = monitor_identity(outputs_by_name.get(connector) or {})
+        stored_identity = str(value.get("identity") or "")
+        remembered_role = merged_identities.get(live_identity)
+
+        if stored_identity and live_identity and stored_identity != live_identity:
+            continue
+        if not stored_identity and remembered_role and remembered_role != role:
+            continue
+
+        merged_profiles[role] = dict(value)
+        if live_identity:
+            merged_identities[live_identity] = role
+
+    return merged_profiles, merged_identities
 
 
 def run_json(command: list[str]) -> list[dict]:
@@ -398,6 +497,7 @@ def main() -> int:
     config_path = root / "monitor_config.json"
     runtime_path = root / "monitor_runtime.json"
     role_profile_path = root / "monitor_role_profiles.json"
+    identity_path = root / "monitor_identities.json"
     helper = root / "scripts" / "hypr_monitor_apply.sh"
     lock_path = Path(os.environ.get("XDG_RUNTIME_DIR", "/tmp")) / "quickshell-monitor-role-manager.lock"
 
@@ -410,24 +510,21 @@ def main() -> int:
             else:
                 outputs = run_json(["hyprctl", "monitors", "all", "-j"])
             outputs = [output for output in outputs if not output.get("disabled")]
-            connected_names = {str(output.get("name") or "") for output in outputs}
             role_profiles = json.loads(role_profile_path.read_text(encoding="utf-8")) if role_profile_path.exists() else {}
+            identity_roles = json.loads(identity_path.read_text(encoding="utf-8")) if identity_path.exists() else {}
 
             # Manual changes made in the QuickShell monitor page are written to
             # monitor_config.json. Import only entries whose connectors are
             # currently connected; stale port names must never replace roles.
-            for connector, value in config.items():
-                if connector not in connected_names or not isinstance(value, dict):
-                    continue
-                role = value.get("role")
-                if role:
-                    role_profiles[role] = dict(value)
+            role_profiles, identity_roles = merge_connected_profiles(
+                config, outputs, role_profiles, identity_roles
+            )
 
             if role_profiles:
                 profile_config = config_from_role_profiles(role_profiles)
             else:
                 profile_config = config
-            plan = build_plan(outputs, profile_config)
+            plan = build_plan(outputs, profile_config, identity_roles)
             if args.dry_run:
                 print(json.dumps({"roles": runtime_roles(plan), "config": public_config(plan)}, indent=2))
                 return 0
@@ -436,6 +533,7 @@ def main() -> int:
             atomic_json_write(config_path, public_config(plan))
             atomic_json_write(runtime_path, runtime_roles(plan))
             atomic_json_write(role_profile_path, merge_role_profiles(role_profiles, plan))
+            atomic_json_write(identity_path, updated_identity_roles(identity_roles, plan))
             return 0
         except (OSError, ValueError, subprocess.SubprocessError, RuntimeError) as error:
             print(f"monitor-role-manager: {error}", file=sys.stderr)

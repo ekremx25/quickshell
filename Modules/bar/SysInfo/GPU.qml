@@ -13,6 +13,12 @@ Rectangle {
   implicitHeight: 30
   radius: 15
   color: Theme.gpuColor
+  border.width: 1
+  border.color: Qt.rgba(
+    Theme.foregroundFor(root.color).r,
+    Theme.foregroundFor(root.color).g,
+    Theme.foregroundFor(root.color).b,
+    0.18)
 
   RowLayout {
     id: layout
@@ -22,7 +28,7 @@ Rectangle {
     Text {
         font.family: Theme.iconFontFamily
       text: "󰢮"
-      color: "#1e1e2e"
+      color: Theme.foregroundFor(root.color)
       font.pixelSize: 16
     }
 
@@ -30,7 +36,7 @@ Rectangle {
         font.family: Theme.fontFamily
       text: (backend.gpuPercent >= 0 ? backend.gpuPercent + "%" : "-%") +
       (backend.gpuTemp !== "-" && backend.gpuTemp !== "0" && backend.gpuTemp !== "" ? " • " + backend.gpuTemp + "°C" : "")
-      color: "#1e1e2e"
+      color: Theme.foregroundFor(root.color)
       font.bold: true
     }
   }
@@ -47,7 +53,7 @@ Rectangle {
   HistoryTooltip {
     id: tipWindow
     ownerItem: root
-    accentColor: "#f5e0dc"
+    accentColor: Theme.gpuColor
     primaryLineLeft: "Usage: " + backend.gpuPercent + "%"
     primaryLineRight: "VRAM: " + backend.vramUsed + "/" + backend.vramTotal + " GB"
     historyValues: backend.gpuHistory

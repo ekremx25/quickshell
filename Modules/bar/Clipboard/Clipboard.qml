@@ -13,9 +13,12 @@ Rectangle {
     implicitHeight: 36 // Taller
     radius: 18 // rounded
     
-    color: hasActive ? "#cba6f7" : "#45475a" // Mauve if history exists, Surface otherwise
+    readonly property color contentColor: Theme.foregroundFor(Theme.clipboardColor)
+    color: Theme.clipboardColor
+    Behavior on color { ColorAnimation { duration: Theme.animMedium } }
+    opacity: hasActive ? 1 : 0.74
     
-    Behavior on color { ColorAnimation { duration: 200 } }
+    Behavior on opacity { NumberAnimation { duration: 180 } }
     
     ClipboardBackend { id: backend }
     property alias hasActive: backend.hasActive
@@ -38,7 +41,7 @@ Rectangle {
             text: "" // Clipboard icon
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 20 // Bigger icon
-            color: hasActive ? "#1e1e2e" : "#cdd6f4"
+            color: root.contentColor
         }
         
         Text {
@@ -47,7 +50,7 @@ Rectangle {
             visible: clipboardModel.count > 0
             font.bold: true
             font.pixelSize: 14 // Bigger count
-            color: "#1e1e2e"
+            color: root.contentColor
         }
     }
     
@@ -83,9 +86,9 @@ Rectangle {
         
         Rectangle {
             anchors.fill: parent
-            color: "#1e1e2e"
+            color: Theme.background
             radius: 12
-            border.color: "#cba6f7"
+            border.color: Theme.clipboardColor
             border.width: 1
             
             ColumnLayout {
@@ -96,11 +99,11 @@ Rectangle {
                 // Header
                 RowLayout {
                     Layout.fillWidth: true
-                    Text {  text: "Clipboard History"; color: "#cba6f7"; font.bold: true; font.family: Theme.fontFamily }
+                    Text {  text: "Clipboard History"; color: Theme.clipboardColor; font.bold: true; font.family: Theme.fontFamily }
                     Item { Layout.fillWidth: true }
                     Text { 
                         font.family: Theme.fontFamily
-                        text: "Clear All"; color: "#f38ba8"; font.pixelSize: 11
+                        text: "Clear All"; color: Theme.red; font.pixelSize: 11
                         MouseArea {
                             anchors.fill: parent
                             cursorShape: Qt.PointingHandCursor
@@ -112,11 +115,11 @@ Rectangle {
                     // Kapat butonu
                     Rectangle {
                         width: 22; height: 22; radius: 11
-                        color: closeMA.containsMouse ? Qt.rgba(255,255,255,0.1) : "transparent"
+                        color: closeMA.containsMouse ? Theme.surface : "transparent"
                         Text {
                             font.family: Theme.fontFamily
                             anchors.centerIn: parent
-                            text: "✕"; color: "#a6adc8"; font.pixelSize: 12
+                            text: "✕"; color: Theme.subtext; font.pixelSize: 12
                         }
                         MouseArea {
                             id: closeMA
@@ -128,7 +131,7 @@ Rectangle {
                     }
                 }
                 
-                Rectangle { Layout.fillWidth: true; height: 1; color: "#313244" }
+                Rectangle { Layout.fillWidth: true; height: 1; color: Theme.surface }
                 
                 // List
                 ListView {
@@ -141,7 +144,7 @@ Rectangle {
                     delegate: Rectangle {
                         width: ListView.view.width
                         height: 50
-                        color: hoverMA.containsMouse ? "#313244" : "transparent"
+                        color: hoverMA.containsMouse ? Theme.surface : "transparent"
                         radius: 6
                         
                         RowLayout {
@@ -152,13 +155,13 @@ Rectangle {
                             Text {
                                 font.family: Theme.fontFamily
                                 text: model.text.replace(/\n/g, " ")
-                                color: "#cdd6f4"
+                                color: Theme.text
                                 elide: Text.ElideRight
                                 Layout.fillWidth: true
                             }
                             
                             Text {
-                                text: ""; color: "#a6adc8"; font.family: "JetBrainsMono Nerd Font"
+                                text: ""; color: Theme.subtext; font.family: "JetBrainsMono Nerd Font"
                                 MouseArea {
                                     anchors.fill: parent
                                     cursorShape: Qt.PointingHandCursor
@@ -168,7 +171,7 @@ Rectangle {
                             
                             Text {
                                 font.family: Theme.fontFamily
-                                text: "✕"; color: "#f38ba8"
+                                text: "✕"; color: Theme.red
                                 MouseArea {
                                     anchors.fill: parent
                                     cursorShape: Qt.PointingHandCursor
@@ -190,7 +193,7 @@ Rectangle {
                         anchors.centerIn: parent
                         text: "No history"
                         visible: clipboardModel.count === 0
-                        color: "#6c7086"
+                        color: Theme.subtext
                     }
                 }
             }

@@ -20,7 +20,7 @@ Rectangle {
     color: on
         ? (mouseArea.containsMouse ? Qt.lighter("#f9a03c", 1.15) : "#f9a03c")
         : (mouseArea.containsMouse ? Qt.lighter(offColor, 1.15) : offColor)
-    Behavior on color { ColorAnimation { duration: 200 } }
+    Behavior on color { ColorAnimation { duration: Theme.animMedium } }
 
     scale: mouseArea.pressed ? 0.92 : (mouseArea.containsMouse ? 1.06 : 1.0)
     Behavior on scale { NumberAnimation { duration: 160; easing.type: Easing.OutBack } }

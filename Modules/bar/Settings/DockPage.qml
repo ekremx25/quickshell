@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
 import Quickshell
+import "SettingsPalette.js" as SettingsPalette
 import "../../../Widgets"
 import "../../../Services/core" as Core
 import "../../../Services/core/Log.js" as Log
@@ -33,15 +34,16 @@ Item {
     property bool isLoaded: false
 
     // ─── colors (matching NotificationsPage pattern) ────────────
-    property color colorText:       "#f5f7ff"
-    property color colorSubtext:    "#aeb8cb"
-    property color colorSurface:    "#2a3140"
-    property color colorPrimary:    Theme.primary
-    property color colorBackground: "#11141b"
-    property color colorCard:       "#171b24"
-    property color colorCardStrong: "#232938"
-    property color colorBorder:     "#2d3544"
-    property color colorTrack:      "#303848"
+    property color colorText:       SettingsPalette.text
+    property color colorSubtext:    SettingsPalette.subtext
+    property color colorSurface:    SettingsPalette.overlay
+    property color colorPrimary:    SettingsPalette.readableAccent(Theme.primary)
+    property color colorPrimaryText: SettingsPalette.foregroundFor(colorPrimary)
+    property color colorBackground: SettingsPalette.background
+    property color colorCard:       SettingsPalette.card
+    property color colorCardStrong: SettingsPalette.cardStrong
+    property color colorBorder:     SettingsPalette.border
+    property color colorTrack:      SettingsPalette.track
 
     Core.TextDataStore {
         id: dockConfigStore
@@ -240,7 +242,7 @@ Item {
                             implicitWidth: 40; implicitHeight: 20; radius: 10
                             color: parent.checked ? colorPrimary : colorCardStrong
                             border.color: Qt.rgba(255,255,255,0.1)
-                            Rectangle { x: parent.parent.checked ? parent.width - width - 2 : 2; width: 16; height: 16; radius: 8; anchors.verticalCenter: parent.verticalCenter; color: "#ffffff"; Behavior on x { NumberAnimation { duration: 100 } } }
+                            Rectangle { x: parent.parent.checked ? parent.width - width - 2 : 2; width: 16; height: 16; radius: 8; anchors.verticalCenter: parent.verticalCenter; color: parent.parent.checked ? root.colorPrimaryText : SettingsPalette.text; Behavior on x { NumberAnimation { duration: 100 } } }
                         }
                     }
                 }
@@ -265,7 +267,7 @@ Item {
                             implicitWidth: 40; implicitHeight: 20; radius: 10
                             color: parent.checked ? colorPrimary : colorCardStrong
                             border.color: Qt.rgba(255,255,255,0.1)
-                            Rectangle { x: parent.parent.checked ? parent.width - width - 2 : 2; width: 16; height: 16; radius: 8; anchors.verticalCenter: parent.verticalCenter; color: "#ffffff"; Behavior on x { NumberAnimation { duration: 100 } } }
+                            Rectangle { x: parent.parent.checked ? parent.width - width - 2 : 2; width: 16; height: 16; radius: 8; anchors.verticalCenter: parent.verticalCenter; color: parent.parent.checked ? root.colorPrimaryText : SettingsPalette.text; Behavior on x { NumberAnimation { duration: 100 } } }
                         }
                     }
                 }
@@ -290,7 +292,7 @@ Item {
                             implicitWidth: 40; implicitHeight: 20; radius: 10
                             color: parent.checked ? colorPrimary : colorCardStrong
                             border.color: Qt.rgba(255,255,255,0.1)
-                            Rectangle { x: parent.parent.checked ? parent.width - width - 2 : 2; width: 16; height: 16; radius: 8; anchors.verticalCenter: parent.verticalCenter; color: "#ffffff"; Behavior on x { NumberAnimation { duration: 100 } } }
+                            Rectangle { x: parent.parent.checked ? parent.width - width - 2 : 2; width: 16; height: 16; radius: 8; anchors.verticalCenter: parent.verticalCenter; color: parent.parent.checked ? root.colorPrimaryText : SettingsPalette.text; Behavior on x { NumberAnimation { duration: 100 } } }
                         }
                     }
                 }
@@ -391,7 +393,7 @@ Item {
                             implicitWidth: 40; implicitHeight: 20; radius: 10
                             color: parent.checked ? colorPrimary : colorCardStrong
                             border.color: Qt.rgba(255,255,255,0.1)
-                            Rectangle { x: parent.parent.checked ? parent.width - width - 2 : 2; width: 16; height: 16; radius: 8; anchors.verticalCenter: parent.verticalCenter; color: "#ffffff"; Behavior on x { NumberAnimation { duration: 100 } } }
+                            Rectangle { x: parent.parent.checked ? parent.width - width - 2 : 2; width: 16; height: 16; radius: 8; anchors.verticalCenter: parent.verticalCenter; color: parent.parent.checked ? root.colorPrimaryText : SettingsPalette.text; Behavior on x { NumberAnimation { duration: 100 } } }
                         }
                     }
                 }
@@ -453,7 +455,7 @@ Item {
                             implicitWidth: 40; implicitHeight: 20; radius: 10
                             color: parent.checked ? colorPrimary : colorCardStrong
                             border.color: Qt.rgba(255,255,255,0.1)
-                            Rectangle { x: parent.parent.checked ? parent.width - width - 2 : 2; width: 16; height: 16; radius: 8; anchors.verticalCenter: parent.verticalCenter; color: "#ffffff"; Behavior on x { NumberAnimation { duration: 100 } } }
+                            Rectangle { x: parent.parent.checked ? parent.width - width - 2 : 2; width: 16; height: 16; radius: 8; anchors.verticalCenter: parent.verticalCenter; color: parent.parent.checked ? root.colorPrimaryText : SettingsPalette.text; Behavior on x { NumberAnimation { duration: 100 } } }
                         }
                     }
                 }
@@ -628,7 +630,7 @@ Item {
                             implicitWidth: 40; implicitHeight: 20; radius: 10
                             color: parent.checked ? colorPrimary : colorCardStrong
                             border.color: Qt.rgba(255,255,255,0.1)
-                            Rectangle { x: parent.parent.checked ? parent.width - width - 2 : 2; width: 16; height: 16; radius: 8; anchors.verticalCenter: parent.verticalCenter; color: "#ffffff"; Behavior on x { NumberAnimation { duration: 100 } } }
+                            Rectangle { x: parent.parent.checked ? parent.width - width - 2 : 2; width: 16; height: 16; radius: 8; anchors.verticalCenter: parent.verticalCenter; color: parent.parent.checked ? root.colorPrimaryText : SettingsPalette.text; Behavior on x { NumberAnimation { duration: 100 } } }
                         }
                     }
                 }

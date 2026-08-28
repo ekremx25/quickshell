@@ -39,7 +39,10 @@ Built on top of [outfoxxed's Quickshell framework](https://github.com/outfoxxed/
 - **Workspaces** — Per-monitor role ranges, occupied/global modes, app grouping, scrolling and Roman / Chinese / decimal labels
 - **System Info** — CPU, RAM, temperature, disk usage, groupable
 - **Audio** — Volume control, mute, 10-band parametric equaliser
-- **Weather** — Current conditions with optional desktop widget
+- **Weather & World Clocks** — Current conditions plus a configurable multi-city desktop clock; search any city/country, reorder up to eight locations, and get DST-aware local time with live weather
+- **Markets** — Official TCMB USD/TRY buying/selling rates plus live Bitcoin and Ethereum prices with 24-hour change and offline cache
+- **Draggable desktop widgets** — Move World Clocks and Markets freely with the mouse; positions persist independently for each monitor role
+- **Quick currency converter** — Place the converter on the bar or dock and open the complete currency selector with one click
 - **Clock & Calendar** — With agenda and event countdown
 - **Notification Centre** — Grouped history, DND, per-app filters, customisable popup position
 - **System Tray** — Standard StatusNotifierItem protocol
@@ -233,6 +236,8 @@ Click any of these on the bar to reveal an inline popover.
 | `bluez` + `bluez-utils` | Bluetooth |
 | `pipewire` + `pipewire-pulse` + `wireplumber` + `libpulse` | Audio control and EQ filter-chain |
 | `jq` | JSON processing in helper scripts |
+| `python` 3.10+ | Port-independent monitor role manager and helper scripts |
+| `socat` or `ncat` | Hyprland event stream, monitor hot-plug and live dock updates |
 
 ### Fonts
 
@@ -259,13 +264,12 @@ Click any of these on the bar to reveal an inline popover.
 | `fontconfig` | Fonts picker catalogue via `fc-list` (pre-installed on most distros) |
 | `inotify-tools` | Event-driven config file watching (otherwise falls back to polling) |
 | `grim` + `slurp` | Screenshot helpers |
-| `socat` or `ncat` | Hyprland event stream (used by the dock's live running indicators) |
 
 ### One-liner install (Arch)
 
 ```bash
 sudo pacman -S quickshell networkmanager bluez bluez-utils pipewire \
-  pipewire-pulse wireplumber libpulse jq inotify-tools \
+  pipewire-pulse wireplumber libpulse jq python socat inotify-tools \
   kconfig fontconfig \
   ttf-jetbrains-mono-nerd ttf-inter ttf-font-awesome
 
@@ -320,14 +324,81 @@ All settings live in `~/.config/quickshell/` and are edited through the in-app *
 | `bar_config.json` | Bar modules, layout, position |
 | `dock_config.json` | Pinned apps, scale, alignment |
 | `monitor_config.json` | Resolution, scale, HDR, VRR, colour mode per output |
+| `monitor_identities.json` | Local EDID identity → stable monitor role mapping (generated locally) |
+| `monitor_role_profiles.json` | Port-independent settings for Main / Secondary / Third (generated locally) |
+| `monitor_runtime.json` | Current role → connector mapping (generated locally) |
 | `theme_config.json` | Material You settings, wallpaper path |
 | `lock_config.json` | Lock screen wallpaper and timeouts |
 | `notification_config.json` | DND, popup position, animation speed, filters |
 | `mouse_config.json` | Sensitivity, scroll factor, cursor theme |
 | `screen_config.json` | Per-component monitor filtering |
 | `nightlight_config.json` | Blue-light filter state + schedule |
+| `weather_config.json` | Main weather location and configurable world-clock cities (generated locally) |
+| `desktop_widgets.json` | Per-monitor-role desktop widget positions (generated locally) |
 
 All writes are **atomic** (temp file + rename). A shell crash mid-save never leaves a corrupt config.
+
+### Multi-monitor roles and notifications
+
+On Hyprland, displays are remembered by their physical EDID identity
+(manufacturer, model and serial), not by connector names such as `DP-1` or
+`HDMI-A-1`. The first launch assigns `Main`, `Secondary` and `Third` roles,
+stores them locally, and updates the live role map after every monitor hot-plug.
+Moving a display to another HDMI/DisplayPort connector therefore keeps its
+role, workspace range and per-screen component selections.
+
+Open **Settings → Hardware → Screen Prefs** to choose where each component is
+shown:
+
+- **Main / Secondary / Third** follows the selected physical display even when
+  its port changes.
+- **All** creates one component instance on every connected display.
+- **Disable** prevents that component from being created.
+- **Toast** controls transient notification cards that appear on screen.
+- **Notifications** controls the notification-centre/bar module; it is separate
+  from Toast.
+
+For notification cards on two monitors, set **Toast → All**. To show cards on
+only one physical monitor, select its role instead.
+
+`monitor_config.json`, `monitor_identities.json`, `monitor_role_profiles.json`,
+`monitor_runtime.json`, `screen_config.json` and `desktop_widgets.json` are
+runtime files excluded by `.gitignore`. A clone never inherits the repository
+owner's monitor ports, serial numbers, layout or screen preferences; every user
+gets a local mapping generated from their own hardware.
+
+Displays without a usable EDID serial fall back to capability matching. Two
+identical displays that both report the same or no serial cannot be physically
+distinguished by any Wayland shell; in that rare case reconnect both displays,
+choose the desired roles once, and keep the generated identity file local.
+
+### Wallpaper Spectrum theming
+
+Open **Settings → Appearance → Material You**, enable Material You and select
+**Wallpaper Spectrum**. This Quickshell-specific scheme uses matugen's vibrant
+engine and distributes the resulting fixed primary, secondary and tertiary
+roles across the bar modules. RAM, CPU/GPU, weather, media, calendar, power and
+the remaining module groups therefore keep distinct accents while still
+belonging to one wallpaper-derived palette.
+
+- **Live Update** watches both the wallpaper backend and the selected image.
+  Changing paths or overwriting the same image file regenerates the palette.
+- Module foregrounds use WCAG relative-luminance contrast and automatically
+  choose a light or dark glyph colour.
+- Rapid wallpaper or scheme changes are coalesced; the last requested palette
+  is applied after any running matugen process completes.
+- Catppuccin, Kanagawa and Tokyo Night are authored static palettes and do not
+  react to wallpaper changes.
+
+### World clocks
+
+Open **Settings → Features → World Clocks**. Select any of the bundled 249 ISO countries/territories, search for a city inside that country, then choose **Add clock**. Up to eight DST-aware clocks can be reordered or removed. Weather is fetched in one batched Open-Meteo request and the last successful response is cached for offline display. Use **Screen Prefs → World Clocks** to choose the target monitor(s).
+
+### Markets
+
+Open **Settings → Features → Markets** for the official TCMB USD/TRY buying and selling rates plus CoinGecko Bitcoin and Ethereum spot prices in USD/TRY. Crypto cards include the 24-hour percentage change. The built-in converter supports the current currencies published by Frankfurter, including USD, TRY, EUR and Philippine Peso (PHP), with reversible pairs and offline rate caching. Data refreshes every five minutes and the last successful response remains available offline.
+
+The World Clocks and Markets desktop panels can be dragged from anywhere on their surface. Their positions are saved per monitor role in `desktop_widgets.json`, so the layout survives restarts and connector changes.
 
 ## Night Light
 
@@ -397,7 +468,7 @@ The shell boots in three phases to speed up the first visible frame:
 |:-----:|:-----:|-------|
 | 1 | 0 ms | `ShellBootstrap` + `Bar` |
 | 2 | 300 ms | `EqBootstrap`, `MouseBootstrap` |
-| 3 | 600 ms | `Dock`, `WeatherDesktop`, `ToastHost`, `VolumeOSD` |
+| 3 | 600 ms | `Dock`, `WeatherDesktop`, `WorldClockDesktop`, `MarketsDesktop`, `ToastHost`, `VolumeOSD` |
 
 ### Core persistence — [`Services/core/`](Services/core/)
 
@@ -482,6 +553,32 @@ sudo pacman -S openbsd-netcat
 ```
 
 Without either, the dock falls back to 2.5 s polling — indicators still work but update slower.
+</details>
+
+<details>
+<summary><b>A component appears on the wrong monitor after reconnecting cables</b></summary>
+
+First check **Settings → Hardware → Screen Prefs**. Remember that **Toast**
+controls popup notification cards while **Notifications** controls the
+notification-centre module.
+
+Inspect the current role map:
+
+```bash
+cat ~/.config/quickshell/monitor_runtime.json
+```
+
+To rebuild only the local physical-display mapping, keep a recoverable backup
+and restart Quickshell:
+
+```bash
+mv ~/.config/quickshell/monitor_identities.json \
+   ~/.config/quickshell/monitor_identities.json.bak
+quickshell kill
+quickshell --daemonize
+```
+
+The role manager recreates the file from the displays currently connected.
 </details>
 
 ## Links

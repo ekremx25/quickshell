@@ -18,7 +18,7 @@ Item {
         RowLayout {
             Layout.fillWidth: true
             spacing: 8
-            Text { text: ""; font.pixelSize: 20; font.family: Theme.fontFamily; color: Theme.primary }
+            Text { text: ""; font.pixelSize: 20; font.family: Theme.fontFamily; color: SettingsPalette.readableAccent(Theme.primary) }
             Text {  text: "Compositor"; font.bold: true; font.pixelSize: 18; color: SettingsPalette.text; font.family: Theme.fontFamily }
         }
 
@@ -48,7 +48,7 @@ Item {
                             text: ""
                             font.pixelSize: 24
                             font.family: Theme.fontFamily
-                            color: Theme.primary
+                            color: SettingsPalette.readableAccent(Theme.primary)
                         }
                     }
 
@@ -59,7 +59,7 @@ Item {
                     }
 
                     Item { Layout.fillWidth: true }
-                    Rectangle { width: 12; height: 12; radius: 6; color: Theme.green }
+                    Rectangle { width: 12; height: 12; radius: 6; color: SettingsPalette.readableAccent(Theme.green) }
                 }
             }
         }
@@ -122,7 +122,7 @@ Item {
                             Rectangle {
                                 width: 40; height: 40; radius: 8
                                 color: Qt.rgba(203/255, 166/255, 247/255, 0.15)
-                                Text { anchors.centerIn: parent; text: "󰍹"; font.pixelSize: 18; font.family: "JetBrainsMono Nerd Font"; color: Theme.primary }
+                                Text { anchors.centerIn: parent; text: "󰍹"; font.pixelSize: 18; font.family: "JetBrainsMono Nerd Font"; color: SettingsPalette.readableAccent(Theme.primary) }
                             }
 
                             ColumnLayout {
@@ -146,7 +146,7 @@ Item {
                 Layout.fillWidth: true; height: 36; radius: 8
                 color: powerOnMA.containsMouse ? Qt.rgba(166/255, 227/255, 161/255, 0.15) : Qt.rgba(255,255,255,0.04)
                 Behavior on color { ColorAnimation { duration: 150 } }
-                Text {  anchors.centerIn: parent; text: "Power On Monitors"; font.pixelSize: 12; color: Theme.green; font.family: Theme.fontFamily }
+                Text {  anchors.centerIn: parent; text: "Power On Monitors"; font.pixelSize: 12; color: SettingsPalette.readableAccent(Theme.green); font.family: Theme.fontFamily }
                 MouseArea { id: powerOnMA; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: CompositorService.powerOnMonitors() }
             }
 
@@ -154,7 +154,7 @@ Item {
                 Layout.fillWidth: true; height: 36; radius: 8
                 color: powerOffMA.containsMouse ? Qt.rgba(243/255, 139/255, 168/255, 0.15) : Qt.rgba(255,255,255,0.04)
                 Behavior on color { ColorAnimation { duration: 150 } }
-                Text {  anchors.centerIn: parent; text: "Power Off Monitors"; font.pixelSize: 12; color: Theme.red; font.family: Theme.fontFamily }
+                Text {  anchors.centerIn: parent; text: "Power Off Monitors"; font.pixelSize: 12; color: SettingsPalette.readableAccent(Theme.red); font.family: Theme.fontFamily }
                 MouseArea { id: powerOffMA; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: CompositorService.powerOffMonitors() }
             }
         }

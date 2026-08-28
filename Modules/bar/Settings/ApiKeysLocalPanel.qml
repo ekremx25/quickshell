@@ -8,6 +8,9 @@ import "../../../Widgets"
 Rectangle {
     id: localPanel
 
+    readonly property color successColor: SettingsPalette.readableAccent(Theme.green)
+    readonly property color errorColor: SettingsPalette.readableAccent(Theme.red)
+
     required property string saveStatus
     required property string saveMessage
 
@@ -16,8 +19,8 @@ Rectangle {
     Layout.fillWidth: true
     Layout.preferredHeight: localCol.implicitHeight + 32
     radius: 12
-    color: Qt.rgba(166/255, 227/255, 161/255, 0.08)
-    border.color: Qt.rgba(166/255, 227/255, 161/255, 0.3)
+    color: Qt.rgba(successColor.r, successColor.g, successColor.b, 0.08)
+    border.color: Qt.rgba(successColor.r, successColor.g, successColor.b, 0.3)
     border.width: 1
 
     ColumnLayout {
@@ -34,15 +37,15 @@ Rectangle {
                 Layout.preferredWidth: 40
                 Layout.preferredHeight: 40
                 radius: 10
-                color: Qt.rgba(166/255, 227/255, 161/255, 0.15)
-                border.color: Qt.rgba(166/255, 227/255, 161/255, 0.4)
+                color: Qt.rgba(localPanel.successColor.r, localPanel.successColor.g, localPanel.successColor.b, 0.15)
+                border.color: Qt.rgba(localPanel.successColor.r, localPanel.successColor.g, localPanel.successColor.b, 0.4)
                 border.width: 1
                 Text {
                     anchors.centerIn: parent
                     text: "󰒘"
                     font.family: "JetBrainsMono Nerd Font"
                     font.pixelSize: 20
-                    color: "#a6e3a1"
+                    color: localPanel.successColor
                 }
             }
 
@@ -51,7 +54,7 @@ Rectangle {
                 Text {
                     font.family: Theme.fontFamily
                     text: "100% Local Mode"
-                    color: "#a6e3a1"
+                    color: localPanel.successColor
                     font.pixelSize: 15
                     font.bold: true
                 }
@@ -67,7 +70,7 @@ Rectangle {
         Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: 1
-            color: Qt.rgba(166/255, 227/255, 161/255, 0.2)
+            color: Qt.rgba(localPanel.successColor.r, localPanel.successColor.g, localPanel.successColor.b, 0.2)
         }
 
         Text {
@@ -99,7 +102,7 @@ Rectangle {
                         text: modelData.icon
                         font.family: "JetBrainsMono Nerd Font"
                         font.pixelSize: 14
-                        color: "#a6e3a1"
+                        color: localPanel.successColor
                         Layout.preferredWidth: 20
                     }
                     Text {
@@ -134,9 +137,9 @@ Rectangle {
                 Layout.preferredHeight: 36
                 radius: 8
                 color: localSaveArea.containsMouse
-                    ? Qt.rgba(166/255, 227/255, 161/255, 0.25)
-                    : Qt.rgba(166/255, 227/255, 161/255, 0.15)
-                border.color: "#a6e3a1"
+                    ? Qt.rgba(localPanel.successColor.r, localPanel.successColor.g, localPanel.successColor.b, 0.25)
+                    : Qt.rgba(localPanel.successColor.r, localPanel.successColor.g, localPanel.successColor.b, 0.15)
+                border.color: localPanel.successColor
                 border.width: 1
                 enabled: localPanel.saveStatus !== "saving"
 
@@ -147,12 +150,12 @@ Rectangle {
                         text: "󰒘"
                         font.family: "JetBrainsMono Nerd Font"
                         font.pixelSize: 14
-                        color: "#a6e3a1"
+                        color: localPanel.successColor
                     }
                     Text {
                         font.family: Theme.fontFamily
                         text: localPanel.saveStatus === "saving" ? "Saving..." : "Activate Local-Only Mode"
-                        color: "#a6e3a1"
+                        color: localPanel.successColor
                         font.pixelSize: 12
                         font.bold: true
                     }
@@ -176,8 +179,8 @@ Rectangle {
             radius: 6
             color: Qt.rgba(0, 0, 0, 0.2)
             border.color: localPanel.saveStatus === "saved"
-                ? Qt.rgba(166/255, 227/255, 161/255, 0.4)
-                : Qt.rgba(243/255, 139/255, 168/255, 0.4)
+                ? Qt.rgba(localPanel.successColor.r, localPanel.successColor.g, localPanel.successColor.b, 0.4)
+                : Qt.rgba(localPanel.errorColor.r, localPanel.errorColor.g, localPanel.errorColor.b, 0.4)
             border.width: 1
             Text {
                 font.family: Theme.fontFamily
@@ -186,8 +189,8 @@ Rectangle {
                 anchors.margins: 8
                 text: "💾 " + (localPanel.saveStatus === "saved" ? "✓ " : (localPanel.saveStatus === "error" ? "✗ " : "… ")) + localPanel.saveMessage
                 color: {
-                    if (localPanel.saveStatus === "saved") return "#a6e3a1";
-                    if (localPanel.saveStatus === "error") return "#f38ba8";
+                    if (localPanel.saveStatus === "saved") return localPanel.successColor;
+                    if (localPanel.saveStatus === "error") return localPanel.errorColor;
                     return SettingsPalette.text;
                 }
                 font.pixelSize: 11

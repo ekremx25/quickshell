@@ -24,8 +24,7 @@ Rectangle {
     implicitHeight: 34
     radius: 17
     color: Theme.powerProfileColor
-
-    Behavior on color { ColorAnimation { duration: 200 } }
+    Behavior on color { ColorAnimation { duration: Theme.animMedium } }
 
     property alias currentProfile: powerProfileService.currentProfile
     property alias available: powerProfileService.available
@@ -40,7 +39,7 @@ Rectangle {
             text: root.profileInfo(root.currentProfile).icon
             font.pixelSize: 16
             font.family: "JetBrainsMono Nerd Font"
-            color: "#1e1e2e"
+            color: Theme.foregroundFor(root.color)
         }
     }
 

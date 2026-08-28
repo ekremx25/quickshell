@@ -7,6 +7,7 @@ import "./Services"
 import "./Modules/bar"
 import "./Modules/bar/Notifications"
 import "./Modules/bar/Weather"
+import "./Modules/bar/System"
 import "./Modules/bar/Dock"
 import "./Modules/bar/Tray"
 import "./Modules/OSD"
@@ -45,12 +46,16 @@ ShellRoot {
     // ── Stage 3: visual components (after 600ms) ─────────────────────
     Loader { id: dockLoader;    active: false; sourceComponent: dockComp    }
     Loader { id: weatherLoader; active: false; sourceComponent: weatherComp }
+    Loader { id: worldClockLoader; active: false; sourceComponent: worldClockComp }
+    Loader { id: marketsLoader; active: false; sourceComponent: marketsComp }
     Loader { id: toastLoader;   active: false; source: "Modules/bar/Notifications/ToastHost.qml" }
     Loader { id: osdLoader;     active: false; sourceComponent: osdComp     }
 
     // Component definitions
     Component { id: dockComp;    Dock {}           }
     Component { id: weatherComp; WeatherDesktop {} }
+    Component { id: worldClockComp; WorldClockDesktop {} }
+    Component { id: marketsComp; MarketsDesktop {} }
     Component {
         id: osdComp
         Variants {
@@ -79,6 +84,8 @@ ShellRoot {
         onTriggered: {
             dockLoader.active    = true;
             weatherLoader.active = true;
+            worldClockLoader.active = true;
+            marketsLoader.active = true;
             toastLoader.active   = true;
             osdLoader.active     = true;
         }

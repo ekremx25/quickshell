@@ -20,7 +20,7 @@ Item {
         RowLayout {
             Layout.fillWidth: true
             spacing: 8
-            Text { text: "󰦝"; font.pixelSize: 20; font.family: "JetBrainsMono Nerd Font"; color: Theme.primary }
+            Text { text: "󰦝"; font.pixelSize: 20; font.family: "JetBrainsMono Nerd Font"; color: SettingsPalette.readableAccent(Theme.primary) }
             Text {  text: "VPN Management"; font.bold: true; font.pixelSize: 18; color: SettingsPalette.text; font.family: Theme.fontFamily }
             Item { Layout.fillWidth: true }
 
@@ -33,12 +33,12 @@ Item {
                     id: statusRow
                     anchors.centerIn: parent
                     spacing: 6
-                    Rectangle { width: 8; height: 8; radius: 4; color: VpnService.connected ? Theme.green : SettingsPalette.overlay2 }
+                    Rectangle { width: 8; height: 8; radius: 4; color: VpnService.connected ? SettingsPalette.readableAccent(Theme.green) : SettingsPalette.overlay2 }
                     Text {
                         font.family: Theme.fontFamily
                         text: VpnService.connected ? VpnService.activeName : "Disconnected"
                         font.pixelSize: 11
-                        color: VpnService.connected ? Theme.green : SettingsPalette.subtext
+                        color: VpnService.connected ? SettingsPalette.readableAccent(Theme.green) : SettingsPalette.subtext
                     }
                 }
             }
@@ -55,7 +55,7 @@ Item {
                 anchors.centerIn: parent
                 text: "⚠ " + VpnService.errorMessage
                 font.pixelSize: 12
-                color: Theme.red
+                color: SettingsPalette.readableAccent(Theme.red)
             }
         }
 
@@ -63,7 +63,7 @@ Item {
         Rectangle {
             Layout.fillWidth: true
             height: 42; radius: 10
-            color: addVpnMA.containsMouse ? Qt.lighter(Theme.primary, 1.2) : Theme.primary
+            color: addVpnMA.containsMouse ? Qt.lighter(SettingsPalette.readableAccent(Theme.primary), 1.2) : SettingsPalette.readableAccent(Theme.primary)
             Behavior on color { ColorAnimation { duration: 150 } }
 
             RowLayout {
@@ -101,7 +101,7 @@ Item {
 
                 Rectangle {
                     width: 44; height: 24; radius: 12
-                    color: VpnService.singleActive ? Theme.primary : Qt.rgba(255,255,255,0.1)
+                    color: VpnService.singleActive ? SettingsPalette.readableAccent(Theme.primary) : Qt.rgba(255,255,255,0.1)
                     Behavior on color { ColorAnimation { duration: 200 } }
 
                     Rectangle {
@@ -170,7 +170,7 @@ Item {
                                     text: modelData.type === "wireguard" ? "󰖂" : "󰦝"
                                     font.pixelSize: 16
                                     font.family: "JetBrainsMono Nerd Font"
-                                    color: Theme.primary
+                                    color: SettingsPalette.readableAccent(Theme.primary)
                                 }
                             }
 
@@ -207,7 +207,7 @@ Item {
                                     anchors.centerIn: parent
                                     text: VpnService.isBusy ? "..." : (VpnService.isActiveUuid(modelData.uuid) ? "Disconnect" : "Connect")
                                     font.pixelSize: 11
-                                    color: VpnService.isActiveUuid(modelData.uuid) ? Theme.red : Theme.green
+                                    color: VpnService.isActiveUuid(modelData.uuid) ? SettingsPalette.readableAccent(Theme.red) : SettingsPalette.readableAccent(Theme.green)
                                 }
 
                                 MouseArea {
@@ -239,7 +239,7 @@ Item {
                 anchors.centerIn: parent
                 text: "Disconnect All VPNs"
                 font.pixelSize: 12
-                color: Theme.red
+                color: SettingsPalette.readableAccent(Theme.red)
             }
 
             MouseArea {

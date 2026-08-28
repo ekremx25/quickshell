@@ -23,6 +23,10 @@ Singleton {
         configStore.save(root.screenPreferences);
     }
 
+    function reloadRuntimeMap() {
+        runtimeStore.load();
+    }
+
     function getFilteredScreens(componentId) {
         var prefs = root.screenPreferences[componentId];
         if (!prefs || !Array.isArray(prefs) || prefs.length === 0 || prefs.indexOf("all") !== -1) {
@@ -72,6 +76,14 @@ Singleton {
         if (roleOrName === "secondary") return "Secondary";
         if (roleOrName === "tertiary") return "Third";
         return roleOrName;
+    }
+
+    function roleForScreenName(screenName) {
+        var roles = ["primary", "secondary", "tertiary"];
+        for (var i = 0; i < roles.length; i++) {
+            if (root.runtimeRoleMap[roles[i]] === screenName) return roles[i];
+        }
+        return screenName;
     }
 
     Core.JsonDataStore {

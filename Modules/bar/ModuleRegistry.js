@@ -4,7 +4,7 @@
 // and placement policy. Visual construction deliberately lives in
 // ModuleCatalog.qml so metadata consumers never instantiate heavy QML objects.
 
-var SCHEMA_VERSION = 1;
+var SCHEMA_VERSION = 3;
 var _allowedPlacements = ["bar", "dock"];
 var _allowedCategories = ["core", "productivity", "system", "connectivity", "media"];
 
@@ -232,6 +232,21 @@ var _modules = [
         settingsPage: "dock",
         services: ["Mpris"],
         contexts: ["dockScale"]
+    },
+    {
+        id: "currency-converter",
+        name: "CurrencyConverter",
+        component: "CurrencyConverter",
+        icon: "󰩩",
+        label: "Currency Converter",
+        description: "Quick currency conversion with selectable source and target currencies.",
+        category: "connectivity",
+        color: "#a6e3a1",
+        placements: ["bar", "dock"],
+        allowCrossPlacementDuplicate: true,
+        settingsPage: "markets",
+        services: ["Markets"],
+        contexts: []
     }
 ];
 
@@ -357,6 +372,23 @@ function markKnownNames(list, seen) {
     return safeSeen;
 }
 
+function allowsCrossPlacementDuplicate(value) {
+    var entry = _definitionRef(value);
+    return !!entry && entry.allowCrossPlacementDuplicate === true;
+}
+
+function markReservedNames(list, seen) {
+    var safeSeen = seen || ({});
+    if (!Array.isArray(list)) return safeSeen;
+    for (var i = 0; i < list.length; ++i) {
+        var name = canonicalName(list[i]);
+        if (_definitionRef(name) && !allowsCrossPlacementDuplicate(name)) {
+            safeSeen[name] = true;
+        }
+    }
+    return safeSeen;
+}
+
 function normalizeZoneMap(source, zoneNames, placement, seen) {
     var normalized = ({});
     var safeSource = source || ({});
@@ -373,7 +405,9 @@ function normalizeZoneMap(source, zoneNames, placement, seen) {
 function normalizeBarLayout(config, reservedNames) {
     var source = config || ({});
     var seen = ({});
-    markKnownNames(reservedNames, seen);
+    // Most modules move between bar and dock. Explicitly repeatable modules
+    // remain independently available in both placements.
+    markReservedNames(reservedNames, seen);
 
     var zones = normalizeZoneMap(source, ["left", "center", "right"], "bar", seen);
     zones.inactive = normalizeNames(source.inactive, "inactive", seen);

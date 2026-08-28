@@ -7,12 +7,15 @@ import Qt.labs.platform
 
 Item {
     id: materialPage
-    readonly property real primaryLuma: (Theme.primary.r * 0.299) + (Theme.primary.g * 0.587) + (Theme.primary.b * 0.114)
-    readonly property bool uiIsLight: false
-    readonly property bool darkAccentOnLight: primaryLuma < 0.25
+    readonly property color accentColor: SettingsPalette.readableAccent(Theme.primary)
+    readonly property color accentTextColor: SettingsPalette.foregroundFor(accentColor)
+    readonly property color successColor: SettingsPalette.readableAccent(Theme.green)
+    readonly property color errorColor: SettingsPalette.readableAccent(Theme.red)
+    readonly property color warningColor: SettingsPalette.readableAccent(Theme.yellow)
+    readonly property bool staticScheme: ColorPaletteService.isStaticType(ColorPaletteService.matugenType)
     readonly property color chipIdleBg: Qt.rgba(255, 255, 255, 0.04)
-    readonly property color chipSelectedBg: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.18)
-    readonly property color chipSelectedBorder: Theme.primary
+    readonly property color chipSelectedBg: Qt.rgba(accentColor.r, accentColor.g, accentColor.b, 0.16)
+    readonly property color chipSelectedBorder: accentColor
     readonly property color chipSelectedText: SettingsPalette.text
 
     Flickable {
@@ -30,21 +33,23 @@ Item {
             RowLayout {
                 Layout.fillWidth: true
                 spacing: 8
-                Text { text: ""; font.pixelSize: 20; font.family: Theme.fontFamily; color: Theme.primary }
+                Text { text: ""; font.pixelSize: 20; font.family: Theme.fontFamily; color: materialPage.accentColor }
                 Text {  text: "Material You"; font.bold: true; font.pixelSize: 18; color: SettingsPalette.text; font.family: Theme.fontFamily }
                 Item { Layout.fillWidth: true }
 
                 // Availability badge
                 Rectangle {
                     width: availText.width + 14; height: 24; radius: 12
-                    color: ColorPaletteService.available ? Qt.rgba(166/255, 227/255, 161/255, 0.15) : Qt.rgba(243/255, 139/255, 168/255, 0.15)
+                    color: ColorPaletteService.available
+                        ? SettingsPalette.withAlpha(materialPage.successColor, 0.15)
+                        : SettingsPalette.withAlpha(materialPage.errorColor, 0.15)
 
                     Text {
                         font.family: Theme.fontFamily
                         id: availText; anchors.centerIn: parent
                         text: ColorPaletteService.available ? "matugen ✓" : "matugen ✗"
                         font.pixelSize: 10
-                        color: ColorPaletteService.available ? Theme.green : Theme.red
+                        color: ColorPaletteService.available ? materialPage.successColor : materialPage.errorColor
                     }
                 }
             }
@@ -54,14 +59,14 @@ Item {
                 visible: !ColorPaletteService.available
                 Layout.fillWidth: true
                 height: 50; radius: 10
-                color: Qt.rgba(249/255, 226/255, 175/255, 0.1)
+                color: SettingsPalette.withAlpha(materialPage.warningColor, 0.1)
 
                 RowLayout {
                     anchors.fill: parent; anchors.margins: 12; spacing: 8
                     Text {  text: "⚠"; font.pixelSize: 18; font.family: Theme.fontFamily }
                     ColumnLayout {
                         spacing: 2
-                        Text {  text: "matugen is not installed"; font.pixelSize: 12; font.bold: true; color: Theme.yellow; font.family: Theme.fontFamily }
+                        Text {  text: "matugen is not installed"; font.pixelSize: 12; font.bold: true; color: materialPage.warningColor; font.family: Theme.fontFamily }
                         Text {  text: "Install with: cargo install matugen"; font.pixelSize: 10; color: SettingsPalette.overlay2; font.family: Theme.fontFamily }
                     }
                 }
@@ -76,7 +81,7 @@ Item {
                 RowLayout {
                     anchors.fill: parent; anchors.margins: 14; spacing: 10
 
-                    Text { text: ""; font.pixelSize: 16; font.family: Theme.fontFamily; color: Theme.primary }
+                    Text { text: ""; font.pixelSize: 16; font.family: Theme.fontFamily; color: materialPage.accentColor }
                     ColumnLayout {
                         spacing: 1
                         Text {  text: "Enable Material You"; font.pixelSize: 13; color: SettingsPalette.text; font.family: Theme.fontFamily }
@@ -86,7 +91,7 @@ Item {
 
                     Rectangle {
                         width: 44; height: 24; radius: 12
-                        color: ColorPaletteService.enabled ? Theme.primary : Qt.rgba(255,255,255,0.1)
+                        color: ColorPaletteService.enabled ? materialPage.accentColor : SettingsPalette.track
                         opacity: ColorPaletteService.available ? 1.0 : 0.4
                         Behavior on color { ColorAnimation { duration: 200 } }
 
@@ -94,7 +99,7 @@ Item {
                             width: 18; height: 18; radius: 9
                             anchors.verticalCenter: parent.verticalCenter
                             x: ColorPaletteService.enabled ? parent.width - width - 3 : 3
-                            color: "white"
+                            color: ColorPaletteService.enabled ? materialPage.accentTextColor : SettingsPalette.text
                             Behavior on x { NumberAnimation { duration: 200 } }
                         }
 
@@ -124,6 +129,7 @@ Item {
 
                     Rectangle {
                         Layout.fillWidth: true; height: 42; radius: 10
+                        opacity: materialPage.staticScheme && modelData.key === "light" ? 0.45 : 1.0
                         color: ColorPaletteService.mode === modelData.key ? materialPage.chipSelectedBg : materialPage.chipIdleBg
                         border.color: ColorPaletteService.mode === modelData.key ? materialPage.chipSelectedBorder : "transparent"
                         border.width: 1
@@ -135,9 +141,22 @@ Item {
                             Text {  text: modelData.label; font.pixelSize: 13; color: ColorPaletteService.mode === modelData.key ? SettingsPalette.text : SettingsPalette.subtext; font.family: Theme.fontFamily }
                         }
 
-                        MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: ColorPaletteService.setMode(modelData.key) }
+                        MouseArea {
+                            anchors.fill: parent
+                            enabled: !materialPage.staticScheme || modelData.key === "dark"
+                            cursorShape: enabled ? Qt.PointingHandCursor : Qt.ForbiddenCursor
+                            onClicked: ColorPaletteService.setMode(modelData.key)
+                        }
                     }
                 }
+            }
+
+            Text {
+                visible: materialPage.staticScheme
+                text: "This authored palette currently provides a dark variant."
+                color: SettingsPalette.overlay2
+                font.pixelSize: 10
+                font.family: Theme.fontFamily
             }
 
             // Matugen scheme type
@@ -160,7 +179,7 @@ Item {
                         Text {
                             font.family: Theme.fontFamily
                             id: schemeText; anchors.centerIn: parent
-                            text: modelData.replace("scheme-", "")
+                            text: ColorPaletteService.schemeLabel(modelData)
                             font.pixelSize: 11
                             color: ColorPaletteService.matugenType === modelData ? materialPage.chipSelectedText : SettingsPalette.subtext
                         }
@@ -168,6 +187,16 @@ Item {
                         MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: ColorPaletteService.setMatugenType(modelData) }
                     }
                 }
+            }
+
+            Text {
+                visible: ColorPaletteService.matugenType === "scheme-wallpaper-spectrum"
+                text: "Wallpaper Spectrum distributes the wallpaper palette across every bar module and automatically preserves text contrast."
+                color: SettingsPalette.overlay2
+                font.pixelSize: 10
+                font.family: Theme.fontFamily
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
             }
 
             Item { height: 4 }
@@ -198,14 +227,14 @@ Item {
                     // Live Update Toggle
                     Rectangle {
                         width: 50; height: 26; radius: 13
-                        color: ColorPaletteService.liveUpdate ? Theme.primary : Qt.rgba(255,255,255,0.1)
+                        color: ColorPaletteService.liveUpdate ? materialPage.accentColor : SettingsPalette.track
                         Behavior on color { ColorAnimation { duration: 150 } }
 
                         Rectangle {
                             width: 20; height: 20; radius: 10
                             anchors.verticalCenter: parent.verticalCenter
                             x: ColorPaletteService.liveUpdate ? parent.width - width - 3 : 3
-                            color: "white"
+                            color: ColorPaletteService.liveUpdate ? materialPage.accentTextColor : SettingsPalette.text
                             Behavior on x { NumberAnimation { duration: 150 } }
                         }
 
@@ -214,7 +243,7 @@ Item {
                             anchors.centerIn: parent
                             text: "Live"
                             font.pixelSize: 9; font.bold: true
-                            color: ColorPaletteService.liveUpdate ? "#1e1e2e" : SettingsPalette.text
+                            color: ColorPaletteService.liveUpdate ? materialPage.accentTextColor : SettingsPalette.text
                             visible: !ColorPaletteService.liveUpdate // Show text when off
                         }
 
@@ -260,10 +289,10 @@ Item {
                     // Generate
                     Rectangle {
                         width: genBtn.width + 16; height: 26; radius: 6
-                        color: genMA.containsMouse ? Qt.lighter(Theme.primary, 1.2) : Theme.primary
+                        color: genMA.containsMouse ? Qt.lighter(materialPage.accentColor, 1.12) : materialPage.accentColor
                         Behavior on color { ColorAnimation { duration: 150 } }
 
-                        Text {  id: genBtn; anchors.centerIn: parent; text: ColorPaletteService.isBusy ? "⏳" : "Generate"; font.pixelSize: 11; font.bold: true; color: "#1e1e2e"; font.family: Theme.iconFontFamily }
+                        Text {  id: genBtn; anchors.centerIn: parent; text: ColorPaletteService.isBusy ? "⏳" : "Generate"; font.pixelSize: 11; font.bold: true; color: materialPage.accentTextColor; font.family: Theme.iconFontFamily }
 
                         MouseArea {
                             id: genMA; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
@@ -288,8 +317,8 @@ Item {
             Rectangle {
                 visible: ColorPaletteService.errorMessage.length > 0
                 Layout.fillWidth: true; height: 32; radius: 6
-                color: Qt.rgba(243/255, 139/255, 168/255, 0.1)
-                Text {  anchors.centerIn: parent; text: ColorPaletteService.errorMessage; font.pixelSize: 11; color: Theme.red; font.family: Theme.fontFamily }
+                color: SettingsPalette.withAlpha(materialPage.errorColor, 0.1)
+                Text {  anchors.centerIn: parent; text: ColorPaletteService.errorMessage; font.pixelSize: 11; color: materialPage.errorColor; font.family: Theme.fontFamily }
             }
 
             // Color preview

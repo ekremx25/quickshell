@@ -23,8 +23,7 @@ Rectangle {
         if (batteryLevel <= 35) return Theme.tempColor
         return Theme.batteryColor
     }
-
-    Behavior on color { ColorAnimation { duration: 200 } }
+    Behavior on color { ColorAnimation { duration: Theme.animMedium } }
 
     RowLayout {
         id: layout
@@ -44,7 +43,7 @@ Rectangle {
             }
             font.pixelSize: 16
             font.family: "JetBrainsMono Nerd Font"
-            color: "#1e1e2e"
+            color: Theme.foregroundFor(root.color)
         }
 
         Text {
@@ -52,7 +51,7 @@ Rectangle {
             font.bold: true
             font.pixelSize: 12
             font.family: Theme.fontFamily
-            color: "#1e1e2e"
+            color: Theme.foregroundFor(root.color)
         }
     }
 

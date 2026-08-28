@@ -58,6 +58,10 @@ Singleton {
     Process {
         id: applySavedMonitorsProc
         command: [root.monitorScriptPath]
+        onExited: {
+            ScreenManager.reloadRuntimeMap();
+            root.refreshMonitors();
+        }
     }
 
     // Monitor listing via niri msg

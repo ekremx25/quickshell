@@ -16,6 +16,9 @@ Item {
     property ListModel dockRightModel: null
     property Item dragLayer: null
 
+    readonly property color accentColor: SettingsPalette.readableAccent(Theme.primary)
+    readonly property color accentTextColor: SettingsPalette.foregroundFor(accentColor)
+
     signal barConfigEdited(var cfg)
     signal saveRequested()
 
@@ -58,7 +61,7 @@ Item {
                 text: "󰒍"
                 font.pixelSize: 20
                 font.family: "JetBrainsMono Nerd Font"
-                color: Theme.primary
+                color: root.accentColor
             }
 
             Text {
@@ -98,14 +101,14 @@ Item {
 
                     color: {
                         var currentPosition = root.barConfig.barPosition || "top";
-                        if (currentPosition === modelData.key) return Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.3);
+                        if (currentPosition === modelData.key) return Qt.rgba(root.accentColor.r, root.accentColor.g, root.accentColor.b, 0.18);
                         if (positionMouseArea.containsMouse) return Qt.rgba(255, 255, 255, 0.08);
                         return Qt.rgba(255, 255, 255, 0.04);
                     }
 
                     border.color: {
                         var currentPosition = root.barConfig.barPosition || "top";
-                        return currentPosition === modelData.key ? Theme.primary : Qt.rgba(255, 255, 255, 0.1);
+                        return currentPosition === modelData.key ? root.accentColor : SettingsPalette.border;
                     }
                     border.width: 1
 
@@ -115,7 +118,7 @@ Item {
                         font.family: Theme.fontFamily
                         anchors.centerIn: parent
                         text: modelData.label
-                        color: (root.barConfig.barPosition || "top") === modelData.key ? Theme.primary : SettingsPalette.subtext
+                        color: (root.barConfig.barPosition || "top") === modelData.key ? root.accentColor : SettingsPalette.subtext
                         font.pixelSize: 11
                         font.bold: (root.barConfig.barPosition || "top") === modelData.key
                     }
@@ -151,7 +154,7 @@ Item {
                 groupName: "left"
                 title: "◀ Left"
                 groupModel: root.leftModel
-                groupColor: "#a6e3a1"
+                groupColor: SettingsPalette.readableAccent(Theme.ramColor)
                 moduleInfo: root.backend ? root.backend.moduleInfo : ({})
                 dragLayer: root.dragLayer
                 onDragStarted: function(groupName, sourceIndex, moduleName) {
@@ -169,7 +172,7 @@ Item {
                 groupName: "center"
                 title: "● Center"
                 groupModel: root.centerModel
-                groupColor: "#cba6f7"
+                groupColor: SettingsPalette.readableAccent(Theme.workspacesColor)
                 moduleInfo: root.backend ? root.backend.moduleInfo : ({})
                 dragLayer: root.dragLayer
                 onDragStarted: function(groupName, sourceIndex, moduleName) {
@@ -187,7 +190,7 @@ Item {
                 groupName: "right"
                 title: "▶ Right"
                 groupModel: root.rightModel
-                groupColor: "#89b4fa"
+                groupColor: SettingsPalette.readableAccent(Theme.displayColor)
                 moduleInfo: root.backend ? root.backend.moduleInfo : ({})
                 dragLayer: root.dragLayer
                 onDragStarted: function(groupName, sourceIndex, moduleName) {
@@ -205,7 +208,7 @@ Item {
                 groupName: "inactive"
                 title: "⊘ Inactive"
                 groupModel: root.inactiveModel
-                groupColor: "#6c7086"
+                groupColor: SettingsPalette.overlay2
                 moduleInfo: root.backend ? root.backend.moduleInfo : ({})
                 dragLayer: root.dragLayer
                 onDragStarted: function(groupName, sourceIndex, moduleName) {
@@ -223,7 +226,7 @@ Item {
                 groupName: "dockLeft"
                 title: "◀ Dock L"
                 groupModel: root.dockLeftModel
-                groupColor: "#fab387"
+                groupColor: SettingsPalette.readableAccent(Theme.weatherColor)
                 moduleInfo: root.backend ? root.backend.moduleInfo : ({})
                 dragLayer: root.dragLayer
                 onDragStarted: function(groupName, sourceIndex, moduleName) {
@@ -241,7 +244,7 @@ Item {
                 groupName: "dockRight"
                 title: "▶ Dock R"
                 groupModel: root.dockRightModel
-                groupColor: "#f9e2af"
+                groupColor: SettingsPalette.readableAccent(Theme.mediaColor)
                 moduleInfo: root.backend ? root.backend.moduleInfo : ({})
                 dragLayer: root.dragLayer
                 onDragStarted: function(groupName, sourceIndex, moduleName) {
@@ -276,7 +279,7 @@ Item {
                 width: 140
                 height: 38
                 radius: 10
-                color: saveMouseArea.containsMouse ? Qt.lighter(Theme.primary, 1.2) : Theme.primary
+                color: saveMouseArea.containsMouse ? Qt.lighter(root.accentColor, 1.12) : root.accentColor
 
                 Behavior on color { ColorAnimation { duration: 150 } }
 
@@ -284,7 +287,7 @@ Item {
                     font.family: Theme.fontFamily
                     anchors.centerIn: parent
                     text: "💾  Save"
-                    color: "#1e1e2e"
+                    color: root.accentTextColor
                     font.pixelSize: 14
                     font.bold: true
                 }

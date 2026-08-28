@@ -62,7 +62,7 @@ Item {
             RowLayout {
                 Layout.fillWidth: true
                 spacing: 8
-                Text { text: ""; font.pixelSize: 20; font.family: Theme.fontFamily; color: Theme.primary }
+                Text { text: ""; font.pixelSize: 20; font.family: Theme.fontFamily; color: SettingsPalette.readableAccent(Theme.primary) }
                 Text {  text: "Layout Presets"; font.bold: true; font.pixelSize: 18; color: SettingsPalette.text; font.family: Theme.fontFamily }
                 Item { Layout.fillWidth: true }
             }
@@ -125,7 +125,7 @@ Item {
                             if (presetMA.containsMouse) return Qt.rgba(255,255,255,0.06);
                             return Qt.rgba(255,255,255,0.03);
                         }
-                        border.color: layoutPage.activePreset === modelData.key ? Theme.primary : Qt.rgba(255,255,255,0.06)
+                        border.color: layoutPage.activePreset === modelData.key ? SettingsPalette.readableAccent(Theme.primary) : Qt.rgba(255,255,255,0.06)
                         border.width: layoutPage.activePreset === modelData.key ? 2 : 1
                         Behavior on color { ColorAnimation { duration: 150 } }
                         Behavior on border.color { ColorAnimation { duration: 150 } }
@@ -141,7 +141,7 @@ Item {
                                     text: modelData.icon
                                     font.pixelSize: 20
                                     font.family: "JetBrainsMono Nerd Font"
-                                    color: layoutPage.activePreset === modelData.key ? Theme.primary : SettingsPalette.subtext
+                                    color: layoutPage.activePreset === modelData.key ? SettingsPalette.readableAccent(Theme.primary) : SettingsPalette.subtext
                                 }
                                 Text {
                                     font.family: Theme.fontFamily
@@ -157,7 +157,7 @@ Item {
                                 Rectangle {
                                     visible: layoutPage.activePreset === modelData.key
                                     width: 8; height: 8; radius: 4
-                                    color: Theme.green
+                                    color: SettingsPalette.readableAccent(Theme.green)
                                 }
                             }
 

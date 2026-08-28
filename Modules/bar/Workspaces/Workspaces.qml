@@ -16,7 +16,7 @@ Rectangle {
         displayMode: "role",
         workspaceCount: 5,
         showEmpty: true,
-        showSpecial: false,
+        showSpecial: true,
         wrapAround: true,
         reverseScroll: false,
         maxIcons: 4

@@ -15,17 +15,19 @@ Rectangle {
 	// Volume State Properties (same service source as OSD)
 	readonly property bool muted: Volume.sinkMuted === true
 	readonly property real vol: (Volume.sinkVolume !== undefined && Volume.sinkVolume !== null) ? Volume.sinkVolume : 0
-
-	// Red when muted, green otherwise
+	readonly property color wallpaperAccent: Theme.mediaColor
+	readonly property color mutedAccent: Qt.darker(wallpaperAccent, 1.30)
 	color: muted
-		? (volumeMouse.containsMouse ? Qt.lighter(Theme.red, 1.15) : Theme.red)
-		: (volumeMouse.containsMouse ? Qt.lighter(Theme.mediaColor, 1.15) : Theme.mediaColor)
+		? (volumeMouse.containsMouse ? Qt.lighter(mutedAccent, 1.12) : mutedAccent)
+		: (volumeMouse.containsMouse ? Qt.lighter(wallpaperAccent, 1.12) : wallpaperAccent)
 
+	// Keep mute state visible without abandoning the wallpaper-derived role.
+	// A fixed red chip made the module appear frozen after wallpaper changes.
 	scale: volumeMouse.pressed ? 0.92 : (volumeMouse.containsMouse ? 1.06 : 1.0)
 
 	// Transition Animations
-	Behavior on color { ColorAnimation { duration: 200 } }
 	Behavior on scale { NumberAnimation { duration: 160; easing.type: Easing.OutBack } }
+	Behavior on color { ColorAnimation { duration: Theme.animMedium } }
 
 	RowLayout {
 		id: layout
@@ -42,7 +44,7 @@ Rectangle {
 			}
 			font.pixelSize: 16
 			font.family: "JetBrainsMono Nerd Font"
-			color: "#1e1e2e"
+			color: Theme.foregroundFor(root.color)
 		}
 
 		// PERCENTAGE (e.g. 54%)
@@ -50,7 +52,7 @@ Rectangle {
 			text: Math.round(root.vol * 100) + "%"
 			font.bold: true
 			font.family: Theme.fontFamily
-			color: "#1e1e2e"
+			color: Theme.foregroundFor(root.color)
 		}
 	}
 

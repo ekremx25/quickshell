@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import "."
 import "../../../Widgets"
+import "../../../Services"
 
 Rectangle {
     id: launcherRoot
@@ -11,10 +12,11 @@ Rectangle {
     LauncherService { id: launcherService }
 
     // --- COLOR SETTINGS ---
-    // --- COLOR SETTINGS ---
-    property color containerColor: Theme.launcherColor
+    readonly property bool monochromeMode: ColorPaletteService.enabled
+        && ColorPaletteService.matugenType === "scheme-monochrome"
+    property color containerColor: monochromeMode ? Theme.ramColor : Theme.launcherColor
     property color hoverColor: Qt.lighter(containerColor, 1.1)
-    property color iconColor: Theme.launcherIconColor
+    property color iconColor: monochromeMode ? "#000000" : Theme.foregroundFor(containerColor)
     property color borderColor: "#ccd0da" // border color unused? or keep?
 
     width: 34
@@ -25,9 +27,7 @@ Rectangle {
     color: launcherMouse.containsMouse ? hoverColor : containerColor
     border.width: 0
     // border.color: borderColor
-
     scale: launcherMouse.pressed ? 0.85 : (launcherMouse.containsMouse ? 1.15 : 1.0)
-
     Behavior on color { ColorAnimation { duration: 200 } }
     Behavior on scale { NumberAnimation { duration: 180; easing.type: Easing.OutBack } }
 

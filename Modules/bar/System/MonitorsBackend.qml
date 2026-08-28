@@ -69,6 +69,17 @@ Item {
         return String(text).replace(/[[\]\\.*^${}()|/]/g, '\\$&');
     }
 
+    function monitorIdentity(output) {
+        if (!output) return "";
+        var make = String(output.make || "").trim().toLowerCase();
+        var model = String(output.model || "").trim().toLowerCase();
+        var serial = String(output.serial || "").trim().toLowerCase();
+        if (make.length > 0 || model.length > 0 || serial.length > 0)
+            return "edid:" + make + "|" + model + "|" + serial;
+        var description = String(output.description || output.desc || "").trim().toLowerCase();
+        return description.length > 0 ? "description:" + description : "";
+    }
+
     // Geometry / overlap / auto-layout helpers live in MonitorLayoutLogic.js.
     // The wrappers below pass `savedConfig` through so the pure module never
     // needs to know about QML state.
@@ -93,6 +104,7 @@ Item {
             }
             var nextEntry = {
                 role: outObj.name === defaultName ? "primary" : (i === 1 ? "secondary" : (i === 2 ? "tertiary" : "display-" + (i + 1))),
+                identity: monitorIdentity(outObj),
                 res: outObj.res,
                 hz: parseFloat(outObj.hz || "60").toFixed(2),
                 scale: String(parseFloat(outObj.scale || "1")),
@@ -205,6 +217,10 @@ Item {
             updated.push({
                 name: outputs[i].name,
                 desc: outputs[i].desc,
+                make: outputs[i].make || "",
+                model: outputs[i].model || "",
+                serial: outputs[i].serial || "",
+                description: outputs[i].description || "",
                 physicalWidth: outputs[i].physicalWidth || 0,
                 physicalHeight: outputs[i].physicalHeight || 0,
                 res: isSel ? selRes : outputs[i].res,
@@ -264,6 +280,7 @@ Item {
 
             config[mon.name] = {
                 role:            saved.role || (mon.name === defaultOutputName ? "primary" : (i === 1 ? "secondary" : (i === 2 ? "tertiary" : "display-" + (i + 1)))),
+                identity:        saved.identity || monitorIdentity(mon),
                 res:             monRes,
                 hz:              monHz,
                 scale:           monScale,

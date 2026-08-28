@@ -267,6 +267,7 @@ Item {
                                 onClicked: weatherService.selectSearchResult(modelData)
                             }
                         }
+
                     }
 
                     MouseArea {

@@ -11,15 +11,15 @@ Rectangle {
 
     // --- COLOR SETTINGS ---
     property color barBgColor: Theme.calendarColor
-    property color barTextColor: Theme.background
+    property color barTextColor: Theme.foregroundFor(barBgColor)
 
-    property color popupBg: Qt.rgba(28/255, 41/255, 56/255, 0.82)
-    property color popupText: "#eef6ff"
+    property color popupBg: Qt.rgba(Theme.background.r, Theme.background.g, Theme.background.b, 0.96)
+    property color popupText: Theme.text
     property color accentColor: Theme.calendarColor
-    readonly property color glassCard: Qt.rgba(164/255, 226/255, 255/255, 0.09)
-    readonly property color glassCardStrong: Qt.rgba(184/255, 239/255, 255/255, 0.14)
-    readonly property color glassStroke: Qt.rgba(113/255, 229/255, 255/255, 0.24)
-    readonly property color dimText: "#c5d8e8"
+    readonly property color glassCard: Qt.rgba(accentColor.r, accentColor.g, accentColor.b, 0.09)
+    readonly property color glassCardStrong: Qt.rgba(accentColor.r, accentColor.g, accentColor.b, 0.15)
+    readonly property color glassStroke: Qt.rgba(accentColor.r, accentColor.g, accentColor.b, 0.30)
+    readonly property color dimText: Theme.subtext
 
     CalendarBackend { id: backend }
     property alias showFullDate: backend.showFullDate
@@ -28,6 +28,9 @@ Rectangle {
     height: 34
     radius: 17
     color: barBgColor
+    Behavior on color { ColorAnimation { duration: Theme.animMedium } }
+    border.width: 1
+    border.color: Qt.rgba(barTextColor.r, barTextColor.g, barTextColor.b, 0.18)
 
     scale: calMouse.pressed ? 0.93 : (calMouse.containsMouse ? 1.05 : 1.0)
 
@@ -47,7 +50,7 @@ Rectangle {
 
         Text {
             text: ""
-            color: "#1e1e2e"
+            color: dateRoot.barTextColor
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 16
         }
@@ -62,7 +65,7 @@ Rectangle {
                     return Qt.formatTime(dateRoot.currentDate, "HH:mm")
                 }
             }
-            color: "#1e1e2e"
+            color: dateRoot.barTextColor
             font.bold: true
             font.family: Theme.fontFamily
             font.pixelSize: 13 // Matches others roughly
@@ -143,7 +146,7 @@ Rectangle {
                 }
             ]
             color: popupBg
-            border.color: Qt.rgba(115/255, 235/255, 255/255, 0.55)
+            border.color: Qt.rgba(accentColor.r, accentColor.g, accentColor.b, 0.60)
             border.width: 1
             radius: 16
 
@@ -152,9 +155,9 @@ Rectangle {
                 anchors.margins: 1
                 radius: parent.radius - 1
                 gradient: Gradient {
-                    GradientStop { position: 0.0; color: Qt.rgba(133/255, 224/255, 255/255, 0.12) }
-                    GradientStop { position: 0.35; color: Qt.rgba(82/255, 146/255, 173/255, 0.10) }
-                    GradientStop { position: 1.0; color: Qt.rgba(37/255, 61/255, 85/255, 0.08) }
+                    GradientStop { position: 0.0; color: Qt.rgba(accentColor.r, accentColor.g, accentColor.b, 0.14) }
+                    GradientStop { position: 0.35; color: Qt.rgba(accentColor.r, accentColor.g, accentColor.b, 0.09) }
+                    GradientStop { position: 1.0; color: Qt.rgba(Theme.surface.r, Theme.surface.g, Theme.surface.b, 0.08) }
                 }
             }
 
@@ -298,7 +301,9 @@ Rectangle {
                                         Text {
                                             anchors.centerIn: parent
                                             text: modelData.day
-                                            color: modelData.isToday ? "#1e1e2e" : (modelData.inMonth ? popupText : "#505050")
+                                            color: modelData.isToday
+                                                ? Theme.foregroundFor(accentColor)
+                                                : (modelData.inMonth ? popupText : dimText)
                                             font.bold: modelData.isToday
                                             font.family: Theme.fontFamily
                                         }

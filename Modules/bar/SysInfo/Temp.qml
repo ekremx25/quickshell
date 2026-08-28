@@ -13,7 +13,14 @@ Rectangle {
   implicitWidth: layout.implicitWidth + 24
   implicitHeight: 30
   radius: 15
-  color: Theme.tempColor
+  color: Theme.cpuColor
+  Behavior on color { ColorAnimation { duration: Theme.animMedium } }
+  border.width: 1
+  border.color: Qt.rgba(
+    Theme.foregroundFor(root.color).r,
+    Theme.foregroundFor(root.color).g,
+    Theme.foregroundFor(root.color).b,
+    0.18)
 
   RowLayout {
     id: layout
@@ -23,7 +30,7 @@ Rectangle {
     Text {
         font.family: Theme.iconFontFamily
       text: ""
-      color: "#1e1e2e"
+      color: Theme.foregroundFor(root.color)
       font.pixelSize: 16
     }
 
@@ -32,7 +39,7 @@ Rectangle {
       // "2% • 46°C"
       text: (backend.cpuPercent >= 0 ? Math.floor(backend.cpuPercent) + "%" : "0%") +
       (backend.cpuTempC !== "-" ? " • " + backend.cpuTempC + "°C" : "")
-      color: "#1e1e2e"
+      color: Theme.foregroundFor(root.color)
       font.bold: true
     }
   }
@@ -70,8 +77,8 @@ Rectangle {
 
     Rectangle {
       anchors.fill: parent
-      color: "#1e1e2e"
-      border.color: "#fab387"
+      color: Theme.background
+      border.color: Theme.cpuColor
       radius: 10
 
       ColumnLayout {
@@ -83,13 +90,13 @@ Rectangle {
         // ROW 1
         RowLayout {
           Layout.fillWidth: true
-          Text {  text: "Usage: " + Math.floor(backend.cpuPercent) + "%"; color: "#cdd6f4"; font.bold: true; font.family: Theme.fontFamily }
-          Text {  text: "|"; color: "#fab387"; font.bold: true; font.family: Theme.fontFamily }
-          Text {  text: "Load: " + backend.loadData; color: "#fab387"; font.family: Theme.fontFamily }
+          Text {  text: "Usage: " + Math.floor(backend.cpuPercent) + "%"; color: Theme.text; font.bold: true; font.family: Theme.fontFamily }
+          Text {  text: "|"; color: Theme.cpuColor; font.bold: true; font.family: Theme.fontFamily }
+          Text {  text: "Load: " + backend.loadData; color: Theme.cpuColor; font.family: Theme.fontFamily }
           Item { Layout.fillWidth: true }
         }
 
-        Rectangle { Layout.fillWidth: true; height: 1; color: "#fab387"; opacity: 0.3; Layout.topMargin: 2; Layout.bottomMargin: 2 }
+        Rectangle { Layout.fillWidth: true; height: 1; color: Theme.cpuColor; opacity: 0.3; Layout.topMargin: 2; Layout.bottomMargin: 2 }
 
         // ROW 2: GRAPH
         Canvas {
@@ -99,9 +106,9 @@ Rectangle {
           onPaint: {
             var ctx = getContext("2d")
             ctx.clearRect(0, 0, width, height)
-            ctx.fillStyle = "#313244"
+            ctx.fillStyle = Theme.surface.toString()
             ctx.fillRect(0, 0, width, height)
-            ctx.fillStyle = "#fab387"
+            ctx.fillStyle = Theme.cpuColor.toString()
             var barW = width / backend.cpuHistMax
             for (var i = 0; i < backend.cpuHistory.length; i++) {
               var val = backend.cpuHistory[i]
@@ -109,19 +116,25 @@ Rectangle {
               if (h < 1) h = 1
                 ctx.fillRect(i * barW, height - h, barW - 1, h)
             }
-            ctx.strokeStyle = "#fab387"
+            ctx.strokeStyle = Theme.cpuColor.toString()
             ctx.beginPath(); ctx.moveTo(0, height); ctx.lineTo(width, height); ctx.stroke()
+          }
+
+          Connections {
+            target: Theme
+            function onCpuColorChanged() { cpuHistCanvas.requestPaint() }
+            function onSurfaceChanged() { cpuHistCanvas.requestPaint() }
           }
         }
 
-        Rectangle { Layout.fillWidth: true; height: 1; color: "#fab387"; opacity: 0.3; Layout.topMargin: 2; Layout.bottomMargin: 2 }
+        Rectangle { Layout.fillWidth: true; height: 1; color: Theme.cpuColor; opacity: 0.3; Layout.topMargin: 2; Layout.bottomMargin: 2 }
 
         // ROW 3: DETAILS
-        Text { text: "Temp: " + backend.cpuTempC + " °C"; color: "#cdd6f4"; font.family: Theme.monoFontFamily }
-        Text { text: "Gov: " + backend.governor; color: "#cdd6f4"; font.family: Theme.monoFontFamily }
-        Text { text: "CPU: " + backend.cpuModelName; color: "#fab387"; font.family: Theme.monoFontFamily; font.pixelSize: 11; elide: Text.ElideRight; Layout.fillWidth: true }
-        Text { text: "vCPUs: " + backend.vCpuCount; color: "#cdd6f4"; font.family: Theme.monoFontFamily }
-        Text { text: "Freq: " + backend.cpuFreqGHz + " GHz (core0)"; color: "#cdd6f4"; font.family: Theme.monoFontFamily }
+        Text { text: "Temp: " + backend.cpuTempC + " °C"; color: Theme.text; font.family: Theme.monoFontFamily }
+        Text { text: "Gov: " + backend.governor; color: Theme.text; font.family: Theme.monoFontFamily }
+        Text { text: "CPU: " + backend.cpuModelName; color: Theme.cpuColor; font.family: Theme.monoFontFamily; font.pixelSize: 11; elide: Text.ElideRight; Layout.fillWidth: true }
+        Text { text: "vCPUs: " + backend.vCpuCount; color: Theme.text; font.family: Theme.monoFontFamily }
+        Text { text: "Freq: " + backend.cpuFreqGHz + " GHz (core0)"; color: Theme.text; font.family: Theme.monoFontFamily }
       }
     }
   }

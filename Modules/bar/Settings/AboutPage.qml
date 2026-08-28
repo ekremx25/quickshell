@@ -49,7 +49,7 @@ Item {
             RowLayout {
                 Layout.fillWidth: true
                 spacing: 8
-                Text { text: ""; font.pixelSize: 20; font.family: Theme.fontFamily; color: Theme.primary }
+                Text { text: ""; font.pixelSize: 20; font.family: Theme.fontFamily; color: SettingsPalette.readableAccent(Theme.primary) }
                 Text {  text: "About"; font.bold: true; font.pixelSize: 18; color: SettingsPalette.text; font.family: Theme.fontFamily }
             }
 
@@ -70,7 +70,7 @@ Item {
                         font.family: Theme.fontFamily
                         text: "⚙"
                         font.pixelSize: 36
-                        color: Theme.primary
+                        color: SettingsPalette.readableAccent(Theme.primary)
                         Layout.alignment: Qt.AlignHCenter
                     }
                     Text {
@@ -114,7 +114,7 @@ Item {
                             text: modelData.icon
                             font.pixelSize: 14
                             font.family: "JetBrainsMono Nerd Font"
-                            color: Theme.primary
+                            color: SettingsPalette.readableAccent(Theme.primary)
                             Layout.preferredWidth: 20
                         }
                         Text {

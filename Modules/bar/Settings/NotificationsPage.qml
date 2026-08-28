@@ -3,17 +3,21 @@ import QtQuick.Layouts
 import QtQuick.Controls
 import "../../../Widgets"
 import "../../../Services" as S
+import "SettingsPalette.js" as SettingsPalette
 
 Item {
     id: root
     property var settingsPopup: null
     
-    // Tema renkleri
-    property color colorText: "#cdd6f4"
-    property color colorSubtext: "#a6adc8"
-    property color colorSurface: "#313244"
-    property color colorPrimary: "#cba6f7"
-    property color colorBackground: "#1e1e2e"
+    // Keep Settings readable independently from the desktop's light/dark
+    // palette. Only the accent follows the selected theme.
+    property color colorText: SettingsPalette.text
+    property color colorSubtext: SettingsPalette.subtext
+    property color colorSurface: SettingsPalette.cardStrong
+    property color colorPrimary: SettingsPalette.readableAccent(Theme.primary)
+    property color colorPrimaryText: SettingsPalette.foregroundFor(colorPrimary)
+    property color colorBackground: SettingsPalette.background
+    property color colorDanger: SettingsPalette.readableAccent(Theme.red)
 
     property var notifService: S.Notifications
     readonly property var popupPositionOptions: [
@@ -86,7 +90,9 @@ Item {
                         x: parent.parent.checked ? parent.width - width - 2 : 2
                         width: 16; height: 16; radius: 8
                         anchors.verticalCenter: parent.verticalCenter
-                        color: "#ffffff"
+                        color: parent.parent.checked
+                            ? root.colorPrimaryText
+                            : SettingsPalette.text
                         Behavior on x { NumberAnimation { duration: 100 } }
                     }
                 }
@@ -155,9 +161,80 @@ Item {
                     ComboBox {
                         id: positionCombo
                         implicitWidth: 150
+                        implicitHeight: 36
                         model: popupPositionLabels()
                         currentIndex: popupPositionIndex(notifService.popupPosition)
                         onActivated: notifService.popupPosition = popupPositionValue(currentIndex)
+
+                        contentItem: TextInput {
+                            leftPadding: 12
+                            rightPadding: 32
+                            text: positionCombo.displayText
+                            readOnly: true
+                            selectByMouse: false
+                            activeFocusOnTab: false
+                            clip: true
+                            color: root.colorText
+                            font.family: Theme.fontFamily
+                            font.pixelSize: 12
+                            verticalAlignment: Text.AlignVCenter
+                        }
+
+                        indicator: Text {
+                            x: positionCombo.width - width - 10
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: "⌄"
+                            color: root.colorSubtext
+                            font.pixelSize: 16
+                            font.bold: true
+                        }
+
+                        background: Rectangle {
+                            radius: 8
+                            color: SettingsPalette.cardStrong
+                            border.width: 1
+                            border.color: positionCombo.activeFocus
+                                ? root.colorPrimary
+                                : SettingsPalette.border
+                        }
+
+                        delegate: ItemDelegate {
+                            required property var modelData
+                            required property int index
+                            width: positionCombo.width
+                            height: 34
+                            highlighted: positionCombo.highlightedIndex === index
+                            background: Rectangle {
+                                color: parent.highlighted
+                                    ? SettingsPalette.track
+                                    : SettingsPalette.cardStrong
+                            }
+                            contentItem: Text {
+                                text: parent.modelData
+                                color: root.colorText
+                                font.family: Theme.fontFamily
+                                font.pixelSize: 12
+                                verticalAlignment: Text.AlignVCenter
+                            }
+                        }
+
+                        popup: Popup {
+                            y: positionCombo.height + 4
+                            width: positionCombo.width
+                            implicitHeight: contentItem.implicitHeight + 2
+                            padding: 1
+                            contentItem: ListView {
+                                clip: true
+                                implicitHeight: contentHeight
+                                model: positionCombo.popup.visible ? positionCombo.delegateModel : null
+                                currentIndex: positionCombo.highlightedIndex
+                            }
+                            background: Rectangle {
+                                radius: 8
+                                color: SettingsPalette.cardStrong
+                                border.color: SettingsPalette.border
+                            }
+                        }
                     }
                 }
             }
@@ -316,7 +393,7 @@ Item {
 
                                     Text {
                                         text: "×"
-                                        color: removeFilteredAppArea.containsMouse ? "#f38ba8" : colorSubtext
+                                        color: removeFilteredAppArea.containsMouse ? root.colorDanger : colorSubtext
                                         font.pixelSize: 15
                                         font.bold: true
                                         font.family: Theme.fontFamily
@@ -486,13 +563,13 @@ Item {
                         width: 100
                         height: 36
                         radius: 8
-                        color: clearHover.containsMouse ? Qt.darker("#f38ba8", 1.2) : "#f38ba8"
+                        color: clearHover.containsMouse ? Qt.darker(root.colorDanger, 1.2) : root.colorDanger
                         
                         Text {
                             font.family: Theme.fontFamily
                             anchors.centerIn: parent
                             text: "Clear All"
-                            color: "#1e1e2e"
+                            color: root.colorBackground
                             font.pixelSize: 13
                             font.bold: true
                         }

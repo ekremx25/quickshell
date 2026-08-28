@@ -284,7 +284,7 @@ PanelWindow {
                                     font.family: Theme.fontFamily
                                     text: Qt.formatTime(modelData.timestamp, "HH:mm")
                                     font.pixelSize: 10
-                                    color: Theme.overlay2
+                                    color: Theme.subtext
                                 }
                             }
 
@@ -314,7 +314,7 @@ PanelWindow {
                         Text {
                             text: ""
                             font.family: "JetBrainsMono Nerd Font"
-                            color: Theme.overlay2
+                            color: Theme.subtext
                             MouseArea {
                                 anchors.fill: parent
                                 cursorShape: Qt.PointingHandCursor

@@ -64,6 +64,7 @@ Item {
         stdout: SplitParser { onRead: data => Log.debug("MonitorHotplug", data) }
         stderr: SplitParser { onRead: data => Log.warn("MonitorHotplug", data) }
         onExited: {
+            ScreenManager.reloadRuntimeMap();
             CompositorService.refreshMonitors();
             if (root.applyAgain) {
                 root.applyAgain = false;

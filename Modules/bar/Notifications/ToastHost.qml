@@ -11,8 +11,15 @@ Item {
 
     Loader {
         id: toastLoader
-        source: "Toast.qml"
         active: true
+
+        sourceComponent: Component {
+            Variants {
+                model: ScreenManager.getFilteredScreens("toast")
+
+                delegate: Toast {}
+            }
+        }
     }
 
     Connections {

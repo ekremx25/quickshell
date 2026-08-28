@@ -11,7 +11,6 @@ Rectangle {
     radius: 17
     border.color: Qt.rgba(1, 1, 1, 0.12)
     border.width: 1
-
     implicitHeight: 34
     implicitWidth: trayRow.implicitWidth + 18
 

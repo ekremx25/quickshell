@@ -18,42 +18,27 @@ Rectangle {
     // Note: S.Notifications is the singleton instance
     property var notifService: S.Notifications
 
-    // Logic: Red if critical/urgent? Or just show count.
-    // For now: Blue if we have unread/active notifications, Gray/Transparent otherwise?
-    // Let's stick to the Volume style: Green/Red or Blue/Gray.
-    // Active notifications = Blue (#89b4fa)
-    // No notifications = Transparent or Surface color? 
-    // Volume uses: #a6e3a1 (Green) for active, #f38ba8 (Red) for muted.
-    // Let's use:
-    // Active (>0): #fab387 (Peach/Orange) or #f9e2af (Yellow) to stand out? 
-    // Let's use #fab387 (Peach) for now.
-    // Empty: #45475a (Surface) or transparent? 
-    // Let's make it visible always for now, or maybe hide if 0?
-    // User probably wants it visible to access history.
-    
     // Check if there are active notifications
     property bool hasActive: notifService.activeNotifications.length > 0
     property int count: notifService.activeNotifications.length
-
-    color: hasActive ? "#fab387" : "#45475a"
-
-    border.width: 0
-    border.color: "#fab387"
+    readonly property bool monochromeMode: (S.ColorPaletteService.enabled
+        && S.ColorPaletteService.matugenType === "scheme-monochrome")
+        || Theme.currentThemeName === "Monochrome"
+    readonly property color normalColor: monochromeMode
+        ? Theme.ramColor
+        : Theme.notificationColor
+    readonly property color contentColor: Theme.foregroundFor(normalColor)
+    readonly property color mutedContentColor: Qt.rgba(contentColor.r, contentColor.g, contentColor.b, 0.68)
+    color: normalColor
+    border.width: hasActive ? 1 : 0
+    border.color: monochromeMode ? contentColor : Theme.notificationColor
+    opacity: hasActive || notifService.dnd ? 1 : 0.74
 
     scale: notifHover.hovered && !notifHover.pressed ? 1.06 : (notifHover.pressed ? 0.92 : 1.0)
 
-    Behavior on color      { ColorAnimation  { duration: 200 } }
+    Behavior on opacity    { NumberAnimation { duration: 180 } }
     Behavior on scale      { NumberAnimation { duration: 160; easing.type: Easing.OutBack } }
-    Behavior on border.width { NumberAnimation { duration: 300 } }
-
-    // Bildirim gelince border pulse
-    SequentialAnimation {
-        running: hasActive
-        loops: Animation.Infinite
-        NumberAnimation { target: root; property: "border.width"; to: 2;   duration: 700; easing.type: Easing.InOutSine }
-        NumberAnimation { target: root; property: "border.width"; to: 0;   duration: 700; easing.type: Easing.InOutSine }
-        PauseAnimation  { duration: 400 }
-    }
+    Behavior on color      { ColorAnimation { duration: Theme.animMedium } }
 
     HoverHandler {
         id: notifHover
@@ -81,7 +66,7 @@ Rectangle {
                     text: notifService.dnd ? "" : (hasActive ? "" : "")
                     font.pixelSize: 16
                     font.family: "JetBrainsMono Nerd Font"
-                    color: notifService.dnd ? "#f38ba8" : (hasActive ? "#1e1e2e" : "#cdd6f4")
+                    color: notifService.dnd ? Theme.red : root.contentColor
                 }
 
                 // Count
@@ -89,7 +74,7 @@ Rectangle {
                     text: count > 0 ? count : ""
                     font.bold: true
                     font.family: Theme.fontFamily
-                    color: "#1e1e2e"
+                    color: root.contentColor
                     visible: count > 0
                 }
             }
@@ -115,7 +100,7 @@ Rectangle {
         Rectangle {
             width: 1
             height: 14
-            color: hasActive ? "#1e1e2e" : "#6c7086"
+            color: root.mutedContentColor
             opacity: 0.5
         }
 
@@ -132,7 +117,7 @@ Rectangle {
                     text: "" // Timer icon
                     font.family: "JetBrainsMono Nerd Font"
                     font.pixelSize: 12
-                    color: hasActive ? "#1e1e2e" : "#a6adc8"
+                    color: root.mutedContentColor
                 }
                 
                 Text {
@@ -140,7 +125,7 @@ Rectangle {
                     text: (notifService.displayDuration / 1000) + "s"
                     font.bold: true
                     font.pixelSize: 12
-                    color: hasActive ? "#1e1e2e" : "#cdd6f4"
+                    color: root.contentColor
                 }
             }
 

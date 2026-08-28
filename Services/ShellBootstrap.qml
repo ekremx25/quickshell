@@ -25,5 +25,9 @@ Item {
         id: monitorApplyProc
         command: [root.monitorScriptPath]
         running: false
+        onExited: {
+            ScreenManager.reloadRuntimeMap();
+            CompositorService.refreshMonitors();
+        }
     }
 }

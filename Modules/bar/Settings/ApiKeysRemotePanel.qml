@@ -65,15 +65,15 @@ Item {
                     Layout.preferredWidth: linkText.implicitWidth + 16
                     Layout.preferredHeight: 24
                     radius: 6
-                    color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.12)
-                    border.color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.3)
+                    color: Qt.rgba(SettingsPalette.readableAccent(Theme.primary).r, SettingsPalette.readableAccent(Theme.primary).g, SettingsPalette.readableAccent(Theme.primary).b, 0.12)
+                    border.color: Qt.rgba(SettingsPalette.readableAccent(Theme.primary).r, SettingsPalette.readableAccent(Theme.primary).g, SettingsPalette.readableAccent(Theme.primary).b, 0.3)
                     border.width: 1
                     Text {
                         font.family: Theme.fontFamily
                         id: linkText
                         anchors.centerIn: parent
                         text: remotePanel.currentProvider.signup_url
-                        color: Theme.primary
+                        color: SettingsPalette.readableAccent(Theme.primary)
                         font.pixelSize: 11
                     }
                     MouseArea {
@@ -111,10 +111,10 @@ Item {
                             implicitHeight: 28
                             radius: 6
                             color: isSelected
-                                ? Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.2)
+                                ? Qt.rgba(SettingsPalette.readableAccent(Theme.primary).r, SettingsPalette.readableAccent(Theme.primary).g, SettingsPalette.readableAccent(Theme.primary).b, 0.2)
                                 : Qt.rgba(255, 255, 255, 0.04)
                             border.color: isSelected
-                                ? Theme.primary
+                                ? SettingsPalette.readableAccent(Theme.primary)
                                 : Qt.rgba(255, 255, 255, 0.08)
                             border.width: 1
 
@@ -123,7 +123,7 @@ Item {
                                 id: modelLabel
                                 anchors.centerIn: parent
                                 text: parent.modelData
-                                color: parent.isSelected ? Theme.primary : SettingsPalette.text
+                                color: parent.isSelected ? SettingsPalette.readableAccent(Theme.primary) : SettingsPalette.text
                                 font.pixelSize: 11
                                 font.bold: parent.isSelected
                             }
@@ -220,7 +220,7 @@ Item {
                     radius: 6
                     color: Qt.rgba(255, 255, 255, 0.04)
                     border.color: keyInput.activeFocus
-                        ? Theme.primary
+                        ? SettingsPalette.readableAccent(Theme.primary)
                         : Qt.rgba(255, 255, 255, 0.1)
                     border.width: 1
 
@@ -254,7 +254,7 @@ Item {
                     Layout.preferredHeight: 32
                     radius: 6
                     color: remotePanel.keyVisible
-                        ? Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.15)
+                        ? Qt.rgba(SettingsPalette.readableAccent(Theme.primary).r, SettingsPalette.readableAccent(Theme.primary).g, SettingsPalette.readableAccent(Theme.primary).b, 0.15)
                         : Qt.rgba(255, 255, 255, 0.04)
                     border.color: Qt.rgba(255, 255, 255, 0.1)
                     border.width: 1
@@ -263,7 +263,7 @@ Item {
                         text: remotePanel.keyVisible ? "󰈈" : "󰈉"
                         font.family: "JetBrainsMono Nerd Font"
                         font.pixelSize: 14
-                        color: remotePanel.keyVisible ? Theme.primary : SettingsPalette.subtext
+                        color: remotePanel.keyVisible ? SettingsPalette.readableAccent(Theme.primary) : SettingsPalette.subtext
                     }
                     MouseArea {
                         anchors.fill: parent
@@ -333,9 +333,9 @@ Item {
                     Layout.preferredHeight: 36
                     radius: 8
                     color: saveArea.containsMouse
-                        ? Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.25)
-                        : Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.15)
-                    border.color: Theme.primary
+                        ? Qt.rgba(SettingsPalette.readableAccent(Theme.primary).r, SettingsPalette.readableAccent(Theme.primary).g, SettingsPalette.readableAccent(Theme.primary).b, 0.25)
+                        : Qt.rgba(SettingsPalette.readableAccent(Theme.primary).r, SettingsPalette.readableAccent(Theme.primary).g, SettingsPalette.readableAccent(Theme.primary).b, 0.15)
+                    border.color: SettingsPalette.readableAccent(Theme.primary)
                     border.width: 1
                     enabled: remotePanel.saveStatus !== "saving" && remotePanel.apiKey.length > 0
 
@@ -346,12 +346,12 @@ Item {
                             text: "💾"
                             font.family: Theme.fontFamily
                             font.pixelSize: 14
-                            color: Theme.primary
+                            color: SettingsPalette.readableAccent(Theme.primary)
                         }
                         Text {
                             font.family: Theme.fontFamily
                             text: remotePanel.saveStatus === "saving" ? "Saving..." : "Save & Activate"
-                            color: Theme.primary
+                            color: SettingsPalette.readableAccent(Theme.primary)
                             font.pixelSize: 12
                             font.bold: true
                         }
@@ -396,8 +396,8 @@ Item {
                         visible: remotePanel.testStatus !== ""
                         text: "🧪 " + (remotePanel.testStatus === "success" ? "✓ " : (remotePanel.testStatus === "error" ? "✗ " : "… ")) + remotePanel.testMessage
                         color: {
-                            if (remotePanel.testStatus === "success") return "#a6e3a1";
-                            if (remotePanel.testStatus === "error") return "#f38ba8";
+                            if (remotePanel.testStatus === "success") return SettingsPalette.readableAccent(Theme.green);
+                            if (remotePanel.testStatus === "error") return SettingsPalette.readableAccent(Theme.red);
                             return SettingsPalette.text;
                         }
                         font.pixelSize: 11
@@ -410,8 +410,8 @@ Item {
                         visible: remotePanel.saveStatus !== ""
                         text: "💾 " + (remotePanel.saveStatus === "saved" ? "✓ " : (remotePanel.saveStatus === "error" ? "✗ " : "… ")) + remotePanel.saveMessage
                         color: {
-                            if (remotePanel.saveStatus === "saved") return "#a6e3a1";
-                            if (remotePanel.saveStatus === "error") return "#f38ba8";
+                            if (remotePanel.saveStatus === "saved") return SettingsPalette.readableAccent(Theme.green);
+                            if (remotePanel.saveStatus === "error") return SettingsPalette.readableAccent(Theme.red);
                             return SettingsPalette.text;
                         }
                         font.pixelSize: 11

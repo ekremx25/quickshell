@@ -16,10 +16,10 @@ Rectangle {
     height: 72
     radius: 10
     color: selected
-        ? Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.18)
+        ? Qt.rgba(SettingsPalette.readableAccent(Theme.primary).r, SettingsPalette.readableAccent(Theme.primary).g, SettingsPalette.readableAccent(Theme.primary).b, 0.18)
         : Qt.rgba(255, 255, 255, 0.03)
     border.color: selected
-        ? Theme.primary
+        ? SettingsPalette.readableAccent(Theme.primary)
         : Qt.rgba(255, 255, 255, 0.08)
     border.width: selected ? 2 : 1
 
@@ -48,7 +48,7 @@ Rectangle {
                 font.family: Theme.fontFamily
                 visible: card.selected
                 text: "✓"
-                color: Theme.primary
+                color: SettingsPalette.readableAccent(Theme.primary)
                 font.pixelSize: 14
                 font.bold: true
             }

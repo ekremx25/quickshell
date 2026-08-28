@@ -42,6 +42,8 @@ PanelWindow {
     readonly property color sidebarMutedColor: Qt.rgba(245 / 255, 247 / 255, 255 / 255, 0.72)
     readonly property color contentBackgroundColor: Qt.rgba(0, 0, 0, 0.92)
     readonly property color contentPanelColor: SettingsPalette.background
+    readonly property color accentColor: SettingsPalette.readableAccent(Theme.primary)
+    readonly property color dangerColor: SettingsPalette.readableAccent(Theme.red)
 
     // Active page
     property string currentPage: "bar"
@@ -77,6 +79,8 @@ PanelWindow {
                 { key: "workspaces", icon: "󰖲", label: "Workspaces" },
                 { key: "notifications", icon: "󰂚", label: "Notifications" },
                 { key: "weather",    icon: "󰖕", label: "Weather" },
+                { key: "worldclocks",icon: "󱑂", label: "World Clocks" },
+                { key: "markets",    icon: "󰄪", label: "Markets" },
                 { key: "apikeys",    icon: "󰌆", label: "API Keys" }
             ]
         },
@@ -264,7 +268,7 @@ PanelWindow {
                                 font.family: Theme.fontFamily
                                 text: "⚙"
                                 font.pixelSize: 18
-                                color: Theme.primary
+                                color: settingsPopup.accentColor
                             }
                             Text {
                                 font.family: Theme.fontFamily
@@ -276,9 +280,17 @@ PanelWindow {
                             Item { Layout.fillWidth: true }
                             Rectangle {
                                 width: 24; height: 24; radius: 12
-                                color: closeMA.containsMouse ? Theme.red : "transparent"
+                                color: closeMA.containsMouse ? settingsPopup.dangerColor : "transparent"
                                 Behavior on color { ColorAnimation { duration: 150 } }
-                                Text {  anchors.centerIn: parent; text: "✕"; color: sidebarTitleColor; font.pixelSize: 11; font.family: Theme.fontFamily }
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: "✕"
+                                    color: closeMA.containsMouse
+                                        ? SettingsPalette.foregroundFor(settingsPopup.dangerColor)
+                                        : sidebarTitleColor
+                                    font.pixelSize: 11
+                                    font.family: Theme.fontFamily
+                                }
                                 MouseArea {
                                     id: closeMA; anchors.fill: parent; hoverEnabled: true
                                     cursorShape: Qt.PointingHandCursor
@@ -366,7 +378,7 @@ PanelWindow {
                                                 height: 38
                                                 radius: 10
                                                 color: {
-                                                    if (settingsPopup.currentPage === modelData.key) return Qt.rgba(137/255, 180/255, 250/255, 0.15);
+                                                    if (settingsPopup.currentPage === modelData.key) return Qt.rgba(settingsPopup.accentColor.r, settingsPopup.accentColor.g, settingsPopup.accentColor.b, 0.14);
                                                     if (menuMA.containsMouse) return Qt.rgba(255,255,255,0.05);
                                                     return "transparent";
                                                 }
@@ -379,7 +391,7 @@ PanelWindow {
                                                     anchors.left: parent.left
                                                     anchors.leftMargin: 4
                                                     anchors.verticalCenter: parent.verticalCenter
-                                                    color: Theme.primary
+                                                    color: settingsPopup.accentColor
                                                 }
 
                                                 RowLayout {
@@ -392,7 +404,7 @@ PanelWindow {
                                                         text: modelData.icon
                                                         font.pixelSize: 15
                                                         font.family: "JetBrainsMono Nerd Font"
-                                                        color: settingsPopup.currentPage === modelData.key ? Theme.primary : sidebarMutedColor
+                                                        color: settingsPopup.currentPage === modelData.key ? settingsPopup.accentColor : sidebarMutedColor
                                                     }
 
                                                     Text {
@@ -527,6 +539,16 @@ PanelWindow {
                     Sys.WeatherPage {
                         anchors.fill: parent
                         visible: settingsPopup.currentPage === "weather"
+                    }
+
+                    Sys.WorldClocksPage {
+                        anchors.fill: parent
+                        visible: settingsPopup.currentPage === "worldclocks"
+                    }
+
+                    Sys.MarketsPage {
+                        anchors.fill: parent
+                        visible: settingsPopup.currentPage === "markets"
                     }
 
                     Sys.MonitorsPage {

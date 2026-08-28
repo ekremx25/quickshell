@@ -24,7 +24,7 @@ Rectangle {
 
         Text {
             text: "" // Power icon
-            color: "#1e1e2e"
+            color: Theme.foregroundFor(root.color)
             font.pixelSize: 16
             font.family: "JetBrainsMono Nerd Font"
         }

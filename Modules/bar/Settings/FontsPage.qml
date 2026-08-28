@@ -90,7 +90,7 @@ Item {
     component SummaryTile: Rectangle {
         id: tile
         property string iconText: ""
-        property color accentColor: Theme.primary
+        property color accentColor: SettingsPalette.readableAccent(Theme.primary)
         property string heading: ""
         property string summary: ""
         property string helper: ""
@@ -146,7 +146,7 @@ Item {
         id: chip
         property string label: ""
         property bool selected: false
-        property color accentColor: Theme.primary
+        property color accentColor: SettingsPalette.readableAccent(Theme.primary)
         signal clicked()
 
         radius: 8
@@ -178,7 +178,7 @@ Item {
     component ActionButton: Rectangle {
         id: button
         property string label: ""
-        property color fillColor: Theme.primary
+        property color fillColor: SettingsPalette.readableAccent(Theme.primary)
         property color labelColor: "#1e1e2e"
         property bool enabled: true
         signal clicked()
@@ -448,7 +448,7 @@ Item {
                     text: "󰛖"
                     font.pixelSize: 20
                     font.family: "JetBrainsMono Nerd Font"
-                    color: Theme.primary
+                    color: SettingsPalette.readableAccent(Theme.primary)
                 }
 
                 Text {
@@ -477,7 +477,7 @@ Item {
                         Text {
                             font.family: Theme.fontFamily
                             text: "●"
-                            color: saveInProgress ? "#f9e2af" : Theme.green
+                            color: saveInProgress ? SettingsPalette.readableAccent(Theme.yellow) : SettingsPalette.readableAccent(Theme.green)
                             font.pixelSize: 11
                         }
 
@@ -501,7 +501,7 @@ Item {
                     SummaryTile {
                         Layout.preferredWidth: 170
                         iconText: "Aa"
-                        accentColor: Theme.primary
+                        accentColor: SettingsPalette.readableAccent(Theme.primary)
                         heading: "General"
                         summary: fontsPage.generalPreviewText
                         previewFamily: fontsPage.generalFontFamily
@@ -510,7 +510,7 @@ Item {
                     SummaryTile {
                         Layout.preferredWidth: 170
                         iconText: "</>"
-                        accentColor: "#cba6f7"
+                        accentColor: SettingsPalette.readableAccent(Theme.mauve)
                         heading: "Monospace"
                         summary: fontsPage.fixedPreviewText
                         previewFamily: fontsPage.fixedFontFamily
@@ -519,7 +519,7 @@ Item {
                     SummaryTile {
                         Layout.fillWidth: true
                         iconText: "󰉋"
-                        accentColor: "#a6e3a1"
+                        accentColor: SettingsPalette.readableAccent(Theme.green)
                         heading: "Catalog"
                         summary: fontsPage.fontCount > 0
                             ? (fontsPage.fontCount + " families")
@@ -566,7 +566,7 @@ Item {
 
                         Text {
                             text: "example-file.txt    18 KB    Today"
-                            color: Theme.primary
+                            color: SettingsPalette.readableAccent(Theme.primary)
                             font.family: fontsPage.generalFontFamily
                             font.pointSize: fontsPage.generalFontSize
                         }
@@ -590,7 +590,7 @@ Item {
                     Text {
                         font.family: Theme.fontFamily
                         text: fontsPage.generalFontFamily
-                        color: Theme.primary
+                        color: SettingsPalette.readableAccent(Theme.primary)
                         font.pixelSize: 12
                         font.bold: true
                     }
@@ -598,7 +598,7 @@ Item {
                     Text {
                         font.family: Theme.fontFamily
                         text: fontsPage.generalFontSize + " pt"
-                        color: Theme.primary
+                        color: SettingsPalette.readableAccent(Theme.primary)
                         font.pixelSize: 12
                         font.bold: true
                     }
@@ -609,7 +609,7 @@ Item {
                     height: 40
                     radius: 8
                     color: generalDropArea.containsMouse ? Qt.rgba(69/255, 71/255, 90/255, 0.8) : Qt.rgba(49/255, 50/255, 68/255, 0.6)
-                    border.color: openDropdown === "general" ? Theme.primary : Qt.rgba(255,255,255,0.08)
+                    border.color: openDropdown === "general" ? SettingsPalette.readableAccent(Theme.primary) : Qt.rgba(255,255,255,0.08)
                     border.width: 1
                     Behavior on color { ColorAnimation { duration: 100 } }
                     Behavior on border.color { ColorAnimation { duration: 100 } }
@@ -622,7 +622,7 @@ Item {
 
                         Text {
                             text: "Aa"
-                            color: Theme.primary
+                            color: SettingsPalette.readableAccent(Theme.primary)
                             font.family: fontsPage.generalFontFamily
                             font.pixelSize: 16
                             font.bold: true
@@ -676,7 +676,7 @@ Item {
                             height: 36
                             radius: 8
                             color: Qt.rgba(255,255,255,0.05)
-                            border.color: generalSearchInput.activeFocus ? Theme.primary : Qt.rgba(255,255,255,0.08)
+                            border.color: generalSearchInput.activeFocus ? SettingsPalette.readableAccent(Theme.primary) : Qt.rgba(255,255,255,0.08)
                             border.width: 1
 
                             TextInput {
@@ -741,7 +741,7 @@ Item {
                                         color: generalOptionArea.containsMouse || fontsPage.generalFontFamily === modelData
                                             ? Qt.rgba(137/255, 180/255, 250/255, 0.14)
                                             : "transparent"
-                                        border.color: fontsPage.generalFontFamily === modelData ? Theme.primary : "transparent"
+                                        border.color: fontsPage.generalFontFamily === modelData ? SettingsPalette.readableAccent(Theme.primary) : "transparent"
                                         border.width: fontsPage.generalFontFamily === modelData ? 1 : 0
 
                                         RowLayout {
@@ -752,7 +752,7 @@ Item {
 
                                             Text {
                                                 text: "Aa"
-                                                color: fontsPage.generalFontFamily === modelData ? Theme.primary : SettingsPalette.subtext
+                                                color: fontsPage.generalFontFamily === modelData ? SettingsPalette.readableAccent(Theme.primary) : SettingsPalette.subtext
                                                 font.family: modelData && modelData.length > 0 ? modelData : Theme.fontFamily
                                                 font.pixelSize: 14
                                                 font.bold: true
@@ -787,7 +787,7 @@ Item {
                     height: 40
                     radius: 8
                     color: Qt.rgba(49/255, 50/255, 68/255, 0.6)
-                    border.color: generalInput.activeFocus ? Theme.primary : Qt.rgba(255,255,255,0.08)
+                    border.color: generalInput.activeFocus ? SettingsPalette.readableAccent(Theme.primary) : Qt.rgba(255,255,255,0.08)
                     border.width: 1
 
                     TextInput {
@@ -813,7 +813,7 @@ Item {
                         delegate: SuggestionChip {
                             label: modelData
                             selected: fontsPage.generalFontFamily === modelData
-                            accentColor: Theme.primary
+                            accentColor: SettingsPalette.readableAccent(Theme.primary)
                             onClicked: fontsPage.generalFontFamily = modelData
                         }
                     }
@@ -838,7 +838,7 @@ Item {
                     Text {
                         font.family: Theme.fontFamily
                         text: fontsPage.fixedFontFamily
-                        color: "#cba6f7"
+                        color: SettingsPalette.readableAccent(Theme.mauve)
                         font.pixelSize: 12
                         font.bold: true
                     }
@@ -846,7 +846,7 @@ Item {
                     Text {
                         font.family: Theme.fontFamily
                         text: fontsPage.fixedFontSize + " pt"
-                        color: "#cba6f7"
+                        color: SettingsPalette.readableAccent(Theme.mauve)
                         font.pixelSize: 12
                         font.bold: true
                     }
@@ -857,7 +857,7 @@ Item {
                     height: 40
                     radius: 8
                     color: fixedDropArea.containsMouse ? Qt.rgba(69/255, 71/255, 90/255, 0.8) : Qt.rgba(49/255, 50/255, 68/255, 0.6)
-                    border.color: openDropdown === "fixed" ? Theme.primary : Qt.rgba(255,255,255,0.08)
+                    border.color: openDropdown === "fixed" ? SettingsPalette.readableAccent(Theme.primary) : Qt.rgba(255,255,255,0.08)
                     border.width: 1
                     Behavior on color { ColorAnimation { duration: 100 } }
                     Behavior on border.color { ColorAnimation { duration: 100 } }
@@ -870,7 +870,7 @@ Item {
 
                         Text {
                             text: "</>"
-                            color: "#cba6f7"
+                            color: SettingsPalette.readableAccent(Theme.mauve)
                             font.family: fontsPage.fixedFontFamily
                             font.pixelSize: 14
                             font.bold: true
@@ -924,7 +924,7 @@ Item {
                             height: 36
                             radius: 8
                             color: Qt.rgba(255,255,255,0.05)
-                            border.color: fixedSearchInput.activeFocus ? Theme.primary : Qt.rgba(255,255,255,0.08)
+                            border.color: fixedSearchInput.activeFocus ? SettingsPalette.readableAccent(Theme.primary) : Qt.rgba(255,255,255,0.08)
                             border.width: 1
 
                             TextInput {
@@ -989,7 +989,7 @@ Item {
                                         color: fixedOptionArea.containsMouse || fontsPage.fixedFontFamily === modelData
                                             ? Qt.rgba(203/255, 166/255, 247/255, 0.14)
                                             : "transparent"
-                                        border.color: fontsPage.fixedFontFamily === modelData ? "#cba6f7" : "transparent"
+                                        border.color: fontsPage.fixedFontFamily === modelData ? SettingsPalette.readableAccent(Theme.mauve) : "transparent"
                                         border.width: fontsPage.fixedFontFamily === modelData ? 1 : 0
 
                                         RowLayout {
@@ -1000,7 +1000,7 @@ Item {
 
                                             Text {
                                                 text: "</>"
-                                                color: fontsPage.fixedFontFamily === modelData ? "#cba6f7" : SettingsPalette.subtext
+                                                color: fontsPage.fixedFontFamily === modelData ? SettingsPalette.readableAccent(Theme.mauve) : SettingsPalette.subtext
                                                 font.family: modelData && modelData.length > 0 ? modelData : Theme.fontFamily
                                                 font.pixelSize: 13
                                                 font.bold: true
@@ -1035,7 +1035,7 @@ Item {
                     height: 40
                     radius: 8
                     color: Qt.rgba(49/255, 50/255, 68/255, 0.6)
-                    border.color: fixedInput.activeFocus ? Theme.primary : Qt.rgba(255,255,255,0.08)
+                    border.color: fixedInput.activeFocus ? SettingsPalette.readableAccent(Theme.primary) : Qt.rgba(255,255,255,0.08)
                     border.width: 1
 
                     TextInput {
@@ -1061,7 +1061,7 @@ Item {
                         delegate: SuggestionChip {
                             label: modelData
                             selected: fontsPage.fixedFontFamily === modelData
-                            accentColor: "#cba6f7"
+                            accentColor: SettingsPalette.readableAccent(Theme.mauve)
                             onClicked: fontsPage.fixedFontFamily = modelData
                         }
                     }
@@ -1120,13 +1120,13 @@ Item {
                             text: fontsPage.statusError ? "󰅙" : "󰄬"
                             font.family: "JetBrainsMono Nerd Font"
                             font.pixelSize: 14
-                            color: fontsPage.statusError ? Theme.red : Theme.green
+                            color: fontsPage.statusError ? SettingsPalette.readableAccent(Theme.red) : SettingsPalette.readableAccent(Theme.green)
                         }
 
                         Text {
                             font.family: Theme.fontFamily
                             text: fontsPage.statusMessage
-                            color: fontsPage.statusError ? Theme.red : Theme.green
+                            color: fontsPage.statusError ? SettingsPalette.readableAccent(Theme.red) : SettingsPalette.readableAccent(Theme.green)
                             font.pixelSize: 11
                             wrapMode: Text.WordWrap
                             Layout.fillWidth: true

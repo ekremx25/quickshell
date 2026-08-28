@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate configuration
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Test port-independent monitor roles
+        run: python -m unittest discover -s tests -v
+
+      - name: Compile Python helpers
+        run: |
+          python -m py_compile scripts/monitor_role_manager.py
+          python -m py_compile Modules/bar/System/niri_apply.py
+
+      - name: Validate shell syntax
+        run: bash -n scripts/*.sh
+
+      - name: Validate tracked JSON
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r file; do
+            python -m json.tool "$file" >/dev/null
+          done < <(git ls-files '*.json')
+
+      - name: Reject user-specific runtime files
+        shell: bash
+        run: |
+          set -euo pipefail
+          forbidden=(
+            monitor_config.json
+            monitor_identities.json
+            monitor_role_profiles.json
+            monitor_runtime.json
+            screen_config.json
+            desktop_widgets.json
+            weather_config.json
+          )
+          for file in "${forbidden[@]}"; do
+            if git ls-files --error-unmatch "$file" >/dev/null 2>&1; then
+              echo "User-specific runtime file is tracked: $file" >&2
+              exit 1
+            fi
+          done

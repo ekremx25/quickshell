@@ -28,6 +28,12 @@
       "appId": "org.telegram.desktop"
     },
     {
+      "name": "Zen",
+      "icon": "zen",
+      "cmd": "env GDK_BACKEND=wayland MOZ_ENABLE_WAYLAND=1 /opt/zen-browser-bin/zen-bin",
+      "appId": "zen"
+    },
+    {
       "name": "Virt-manager",
       "icon": "virt-manager",
       "cmd": "virt-manager",
@@ -50,12 +56,6 @@
       "icon": "antigravity-ide",
       "cmd": "/usr/bin/antigravity-ide",
       "appId": "antigravity-ide"
-    },
-    {
-      "name": "Zen",
-      "icon": "zen-browser",
-      "cmd": "/opt/zen-browser-bin/zen-bin",
-      "appId": "zen"
     },
     {
       "name": "Affinity.exe",
@@ -82,16 +82,22 @@
       "appId": "Chatgpt"
     },
     {
-      "name": "Youtube-dl-gui",
-      "icon": "youtube-dl-gui",
-      "cmd": "youtube-dl-gui",
-      "appId": "youtube-dl-gui"
+      "name": "Edge",
+      "icon": "microsoft-edge-stable",
+      "cmd": "__desktop__:microsoft-edge",
+      "appId": "microsoft-edge-stable"
     },
     {
       "name": "OBS Studio",
       "icon": "com.obsproject.Studio",
       "cmd": "obs",
       "appId": "obs"
+    },
+    {
+      "name": "Youtube-dl-gui",
+      "icon": "youtube-dl-gui",
+      "cmd": "youtube-dl-gui",
+      "appId": "youtube-dl-gui"
     }
   ],
   "leftModules": [
@@ -103,5 +109,5 @@
     "Tray",
     "Calendar"
   ],
-  "moduleSchemaVersion": 1
+  "moduleSchemaVersion": 3
 }

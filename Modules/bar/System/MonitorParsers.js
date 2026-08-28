@@ -11,6 +11,10 @@ function parseHyprlandOutputs(text) {
         var info = data[i];
         var outObj = {
             name: info.name,
+            make: info.make || "",
+            model: info.model || "",
+            serial: info.serial || "",
+            description: info.description || "",
             desc: (info.make || "") + " " + (info.model || ""),
             physicalWidth: info.physicalWidth || 0,
             physicalHeight: info.physicalHeight || 0,

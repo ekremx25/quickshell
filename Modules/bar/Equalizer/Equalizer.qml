@@ -15,8 +15,9 @@ Rectangle {
     implicitHeight: 34
     radius: 17
     color: popupWindow.visible ? root.eqChipFillActive : root.eqChipFill
-    border.width: root.useNeutralEqChip ? 1 : 0
-    border.color: popupWindow.visible ? root.eqChipBorderActive : root.eqChipBorder
+    border.width: popupWindow.visible ? 1 : 0
+    border.color: popupWindow.visible ? root.eqChipBorderActive : "transparent"
+    Behavior on color { ColorAnimation { duration: Theme.animMedium } }
 
     property var currentPlayer: null
     property bool hasMedia: currentPlayer !== null
@@ -46,19 +47,20 @@ Rectangle {
     readonly property string eqStateLabel: backend.isBusy ? "Applying" : (root.eqIsBypassed ? "Bypassed" : (root.hasPendingEqChanges ? "Pending" : "Live"))
     readonly property real bgLuma: (Theme.background.r * 0.299) + (Theme.background.g * 0.587) + (Theme.background.b * 0.114)
     readonly property color eqAccent: Theme.equalizerColor
-    readonly property real eqAccentLuma: (eqAccent.r * 0.299) + (eqAccent.g * 0.587) + (eqAccent.b * 0.114)
-    readonly property bool useNeutralEqChip: uiIsLight && eqAccentLuma < 0.25
-    readonly property color eqChipFill: useNeutralEqChip ? Theme.surface : eqAccent
-    readonly property color eqChipFillActive: useNeutralEqChip ? Qt.rgba(Theme.surface.r, Theme.surface.g, Theme.surface.b, 0.98) : eqAccent
-    readonly property color eqChipBorder: useNeutralEqChip ? Qt.rgba(15/255, 23/255, 42/255, 0.24) : "transparent"
-    readonly property color eqChipBorderActive: useNeutralEqChip ? Qt.rgba(15/255, 23/255, 42/255, 0.30) : "transparent"
-    readonly property real eqChipLuma: (eqChipFill.r * 0.299) + (eqChipFill.g * 0.587) + (eqChipFill.b * 0.114)
-    readonly property color chipTextColor: eqChipLuma > 0.62 ? "#0b1220" : "#f8fafc"
-    readonly property color eqAccentSoft: useNeutralEqChip ? Qt.rgba(Theme.surface.r, Theme.surface.g, Theme.surface.b, 0.92) : Qt.rgba(eqAccent.r, eqAccent.g, eqAccent.b, 0.26)
-    readonly property color eqAccentStrong: useNeutralEqChip ? Qt.rgba(Theme.surface.r, Theme.surface.g, Theme.surface.b, 0.98) : Qt.rgba(eqAccent.r, eqAccent.g, eqAccent.b, 0.40)
-    readonly property color eqAccentBorder: useNeutralEqChip ? Qt.rgba(15/255, 23/255, 42/255, 0.24) : Qt.rgba(eqAccent.r, eqAccent.g, eqAccent.b, 0.62)
-    readonly property color eqAccentDim: useNeutralEqChip ? Qt.rgba(15/255, 23/255, 42/255, 0.08) : Qt.rgba(eqAccent.r, eqAccent.g, eqAccent.b, 0.28)
-    readonly property color eqAccentButton: useNeutralEqChip ? Qt.rgba(15/255, 23/255, 42/255, 0.12) : Qt.rgba(eqAccent.r, eqAccent.g, eqAccent.b, 0.32)
+    // Keep the compact bar button in the same visual family as the adjacent
+    // volume control. The full equalizer panel continues to use eqAccent.
+    readonly property color eqBarAccent: Theme.mediaColor
+    readonly property color eqChipFill: eqBarAccent
+    readonly property color eqChipFillActive: Qt.lighter(eqBarAccent, 1.10)
+    readonly property color eqChipBorderActive: Qt.rgba(Theme.foregroundFor(eqBarAccent).r,
+                                                         Theme.foregroundFor(eqBarAccent).g,
+                                                         Theme.foregroundFor(eqBarAccent).b, 0.30)
+    readonly property color chipTextColor: Theme.foregroundFor(eqChipFill)
+    readonly property color eqAccentSoft: Qt.rgba(eqAccent.r, eqAccent.g, eqAccent.b, 0.26)
+    readonly property color eqAccentStrong: Qt.rgba(eqAccent.r, eqAccent.g, eqAccent.b, 0.40)
+    readonly property color eqAccentBorder: Qt.rgba(eqAccent.r, eqAccent.g, eqAccent.b, 0.62)
+    readonly property color eqAccentDim: Qt.rgba(eqAccent.r, eqAccent.g, eqAccent.b, 0.28)
+    readonly property color eqAccentButton: Qt.rgba(eqAccent.r, eqAccent.g, eqAccent.b, 0.32)
     readonly property real primaryLuma: (eqAccent.r * 0.299) + (eqAccent.g * 0.587) + (eqAccent.b * 0.114)
     readonly property bool uiIsLight: bgLuma > 0.62
     readonly property color adaptiveText: uiIsLight ? "#0f172a" : Theme.text

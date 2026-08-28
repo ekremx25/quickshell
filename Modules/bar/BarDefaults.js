@@ -10,7 +10,7 @@ function createWorkspacesConfig() {
         "displayMode": "role",
         "workspaceCount": 5,
         "showEmpty": true,
-        "showSpecial": false,
+        "showSpecial": true,
         "showApps": true,
         "groupApps": true,
         "scrollEnabled": true,
@@ -40,33 +40,33 @@ function normalizeWorkspacesConfig(config) {
     var source = config && typeof config === "object" ? config : {};
 
     return {
-        "format": _choice(source.format, ["chinese", "roman", "arabic"], defaults.format),
-        "style": _choice(source.style, ["square", "circle", "outline", "underline", "overline", "pipe", "dot"], defaults.style),
-        "transparent": _boolean(source.transparent, defaults.transparent),
-        "displayMode": _choice(source.displayMode, ["role", "occupied", "global"], defaults.displayMode),
-        "workspaceCount": _integer(source.workspaceCount, defaults.workspaceCount, 1, 20),
-        "showEmpty": _boolean(source.showEmpty, defaults.showEmpty),
-        "showSpecial": _boolean(source.showSpecial, defaults.showSpecial),
-        "showApps": _boolean(source.showApps, defaults.showApps),
-        "groupApps": _boolean(source.groupApps, defaults.groupApps),
-        "scrollEnabled": _boolean(source.scrollEnabled, defaults.scrollEnabled),
-        "wrapAround": _boolean(source.wrapAround, defaults.wrapAround),
-        "reverseScroll": _boolean(source.reverseScroll, defaults.reverseScroll),
-        "iconSize": _integer(source.iconSize, defaults.iconSize, 10, 36),
-        "maxIcons": _integer(source.maxIcons, defaults.maxIcons, 1, 12)
+        format: _choice(source.format, ["chinese", "roman", "arabic"], defaults.format),
+        style: _choice(source.style, ["square", "circle", "outline", "underline", "overline", "pipe", "dot"], defaults.style),
+        transparent: _boolean(source.transparent, defaults.transparent),
+        displayMode: _choice(source.displayMode, ["role", "occupied", "global"], defaults.displayMode),
+        workspaceCount: _integer(source.workspaceCount, defaults.workspaceCount, 1, 20),
+        showEmpty: _boolean(source.showEmpty, defaults.showEmpty),
+        showSpecial: _boolean(source.showSpecial, defaults.showSpecial),
+        showApps: _boolean(source.showApps, defaults.showApps),
+        groupApps: _boolean(source.groupApps, defaults.groupApps),
+        scrollEnabled: _boolean(source.scrollEnabled, defaults.scrollEnabled),
+        wrapAround: _boolean(source.wrapAround, defaults.wrapAround),
+        reverseScroll: _boolean(source.reverseScroll, defaults.reverseScroll),
+        iconSize: _integer(source.iconSize, defaults.iconSize, 10, 36),
+        maxIcons: _integer(source.maxIcons, defaults.maxIcons, 1, 12)
     };
 }
 
 function createBarConfig() {
     return {
-        left: ["Launcher","RamModule","SysInfoGroup"],
+        left: ["Launcher","RamModule","SysInfoGroup","CurrencyConverter"],
         center: ["Workspaces","Notifications","Notepad"],
         right: ["Equalizer","Volume","Clipboard","PowerGroup"],
         inactive: ["NightLight"],
         workspaces: createWorkspacesConfig(),
         theme: "",
         barPosition: "top",
-        moduleSchemaVersion: 1
+        moduleSchemaVersion: 3
     };
 }
 

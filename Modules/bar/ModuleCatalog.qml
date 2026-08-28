@@ -57,7 +57,8 @@ Item {
         "PowerGroup": powerGroupComp,
         "SysInfoGroup": sysInfoGroupComp,
         "RamModule": ramModuleComp,
-        "Media": mediaComp
+        "Media": mediaComp,
+        "CurrencyConverter": currencyConverterComp
     })
 
     function componentFor(name) {
@@ -109,6 +110,7 @@ Item {
     Component { id: powerGroupComp; PowerGroup {} }
     Component { id: sysInfoGroupComp; SysInfoGroup {} }
     Component { id: ramModuleComp; RamModule {} }
+    Component { id: currencyConverterComp; CurrencyConverter {} }
 
     Component {
         id: workspacesComp

@@ -35,6 +35,18 @@ Item {
     property bool _initialized: false
     readonly property string _coreDir: (Quickshell.env("XDG_CONFIG_HOME") || (Quickshell.env("HOME") + "/.config")) + "/quickshell/Services/core"
 
+    // Process.command is not restarted automatically while a Process is
+    // running. Explicitly re-arm the watcher when callers switch to a new
+    // file (for example when the active wallpaper path changes).
+    onPathChanged: {
+        root._lastToken = "";
+        root._initialized = false;
+        if (watchProc.running) watchProc.running = false;
+        if (root.active && root.path.length > 0 && !root._pollingMode) {
+            inotifyRestartTimer.restart();
+        }
+    }
+
     // Returns the directory portion of `path`
     function _dir() {
         var idx = path.lastIndexOf("/");

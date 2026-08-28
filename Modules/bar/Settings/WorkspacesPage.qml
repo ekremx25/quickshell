@@ -5,17 +5,21 @@ import QtQuick.Layouts
 import QtQuick.Controls
 import "../../../Widgets"
 import "../../../Services/core/Log.js" as Log
+import "SettingsPalette.js" as SettingsPalette
 
 Item {
     id: root
     property var settingsPopup: null
     
-    // Keep this page in sync with every built-in and Material You theme.
-    property color colorText: Theme.text
-    property color colorSubtext: Theme.subtext
-    property color colorSurface: Theme.surface
-    property color colorPrimary: Theme.primary
-    property color colorBackground: Theme.background
+    // Settings uses a deliberately dark, stable canvas. Content colors must
+    // therefore come from SettingsPalette instead of a potentially light
+    // desktop theme (for example Material You's light monochrome scheme).
+    property color colorText: SettingsPalette.text
+    property color colorSubtext: SettingsPalette.subtext
+    property color colorSurface: SettingsPalette.cardStrong
+    property color colorPrimary: SettingsPalette.readableAccent(Theme.primary)
+    property color colorPrimaryText: SettingsPalette.foregroundFor(colorPrimary)
+    property color colorBackground: SettingsPalette.background
 
     readonly property var workspaceConfig: settingsPopup && settingsPopup.barConfig && settingsPopup.barConfig.workspaces
         ? settingsPopup.barConfig.workspaces
@@ -44,7 +48,7 @@ Item {
         displayMode = "role";
         workspaceCount = 5;
         showEmpty = true;
-        showSpecial = false;
+        showSpecial = true;
         showApps = true;
         groupApps = true;
         scrollEnabled = true;
@@ -93,7 +97,9 @@ Item {
                 height: 16
                 radius: 8
                 anchors.verticalCenter: parent.verticalCenter
-                color: "#ffffff"
+                color: settingSwitchRoot.checked
+                    ? root.colorPrimaryText
+                    : SettingsPalette.text
                 Behavior on x { NumberAnimation { duration: 100 } }
             }
         }

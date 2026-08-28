@@ -184,8 +184,9 @@ QtObject {
     property var materialYouTheme: ({
         background: "#1C1B1F", surface: "#1C1B1F", text: "#E6E1E5",
         launcher: "#D0BCFF", launcherIcon: "#381E72", workspaces: "#4A4458",
-        temp: "#F2B8B5", gpu: "#F2B8B5", disk: "#CCC2DC",
+        temp: "#F2B8B5", cpu: "#F2B8B5", gpu: "#F2B8B5", disk: "#CCC2DC",
         calendar: "#D0BCFF", weather: "#D0BCFF", media: "#CCC2DC",
+        equalizer: "#D0BCFF", currency: "#CCC2DC", notification: "#F2B8B5", clipboard: "#D0BCFF",
         system: "#D0BCFF", power: "#F2B8B5", tray: "#E6E1E5", display: "#D0BCFF",
         bluetooth: "#D0BCFF", battery: "#D0BCFF", powerProfile: "#CCC2DC",
         workspaceActiveText: "#381E72"
@@ -203,6 +204,7 @@ QtObject {
     property color launcherIconColor: activeTheme.launcherIcon || "#1e1e2e"
     property color workspacesColor: activeTheme.workspaces
     property color workspaceActiveTextColor: activeTheme.workspaceActiveText || activeTheme.text
+    property color cpuColor: activeTheme.cpu || activeTheme.temp
     property color tempColor: activeTheme.temp
     property color gpuColor: activeTheme.gpu
     property color ramColor: activeTheme.ram || activeTheme.green || "#a6e3a1"
@@ -211,6 +213,9 @@ QtObject {
     property color weatherColor: activeTheme.weather
     property color mediaColor: activeTheme.media
     property color equalizerColor: activeTheme.equalizer || activeTheme.launcher || activeTheme.media
+    property color currencyColor: activeTheme.currency || activeTheme.ram || activeTheme.launcher
+    property color notificationColor: activeTheme.notification || activeTheme.temp || activeTheme.launcher
+    property color clipboardColor: activeTheme.clipboard || activeTheme.calendar || activeTheme.media || activeTheme.launcher
     property color systemColor: activeTheme.system
     property color powerColor: activeTheme.power
     property color trayColor: activeTheme.tray
@@ -245,6 +250,30 @@ QtObject {
     property color outline:           Qt.rgba(1, 1, 1, 0.20)   // visible outline
     property color shadowSoft:        Qt.rgba(0, 0, 0, 0.20)   // subtle shadow
     property color shadowStrong:      Qt.rgba(0, 0, 0, 0.35)   // strong shadow
+
+    // WCAG 2.x relative-luminance contrast for arbitrary wallpaper colours.
+    function _linearChannel(channel) {
+        return channel <= 0.04045
+            ? channel / 12.92
+            : Math.pow((channel + 0.055) / 1.055, 2.4);
+    }
+    function _relativeLuminance(value) {
+        return 0.2126 * _linearChannel(value.r)
+            + 0.7152 * _linearChannel(value.g)
+            + 0.0722 * _linearChannel(value.b);
+    }
+    function _contrastRatio(a, b) {
+        var lighter = Math.max(_relativeLuminance(a), _relativeLuminance(b));
+        var darker = Math.min(_relativeLuminance(a), _relativeLuminance(b));
+        return (lighter + 0.05) / (darker + 0.05);
+    }
+    function foregroundFor(backgroundColor) {
+        var dark = Qt.color("#171721");
+        var light = Qt.color("#F7F7FC");
+        return _contrastRatio(backgroundColor, dark) >= _contrastRatio(backgroundColor, light)
+            ? dark
+            : light;
+    }
 
     // ── Catppuccin Mocha named colors (use these instead of inline hex) ─
     // Surface scale (darker → lighter)
@@ -298,6 +327,12 @@ QtObject {
     property Connections serviceConnections: Connections {
         target: ColorPaletteService
         function onThemeApplied() { root.syncMaterialYou(); }
+        // Keep the four bar chips reactive even if a backend publishes the
+        // sampled wallpaper colours before the final themeApplied signal.
+        // The signature guard in syncMaterialYou() makes duplicate calls cheap.
+        function onColorsExtracted() { root.syncMaterialYou(); }
+        function onSpectrumColorsChanged() { root.syncMaterialYou(); }
+        function onPaletteRevisionChanged() { root.syncMaterialYou(); }
         function onEnabledChanged() { root.syncMaterialYou(); }
         function onModeChanged() { root.syncMaterialYou(); }
         function onMatugenTypeChanged() { root.syncMaterialYou(); }
@@ -311,15 +346,71 @@ QtObject {
                 p.enabled ? "1" : "0",
                 p.mode,
                 p.matugenType,
+                p.paletteRevision,
+                JSON.stringify(p.spectrumColors),
                 p.primaryColor,
+                p.primaryFixedDimColor,
+                p.secondaryFixedDimColor,
+                p.tertiaryFixedDimColor,
                 p.surfaceColor,
                 p.backgroundColor
             ].join("|");
             if (signature === root.lastMaterialSyncSignature && currentTheme === "Material You") return;
             
             var newTheme;
+            var presentation = p.schemePresentation(p.matugenType);
 
-            if (p.matugenType === "scheme-monochrome") {
+            function spectrum(index, fallbackColor) {
+                var colors = p.spectrumColors;
+                if (colors && colors.length > 0) {
+                    return colors[index % colors.length];
+                }
+                return fallbackColor;
+            }
+
+            if (presentation === "wallpaper-spectrum") {
+                // Fidelity supplies a compact, contrast-safe photographic
+                // palette. Keeping module roles semantic prevents the bar
+                // from becoming a collection of unrelated colour badges.
+                newTheme = {
+                    background: p.backgroundColor,
+                    surface: p.surfaceColor,
+                    text: p.surfaceOnColor,
+
+                    launcher: p.secondaryColor,
+                    launcherIcon: root.foregroundFor(p.secondaryColor),
+                    workspaces: p.tertiaryColor,
+                    workspaceActiveText: root.foregroundFor(p.tertiaryColor),
+
+                    // Deliberate families keep related chips consistent:
+                    // CPU = RAM = AC, and EQ = volume.
+                    temp: p.primaryColor,
+                    cpu: p.primaryColor,
+                    gpu: p.errorColor,
+                    ram: p.primaryColor,
+                    disk: p.secondaryColor,
+                    calendar: p.tertiaryColor,
+                    weather: p.tertiaryColor,
+                    media: p.tertiaryColor,
+                    equalizer: p.tertiaryColor,
+                    currency: p.tertiaryColor,
+                    notification: p.primaryColor,
+                    clipboard: p.tertiaryColor,
+                    system: p.secondaryColor,
+                    power: p.errorColor,
+                    tray: p.secondaryColor,
+                    display: p.tertiaryColor,
+                    bluetooth: p.tertiaryColor,
+                    battery: p.primaryColor,
+                    powerProfile: p.secondaryColor,
+
+                    redText: p.errorColor,
+                    greenText: p.tertiaryColor,
+                    yellowText: p.secondaryColor,
+                    mauveText: p.primaryColor,
+                    subtext: p.surfaceVariantOnColor
+                };
+            } else if (presentation === "monochrome") {
                  // Monochrome Override (Pitch Black / Pure White)
                  if (isLight) {
                      // Light Mode: White background, Black text
@@ -372,7 +463,7 @@ QtObject {
                         subtext: "#888888"
                     };
                  }
-            } else if (p.matugenType === "scheme-catppuccin") {
+            } else if (presentation === "catppuccin") {
                 // Catppuccin Mocha Override
                 newTheme = {
                     background: "#1e1e2e", surface: "#313244", text: "#cdd6f4",
@@ -385,7 +476,7 @@ QtObject {
                     redText: "#f38ba8", greenText: "#a6e3a1", yellowText: "#f9e2af", mauveText: "#cba6f7",
                     subtext: "#a6adc8"
                 };
-            } else if (p.matugenType === "scheme-kanagawa") {
+            } else if (presentation === "kanagawa") {
                 // Kanagawa Override
                 newTheme = {
                     background: "#1f1f28", surface: "#2a2a37", text: "#dcd7ba",
@@ -398,7 +489,7 @@ QtObject {
                     redText: "#ff5d62", greenText: "#76946a", yellowText: "#e6c384", mauveText: "#957fb8",
                     subtext: "#727169"
                 };
-            } else if (p.matugenType === "scheme-tokyo-night") {
+            } else if (presentation === "tokyo-night") {
                 // Tokyo Night Override
                 newTheme = {
                     background: "#1a1b26", surface: "#24283b", text: "#c0caf5",
@@ -425,12 +516,17 @@ QtObject {
                     
                     // Modules
                     temp: p.tertiaryColor,
+                    cpu: p.tertiaryColor,
                     gpu: p.errorColor,
                     ram: p.primaryColor,
                     disk: p.secondaryColor,
                     calendar: p.primaryColor,
                     weather: p.tertiaryColor,
                     media: p.secondaryColor,
+                    equalizer: p.primaryColor,
+                    currency: p.tertiaryColor,
+                    notification: p.tertiaryColor,
+                    clipboard: p.primaryColor,
                     system: p.primaryColor,
                     power: p.errorColor,
                     tray: p.surfaceOnColor,

@@ -232,15 +232,15 @@ Item {
                     Layout.preferredWidth: 48
                     Layout.preferredHeight: 48
                     radius: 12
-                    color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.15)
-                    border.color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.4)
+                    color: Qt.rgba(SettingsPalette.readableAccent(Theme.primary).r, SettingsPalette.readableAccent(Theme.primary).g, SettingsPalette.readableAccent(Theme.primary).b, 0.15)
+                    border.color: Qt.rgba(SettingsPalette.readableAccent(Theme.primary).r, SettingsPalette.readableAccent(Theme.primary).g, SettingsPalette.readableAccent(Theme.primary).b, 0.4)
                     border.width: 1
                     Text {
                         anchors.centerIn: parent
                         text: "󰌆"
                         font.family: "JetBrainsMono Nerd Font"
                         font.pixelSize: 22
-                        color: Theme.primary
+                        color: SettingsPalette.readableAccent(Theme.primary)
                     }
                 }
 

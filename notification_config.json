@@ -8,8 +8,6 @@
   "privacyMode": false,
   "animationSpeed": 2,
   "historyRetentionMs": 300000,
-  "filteredApps": [
-    "Spotify"
-  ],
+  "filteredApps": [],
   "notificationServerEnabled": true
 }

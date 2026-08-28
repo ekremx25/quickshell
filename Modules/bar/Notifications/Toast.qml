@@ -9,6 +9,9 @@ import "../../../Services" as S
 PanelWindow {
     id: root
 
+    required property var modelData
+    screen: modelData
+
     color: "transparent"
     WlrLayershell.layer: WlrLayer.Top
     WlrLayershell.namespace: "toast-notification"

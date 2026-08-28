@@ -1,8 +1,8 @@
 {
   "materialYou": true,
-  "wallpaperPath": "~/Pictures/Wal/AvilaSpain.jpg",
-  "mode": "light",
-  "matugenType": "scheme-catppuccin",
+  "wallpaperPath": "~/Pictures/Wal/CanadaDayFogo.jpg",
+  "mode": "dark",
+  "matugenType": "scheme-tokyo-night",
   "applyToKitty": true,
   "applyToGtk": false,
   "liveUpdate": true,
