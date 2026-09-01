@@ -23,6 +23,7 @@ Built on top of [outfoxxed's Quickshell framework](https://github.com/outfoxxed/
 
 - [Features](#features)
 - [Supported Compositors](#supported-compositors)
+- [MangoWC 0.16+](#mangowc-016)
 - [Dependencies](#dependencies)
 - [Installation](#installation)
 - [Configuration](#configuration)
@@ -72,9 +73,10 @@ Built on top of [outfoxxed's Quickshell framework](https://github.com/outfoxxed/
 - Nerd Font glyphs stay pinned to `JetBrainsMono Nerd Font` so icons keep rendering after the switch
 
 ### Monitor Management
-- Resolution, refresh rate, and scale per output
+- Resolution, refresh rate, and independent scale per output
 - HDR, VRR, 10-bit colour, wide-gamut colour management (sRGB / DCI-P3 / Adobe RGB / Rec.2020)
-- Drag-to-arrange multi-monitor layout canvas
+- Drag-to-arrange multi-monitor layout canvas with edge snapping
+- 10-second **Keep / Revert** safety prompt after display changes
 - SDR brightness, saturation, and reference luminance for HDR outputs
 - Applied with a single `hyprctl --batch` call on Hyprland (no flicker)
 
@@ -222,7 +224,61 @@ Click any of these on the bar to reveal an inline popover.
 |------------|:------:|-------|
 | [Niri](https://github.com/YaLTeR/niri) | Full | Event-driven IPC, auto-reconnect |
 | [Hyprland](https://github.com/hyprwm/Hyprland) | Full | Socket2 event stream; Night Light requires `hyprsunset` |
-| [MangoWC](https://github.com/DreamMaoMao/mango) | Full | Mango 0.16+ JSON IPC; tag-based workspace model |
+| [MangoWC](https://github.com/DreamMaoMao/mango) | Full | Mango 0.16+ JSON IPC; live tags, clients and per-output display controls |
+
+## MangoWC 0.16+
+
+MangoWC is supported through its native `mmsg` JSON IPC. Quickshell verifies a
+live Mango socket instead of assuming that Mango is active merely because the
+`mmsg` executable is installed. The integration does not call Niri IPC while a
+Mango session is running.
+
+### Included integration
+
+- **Workspaces / tags** — live `all-tags` events with independent local tag
+  targets on each monitor. In role mode, the primary display can show 1–5 and
+  the secondary display 6–10 while Mango still receives the correct local tag.
+- **Dock** — live `all-clients` tracking, running indicators, focus and close
+  actions, with polling used only if the Mango event stream is unavailable.
+- **Monitor discovery** — reads connected outputs directly from
+  `mmsg get all-monitors`; `wlr-randr` is not required for detection.
+- **Per-output controls** — scale, position, HDR and VRR are written as separate
+  `monitorrule` entries. Changing one display never copies its scale to the
+  other display. A neighbouring output is updated only when its position must
+  move to prevent an overlap.
+- **Safe display changes** — configuration is validated before replacement,
+  written atomically, previewed for 10 seconds and reverted automatically unless
+  **Keep** is selected.
+- **Mouse settings** — sensitivity, scroll factor, acceleration profile, cursor
+  theme and cursor size are stored in a Quickshell-managed block in
+  `~/.config/mango/config.conf` and applied with `reload_config`.
+- **Session actions** — workspace switching, window focus/close and logout use
+  Mango dispatch commands.
+
+> **Current-mode note:** Mango 0.16's monitor IPC reports the active mode and
+> logical geometry, but not the complete list of modes advertised by the
+> display. The monitor page therefore shows the current resolution and refresh
+> rate on Mango while still allowing independent scale, placement, HDR and VRR
+> control.
+
+The Mango configuration writer owns only these marked sections and preserves
+the rest of the user's configuration:
+
+```ini
+# BEGIN QUICKSHELL MANAGED MONITORS
+# monitorrule=...
+# END QUICKSHELL MANAGED MONITORS
+
+# BEGIN QUICKSHELL MANAGED MOUSE
+# mouse / trackpad / cursor settings
+# END QUICKSHELL MANAGED MOUSE
+```
+
+Required versions:
+
+- MangoWC **0.16 or newer**
+- Quickshell **0.3.1 or newer**
+- `jq` for JSON-based helper actions
 
 ## Dependencies
 
@@ -491,6 +547,11 @@ Bar and dock modules are declared once in [`ModuleRegistry.js`](Modules/bar/Modu
 
 A singleton that detects the active compositor from environment variables and exposes a uniform API (`monitors`, `focusWindow`, `powerOnMonitors`, …) so modules never need to special-case Hyprland vs. Niri vs. Mango.
 
+Mango's `all-monitors`, `all-tags` and `all-clients` payloads are normalised by
+[`MangoIpc.js`](Services/core/MangoIpc.js). This keeps Mango-specific field names
+out of workspace, dock and monitor UI components and makes the parser logic
+directly testable without a running compositor.
+
 ### Staged, defensive modules
 
 Every long-running integration (notification server, volume subscription, Niri event stream, Hyprland socket, Mango tag events, PipeWire EQ) ships with retry logic and auto-reconnect after compositor restarts or IPC drops.
@@ -553,6 +614,24 @@ sudo pacman -S openbsd-netcat
 ```
 
 Without either, the dock falls back to 2.5 s polling — indicators still work but update slower.
+</details>
+
+<details>
+<summary><b>MangoWC shows no monitors, tags or running applications</b></summary>
+
+Confirm that Mango 0.16+ and its IPC client are active in the same session:
+
+```bash
+mmsg get version
+mmsg get all-monitors
+mmsg get all-tags
+mmsg get all-clients
+```
+
+Each command should return JSON. If they cannot connect, verify that Quickshell
+was launched from Mango's session environment and that
+`MANGO_INSTANCE_SIGNATURE` is available. Restart Quickshell after correcting
+the session startup command.
 </details>
 
 <details>
