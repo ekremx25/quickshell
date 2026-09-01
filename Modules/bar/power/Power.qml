@@ -4,9 +4,18 @@ import QtQuick.Window
 import Quickshell
 import Quickshell.Io
 import "../../../Widgets"
+import "../../../Services" as S
 
 Rectangle {
     id: root
+
+    function logoutCommand() {
+        if (S.CompositorService.isHyprland) return ["hyprctl", "dispatch", "exit"];
+        if (S.CompositorService.isNiri) return ["niri", "msg", "action", "quit"];
+        if (S.CompositorService.isMango) return ["mmsg", "dispatch", "quit"];
+        const sessionId = Quickshell.env("XDG_SESSION_ID") || "";
+        return sessionId ? ["loginctl", "terminate-session", sessionId] : ["false"];
+    }
 
     // --- BUTTON APPEARANCE ON THE BAR ---
     implicitWidth: layout.implicitWidth + 24
@@ -149,7 +158,7 @@ Rectangle {
                             { title: "Shutdown", icon: "", cmd: ["systemctl", "poweroff"] },
                             { title: "Reboot",   icon: "", cmd: ["systemctl", "reboot"] },
                             { title: "Suspend",  icon: "", cmd: ["systemctl", "suspend"] },
-                            { title: "Log Out",  icon: "󰍃", cmd: ["niri", "msg", "action", "quit"] }
+                            { title: "Log Out",  icon: "󰍃", cmd: root.logoutCommand() }
                         ]
 
                         Rectangle {
@@ -213,7 +222,7 @@ Rectangle {
             ["systemctl", "poweroff"],
             ["systemctl", "reboot"],
             ["systemctl", "suspend"],
-            ["niri", "msg", "action", "quit"]
+            root.logoutCommand()
         ];
 
         var selectedCmd = cmds[root.selectedIndex];

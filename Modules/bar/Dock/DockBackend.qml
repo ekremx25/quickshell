@@ -277,21 +277,29 @@ Item {
     }
 
     function focusWindow(windowId) {
-        setProcessCommand(
-            focusProc,
-            S.CompositorService.isHyprland
-                ? ["hyprctl", "dispatch", "focuswindow", "address:" + windowId]
-                : ["niri", "msg", "action", "focus-window", "--id", "" + windowId]
-        );
+        var command;
+        if (S.CompositorService.isHyprland)
+            command = ["hyprctl", "dispatch", "focuswindow", "address:" + windowId];
+        else if (S.CompositorService.isNiri)
+            command = ["niri", "msg", "action", "focus-window", "--id", "" + windowId];
+        else if (S.CompositorService.isMango)
+            command = ["mmsg", "dispatch", "focusid", "client," + windowId];
+        else
+            return;
+        setProcessCommand(focusProc, command);
     }
 
     function closeWindow(windowId) {
-        setProcessCommand(
-            launchProc,
-            S.CompositorService.isHyprland
-                ? ["hyprctl", "dispatch", "closewindow", "address:" + windowId]
-                : ["niri", "msg", "action", "close-window", "--id", "" + windowId]
-        );
+        var command;
+        if (S.CompositorService.isHyprland)
+            command = ["hyprctl", "dispatch", "closewindow", "address:" + windowId];
+        else if (S.CompositorService.isNiri)
+            command = ["niri", "msg", "action", "close-window", "--id", "" + windowId];
+        else if (S.CompositorService.isMango)
+            command = ["mmsg", "dispatch", "killclient", "client," + windowId];
+        else
+            return;
+        setProcessCommand(launchProc, command);
     }
 
     Process {

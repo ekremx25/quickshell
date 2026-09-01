@@ -142,6 +142,9 @@ function cloneWorkspace(workspace) {
         id: workspace.id,
         idx: workspace.idx,
         name: workspace.name,
+        targetName: workspace.targetName,
+        displayName: workspace.displayName,
+        localTag: workspace.localTag,
         monitor: workspace.monitor,
         is_active: workspace.is_active,
         is_special: workspace.is_special,
@@ -162,18 +165,54 @@ function workspacesForMonitor(state, monitorName, config, roleMap) {
         : (monitorState.workspaces || []);
     var result = [];
     var seen = {};
+    var tagRoleMode = normalized.displayMode === "role" && safeState.tagBased === true;
 
     function add(workspace) {
         if (!workspace) return;
         if (workspace.is_special && !normalized.showSpecial) return;
         var key = String(workspace.id);
         if (seen[key]) return;
+        if (safeState.tagBased === true && !normalized.showEmpty && !workspace.is_active && (workspace.winCount || 0) === 0) return;
         if (normalized.displayMode === "occupied" && !workspace.is_active && (workspace.winCount || 0) === 0) return;
         seen[key] = true;
         result.push(cloneWorkspace(workspace));
     }
 
-    for (var i = 0; i < source.length; ++i) add(source[i]);
+    if (tagRoleMode) {
+        // Mango numbers tags locally on every monitor. Present a global-looking
+        // role range while retaining the local tag as the activation target.
+        var tagRange = rangeForMonitor(monitorName, normalized, roleMap, safeState.monitorOrder || []);
+        var localTags = {};
+        var monitorTags = monitorState.workspaces || [];
+        for (var ti = 0; ti < monitorTags.length; ++ti) {
+            localTags[String(monitorTags[ti].id)] = monitorTags[ti];
+        }
+
+        for (var localId = 1; localId <= normalized.workspaceCount; ++localId) {
+            var localWorkspace = localTags[String(localId)] || emptyWorkspace(localId, monitorName);
+            var decorated = cloneWorkspace(localWorkspace);
+            decorated.localTag = localId;
+            decorated.targetName = String(localWorkspace.name || localId);
+            decorated.displayName = String(tagRange.start + localId - 1);
+            add(decorated);
+        }
+
+        // Never hide an active or occupied tag outside the configured role
+        // range. Prefix it with the monitor role so its label stays unambiguous.
+        for (var extraIndex = 0; extraIndex < monitorTags.length; ++extraIndex) {
+            var extra = monitorTags[extraIndex];
+            var extraId = parseInt(extra.id);
+            if (extraId >= 1 && extraId <= normalized.workspaceCount) continue;
+            if (!extra.is_active && (extra.winCount || 0) === 0) continue;
+            var extraDecorated = cloneWorkspace(extra);
+            extraDecorated.localTag = extra.id;
+            extraDecorated.targetName = String(extra.name || extra.id);
+            extraDecorated.displayName = String(tagRange.role || "display").charAt(0).toUpperCase() + String(extra.id);
+            add(extraDecorated);
+        }
+    } else {
+        for (var i = 0; i < source.length; ++i) add(source[i]);
+    }
 
     if (normalized.displayMode === "global" && normalized.showEmpty) {
         for (var globalId = 1; globalId <= normalized.workspaceCount; ++globalId) {
@@ -181,7 +220,9 @@ function workspacesForMonitor(state, monitorName, config, roleMap) {
         }
     }
 
-    if (normalized.displayMode === "role") {
+    // Numeric workspace IDs can be filled directly only when they are global.
+    // Mango role mode above keeps its local IDs and remaps display labels only.
+    if (normalized.displayMode === "role" && safeState.tagBased !== true) {
         var range = rangeForMonitor(monitorName, normalized, roleMap, safeState.monitorOrder || []);
         if (normalized.showEmpty) {
             for (var id = range.start; id <= range.end; ++id) {

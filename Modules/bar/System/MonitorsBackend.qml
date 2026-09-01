@@ -25,11 +25,19 @@ Item {
     readonly property string configDir: configHome + "/quickshell"
     readonly property string monitorConfigPath: configDir + "/monitor_config.json"
     readonly property string hyprMonitorApplyPath: configDir + "/scripts/hypr_monitor_apply.sh"
+    readonly property string mangoMonitorApplyPath: configDir + "/scripts/mango_monitor_apply.sh"
     property bool _pendingMangoReload: false
     property var _applyQueue: []
     property int _applyStep: 0
+    property string _applyOperation: ""
+    property var _rollbackOutputs: []
+    property var _rollbackConfig: ({})
+    property string _rollbackSelectedName: ""
+    property string _rollbackDefaultName: ""
+    property var _pendingConfig: ({})
+    property bool hasPendingPreview: false
+    readonly property bool busy: applyProc.running || stepDelayTimer.running || mangoReloadProc.running
     readonly property string niriScriptPath: configDir + "/Modules/bar/System/niri_apply.py"
-    readonly property string mangoConfigPath: homeDir + "/.config/mango/config.conf"
 
     // Color mode lists are canonical in HyprMonitorCommands.js; kept here for UI binding.
     readonly property var riskyColorModes: HyprMonitorCommands.RISKY_COLOR_MODES
@@ -64,9 +72,10 @@ Item {
     })
 
     signal refreshRequested()
+    signal applyCompleted(string operation)
 
-    function sedEscape(text) {
-        return String(text).replace(/[[\]\\.*^${}()|/]/g, '\\$&');
+    function deepClone(value) {
+        return JSON.parse(JSON.stringify(value));
     }
 
     function monitorIdentity(output) {
@@ -155,8 +164,10 @@ Item {
         var saved = backend.savedConfig[outObj.name];
         if (!saved) return;
         if (saved.default !== undefined) outObj.isDefault = !!saved.default;
-        if (saved.vrr !== undefined) outObj.vrr = saved.vrr;
-        if (saved.hdr !== undefined) outObj.hdr = saved.hdr;
+        // Mango IPC exposes the current VRR/HDR state. Keep those live values
+        // instead of showing a stale saved preference.
+        if (!CompositorService.isMango && saved.vrr !== undefined) outObj.vrr = saved.vrr;
+        if (!CompositorService.isMango && saved.hdr !== undefined) outObj.hdr = saved.hdr;
         if (saved.bitdepth !== undefined) outObj.bitdepth = saved.bitdepth;
         if (saved.colorManagement !== undefined) outObj.colorManagement = saved.colorManagement;
         if (saved.sdrLuminance !== undefined) outObj.sdrLuminance = saved.sdrLuminance;
@@ -166,6 +177,17 @@ Item {
         if (saved.sdrEotf !== undefined) outObj.sdrEotf = saved.sdrEotf;
         if (saved.autoScale !== undefined) outObj.autoScale = !!saved.autoScale;
         if (saved.role !== undefined) outObj.role = saved.role;
+
+        // Mango does not currently publish refresh rate or a mode list. Reuse
+        // the saved refresh only when its saved physical mode matches the live
+        // mode reconstructed from Mango's logical geometry.
+        if (CompositorService.isMango && saved.res === outObj.res && saved.hz !== undefined) {
+            var savedHz = parseFloat(saved.hz);
+            if (!isNaN(savedHz) && savedHz > 0) {
+                outObj.hz = savedHz.toFixed(3);
+                outObj.modes = [{ res: outObj.res, hz: outObj.hz, current: true }];
+            }
+        }
     }
 
     function finalizeOutputs(outs) {
@@ -269,9 +291,13 @@ Item {
             var isSelected = (mon.name === selectedOutputName);
             var saved = backend.savedConfig[mon.name] || {};
 
-            var monRes   = isSelected ? (isSelected ? selRes : mon.res) : (saved.res   || mon.res);
-            var monHz    = isSelected ? parseFloat(selHz).toFixed(2)    : (saved.hz    || parseFloat(mon.hz).toFixed(2));
-            var monScale = isSelected ? String(parseFloat(selScale))    : (saved.scale || String(parseFloat(mon.scale)));
+            // Mango reports live per-output geometry. Snapshot that live state
+            // for untouched outputs instead of carrying an older saved scale
+            // into the next apply operation.
+            var preserveMangoLive = CompositorService.isMango && !isSelected;
+            var monRes   = isSelected ? selRes : (preserveMangoLive ? mon.res : (saved.res || mon.res));
+            var monHz    = isSelected ? parseFloat(selHz).toFixed(2) : (preserveMangoLive ? parseFloat(mon.hz).toFixed(2) : (saved.hz || parseFloat(mon.hz).toFixed(2)));
+            var monScale = isSelected ? String(parseFloat(selScale)) : (preserveMangoLive ? String(parseFloat(mon.scale)) : (saved.scale || String(parseFloat(mon.scale))));
             // recalcPositions may move neighbouring outputs after a scale or
             // resolution change. Persist the resulting coordinates for every
             // output so a restart cannot restore an overlapping layout.
@@ -340,9 +366,15 @@ Item {
             var monPosY  = Math.round(mon.posY);
 
             if (CompositorService.isMango) {
+                // Do not rewrite every monitor rule for a single-output scale
+                // change. Rewriting an untouched output could reapply a stale
+                // saved scale and made both monitors appear to change together.
+                if (!MangoMonitorCommands.shouldApplyOutput(isSelected, !!mon.layoutChanged)) continue;
+                var mangoHdr = isSelected ? selHdr : (mon.hdr || false);
+                var mangoVrr = isSelected ? selVrr : ((mon.vrr !== undefined) ? mon.vrr : 0);
                 var mangoSteps = MangoMonitorCommands.buildOutputSteps(
                     mon.name, monRes, monHz, monPosX, monPosY, monScale,
-                    sedEscape, backend.mangoConfigPath);
+                    { hdr: mangoHdr, vrr: mangoVrr }, backend.mangoMonitorApplyPath);
                 for (var m = 0; m < mangoSteps.length; m++) steps.push(mangoSteps[m]);
             } else {
                 var applyHz6 = isSelected ? parseFloat(selHz).toFixed(6) : parseFloat(mon.hz).toFixed(6);
@@ -369,17 +401,27 @@ Item {
     }
 
     function _onApplyComplete() {
+        var finishedOperation = _applyOperation;
+        _applyOperation = "";
         _applyQueue = [];
         _applyStep = 0;
         if (_pendingMangoReload) {
             _pendingMangoReload = false;
             mangoReloadProc.running = true;
-        } else {
+        } else if (finishedOperation !== "preview") {
             refreshTimer.start();
         }
+        backend.applyCompleted(finishedOperation);
     }
 
     function applySettings(outputs, selectedOutputName, selRes, selHz, selScale, selPosX, selPosY, selHdr, selBitdepth, selVrr, selSdrLuminance, selSdrBrightness, selSdrSaturation, selColorManagement, selIccProfile, selSdrEotf, defaultMonitorName, selAutoScale) {
+        if (backend.busy || backend.hasPendingPreview) return;
+
+        backend._rollbackOutputs = deepClone(outputs);
+        backend._rollbackConfig = deepClone(backend.savedConfig || {});
+        backend._rollbackSelectedName = selectedOutputName;
+        backend._rollbackDefaultName = getDefaultOutputName(outputs);
+
         var updatedOutputs = recalcPositions(outputs, selectedOutputName, selRes, selHz, selScale, selPosX, selPosY, selHdr, selBitdepth, selVrr, selSdrLuminance, selSdrBrightness, selSdrSaturation, selColorManagement, selIccProfile, selSdrEotf, defaultMonitorName, selAutoScale);
         var defaultOutputName = defaultMonitorName;
         if (!defaultOutputName && updatedOutputs.length > 0) {
@@ -390,10 +432,12 @@ Item {
         }
         backend.outputs = updatedOutputs;
 
-        // Save config via JsonDataStore (atomic write, no shell needed)
-        configStore.save(buildSaveConfig(updatedOutputs, selectedOutputName, selRes, selHz, selScale,
+        // Keep the new configuration in memory during the ten-second preview.
+        // It is persisted only after the user explicitly chooses Keep.
+        backend._pendingConfig = buildSaveConfig(updatedOutputs, selectedOutputName, selRes, selHz, selScale,
             selPosX, selPosY, selHdr, selBitdepth, selVrr, selSdrLuminance, selSdrBrightness,
-            selSdrSaturation, selColorManagement, selIccProfile, selSdrEotf, defaultOutputName, selAutoScale));
+            selSdrSaturation, selColorManagement, selIccProfile, selSdrEotf, defaultOutputName, selAutoScale);
+        backend.hasPendingPreview = true;
 
         // Build and run compositor apply steps (direct argv, no sh -c)
         var steps = buildApplySteps(updatedOutputs, selectedOutputName, selRes, selHz, selScale,
@@ -402,6 +446,7 @@ Item {
         backend._pendingMangoReload = CompositorService.isMango;
         backend._applyQueue = steps;
         backend._applyStep = 0;
+        backend._applyOperation = "preview";
 
         if (steps.length > 0) {
             _runNextStep();
@@ -410,7 +455,76 @@ Item {
         }
     }
 
+    function confirmPreview() {
+        if (!backend.hasPendingPreview) return false;
+        configStore.save(deepClone(backend._pendingConfig));
+        backend.hasPendingPreview = false;
+        backend._pendingConfig = ({});
+        backend._rollbackOutputs = [];
+        backend._rollbackConfig = ({});
+        backend._rollbackSelectedName = "";
+        backend._rollbackDefaultName = "";
+        refreshTimer.start();
+        return true;
+    }
+
+    function revertPreview() {
+        if (!backend.hasPendingPreview || backend.busy || backend._rollbackOutputs.length === 0) return false;
+
+        var restoreOutputs = deepClone(backend._rollbackOutputs);
+        var restoreConfig = deepClone(backend._rollbackConfig || {});
+        var selectedName = backend._rollbackSelectedName;
+        var selected = null;
+        for (var i = 0; i < restoreOutputs.length; i++) {
+            restoreOutputs[i].layoutChanged = true;
+            if (restoreOutputs[i].name === selectedName) selected = restoreOutputs[i];
+        }
+        if (!selected && restoreOutputs.length > 0) {
+            selected = restoreOutputs[0];
+            selectedName = selected.name;
+        }
+        if (!selected) return false;
+
+        var saved = restoreConfig[selectedName] || {};
+        var restoreDefault = backend._rollbackDefaultName || getDefaultOutputName(restoreOutputs);
+        backend.savedConfig = restoreConfig;
+        backend.outputs = restoreOutputs;
+
+        var restoreRes = CompositorService.isMango ? selected.res : (saved.res || selected.res);
+        var restoreHz = CompositorService.isMango ? selected.hz : (saved.hz || selected.hz);
+        var restoreScale = CompositorService.isMango ? selected.scale : (saved.scale || selected.scale);
+        var restoreHdr = CompositorService.isMango ? (selected.hdr || false) : (saved.hdr !== undefined ? saved.hdr : (selected.hdr || false));
+        var restoreBitdepth = saved.bitdepth !== undefined ? saved.bitdepth : (selected.bitdepth || 8);
+        var restoreVrr = CompositorService.isMango ? (selected.vrr || 0) : (saved.vrr !== undefined ? saved.vrr : (selected.vrr || 0));
+        var restoreLuminance = saved.sdrLuminance !== undefined ? saved.sdrLuminance : (selected.sdrLuminance || 450);
+        var restoreBrightness = saved.sdrBrightness !== undefined ? saved.sdrBrightness : (selected.sdrBrightness || 1.0);
+        var restoreSaturation = saved.sdrSaturation !== undefined ? saved.sdrSaturation : (selected.sdrSaturation || 1.0);
+        var restoreColor = saved.colorManagement !== undefined ? saved.colorManagement : (selected.colorManagement || "srgb");
+        var restoreIcc = saved.iccProfile !== undefined ? saved.iccProfile : (selected.iccProfile || "");
+        var restoreEotf = saved.sdrEotf !== undefined ? saved.sdrEotf : (selected.sdrEotf !== undefined ? selected.sdrEotf : 1);
+
+        var steps = buildApplySteps(restoreOutputs, selectedName, restoreRes, restoreHz, restoreScale,
+            restoreHdr, restoreBitdepth, restoreVrr, restoreLuminance, restoreBrightness,
+            restoreSaturation, restoreColor, restoreIcc, restoreEotf, restoreDefault);
+
+        backend.hasPendingPreview = false;
+        backend._pendingConfig = ({});
+        backend._rollbackOutputs = [];
+        backend._rollbackConfig = ({});
+        backend._rollbackSelectedName = "";
+        backend._rollbackDefaultName = "";
+        backend._pendingMangoReload = CompositorService.isMango;
+        backend._applyQueue = steps;
+        backend._applyStep = 0;
+        backend._applyOperation = "revert";
+
+        if (steps.length > 0) backend._runNextStep();
+        else backend._onApplyComplete();
+        return true;
+    }
+
     function refresh() {
+        if (backend.hasPendingPreview) return;
         configStore.load();
     }
 
@@ -426,7 +540,7 @@ Item {
 
     Process {
         id: randrProc
-        command: CompositorService.isHyprland ? ["hyprctl", "monitors", "all", "-j"] : (CompositorService.isMango ? ["wlr-randr"] : ["niri", "msg", "-j", "outputs"])
+        command: CompositorService.isHyprland ? ["hyprctl", "monitors", "all", "-j"] : (CompositorService.isMango ? ["mmsg", "get", "all-monitors"] : ["niri", "msg", "-j", "outputs"])
         property string buf: ""
         stdout: SplitParser { onRead: data => randrProc.buf += data + "\n" }
         onExited: {
@@ -462,7 +576,7 @@ Item {
 
     Process {
         id: mangoReloadProc
-        command: ["mmsg", "-d", "reload_config"]
+        command: ["mmsg", "dispatch", "reload_config"]
         running: false
         onExited: refreshTimer.start()
     }

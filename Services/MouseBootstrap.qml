@@ -11,7 +11,7 @@ Item {
     width: 0
     height: 0
 
-    readonly property bool supported: CompositorService.isHyprland
+    readonly property bool supported: CompositorService.isHyprland || CompositorService.isMango
     readonly property string configPath: (Quickshell.env("HOME") || "") + "/.config/quickshell/mouse_config.json"
     readonly property string applyScriptPath: (Quickshell.env("HOME") || "") + "/.config/quickshell/scripts/hypr_input_apply.sh"
 
@@ -75,7 +75,8 @@ Item {
             Number(root.scrollFactor).toFixed(2),
             root.accelProfile,
             root.saneCursorTheme(root.cursorTheme),
-            String(root.cursorSize)
+            String(root.cursorSize),
+            CompositorService.compositor
         ]
     }
 }

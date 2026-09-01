@@ -99,7 +99,74 @@ function parseNiriOutputs(text) {
     return outs;
 }
 
-function parseMangoOutputs(text) {
+function _snapMangoDimension(value) {
+    var rounded = Math.round(value);
+    var common = [
+        480, 576, 600, 720, 768, 800, 900, 1024, 1050, 1080, 1200,
+        1280, 1366, 1440, 1600, 1620, 1800, 1920, 2160, 2560, 2880,
+        3200, 3440, 3840, 4096, 5120, 7680
+    ];
+    var closest = rounded;
+    var distance = Number.MAX_VALUE;
+    for (var i = 0; i < common.length; i++) {
+        var candidateDistance = Math.abs(common[i] - rounded);
+        if (candidateDistance < distance) {
+            distance = candidateDistance;
+            closest = common[i];
+        }
+    }
+    return distance <= Math.max(4, rounded * 0.002) ? closest : rounded;
+}
+
+function _parseMangoJsonOutputs(text) {
+    var data = JSON.parse(text);
+    var monitors = Array.isArray(data) ? data : (data.monitors || []);
+    var outs = [];
+
+    for (var i = 0; i < monitors.length; i++) {
+        var info = monitors[i] || {};
+        if (!info.name) continue;
+
+        var scale = parseFloat(info.scale);
+        if (!isFinite(scale) || scale <= 0) scale = 1;
+
+        // Mango's IPC reports logical geometry. Rebuild the physical mode from
+        // logical size × scale and tolerate the one-pixel rounding used by
+        // fractional scaling (for example 2888 × 1.33 -> 3840).
+        var physicalWidth = _snapMangoDimension((Number(info.width) || 0) * scale);
+        var physicalHeight = _snapMangoDimension((Number(info.height) || 0) * scale);
+        var res = physicalWidth + "x" + physicalHeight;
+        var refreshValue = info.refresh_rate !== undefined ? info.refresh_rate : info.refresh;
+        var refresh = parseFloat(refreshValue);
+        if (!isFinite(refresh) || refresh <= 0) refresh = 60;
+        var hz = refresh.toFixed(3);
+
+        outs.push({
+            name: info.name,
+            make: "",
+            model: "",
+            serial: "",
+            description: info.name,
+            desc: info.name,
+            physicalWidth: 0,
+            physicalHeight: 0,
+            res: res,
+            hz: hz,
+            scale: scale.toFixed(2),
+            posX: Math.round(Number(info.x) || 0),
+            posY: Math.round(Number(info.y) || 0),
+            isDefault: false,
+            hdr: !!info.is_hdr,
+            bitdepth: info.is_hdr ? 10 : 8,
+            vrr: info.is_vrr ? 1 : 0,
+            colorManagement: info.is_hdr ? "hdr" : "srgb",
+            modes: [{ res: res, hz: hz, current: true }]
+        });
+    }
+    return outs;
+}
+
+function _parseMangoRandrOutputs(text) {
     var outs = [];
     var lines = text.split("\n");
     var current = null;
@@ -169,4 +236,11 @@ function parseMangoOutputs(text) {
     }
     if (current) outs.push(current);
     return outs;
+}
+
+function parseMangoOutputs(text) {
+    var trimmed = String(text || "").trim();
+    if (trimmed.length === 0) return [];
+    if (trimmed[0] === "{" || trimmed[0] === "[") return _parseMangoJsonOutputs(trimmed);
+    return _parseMangoRandrOutputs(text);
 }

@@ -84,7 +84,7 @@ Rectangle {
     function scrollWorkspaces(direction) {
         if (!workspaceRoot.scrollEnabled) return;
         var wss = workspaceRoot.activeWorkspaces.filter(function(workspace) {
-            return !workspace.is_special && /^\d+$/.test(String(workspace.name || ""));
+            return !workspace.is_special && /^\d+$/.test(String(workspace.targetName || workspace.name || ""));
         });
         if (wss.length < 2) return;
 
@@ -93,7 +93,7 @@ Rectangle {
         var nextIndex = WorkspaceService.nextWorkspaceIndex(wss, validIndex, direction, workspaceRoot.config);
 
         if (nextIndex !== validIndex) {
-            switchToWorkspace(wss[nextIndex].name);
+            switchToWorkspace(wss[nextIndex].targetName || wss[nextIndex].name);
         }
     }
 
@@ -234,7 +234,7 @@ Rectangle {
                     Text {
                         id: labelText
                         visible: wsBox.showLabel
-                        text: getWorkspaceLabel(wsData.name)
+                        text: getWorkspaceLabel(wsData.displayName || wsData.name)
                         color: isActive ? Theme.workspaceActiveTextColor : Theme.text
                         font.bold: true
                         font.pixelSize: 13
@@ -413,7 +413,7 @@ Rectangle {
                     cursorShape: Qt.PointingHandCursor
                     onClicked: {
                         if (!wsBox.isActive) {
-                            workspaceRoot.switchToWorkspace(wsData.name)
+                            workspaceRoot.switchToWorkspace(wsData.targetName || wsData.name)
                         }
                         wsBox.labelForced = !wsBox.labelForced
                         if (wsBox.labelForced) {

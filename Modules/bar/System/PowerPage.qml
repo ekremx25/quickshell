@@ -3,10 +3,19 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
 import "../../../Widgets"
+import "../../../Services" as S
 import "../Settings/SettingsPalette.js" as SettingsPalette
 
 Item {
     id: powerPage
+
+    function logoutCommand() {
+        if (S.CompositorService.isHyprland) return ["hyprctl", "dispatch", "exit"];
+        if (S.CompositorService.isNiri) return ["niri", "msg", "action", "quit"];
+        if (S.CompositorService.isMango) return ["mmsg", "dispatch", "quit"];
+        const sessionId = Quickshell.env("XDG_SESSION_ID") || "";
+        return sessionId ? ["loginctl", "terminate-session", sessionId] : ["false"];
+    }
 
 
     Process {
@@ -20,7 +29,7 @@ Item {
         { key: "reboot",    icon: "󰜉", label: "Reboot",          desc: "Restart the system",      color: "#fab387", cmd: ["systemctl", "reboot"] },
         { key: "suspend",   icon: "󰒲", label: "Suspend",         desc: "Enter sleep mode",        color: "#89b4fa", cmd: ["systemctl", "suspend"] },
         { key: "hibernate", icon: "󰋊", label: "Hibernate",       desc: "Save to disk and power off", color: "#cba6f7", cmd: ["systemctl", "hibernate"] },
-        { key: "logout",    icon: "󰍃", label: "Log Out",         desc: "End the desktop session", color: "#94e2d5", cmd: ["niri", "msg", "action", "quit"] },
+        { key: "logout",    icon: "󰍃", label: "Log Out",         desc: "End the desktop session", color: "#94e2d5", cmd: powerPage.logoutCommand() },
         { key: "lock",      icon: "󰌾", label: "Lock",            desc: "Lock the screen",         color: "#a6adc8", cmd: ["loginctl", "lock-session"] }
     ]
 

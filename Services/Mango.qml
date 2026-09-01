@@ -11,33 +11,48 @@ Singleton {
     // Per-monitor workspace data: { "DP-2": [{tagNum, state, clients, focused}], "DP-3": [...] }
     property var monitorWorkspaces: ({})
 
-    // mmsg -w -t event stream: watch for tag changes
+    function applyTagPayload(payload) {
+        var entries = payload && Array.isArray(payload.all_tags) ? payload.all_tags : [];
+        var monData = {};
+        for (var mi = 0; mi < entries.length; ++mi) {
+            var entry = entries[mi] || {};
+            var monitorName = String(entry.monitor || "");
+            if (monitorName === "") continue;
+            var tags = Array.isArray(entry.tags) ? entry.tags : [];
+            monData[monitorName] = [];
+            for (var ti = 0; ti < tags.length; ++ti) {
+                var tag = tags[ti] || {};
+                monData[monitorName].push({
+                    tagNum: Number(tag.index) || 0,
+                    state: tag.is_urgent === true ? 2 : (tag.is_active === true ? 1 : 0),
+                    clients: Number(tag.client_count) || 0,
+                    focused: 0
+                });
+            }
+        }
+        root.monitorWorkspaces = monData;
+    }
+
+    // Mango 0.16+ JSON tag event stream.
     Process {
         id: mangoEvents
         running: CompositorService.isMango
-        command: ["mmsg", "-w", "-t"]
+        command: ["mmsg", "watch", "all-tags"]
 
         stdout: SplitParser {
             onRead: data => {
-                // Each event triggers a fresh tag read.
-                refreshTagsProc.running = true;
+                try {
+                    root.applyTagPayload(JSON.parse(String(data || "").trim()));
+                } catch (e) {
+                    Log.warn("Mango", "Tag event parse error: " + e);
+                }
             }
         }
     }
 
-    // Parse mmsg -g -t output.
-    // Output format (from mmsg.c):
-    //   DP-2 tag 1 1 2 1     ← monitor tag_num state clients focused
-    //   DP-2 tag 2 0 0 0
-    //   ...
-    //   DP-2 clients 5       ← total clients
-    //   DP-2 tags 7 2 0      ← occ sel urg bitmask
-    //   DP-2 tags 000000111 000000010 000000000  ← 9-bit binary
-    //   DP-3 tag 1 1 1 0     ← second monitor
-    //   ...
     Process {
         id: refreshTagsProc
-        command: ["mmsg", "-g", "-t"]
+        command: ["mmsg", "get", "all-tags"]
         property string buf: ""
 
         stdout: SplitParser {
@@ -46,40 +61,7 @@ Singleton {
 
         onExited: {
             try {
-                var lines = refreshTagsProc.buf.trim().split("\n");
-                var monData = {};
-
-                for (var i = 0; i < lines.length; i++) {
-                    var line = lines[i].trim();
-                    if (line === "") continue;
-
-                    var parts = line.split(/\s+/);
-                    if (parts.length < 2) continue;
-
-                    var monName = parts[0];
-
-                    // "DP-2 tag 1 1 2 1" format
-                    if (parts[1] === "tag" && parts.length >= 6) {
-                        var tagNum = parseInt(parts[2]);
-                        var state = parseInt(parts[3]);
-                        var clients = parseInt(parts[4]);
-                        var focused = parseInt(parts[5]);
-
-                        if (isNaN(tagNum)) continue;
-
-                        if (!monData[monName]) monData[monName] = [];
-
-                        monData[monName].push({
-                            tagNum: tagNum,
-                            state: state,       // 0=none, 1=active, 2=urgent
-                            clients: clients,
-                            focused: focused
-                        });
-                    }
-                    // Skip "clients" and "tags" lines — per-tag info is enough.
-                }
-
-                root.monitorWorkspaces = monData;
+                root.applyTagPayload(JSON.parse(refreshTagsProc.buf || "{}"));
             } catch (e) {
                 Log.warn("Mango", "Tag parse error: " + e);
             }

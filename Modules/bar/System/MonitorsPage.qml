@@ -11,9 +11,12 @@ import "MonitorGeometry.js" as MonitorGeometry
 Item {
     id: page
 
+    signal settingsApplied()
+
     MonitorsBackend {
         id: backend
         onRefreshRequested: page.syncSelection()
+        onApplyCompleted: function(operation) { page.handleApplyCompleted(operation); }
     }
 
     property alias outputs: backend.outputs
@@ -44,6 +47,13 @@ Item {
     readonly property int sdrLuminanceMax: 600
     property bool identifyMode: false
     property var draftSettings: ({})
+    property var snapGuideX: null
+    property var snapGuideY: null
+    property bool applyInProgress: false
+    property bool awaitingConfirmation: false
+    property bool revertWhenPreviewReady: false
+    property int confirmationSeconds: 10
+    readonly property bool monitorOperationBusy: applyInProgress || backend.busy
 
     readonly property color cardColor: Qt.rgba(245 / 255, 247 / 255, 250 / 255, 0.05)
     readonly property color cardBorder: Qt.rgba(255, 255, 255, 0.08)
@@ -157,7 +167,9 @@ Item {
     function boxHeightForOutput(output, cW, cH)          { return MonitorGeometry.boxHeightForOutput(output, outputs, geoCtx(), cW, cH); }
     function canvasToLayoutX(canvasX, cW, cH)            { return MonitorGeometry.canvasToLayoutX(canvasX, outputs, geoCtx(), cW, cH); }
     function canvasToLayoutY(canvasY, cW, cH)            { return MonitorGeometry.canvasToLayoutY(canvasY, outputs, geoCtx(), cW, cH); }
-    function snapDraggedPosition(outputName, rawX, rawY) { return MonitorGeometry.snapDraggedPosition(outputName, rawX, rawY, outputs, geoCtx()); }
+    function layoutToCanvasX(layoutX, cW, cH)            { return MonitorGeometry.layoutToCanvasX(layoutX, outputs, geoCtx(), cW, cH); }
+    function layoutToCanvasY(layoutY, cW, cH)            { return MonitorGeometry.layoutToCanvasY(layoutY, outputs, geoCtx(), cW, cH); }
+    function snapDraggedPosition(outputName, rawX, rawY) { return MonitorGeometry.snapDraggedPosition(outputName, rawX, rawY, outputs, geoCtx(), 96); }
 
     function adjustSelectedPosition(axis, delta) {
         if (axis === "x") selPosX += delta;
@@ -169,14 +181,58 @@ Item {
     }
 
     function applySettings() {
-        if (!selectedOutput) return;
+        if (!selectedOutput || monitorOperationBusy || awaitingConfirmation) return;
         if (!selRes || !selHz) {
             Log.warn("MonitorsPage", "Cannot apply settings without resolution and refresh rate");
             return;
         }
         saveCurrentDraft();
+        applyInProgress = true;
+        revertWhenPreviewReady = false;
         backend.applySettings(outputs, selectedOutput.name, selRes, selHz, selScale, selPosX, selPosY, selHdr, selBitdepth, selVrr, selSdrLuminance, selSdrBrightness, selSdrSaturation, selColorManagement, selIccProfile, selSdrEotf, defaultMonitorName, selAutoScale);
         draftSettings = ({});
+    }
+
+    function handleApplyCompleted(operation) {
+        applyInProgress = false;
+        syncSelection();
+        if (operation === "preview") {
+            awaitingConfirmation = true;
+            confirmationSeconds = 10;
+            confirmationTimer.restart();
+            if (revertWhenPreviewReady) {
+                revertWhenPreviewReady = false;
+                revertAppliedSettings();
+            }
+        } else if (operation === "revert") {
+            awaitingConfirmation = false;
+            confirmationTimer.stop();
+            draftSettings = ({});
+            syncSelection();
+        }
+    }
+
+    function confirmAppliedSettings() {
+        if (!awaitingConfirmation || monitorOperationBusy) return;
+        confirmationTimer.stop();
+        awaitingConfirmation = false;
+        if (backend.confirmPreview()) page.settingsApplied();
+    }
+
+    function revertAppliedSettings() {
+        if (!awaitingConfirmation || monitorOperationBusy) return;
+        confirmationTimer.stop();
+        awaitingConfirmation = false;
+        applyInProgress = true;
+        if (!backend.revertPreview()) applyInProgress = false;
+    }
+
+    function cancelPendingPreview() {
+        if (awaitingConfirmation) {
+            revertAppliedSettings();
+        } else if (applyInProgress) {
+            revertWhenPreviewReady = true;
+        }
     }
 
     function refresh() { backend.refresh(); }
@@ -450,6 +506,16 @@ Item {
         interval: 2000
         repeat: false
         onTriggered: page.identifyMode = false
+    }
+
+    Timer {
+        id: confirmationTimer
+        interval: 1000
+        repeat: true
+        onTriggered: {
+            page.confirmationSeconds = Math.max(0, page.confirmationSeconds - 1);
+            if (page.confirmationSeconds <= 0) page.revertAppliedSettings();
+        }
     }
 
     ColumnLayout {

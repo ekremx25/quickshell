@@ -3,6 +3,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import "./core/Log.js" as Log
+import "./core/MangoIpc.js" as MangoIpc
 
 Singleton {
     id: root
@@ -15,10 +16,11 @@ Singleton {
     // Compositor detection
     readonly property string niriSocket: Quickshell.env("NIRI_SOCKET") || ""
     readonly property string hyprlandSignature: Quickshell.env("HYPRLAND_INSTANCE_SIGNATURE") || ""
+    readonly property string mangoSignature: Quickshell.env("MANGO_INSTANCE_SIGNATURE") || ""
 
     property bool isNiri: niriSocket !== ""
     property bool isHyprland: hyprlandSignature !== ""
-    property bool isMango: !isHyprland && !isNiri && mangoDetected
+    property bool isMango: !isHyprland && !isNiri && (mangoSignature !== "" || mangoDetected)
     property bool mangoDetected: false
     property string compositor: isHyprland ? "hyprland" : (isNiri ? "niri" : (isMango ? "mango" : "unknown"))
 
@@ -41,14 +43,15 @@ Singleton {
         proc.running = true;
     }
 
-    // Mango detection via mmsg
+    // Mango detection must verify a live IPC socket. Merely having mmsg
+    // installed does not mean the current compositor is Mango.
     Process {
         id: mangoDetectProc
-        command: ["sh", "-c", "command -v mmsg && echo yes || echo no"]
+        command: ["mmsg", "get", "version"]
         property string buf: ""
         stdout: SplitParser { onRead: data => { mangoDetectProc.buf += data; } }
-        onExited: {
-            root.mangoDetected = mangoDetectProc.buf.trim().indexOf("yes") !== -1;
+        onExited: exitCode => {
+            root.mangoDetected = exitCode === 0 && mangoDetectProc.buf.indexOf("\"version\"") !== -1;
             applySavedMonitorsProc.running = true;
             root.refreshMonitors();
             mangoDetectProc.buf = "";
@@ -134,30 +137,15 @@ Singleton {
         }
     }
 
-    // Mango monitor listing via mmsg -O
+    // Mango 0.16+ monitor listing via JSON IPC.
     Process {
         id: mangoMonitorProc
-        command: ["mmsg", "-O"]
+        command: ["mmsg", "get", "all-monitors"]
         property string buf: ""
         stdout: SplitParser { onRead: data => { mangoMonitorProc.buf += data; } }
         onExited: {
             try {
-                var lines = mangoMonitorProc.buf.trim().split("\n");
-                var list = [];
-                for (var i = 0; i < lines.length; i++) {
-                    var line = lines[i].trim();
-                    if (line === "") continue;
-                    // Parse mmsg -O output — each line is one monitor
-                    list.push({
-                        name: line,
-                        make: "",
-                        model: "",
-                        width: 0,
-                        height: 0,
-                        refreshRate: "0",
-                        scale: 1.0
-                    });
-                }
+                var list = MangoIpc.normalizeMonitors(JSON.parse(mangoMonitorProc.buf || "{}"));
                 if (list.length > 0) root.monitors = list;
             } catch(e) {
                 Log.warn("CompositorService", "Mango monitor parse error: " + e);
@@ -209,7 +197,14 @@ Singleton {
             ];
             startProcess(focusProc, false);
         } else if (isMango) {
-            Log.warn("CompositorService", "Mango focusWindow not supported for appId: " + appId);
+            focusProc.command = [
+                "sh",
+                "-c",
+                "mmsg get all-clients | jq -r --arg appId \"$1\" '.clients[]? | select(.appid == $appId) | .id' | head -1 | xargs -r -I{} mmsg dispatch focusid client,{}",
+                "sh",
+                appId
+            ];
+            startProcess(focusProc, false);
         }
     }
 
@@ -243,7 +238,14 @@ Singleton {
             ];
             startProcess(focusByNameProc, false);
         } else if (isMango) {
-            Log.warn("CompositorService", "Mango focusAppByName not supported for: " + appName);
+            focusByNameProc.command = [
+                "sh",
+                "-c",
+                "mmsg get all-clients | jq -r --arg needle \"$1\" '.clients[]? | select((((.appid // \"\") | ascii_downcase) | contains($needle)) or (((.title // \"\") | ascii_downcase) | contains($needle))) | .id' | head -1 | xargs -r -I{} mmsg dispatch focusid client,{}",
+                "sh",
+                needle
+            ];
+            startProcess(focusByNameProc, false);
         }
     }
 

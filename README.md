@@ -222,7 +222,7 @@ Click any of these on the bar to reveal an inline popover.
 |------------|:------:|-------|
 | [Niri](https://github.com/YaLTeR/niri) | Full | Event-driven IPC, auto-reconnect |
 | [Hyprland](https://github.com/hyprwm/Hyprland) | Full | Socket2 event stream; Night Light requires `hyprsunset` |
-| [MangoWC](https://github.com/DreamMaoMao/mango) | Full | Tag-based workspace model |
+| [MangoWC](https://github.com/DreamMaoMao/mango) | Full | Mango 0.16+ JSON IPC; tag-based workspace model |
 
 ## Dependencies
 

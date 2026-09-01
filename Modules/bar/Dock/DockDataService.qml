@@ -3,6 +3,7 @@ import Quickshell.Io
 import "../../../Services" as S
 import "../../../Services/core" as Core
 import "../../../Services/core/Log.js" as Log
+import "../../../Services/core/MangoIpc.js" as MangoIpc
 import "../ModuleRegistry.js" as ModuleRegistry
 
 Item {
@@ -116,13 +117,15 @@ Item {
     }
 
     function windowQueryCommand() {
-        return S.CompositorService.isHyprland
-            ? ["hyprctl", "clients", "-j"]
-            : ["niri", "msg", "-j", "windows"];
+        if (S.CompositorService.isHyprland) return ["hyprctl", "clients", "-j"];
+        if (S.CompositorService.isNiri) return ["niri", "msg", "-j", "windows"];
+        if (S.CompositorService.isMango) return ["mmsg", "get", "all-clients"];
+        return ["sh", "-c", "printf '[]'"];
     }
 
     function normalizeRunningWindows(parsed) {
-        if (!S.CompositorService.isHyprland) return parsed;
+        if (S.CompositorService.isMango) return MangoIpc.normalizeClients(parsed);
+        if (!S.CompositorService.isHyprland) return Array.isArray(parsed) ? parsed : [];
 
         var normalized = [];
         for (var i = 0; i < parsed.length; i++) {
@@ -295,6 +298,39 @@ Item {
     }
 
     // ----------------------------------------------------------------
+    // Mango 0.16+: JSON client event stream.
+    // ----------------------------------------------------------------
+    property bool _mangoFallback: false
+
+    Process {
+        id: mangoWinEventProc
+        running: S.CompositorService.isMango && service.windowTrackingEnabled && !service._mangoFallback
+        command: ["mmsg", "watch", "all-clients"]
+        stdout: SplitParser {
+            onRead: data => {
+                if (String(data || "").trim().length > 0) dockWinDebounce.restart();
+            }
+        }
+        onExited: exitCode => {
+            if (!S.CompositorService.isMango) return;
+            if (exitCode === 127) {
+                service._mangoFallback = true;
+                return;
+            }
+            mangoWinReconnect.restart();
+        }
+    }
+
+    Timer {
+        id: mangoWinReconnect
+        interval: 1000; repeat: false
+        onTriggered: {
+            if (S.CompositorService.isMango && !mangoWinEventProc.running && !service._mangoFallback)
+                mangoWinEventProc.running = true;
+        }
+    }
+
+    // ----------------------------------------------------------------
     // Debounce — collapse rapid-fire events into a single refresh.
     // ----------------------------------------------------------------
     Timer {
@@ -306,13 +342,13 @@ Item {
 
     // ----------------------------------------------------------------
     // Polling fallback
-    // MangoWC: always (no event API).
+    // MangoWC: only when its JSON watch stream is unavailable.
     // Hyprland: only when hypr_events.sh cannot run (no socat or nc).
     // ----------------------------------------------------------------
     Timer {
         interval: service.windowRefreshInterval
         running: service.windowTrackingEnabled && (
-            S.CompositorService.isMango ||
+            (S.CompositorService.isMango && service._mangoFallback) ||
             (S.CompositorService.isHyprland && service._hyprFallback)
         )
         repeat: true

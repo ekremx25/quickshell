@@ -86,14 +86,38 @@ Rectangle {
                 anchors.fill: parent
                 anchors.margins: 12
 
+                Rectangle {
+                    visible: page.snapGuideX !== null
+                    x: page.snapGuideX !== null ? page.layoutToCanvasX(page.snapGuideX, layoutCanvas.width, layoutCanvas.height) : 0
+                    y: 0
+                    width: 2
+                    height: parent.height
+                    radius: 1
+                    color: Qt.rgba(141 / 255, 187 / 255, 255 / 255, 0.78)
+                    z: 20
+                }
+
+                Rectangle {
+                    visible: page.snapGuideY !== null
+                    x: 0
+                    y: page.snapGuideY !== null ? page.layoutToCanvasY(page.snapGuideY, layoutCanvas.width, layoutCanvas.height) : 0
+                    width: parent.width
+                    height: 2
+                    radius: 1
+                    color: Qt.rgba(141 / 255, 187 / 255, 255 / 255, 0.78)
+                    z: 20
+                }
+
                 Repeater {
                     model: page.outputs
 
                     Rectangle {
+                        id: monitorTile
                         required property var modelData
                         required property int index
                         property real dragOffsetX: 0
                         property real dragOffsetY: 0
+                        property bool dragging: false
 
                         x: page.boxXForOutput(modelData, layoutCanvas.width, layoutCanvas.height)
                         y: page.boxYForOutput(modelData, layoutCanvas.width, layoutCanvas.height)
@@ -106,8 +130,8 @@ Rectangle {
 
                         Behavior on color { ColorAnimation { duration: 140 } }
                         Behavior on border.color { ColorAnimation { duration: 140 } }
-                        Behavior on x { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
-                        Behavior on y { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
+                        Behavior on x { enabled: !monitorTile.dragging; NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
+                        Behavior on y { enabled: !monitorTile.dragging; NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
                         Behavior on width { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
                         Behavior on height { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
 
@@ -217,19 +241,33 @@ Rectangle {
                             cursorShape: pressed ? Qt.ClosedHandCursor : Qt.PointingHandCursor
                             onPressed: function(mouse) {
                                 page.selectOutput(index);
-                                parent.dragOffsetX = mouse.x;
-                                parent.dragOffsetY = mouse.y;
+                                monitorTile.dragging = true;
+                                monitorTile.dragOffsetX = mouse.x;
+                                monitorTile.dragOffsetY = mouse.y;
+                                page.snapGuideX = null;
+                                page.snapGuideY = null;
                             }
                             onPositionChanged: function(mouse) {
                                 if (!pressed) return;
-                                page.selectOutput(index);
-                                var newX = page.canvasToLayoutX(parent.x + mouse.x - parent.dragOffsetX, layoutCanvas.width, layoutCanvas.height);
-                                var newY = page.canvasToLayoutY(parent.y + mouse.y - parent.dragOffsetY, layoutCanvas.width, layoutCanvas.height);
+                                var newX = page.canvasToLayoutX(monitorTile.x + mouse.x - monitorTile.dragOffsetX, layoutCanvas.width, layoutCanvas.height);
+                                var newY = page.canvasToLayoutY(monitorTile.y + mouse.y - monitorTile.dragOffsetY, layoutCanvas.width, layoutCanvas.height);
                                 var snapped = page.snapDraggedPosition(modelData.name, newX, newY);
+                                page.snapGuideX = snapped.guideX;
+                                page.snapGuideY = snapped.guideY;
                                 if (page.selectedOutput && page.selectedOutput.name === modelData.name) {
                                     page.selPosX = snapped.x;
                                     page.selPosY = snapped.y;
                                 }
+                            }
+                            onReleased: {
+                                monitorTile.dragging = false;
+                                page.snapGuideX = null;
+                                page.snapGuideY = null;
+                            }
+                            onCanceled: {
+                                monitorTile.dragging = false;
+                                page.snapGuideX = null;
+                                page.snapGuideY = null;
                             }
                             onClicked: page.selectOutput(index)
                         }

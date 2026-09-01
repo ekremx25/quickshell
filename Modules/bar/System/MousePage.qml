@@ -46,7 +46,7 @@ Item {
                         anchors.centerIn: parent
                         spacing: 6
                         Text {  text: mouseService.supported ? "●" : "●"; color: mouseService.supported ? Theme.green : Theme.red; font.pixelSize: 11; font.family: Theme.fontFamily }
-                        Text {  text: mouseService.supported ? "Hyprland" : "Unsupported"; color: SettingsPalette.text; font.pixelSize: 11; font.bold: true; font.family: Theme.fontFamily }
+                        Text {  text: mouseService.compositorLabel; color: SettingsPalette.text; font.pixelSize: 11; font.bold: true; font.family: Theme.fontFamily }
                     }
                 }
             }
@@ -106,7 +106,7 @@ Item {
                             spacing: 4
                             Text {  text: "Acceleration Profile"; color: SettingsPalette.text; font.pixelSize: 13; font.bold: true; font.family: Theme.fontFamily }
                             Text {  text: mouseService.accelProfile === "flat" ? "Flat / raw response" : "Adaptive / libinput default"; color: SettingsPalette.subtext; font.pixelSize: 11; font.family: Theme.fontFamily }
-                            Text {  text: mouseService.managedByQuickshell ? "~/.config/quickshell/mouse_config.json" : "Hyprland Lua runtime defaults"; color: Theme.primary; font.pixelSize: 11; font.family: Theme.fontFamily }
+                            Text {  text: mouseService.managedByQuickshell ? "~/.config/quickshell/mouse_config.json" : mouseService.compositorLabel + " runtime defaults"; color: Theme.primary; font.pixelSize: 11; font.family: Theme.fontFamily }
                         }
                     }
                 }
@@ -135,7 +135,7 @@ Item {
                             Item { Layout.fillWidth: true }
                             Text {  text: mouseService.sensitivity.toFixed(2); color: Theme.primary; font.pixelSize: 12; font.bold: true; font.family: Theme.fontFamily }
                         }
-                        Text {  text: "Controls Hyprland `input.sensitivity`."; color: SettingsPalette.subtext; font.pixelSize: 11; font.family: Theme.fontFamily }
+                        Text {  text: mouseService.compositorLabel === "Mango" ? "Controls Mango pointer and trackpad speed." : "Controls Hyprland `input.sensitivity`."; color: SettingsPalette.subtext; font.pixelSize: 11; font.family: Theme.fontFamily }
                         Slider {
                             Layout.fillWidth: true
                             from: -1.0
@@ -155,7 +155,7 @@ Item {
                             Item { Layout.fillWidth: true }
                             Text {  text: mouseService.scrollFactor.toFixed(2) + "x"; color: "#f9e2af"; font.pixelSize: 12; font.bold: true; font.family: Theme.fontFamily }
                         }
-                        Text {  text: "Controls Hyprland `input.scroll_factor`."; color: SettingsPalette.subtext; font.pixelSize: 11; font.family: Theme.fontFamily }
+                        Text {  text: mouseService.compositorLabel === "Mango" ? "Controls Mango wheel and trackpad scroll speed." : "Controls Hyprland `input.scroll_factor`."; color: SettingsPalette.subtext; font.pixelSize: 11; font.family: Theme.fontFamily }
                         Slider {
                             Layout.fillWidth: true
                             from: 0.25
@@ -326,7 +326,7 @@ Item {
                             Item { Layout.fillWidth: true }
                             Text {  text: mouseService.cursorSize + " px"; color: "#cba6f7"; font.pixelSize: 12; font.bold: true; font.family: Theme.fontFamily }
                         }
-                        Text {  text: "Applied using `hyprctl setcursor`."; color: SettingsPalette.subtext; font.pixelSize: 11; font.family: Theme.fontFamily }
+                        Text {  text: mouseService.compositorLabel === "Mango" ? "Applied through Mango cursor settings." : "Applied using `hyprctl setcursor`."; color: SettingsPalette.subtext; font.pixelSize: 11; font.family: Theme.fontFamily }
                         Slider {
                             Layout.fillWidth: true
                             from: 16
@@ -352,7 +352,7 @@ Item {
                     spacing: 6
                     Text {
                         font.family: Theme.fontFamily
-                        text: mouseService.supported ? "Settings are applied live and saved for future Hyprland sessions." : "Mouse tuning is currently only implemented for Hyprland."
+                        text: mouseService.supported ? "Settings are applied live and saved for future " + mouseService.compositorLabel + " sessions." : "Mouse tuning is not available for this compositor."
                         color: SettingsPalette.text
                         font.pixelSize: 12
                         wrapMode: Text.Wrap

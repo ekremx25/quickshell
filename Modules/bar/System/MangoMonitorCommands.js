@@ -1,20 +1,26 @@
 .pragma library
 
-// Builds direct-argv steps for applying one MangoWC output configuration.
-// Two sequential sed invocations: delete old rule, insert new rule.
-// configPath must be the fully-expanded path (no ~ or $HOME).
-function buildOutputSteps(monName, monRes, monHz, monPosX, monPosY, monScale, sedEscape, configPath) {
-    var resParts   = monRes.split("x");
-    var monRefresh = Math.round(parseFloat(monHz));
-    var ruleStr    = "monitorrule=name:" + monName
-                   + ",width:"   + resParts[0]
-                   + ",height:"  + resParts[1]
-                   + ",refresh:" + monRefresh
-                   + ",x:" + monPosX
-                   + ",y:" + monPosY
-                   + ",scale:" + monScale;
-    return [
-        { argv: ["sed", "-i", "/^monitorrule=name:" + sedEscape(monName) + "/d", configPath] },
-        { argv: ["sed", "-i", "/^# Monitor Rules$/a " + ruleStr, configPath] }
-    ];
+// A scale change belongs to one output. Neighbouring outputs only need a new
+// rule when reflow moved their position to keep the layout attached.
+function shouldApplyOutput(isSelected, layoutChanged) {
+    return !!isSelected || !!layoutChanged;
+}
+
+// Builds a direct-argv step for the validated, atomic Mango config writer.
+function buildOutputSteps(monName, monRes, monHz, monPosX, monPosY, monScale, options, applyScriptPath) {
+    var opts = options || {};
+    return [{
+        argv: [
+            applyScriptPath,
+            "set",
+            String(monName),
+            String(monRes),
+            String(monHz),
+            String(monPosX),
+            String(monPosY),
+            String(monScale),
+            String(opts.vrr ? 1 : 0),
+            String(opts.hdr ? 1 : 0)
+        ]
+    }];
 }

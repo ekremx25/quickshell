@@ -13,7 +13,8 @@ Item {
     width: 0
     height: 0
 
-    readonly property bool supported: CompositorService.isHyprland
+    readonly property bool supported: CompositorService.isHyprland || CompositorService.isMango
+    readonly property string compositorLabel: CompositorService.isHyprland ? "Hyprland" : (CompositorService.isMango ? "Mango" : "Unsupported")
     readonly property string homePath: StandardPaths.writableLocation(StandardPaths.HomeLocation).toString().replace("file://", "")
     readonly property string hyprGeneralConfigPath: homePath + "/.config/hypr/custom/general.conf"
     readonly property string configPath: homePath + "/.config/quickshell/mouse_config.json"
@@ -189,12 +190,13 @@ Item {
             scrollFactor.toFixed(2),
             accelProfile,
             cursorTheme,
-            String(cursorSize)
+            String(cursorSize),
+            CompositorService.compositor
         ]
         onExited: exitCode => {
             service.isBusy = false
             if (exitCode === 0) {
-                service.statusMessage = "Applied by Quickshell"
+                service.statusMessage = "Applied to " + service.compositorLabel + " by Quickshell"
                 service.managedByQuickshell = true
             } else {
                 service.statusMessage = "Saved, but runtime apply failed"

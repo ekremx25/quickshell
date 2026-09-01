@@ -4,6 +4,7 @@ import Quickshell
 import Quickshell.Io
 import "./core" as Core
 import "./core/WorkspaceLogic.js" as WorkspaceLogic
+import "./core/MangoIpc.js" as MangoIpc
 import "./core/Log.js" as Log
 
 Singleton {
@@ -14,6 +15,7 @@ Singleton {
     property bool available: false
     property bool refreshPending: false
     property bool eventFallback: false
+    property bool mangoClientEventFallback: false
     property string lastError: ""
     property var pendingAction: []
 
@@ -74,23 +76,9 @@ Singleton {
     }
 
     function parseMangoSnapshot(text) {
-        var payload = section(text, "<<<MANGO>>>", "<<<END>>>")
-        var lines = payload.split("\n")
-        var monitorsByName = {}
-        var workspaces = []
-        for (var i = 0; i < lines.length; ++i) {
-            var parts = lines[i].trim().split(/\s+/)
-            if (parts.length < 6 || parts[1] !== "tag") continue
-            var monitorName = parts[0]
-            var id = parseInt(parts[2])
-            var stateValue = parseInt(parts[3])
-            if (isNaN(id)) continue
-            if (!monitorsByName[monitorName]) monitorsByName[monitorName] = { name: monitorName, activeWorkspace: { id: null }, specialWorkspace: { id: 0 } }
-            if (stateValue === 1) monitorsByName[monitorName].activeWorkspace.id = id
-            workspaces.push({ id: id, name: String(id), monitor: monitorName })
-        }
-        var monitors = Object.keys(monitorsByName).map(function(name) { return monitorsByName[name] })
-        return WorkspaceLogic.buildHyprlandState(monitors, workspaces, [])
+        var tags = JSON.parse(section(text, "<<<MANGO_TAGS>>>", "<<<MANGO_CLIENTS>>>") || "{\"all_tags\":[]}")
+        var clients = JSON.parse(section(text, "<<<MANGO_CLIENTS>>>", "<<<END>>>") || "{\"clients\":[]}")
+        return MangoIpc.buildWorkspaceState(tags, clients)
     }
 
     function parseSnapshot(text) {
@@ -185,8 +173,12 @@ Singleton {
             command = [root.workspaceScript, String(target), String(monitorName || "")]
         } else if (CompositorService.isNiri) {
             command = ["niri", "msg", "action", "focus-workspace", String(target)]
+        } else if (CompositorService.isMango) {
+            command = monitorName
+                ? ["mmsg", "dispatch", "viewcrossmon," + String(target) + "," + String(monitorName)]
+                : ["mmsg", "dispatch", "view," + String(target)]
         } else {
-            command = ["mmsg", "-s", "-o", String(monitorName || ""), "-t", String(target)]
+            return
         }
         queueAction(command)
     }
@@ -203,9 +195,16 @@ Singleton {
 
     function focusWindow(windowId) {
         if (!windowId) return
-        var command = CompositorService.isHyprland
-            ? ["hyprctl", "dispatch", "focuswindow", "address:" + String(windowId)]
-            : ["niri", "msg", "action", "focus-window", "--id", String(windowId)]
+        var command
+        if (CompositorService.isHyprland) {
+            command = ["hyprctl", "dispatch", "focuswindow", "address:" + String(windowId)]
+        } else if (CompositorService.isNiri) {
+            command = ["niri", "msg", "action", "focus-window", "--id", String(windowId)]
+        } else if (CompositorService.isMango) {
+            command = ["mmsg", "dispatch", "focusid", "client," + String(windowId)]
+        } else {
+            return
+        }
         queueAction(command)
     }
 
@@ -242,7 +241,7 @@ Singleton {
             ? ["bash", Core.PathService.configPath("scripts/hypr_events.sh")]
             : (CompositorService.isNiri
                 ? ["niri", "msg", "--json", "event-stream"]
-                : ["mmsg", "-w", "-t"])
+                : ["mmsg", "watch", "all-tags"])
         stdout: SplitParser {
             onRead: data => {
                 if (String(data || "").trim().length > 0) eventDebounce.restart()
@@ -254,6 +253,28 @@ Singleton {
                 Log.warn("WorkspaceService", "Compositor event stream unavailable; using polling fallback")
             } else if (CompositorService.compositor !== "unknown") {
                 eventReconnect.restart()
+            }
+        }
+    }
+
+    // Mango exposes client changes on a separate JSON watch stream. Tag and
+    // client events both rebuild the combined workspace snapshot.
+    Process {
+        id: mangoClientEventProc
+        running: CompositorService.isMango && !root.mangoClientEventFallback
+        command: ["mmsg", "watch", "all-clients"]
+        stdout: SplitParser {
+            onRead: data => {
+                if (String(data || "").trim().length > 0) eventDebounce.restart()
+            }
+        }
+        onExited: exitCode => {
+            if (!CompositorService.isMango) return
+            if (exitCode === 127) {
+                root.mangoClientEventFallback = true
+                Log.warn("WorkspaceService", "Mango client event stream unavailable; using polling fallback")
+            } else {
+                mangoClientEventReconnect.restart()
             }
         }
     }
@@ -287,9 +308,18 @@ Singleton {
         }
     }
     Timer {
+        id: mangoClientEventReconnect
+        interval: 1000
+        repeat: false
+        onTriggered: {
+            if (CompositorService.isMango && !mangoClientEventProc.running && !root.mangoClientEventFallback)
+                mangoClientEventProc.running = true
+        }
+    }
+    Timer {
         interval: 1000
         repeat: true
-        running: root.eventFallback
+        running: root.eventFallback || (CompositorService.isMango && root.mangoClientEventFallback)
         onTriggered: root.requestRefresh()
     }
 }

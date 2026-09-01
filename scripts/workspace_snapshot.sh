@@ -23,6 +23,14 @@ if [ -n "${NIRI_SOCKET:-}" ]; then
     exit 0
 fi
 
-printf '%s\n' '<<<MANGO>>>'
-mmsg -g -t 2>/dev/null || true
+if [ -n "${MANGO_INSTANCE_SIGNATURE:-}" ]; then
+    printf '%s\n' '<<<MANGO_TAGS>>>'
+    mmsg get all-tags 2>/dev/null || printf '%s\n' '{"all_tags":[]}'
+    printf '%s\n' '<<<MANGO_CLIENTS>>>'
+    mmsg get all-clients 2>/dev/null || printf '%s\n' '{"clients":[]}'
+    printf '%s\n' '<<<END>>>'
+    exit 0
+fi
+
 printf '%s\n' '<<<END>>>'
+exit 1
