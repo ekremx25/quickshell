@@ -21,7 +21,7 @@
   ],
   "workspaces": {
     "format": "roman",
-    "style": "square",
+    "style": "circle",
     "transparent": true,
     "displayMode": "role",
     "workspaceCount": 5,
@@ -32,7 +32,7 @@
     "scrollEnabled": true,
     "wrapAround": true,
     "reverseScroll": false,
-    "iconSize": 20,
+    "iconSize": 18,
     "maxIcons": 4
   },
   "theme": "",

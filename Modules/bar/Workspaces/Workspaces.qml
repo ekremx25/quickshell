@@ -51,7 +51,7 @@ Rectangle {
     color: "transparent"
     border.width: 0
 
-    implicitHeight: 34
+    implicitHeight: 32
     implicitWidth: wsRow.implicitWidth
 
     // --- FORMAT CONVERTER ---
@@ -121,7 +121,7 @@ Rectangle {
     Row {
         id: wsRow
         anchors.centerIn: parent
-        spacing: 6
+        spacing: 4
 
         Repeater {
             model: workspaceRoot.activeWorkspaces
@@ -147,40 +147,40 @@ Rectangle {
                 }
 
                 // Size
-                implicitWidth: wsContentRow.implicitWidth + 22
-                height: 34
-                radius: style === "square" ? 8 : 17
+                implicitWidth: wsContentRow.implicitWidth + 18
+                height: 32
+                radius: style === "square" ? 9 : 16
 
                 // Hover scale
-                scale: isHovered ? 1.05 : 1.0
-                Behavior on scale { NumberAnimation { duration: 200; easing.type: Easing.OutBack } }
+                scale: isHovered ? 1.025 : 1.0
+                Behavior on scale { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
 
                 // --- GLASSMORPHISM BACKGROUND ---
                 color: {
-                    if (isActive) return Qt.rgba(activeColor.r, activeColor.g, activeColor.b, 0.25)
-                    if (isHovered) return Qt.rgba(Theme.text.r, Theme.text.g, Theme.text.b, 0.08)
-                    return Qt.rgba(Theme.surface.r, Theme.surface.g, Theme.surface.b, 0.15)
+                    if (isActive) return Qt.rgba(activeColor.r, activeColor.g, activeColor.b, 0.22)
+                    if (isHovered) return Qt.rgba(Theme.text.r, Theme.text.g, Theme.text.b, 0.07)
+                    return Qt.rgba(Theme.surface.r, Theme.surface.g, Theme.surface.b, 0.08)
                 }
 
                 border.width: 1
                 border.color: {
-                    if (isActive) return Qt.rgba(activeColor.r, activeColor.g, activeColor.b, 0.45)
-                    if (isHovered) return Qt.rgba(Theme.text.r, Theme.text.g, Theme.text.b, 0.12)
-                    return Qt.rgba(Theme.text.r, Theme.text.g, Theme.text.b, 0.06)
+                    if (isActive) return Qt.rgba(activeColor.r, activeColor.g, activeColor.b, 0.34)
+                    if (isHovered) return Qt.rgba(Theme.text.r, Theme.text.g, Theme.text.b, 0.10)
+                    return Qt.rgba(Theme.text.r, Theme.text.g, Theme.text.b, 0.045)
                 }
 
-                Behavior on color { ColorAnimation { duration: 250; easing.type: Easing.OutCubic } }
-                Behavior on border.color { ColorAnimation { duration: 250; easing.type: Easing.OutCubic } }
-                Behavior on implicitWidth { NumberAnimation { duration: 300; easing.type: Easing.OutQuint } }
+                Behavior on color { ColorAnimation { duration: 190; easing.type: Easing.OutCubic } }
+                Behavior on border.color { ColorAnimation { duration: 190; easing.type: Easing.OutCubic } }
+                Behavior on implicitWidth { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
 
                 // --- GLOW LAYERS (behind box, active only) ---
                 Rectangle {
                     z: -2
                     anchors.centerIn: parent
-                    width: parent.implicitWidth + 6
-                    height: parent.height + 6
-                    radius: parent.radius + 3
-                    color: Qt.rgba(activeColor.r, activeColor.g, activeColor.b, 0.12)
+                    width: parent.implicitWidth + 4
+                    height: parent.height + 4
+                    radius: parent.radius + 2
+                    color: Qt.rgba(activeColor.r, activeColor.g, activeColor.b, 0.065)
                     visible: isActive
                     opacity: isActive ? 1.0 : 0.0
                     Behavior on opacity { NumberAnimation { duration: 350; easing.type: Easing.OutCubic } }
@@ -188,10 +188,10 @@ Rectangle {
                 Rectangle {
                     z: -3
                     anchors.centerIn: parent
-                    width: parent.implicitWidth + 12
-                    height: parent.height + 12
-                    radius: parent.radius + 6
-                    color: Qt.rgba(activeColor.r, activeColor.g, activeColor.b, 0.06)
+                    width: parent.implicitWidth + 8
+                    height: parent.height + 8
+                    radius: parent.radius + 4
+                    color: Qt.rgba(activeColor.r, activeColor.g, activeColor.b, 0.025)
                     visible: isActive
                     opacity: isActive ? 1.0 : 0.0
                     Behavior on opacity { NumberAnimation { duration: 350; easing.type: Easing.OutCubic } }
@@ -205,7 +205,7 @@ Rectangle {
                     anchors.margins: 1
                     height: 1
                     radius: parent.radius
-                    color: Qt.rgba(1, 1, 1, isActive ? 0.12 : 0.05)
+                    color: Qt.rgba(1, 1, 1, isActive ? 0.08 : 0.03)
                     Behavior on color { ColorAnimation { duration: 200 } }
                 }
 
@@ -213,7 +213,7 @@ Rectangle {
                 Row {
                     id: wsContentRow
                     anchors.centerIn: parent
-                    spacing: 7
+                    spacing: 6
 
                     // Minimal dot indicator (when label is hidden)
                     Rectangle {
@@ -237,7 +237,7 @@ Rectangle {
                         text: getWorkspaceLabel(wsData.displayName || wsData.name)
                         color: isActive ? Theme.workspaceActiveTextColor : Theme.text
                         font.bold: true
-                        font.pixelSize: 13
+                        font.pixelSize: 12
                         font.family: Theme.fontFamily
                         font.letterSpacing: 0.5
                         anchors.verticalCenter: parent.verticalCenter
@@ -248,7 +248,7 @@ Rectangle {
                     // Gradient separator
                     Rectangle {
                         width: 1
-                        height: 16
+                        height: 14
                         anchors.verticalCenter: parent.verticalCenter
                         visible: winCount > 0 && workspaceRoot.showApps && wsBox.showLabel
                         gradient: Gradient {
@@ -261,7 +261,7 @@ Rectangle {
 
                     // APPLICATION ICONS
                     Row {
-                        spacing: 5
+                        spacing: 4
                         anchors.verticalCenter: parent.verticalCenter
                         visible: winCount > 0 && workspaceRoot.showApps
 
