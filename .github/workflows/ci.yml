@@ -29,6 +29,14 @@ jobs:
           python -m py_compile scripts/monitor_role_manager.py
           python -m py_compile Modules/bar/System/niri_apply.py
 
+      - name: Build Activity Monitor sampler
+        shell: bash
+        run: |
+          set -euo pipefail
+          make -C Modules/bar/ActivityMonitor -B
+          test "$(Modules/bar/ActivityMonitor/activity-sampler --version)" = "activity-sampler 2.1.1"
+          Modules/bar/ActivityMonitor/activity-sampler --activity-resources | grep -q $'^schema\\tactivity-resources\\t1$'
+
       - name: Validate shell syntax
         run: bash -n scripts/*.sh
 

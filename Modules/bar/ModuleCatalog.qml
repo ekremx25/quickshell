@@ -6,6 +6,7 @@ import "./Launcher"
 import "./Workspaces"
 import "./Tray"
 import "./SysInfo"
+import "./ActivityMonitor"
 import "./Volume"
 import "./power"
 import "./Calendar"
@@ -55,6 +56,7 @@ Item {
         "Power": powerComp,
         "NightLight": nightLightComp,
         "PowerGroup": powerGroupComp,
+        "ActivityMonitor": activityMonitorComp,
         "SysInfoGroup": sysInfoGroupComp,
         "RamModule": ramModuleComp,
         "Media": mediaComp,
@@ -108,6 +110,7 @@ Item {
     Component { id: powerComp; Power {} }
     Component { id: nightLightComp; NightLight {} }
     Component { id: powerGroupComp; PowerGroup {} }
+    Component { id: activityMonitorComp; ActivityMonitor {} }
     Component { id: sysInfoGroupComp; SysInfoGroup {} }
     Component { id: ramModuleComp; RamModule {} }
     Component { id: currencyConverterComp; CurrencyConverter {} }

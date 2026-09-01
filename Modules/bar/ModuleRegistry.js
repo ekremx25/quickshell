@@ -192,6 +192,20 @@ var _modules = [
         contexts: []
     },
     {
+        id: "activity-monitor",
+        name: "ActivityMonitor",
+        component: "ActivityMonitor",
+        icon: "󰓅",
+        label: "Activity Monitor",
+        description: "On-demand CPU, memory, GPU, network, disk and process monitor.",
+        category: "system",
+        color: "#74c7ec",
+        placements: ["bar"],
+        settingsPage: "bar",
+        services: [],
+        contexts: []
+    },
+    {
         id: "system-info-group",
         name: "SysInfoGroup",
         component: "SysInfoGroup",

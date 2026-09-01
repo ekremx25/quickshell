@@ -27,6 +27,7 @@ Built on top of [outfoxxed's Quickshell framework](https://github.com/outfoxxed/
 - [Dependencies](#dependencies)
 - [Installation](#installation)
 - [Configuration](#configuration)
+- [Activity Monitor](#activity-monitor)
 - [Night Light](#night-light)
 - [Audio Equaliser](#audio-equaliser)
 - [Architecture](#architecture)
@@ -39,6 +40,7 @@ Built on top of [outfoxxed's Quickshell framework](https://github.com/outfoxxed/
 ### Top Bar
 - **Workspaces** — Per-monitor role ranges, occupied/global modes, app grouping, scrolling and Roman / Chinese / decimal labels
 - **System Info** — CPU, RAM, temperature, disk usage, groupable
+- **Activity Monitor** — On-demand CPU, memory, GPU, network, storage and process details; tested on Hyprland and MangoWC
 - **Audio** — Volume control, mute, 10-band parametric equaliser
 - **Weather & World Clocks** — Current conditions plus a configurable multi-city desktop clock; search any city/country, reorder up to eight locations, and get DST-aware local time with live weather
 - **Markets** — Official TCMB USD/TRY buying/selling rates plus live Bitcoin and Ethereum prices with 24-hour change and offline cache
@@ -455,6 +457,27 @@ Open **Settings → Features → World Clocks**. Select any of the bundled 249 I
 Open **Settings → Features → Markets** for the official TCMB USD/TRY buying and selling rates plus CoinGecko Bitcoin and Ethereum spot prices in USD/TRY. Crypto cards include the 24-hour percentage change. The built-in converter supports the current currencies published by Frankfurter, including USD, TRY, EUR and Philippine Peso (PHP), with reversible pairs and offline rate caching. Data refreshes every five minutes and the last successful response remains available offline.
 
 The World Clocks and Markets desktop panels can be dragged from anywhere on their surface. Their positions are saved per monitor role in `desktop_widgets.json`, so the layout survives restarts and connector changes.
+
+## Activity Monitor
+
+Add **Activity Monitor** from **Settings → Appearance → Bar Settings** and click
+its bar chip to open the live panel. The compact view shows CPU, memory, network
+and disk activity; the expanded view adds GPU, storage and a searchable process
+table. Sampling starts only while the panel is open, so the module stays idle in
+the background.
+
+The reader uses Linux `/proc` and `/sys` interfaces rather than compositor IPC,
+so the same module works on Hyprland, MangoWC and Niri. A prebuilt x86-64 reader
+is included. Other architectures can rebuild it locally:
+
+```bash
+make -C Modules/bar/ActivityMonitor clean all
+```
+
+Building requires a C++17 compiler. The bundled source and reader are adapted
+from [stappmus/omarchy-activity-monitor](https://github.com/stappmus/omarchy-activity-monitor)
+2.1.1 and retain its MIT licence in
+[`Modules/bar/ActivityMonitor/LICENSE`](Modules/bar/ActivityMonitor/LICENSE).
 
 ## Night Light
 
