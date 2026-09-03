@@ -21,6 +21,7 @@ Singleton {
 
     readonly property string snapshotScript: Core.PathService.configPath("scripts/workspace_snapshot.sh")
     readonly property string workspaceScript: Core.PathService.configPath("scripts/hypr_workspace_apply.sh")
+    readonly property string niriWorkspaceScript: Core.PathService.configPath("scripts/niri_workspace_apply.sh")
 
     Component.onCompleted: requestRefresh()
 
@@ -51,28 +52,7 @@ Singleton {
         var outputs = JSON.parse(section(text, "<<<OUTPUTS>>>", "<<<WORKSPACES>>>") || "{}")
         var rawWorkspaces = JSON.parse(section(text, "<<<WORKSPACES>>>", "<<<CLIENTS>>>") || "[]")
         var rawWindows = JSON.parse(section(text, "<<<CLIENTS>>>", "<<<END>>>") || "[]")
-        var monitors = []
-        var activeByOutput = {}
-        for (var wi = 0; wi < rawWorkspaces.length; ++wi) {
-            if (rawWorkspaces[wi].is_active) activeByOutput[rawWorkspaces[wi].output || ""] = rawWorkspaces[wi].id
-        }
-        for (var outputName in outputs) {
-            monitors.push({ name: outputName, activeWorkspace: { id: activeByOutput[outputName] }, specialWorkspace: { id: 0 } })
-        }
-        var workspaces = rawWorkspaces.map(function(workspace) {
-            return { id: workspace.id, name: workspace.name || String(workspace.idx || workspace.id), monitor: workspace.output || "" }
-        })
-        var clients = rawWindows.map(function(window) {
-            return {
-                id: window.id,
-                app_id: window.app_id || "",
-                title: window.title || "",
-                workspace: { id: window.workspace_id },
-                is_focused: window.is_focused === true,
-                urgent: window.is_urgent === true
-            }
-        })
-        return WorkspaceLogic.buildHyprlandState(monitors, workspaces, clients)
+        return WorkspaceLogic.buildNiriState(outputs, rawWorkspaces, rawWindows)
     }
 
     function parseMangoSnapshot(text) {
@@ -172,7 +152,7 @@ Singleton {
         if (CompositorService.isHyprland) {
             command = [root.workspaceScript, String(target), String(monitorName || "")]
         } else if (CompositorService.isNiri) {
-            command = ["niri", "msg", "action", "focus-workspace", String(target)]
+            command = [root.niriWorkspaceScript, String(target), String(monitorName || "")]
         } else if (CompositorService.isMango) {
             command = monitorName
                 ? ["mmsg", "dispatch", "viewcrossmon," + String(target) + "," + String(monitorName)]
