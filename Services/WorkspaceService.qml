@@ -6,6 +6,7 @@ import "./core" as Core
 import "./core/WorkspaceLogic.js" as WorkspaceLogic
 import "./core/MangoIpc.js" as MangoIpc
 import "./core/Log.js" as Log
+import "../Modules/bar/Dock/AppService.js" as AppService
 
 Singleton {
     id: root
@@ -18,10 +19,14 @@ Singleton {
     property bool mangoClientEventFallback: false
     property string lastError: ""
     property var pendingAction: []
+    property var desktopIcons: ({})
+    property var desktopCommands: ({})
+    property var desktopEntries: ({})
 
     readonly property string snapshotScript: Core.PathService.configPath("scripts/workspace_snapshot.sh")
     readonly property string workspaceScript: Core.PathService.configPath("scripts/hypr_workspace_apply.sh")
     readonly property string niriWorkspaceScript: Core.PathService.configPath("scripts/niri_workspace_apply.sh")
+    readonly property string desktopIconScript: Core.PathService.configPath("scripts/desktop_icons.sh")
 
     Component.onCompleted: requestRefresh()
 
@@ -101,6 +106,42 @@ Singleton {
         return " "
     }
 
+    function parseDesktopMetadata(raw) {
+        var parts = []
+        var depth = 0
+        var startIndex = -1
+        for (var index = 0; index < raw.length; ++index) {
+            if (raw[index] === "{") {
+                if (depth === 0) startIndex = index
+                depth++
+            } else if (raw[index] === "}") {
+                depth--
+                if (depth === 0 && startIndex >= 0) {
+                    parts.push(raw.substring(startIndex, index + 1))
+                    startIndex = -1
+                }
+            }
+        }
+        return {
+            icons: parts.length > 0 ? JSON.parse(parts[0]) : {},
+            commands: parts.length > 1 ? JSON.parse(parts[1]) : {},
+            entries: parts.length > 2 ? JSON.parse(parts[2]) : {}
+        }
+    }
+
+    function iconSourceFor(appId) {
+        var iconName = AppService.getIcon(
+            appId || "",
+            root.desktopIcons,
+            root.desktopEntries,
+            root.desktopCommands
+        )
+        iconName = AppService.resolveThemedIconName(iconName)
+        if (!iconName) return ""
+        if (String(iconName).indexOf("/") === 0) return "file://" + iconName
+        return "image://icon/" + iconName
+    }
+
     function groupWindows(windows, shouldGroup) {
         var source = Array.isArray(windows) ? windows : []
         var result = []
@@ -112,6 +153,7 @@ Singleton {
                 indexes[key] = result.length
                 result.push({
                     icon: iconFor(window.app_id, window.title),
+                    iconSource: iconSourceFor(window.app_id),
                     appId: window.app_id || "",
                     title: window.title || "",
                     windowId: window.id || "",
@@ -186,6 +228,29 @@ Singleton {
             return
         }
         queueAction(command)
+    }
+
+    Process {
+        id: desktopIconProc
+        command: ["bash", root.desktopIconScript]
+        running: false
+        property string outputBuffer: ""
+        stdout: SplitParser { onRead: data => desktopIconProc.outputBuffer += data + "\n" }
+        onExited: exitCode => {
+            if (exitCode === 0 && desktopIconProc.outputBuffer.trim() !== "") {
+                try {
+                    var metadata = root.parseDesktopMetadata(desktopIconProc.outputBuffer)
+                    root.desktopIcons = metadata.icons
+                    root.desktopCommands = metadata.commands
+                    root.desktopEntries = metadata.entries
+                    root.revision++
+                } catch (error) {
+                    Log.warn("WorkspaceService", "Desktop icon metadata parse failed: " + error)
+                }
+            }
+            desktopIconProc.outputBuffer = ""
+        }
+        Component.onCompleted: running = true
     }
 
     Process {

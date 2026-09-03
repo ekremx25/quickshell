@@ -269,11 +269,32 @@ Rectangle {
                             model: wsBox.visibleApps
 
                             Item {
-                                width: appIconText.implicitWidth
+                                id: appIconItem
+                                z: 2
+                                width: workspaceRoot.iconSize + 2
                                 height: workspaceRoot.iconSize + 4
+
+                                Image {
+                                    id: appIconImage
+                                    width: workspaceRoot.iconSize
+                                    height: workspaceRoot.iconSize
+                                    anchors.centerIn: parent
+                                    source: modelData.iconSource || ""
+                                    sourceSize: Qt.size(48, 48)
+                                    fillMode: Image.PreserveAspectFit
+                                    smooth: true
+                                    antialiasing: true
+                                    visible: source.toString().length > 0 && status !== Image.Error
+                                    opacity: modelData.active ? 1.0 : (isActive ? 0.94 : 0.82)
+                                    scale: modelData.active ? 1.08 : 1.0
+
+                                    Behavior on opacity { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
+                                    Behavior on scale { NumberAnimation { duration: 180; easing.type: Easing.OutBack } }
+                                }
 
                                 Text {
                                     id: appIconText
+                                    visible: !appIconImage.visible
                                     text: modelData.icon
                                     color: {
                                         if (isActive && modelData.active) return Theme.workspaceActiveTextColor
