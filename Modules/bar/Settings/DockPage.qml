@@ -2,7 +2,6 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
 import Quickshell
-import "SettingsPalette.js" as SettingsPalette
 import "../../../Widgets"
 import "../../../Services/core" as Core
 import "../../../Services/core/Log.js" as Log
@@ -241,7 +240,7 @@ Item {
                         indicator: Rectangle {
                             implicitWidth: 40; implicitHeight: 20; radius: 10
                             color: parent.checked ? colorPrimary : colorCardStrong
-                            border.color: Qt.rgba(255,255,255,0.1)
+                            border.color: Theme.withAlpha(Theme.text, 0.1)
                             Rectangle { x: parent.parent.checked ? parent.width - width - 2 : 2; width: 16; height: 16; radius: 8; anchors.verticalCenter: parent.verticalCenter; color: parent.parent.checked ? root.colorPrimaryText : SettingsPalette.text; Behavior on x { NumberAnimation { duration: 100 } } }
                         }
                     }
@@ -266,7 +265,7 @@ Item {
                         indicator: Rectangle {
                             implicitWidth: 40; implicitHeight: 20; radius: 10
                             color: parent.checked ? colorPrimary : colorCardStrong
-                            border.color: Qt.rgba(255,255,255,0.1)
+                            border.color: Theme.withAlpha(Theme.text, 0.1)
                             Rectangle { x: parent.parent.checked ? parent.width - width - 2 : 2; width: 16; height: 16; radius: 8; anchors.verticalCenter: parent.verticalCenter; color: parent.parent.checked ? root.colorPrimaryText : SettingsPalette.text; Behavior on x { NumberAnimation { duration: 100 } } }
                         }
                     }
@@ -291,7 +290,7 @@ Item {
                         indicator: Rectangle {
                             implicitWidth: 40; implicitHeight: 20; radius: 10
                             color: parent.checked ? colorPrimary : colorCardStrong
-                            border.color: Qt.rgba(255,255,255,0.1)
+                            border.color: Theme.withAlpha(Theme.text, 0.1)
                             Rectangle { x: parent.parent.checked ? parent.width - width - 2 : 2; width: 16; height: 16; radius: 8; anchors.verticalCenter: parent.verticalCenter; color: parent.parent.checked ? root.colorPrimaryText : SettingsPalette.text; Behavior on x { NumberAnimation { duration: 100 } } }
                         }
                     }
@@ -392,7 +391,7 @@ Item {
                         indicator: Rectangle {
                             implicitWidth: 40; implicitHeight: 20; radius: 10
                             color: parent.checked ? colorPrimary : colorCardStrong
-                            border.color: Qt.rgba(255,255,255,0.1)
+                            border.color: Theme.withAlpha(Theme.text, 0.1)
                             Rectangle { x: parent.parent.checked ? parent.width - width - 2 : 2; width: 16; height: 16; radius: 8; anchors.verticalCenter: parent.verticalCenter; color: parent.parent.checked ? root.colorPrimaryText : SettingsPalette.text; Behavior on x { NumberAnimation { duration: 100 } } }
                         }
                     }
@@ -454,7 +453,7 @@ Item {
                         indicator: Rectangle {
                             implicitWidth: 40; implicitHeight: 20; radius: 10
                             color: parent.checked ? colorPrimary : colorCardStrong
-                            border.color: Qt.rgba(255,255,255,0.1)
+                            border.color: Theme.withAlpha(Theme.text, 0.1)
                             Rectangle { x: parent.parent.checked ? parent.width - width - 2 : 2; width: 16; height: 16; radius: 8; anchors.verticalCenter: parent.verticalCenter; color: parent.parent.checked ? root.colorPrimaryText : SettingsPalette.text; Behavior on x { NumberAnimation { duration: 100 } } }
                         }
                     }
@@ -629,7 +628,7 @@ Item {
                         indicator: Rectangle {
                             implicitWidth: 40; implicitHeight: 20; radius: 10
                             color: parent.checked ? colorPrimary : colorCardStrong
-                            border.color: Qt.rgba(255,255,255,0.1)
+                            border.color: Theme.withAlpha(Theme.text, 0.1)
                             Rectangle { x: parent.parent.checked ? parent.width - width - 2 : 2; width: 16; height: 16; radius: 8; anchors.verticalCenter: parent.verticalCenter; color: parent.parent.checked ? root.colorPrimaryText : SettingsPalette.text; Behavior on x { NumberAnimation { duration: 100 } } }
                         }
                     }

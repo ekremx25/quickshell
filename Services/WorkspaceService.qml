@@ -130,6 +130,9 @@ Singleton {
     }
 
     function iconSourceFor(appId) {
+        // Use the glyph until metadata is ready; the revision below rebuilds
+        // workspace icons as soon as the desktop lookup has completed.
+        if (Object.keys(root.desktopIcons).length === 0) return ""
         var iconName = AppService.getIcon(
             appId || "",
             root.desktopIcons,

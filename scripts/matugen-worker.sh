@@ -9,19 +9,20 @@ WALLPAPER="${1:-}"
 MODE="${2:-dark}"
 TYPE="${3:-scheme-tonal-spot}"
 APPLY_KITTY="${4:-true}"
+MATUGEN_BIN="${5:-matugen}"
 
 if [ -z "$WALLPAPER" ]; then
     echo "Usage: $0 <wallpaper_path> [dark|light] [scheme-type] [apply_kitty]"
     exit 1
 fi
 
-if ! command -v matugen &>/dev/null; then
+if ! command -v "$MATUGEN_BIN" &>/dev/null; then
     echo "Error: matugen not found"
     exit 1
 fi
 
 # Generate colors in the token.mode.color shape consumed by the shell.
-COLORS=$(matugen image "$WALLPAPER" -t "$TYPE" --json hex --source-color-index 0 2>/dev/null)
+COLORS=$("$MATUGEN_BIN" image "$WALLPAPER" -t "$TYPE" --mode "$MODE" --json hex --source-color-index 0 --dry-run)
 
 if [ -z "$COLORS" ]; then
     echo "Error: matugen returned empty output"

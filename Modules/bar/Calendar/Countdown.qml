@@ -32,11 +32,11 @@ ColumnLayout {
             id: titleInput
             Layout.fillWidth: true
             placeholderText: "Event Name..."
-            color: "#1e1e2e"
+            color: Theme.text
             font.pixelSize: 13
             selectByMouse: true
             background: Rectangle {
-                color: Qt.rgba(0.9, 0.9, 0.9, 0.9)
+                color: Theme.panelSurface
                 radius: 8
                 border.color: parent.activeFocus ? Theme.primary : "transparent"
                 border.width: 1
@@ -49,12 +49,12 @@ ColumnLayout {
             width: 70
             height: 32
             radius: 8
-            color: saveMA.containsMouse ? "#a6e3a1" : "#94e2d5"
+            color: saveMA.containsMouse ? Theme.cpGreen : Theme.cpTeal
             Text {
                 font.family: Theme.fontFamily
                 anchors.centerIn: parent
                 text: "Save"
-                color: "#1e1e2e"
+                color: Theme.foregroundFor(parent.color)
                 font.bold: true
                 font.pixelSize: 12
             }
@@ -73,12 +73,12 @@ ColumnLayout {
         Layout.alignment: Qt.AlignHCenter
         spacing: 8
 
-        Text {  text: "Date:"; color: "#a6adc8"; font.pixelSize: 12; font.family: Theme.fontFamily }
+        Text {  text: "Date:"; color: Theme.cpSubtext0; font.pixelSize: 12; font.family: Theme.fontFamily }
 
         Text {
             font.family: Theme.fontFamily
             text: root.selectedDate.getDate() + "/" + (root.selectedDate.getMonth() + 1) + "/" + root.selectedDate.getFullYear()
-            color: "#cdd6f4"
+            color: Theme.cpText
             font.bold: true
             font.pixelSize: 13
         }
@@ -89,7 +89,7 @@ ColumnLayout {
         Layout.alignment: Qt.AlignHCenter
         spacing: 8
 
-        Text {  text: "Time:"; color: "#a6adc8"; font.pixelSize: 13; font.family: Theme.fontFamily }
+        Text {  text: "Time:"; color: Theme.cpSubtext0; font.pixelSize: 13; font.family: Theme.fontFamily }
 
         // --- CUSTOM HOUR INPUT ---
         RowLayout {
@@ -98,8 +98,8 @@ ColumnLayout {
             // Hour minus button
             Rectangle {
                 width: 32; height: 34; radius: 6
-                color: hourMinusMA.containsMouse ? "#45475a" : "#313244"
-                Text {  anchors.centerIn: parent; text: "−"; color: "#cdd6f4"; font.pixelSize: 16; font.bold: true; font.family: Theme.fontFamily }
+                color: hourMinusMA.containsMouse ? Theme.cpSurface1 : Theme.cpSurface0
+                Text {  anchors.centerIn: parent; text: "−"; color: Theme.cpText; font.pixelSize: 16; font.bold: true; font.family: Theme.fontFamily }
                 MouseArea {
                     id: hourMinusMA; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
                     onClicked: {
@@ -114,13 +114,13 @@ ColumnLayout {
             // Hour text input
             Rectangle {
                 width: 48; height: 34; radius: 6
-                color: Qt.rgba(0.9, 0.9, 0.9, 0.9)
+                color: Theme.panelSurface
                 TextInput {
                     id: hourInput
                     anchors.fill: parent
                     horizontalAlignment: Qt.AlignHCenter
                     verticalAlignment: Qt.AlignVCenter
-                    color: "#1e1e2e"
+                    color: Theme.foregroundFor(parent.color)
                     font.pixelSize: 16
                     font.bold: true
                     selectByMouse: true
@@ -150,8 +150,8 @@ ColumnLayout {
             // Hour plus button
             Rectangle {
                 width: 32; height: 34; radius: 6
-                color: hourPlusMA.containsMouse ? "#45475a" : "#313244"
-                Text {  anchors.centerIn: parent; text: "+"; color: "#cdd6f4"; font.pixelSize: 16; font.bold: true; font.family: Theme.fontFamily }
+                color: hourPlusMA.containsMouse ? Theme.cpSurface1 : Theme.cpSurface0
+                Text {  anchors.centerIn: parent; text: "+"; color: Theme.cpText; font.pixelSize: 16; font.bold: true; font.family: Theme.fontFamily }
                 MouseArea {
                     id: hourPlusMA; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
                     onClicked: {
@@ -164,7 +164,7 @@ ColumnLayout {
             }
         }
 
-        Text {  text: ":"; color: "#cdd6f4"; font.bold: true; font.pixelSize: 16; font.family: Theme.fontFamily }
+        Text {  text: ":"; color: Theme.cpText; font.bold: true; font.pixelSize: 16; font.family: Theme.fontFamily }
 
         // --- CUSTOM MINUTE INPUT ---
         RowLayout {
@@ -173,8 +173,8 @@ ColumnLayout {
             // Minute minus button
             Rectangle {
                 width: 32; height: 34; radius: 6
-                color: minMinusMA.containsMouse ? "#45475a" : "#313244"
-                Text {  anchors.centerIn: parent; text: "−"; color: "#cdd6f4"; font.pixelSize: 16; font.bold: true; font.family: Theme.fontFamily }
+                color: minMinusMA.containsMouse ? Theme.cpSurface1 : Theme.cpSurface0
+                Text {  anchors.centerIn: parent; text: "−"; color: Theme.cpText; font.pixelSize: 16; font.bold: true; font.family: Theme.fontFamily }
                 MouseArea {
                     id: minMinusMA; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
                     onClicked: {
@@ -189,13 +189,13 @@ ColumnLayout {
             // Minute text input
             Rectangle {
                 width: 48; height: 34; radius: 6
-                color: Qt.rgba(0.9, 0.9, 0.9, 0.9)
+                color: Theme.panelSurface
                 TextInput {
                     id: minInput
                     anchors.fill: parent
                     horizontalAlignment: Qt.AlignHCenter
                     verticalAlignment: Qt.AlignVCenter
-                    color: "#1e1e2e"
+                    color: Theme.foregroundFor(parent.color)
                     font.pixelSize: 16
                     font.bold: true
                     selectByMouse: true
@@ -225,8 +225,8 @@ ColumnLayout {
             // Minute plus button
             Rectangle {
                 width: 32; height: 34; radius: 6
-                color: minPlusMA.containsMouse ? "#45475a" : "#313244"
-                Text {  anchors.centerIn: parent; text: "+"; color: "#cdd6f4"; font.pixelSize: 16; font.bold: true; font.family: Theme.fontFamily }
+                color: minPlusMA.containsMouse ? Theme.cpSurface1 : Theme.cpSurface0
+                Text {  anchors.centerIn: parent; text: "+"; color: Theme.cpText; font.pixelSize: 16; font.bold: true; font.family: Theme.fontFamily }
                 MouseArea {
                     id: minPlusMA; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
                     onClicked: {
@@ -240,7 +240,7 @@ ColumnLayout {
         }
     }
 
-    Rectangle { Layout.fillWidth: true; height: 1; color: Qt.rgba(255,255,255,0.1) }
+    Rectangle { Layout.fillWidth: true; height: 1; color: Theme.withAlpha(Theme.text, 0.1) }
 
     // --- MINI CALENDAR GRID ---
     ColumnLayout {
@@ -258,7 +258,7 @@ ColumnLayout {
             Text {
                 font.family: Theme.fontFamily
                 text: pickerCal.monthName + " " + pickerCal.displayYear
-                color: "#cdd6f4"
+                color: Theme.cpText
                 font.bold: true
                 font.pixelSize: 13
                 Layout.fillWidth: true
@@ -283,7 +283,7 @@ ColumnLayout {
                 Text {
                     font.family: Theme.fontFamily
                     text: modelData
-                    color: "#a6adc8"
+                    color: Theme.cpSubtext0
                     font.pixelSize: 10
                     font.bold: true
                     Layout.preferredWidth: 28
@@ -300,7 +300,7 @@ ColumnLayout {
                         font.family: Theme.fontFamily
                         anchors.centerIn: parent
                         text: modelData.day
-                        color: parent.isSelected ? "#1e1e2e" : (modelData.inMonth ? "#cdd6f4" : "#585b70")
+                        color: parent.isSelected ? Theme.foregroundFor(Theme.primary) : (modelData.inMonth ? Theme.cpText : Theme.cpSurface2)
                         font.pixelSize: 11
                         font.bold: parent.isSelected
                     }
@@ -321,13 +321,13 @@ ColumnLayout {
         }
     }
 
-    Rectangle { Layout.fillWidth: true; height: 1; color: Qt.rgba(255,255,255,0.1) }
+    Rectangle { Layout.fillWidth: true; height: 1; color: Theme.withAlpha(Theme.text, 0.1) }
 
     // --- SAVED EVENTS LIST ---
     Text {
         font.family: Theme.fontFamily
         text: eventModel.count > 0 ? "Events (" + eventModel.count + ")" : "No events yet"
-        color: "#a6adc8"
+        color: Theme.cpSubtext0
         font.pixelSize: 11
         font.bold: true
         Layout.alignment: Qt.AlignHCenter
@@ -346,10 +346,10 @@ ColumnLayout {
             width: eventListView.width
             height: 40
             radius: 8
-            color: Qt.rgba(1,1,1,0.05)
+            color: Theme.withAlpha(Theme.text, 0.05)
             border.color: {
                 var diff = new Date(model.target) - new Date();
-                return diff <= 0 ? "#f38ba8" : Qt.rgba(1,1,1,0.1);
+                return diff <= 0 ? Theme.cpRed : Theme.withAlpha(Theme.text, 0.1);
             }
             border.width: 1
 
@@ -362,7 +362,7 @@ ColumnLayout {
                 Text {
                     font.family: Theme.fontFamily
                     text: model.title || "Event"
-                    color: "#cdd6f4"
+                    color: Theme.cpText
                     font.pixelSize: 12
                     font.bold: true
                     elide: Text.ElideRight
@@ -375,7 +375,7 @@ ColumnLayout {
                     color: {
                         var _tick = root.tickCounter; // force re-eval on tick
                         var diff = new Date(model.target) - new Date();
-                        return diff <= 0 ? "#f38ba8" : "#a6e3a1";
+                        return diff <= 0 ? Theme.cpRed : Theme.cpGreen;
                     }
                     font.pixelSize: 11
                     font.bold: true
@@ -401,7 +401,7 @@ ColumnLayout {
                 Text {
                     font.family: Theme.fontFamily
                     text: "✕"
-                    color: delMA.containsMouse ? "#f38ba8" : "#6c7086"
+                    color: delMA.containsMouse ? Theme.cpRed : Theme.cpOverlay0
                     font.pixelSize: 14
                     MouseArea {
                         id: delMA

@@ -18,13 +18,13 @@ Rectangle {
     property string title: "Select File"
     property bool directoryMode: false
     property bool allowCreateFolder: false
-    readonly property color pickerBg: "#1b1b2b"
-    readonly property color pickerSurface: Qt.rgba(255, 255, 255, 0.07)
-    readonly property color pickerSurfaceHover: Qt.rgba(137 / 255, 180 / 255, 250 / 255, 0.16)
-    readonly property color pickerText: "#f5f7fa"
-    readonly property color pickerSubtext: "#bac2de"
-    readonly property color pickerAccent: "#89dceb"
-    readonly property color pickerDanger: "#f38ba8"
+    readonly property color pickerBg: Theme.panelSurface
+    readonly property color pickerSurface: Theme.surfaceTintLow
+    readonly property color pickerSurfaceHover: Theme.withAlpha(Theme.primary, 0.16)
+    readonly property color pickerText: Theme.text
+    readonly property color pickerSubtext: Theme.subtext
+    readonly property color pickerAccent: Theme.primary
+    readonly property color pickerDanger: Theme.red
 
     FilePickerBackend {
         id: backend
@@ -32,7 +32,7 @@ Rectangle {
     }
     
     color: pickerBg
-    border.color: Qt.rgba(255,255,255,0.14)
+    border.color: Theme.withAlpha(Theme.text, 0.14)
     border.width: 1
     radius: 12
     

@@ -3,7 +3,6 @@ import QtQuick.Layouts
 import QtQuick.Controls
 import "../../../Widgets"
 import "../../../Services" as S
-import "SettingsPalette.js" as SettingsPalette
 
 Item {
     id: root
@@ -85,7 +84,7 @@ Item {
                 indicator: Rectangle {
                     implicitWidth: 40; implicitHeight: 20; radius: 10
                     color: parent.checked ? colorPrimary : colorSurface
-                    border.color: Qt.rgba(255,255,255,0.1)
+                    border.color: Theme.withAlpha(Theme.text, 0.1)
                     Rectangle {
                         x: parent.parent.checked ? parent.width - width - 2 : 2
                         width: 16; height: 16; radius: 8
@@ -307,7 +306,7 @@ Item {
                             height: 38
                             radius: 8
                             color: Qt.rgba(colorSurface.r, colorSurface.g, colorSurface.b, 0.8)
-                            border.color: filteredAppInput.activeFocus ? colorPrimary : Qt.rgba(255, 255, 255, 0.08)
+                            border.color: filteredAppInput.activeFocus ? colorPrimary : Theme.withAlpha(Theme.text, 0.08)
                             border.width: 1
 
                             TextInput {

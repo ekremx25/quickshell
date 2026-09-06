@@ -8,7 +8,7 @@ Rectangle {
     id: root
     height: 30
     width: layout.implicitWidth + 32
-    color: "#f5c2e7" // Pink
+    color: Theme.tempColor
     radius: 15
 
     // Patch that flattens the left side
@@ -29,7 +29,7 @@ Rectangle {
             text: "--°C"
             font.bold: true
             font.family: Theme.fontFamily
-            color: "#1e1e2e"
+            color: Theme.foregroundFor(root.color)
             font.pixelSize: 14
         }
 
@@ -37,7 +37,7 @@ Rectangle {
             font.family: Theme.iconFontFamily
             text: "" // If your font has it you can use "󰏈"
             font.pixelSize: 16
-            color: "#1e1e2e"
+            color: Theme.foregroundFor(root.color)
         }
     }
 

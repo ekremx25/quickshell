@@ -3,7 +3,6 @@ import QtQuick.Layouts
 import QtQuick.Controls
 import QtQuick.Shapes
 import "../../../Widgets"
-import "../Settings/SettingsPalette.js" as SettingsPalette
 
 ColumnLayout {
     id: diskPage
@@ -253,7 +252,7 @@ ColumnLayout {
                             id: badgeText
                             anchors.centerIn: parent
                             text: "fstab"
-                            color: "#a6e3a1"
+                            color: Theme.cpGreen
                             font.pixelSize: 10
                             font.bold: true
                         }
@@ -273,7 +272,7 @@ ColumnLayout {
                             text: diskService.busyDeviceName === modelData.name
                                 ? "Working..."
                                 : diskService.mountLabel(modelData)
-                            color: "#1e1e2e"
+                            color: Theme.foregroundFor(Theme.primary)
                             font.pixelSize: 11
                             font.bold: true
                         }
@@ -309,7 +308,7 @@ ColumnLayout {
                             text: diskService.busyDeviceName === modelData.name
                                 ? "Working..."
                                 : (modelData.inFstab ? "Unmount & Remove" : "Unmount")
-                            color: "#1e1e2e"
+                            color: Theme.foregroundFor(Theme.primary)
                             font.pixelSize: 11
                             font.bold: true
                         }
@@ -421,7 +420,7 @@ ColumnLayout {
                         width: 132
                         height: 34
                         radius: 8
-                        color: Qt.rgba(255,255,255,0.08)
+                        color: Theme.withAlpha(Theme.text, 0.08)
                         Text {  anchors.centerIn: parent; text: "Browse folders"; color: SettingsPalette.text; font.pixelSize: 12; font.bold: true; font.family: Theme.fontFamily }
                         MouseArea {
                             anchors.fill: parent
@@ -464,7 +463,7 @@ ColumnLayout {
                         height: 36
                         radius: 10
                         color: Qt.lighter(Theme.primary, 1.04)
-                        Text {  anchors.centerIn: parent; text: "Bind & Mount"; color: "#1e1e2e"; font.pixelSize: 12; font.bold: true; font.family: Theme.fontFamily }
+                        Text {  anchors.centerIn: parent; text: "Bind & Mount"; color: Theme.foregroundFor(Theme.primary); font.pixelSize: 12; font.bold: true; font.family: Theme.fontFamily }
                         MouseArea {
                             anchors.fill: parent
                             cursorShape: Qt.PointingHandCursor

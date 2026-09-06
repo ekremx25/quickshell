@@ -264,7 +264,7 @@ Variants {
             implicitHeight: (dockWindow.cfgIconSize + 8) * dockScale
             radius: 14 * dockScale
             color: (dockWindow.dockConfigData && dockWindow.dockConfigData.showBackground === false) ? "transparent" : Qt.rgba(30/255, 30/255, 46/255, dockWindow.cfgTransparency)
-            border.color: (dockWindow.dockConfigData && dockWindow.dockConfigData.showBackground === false) ? "transparent" : (dockWindow.cfgShowBorder ? Qt.rgba(49/255, 50/255, 68/255, 0.8) : "transparent")
+            border.color: (dockWindow.dockConfigData && dockWindow.dockConfigData.showBackground === false) ? "transparent" : (dockWindow.cfgShowBorder ? Theme.withAlpha(Theme.surface, 0.8) : "transparent")
             border.width: (dockWindow.dockConfigData && dockWindow.dockConfigData.showBackground === false) ? 0 : (dockWindow.cfgShowBorder ? 1 : 0)
 
             // Subtle glow outside the border
@@ -274,7 +274,7 @@ Variants {
                 anchors.margins: -1
                 radius: parent.radius + 1
                 color: "transparent"
-                border.color: Qt.rgba(137/255, 180/255, 250/255, 0.12)
+                border.color: Theme.withAlpha(Theme.primary, 0.12)
                 border.width: 1
                 z: -1
             }

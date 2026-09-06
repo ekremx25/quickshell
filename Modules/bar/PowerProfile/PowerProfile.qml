@@ -124,7 +124,7 @@ Rectangle {
                         property bool isActive: root.currentProfile === modelData
                         property var pData: root.profileInfo(modelData)
 
-                        color: isActive ? Qt.rgba(255,255,255,0.12) : (profMa.containsMouse ? Qt.rgba(255,255,255,0.05) : "transparent")
+                        color: isActive ? Theme.withAlpha(Theme.text, 0.12) : (profMa.containsMouse ? Theme.withAlpha(Theme.text, 0.05) : "transparent")
                         border.color: isActive ? pData.color : "transparent"
                         border.width: isActive ? 2 : 0
 

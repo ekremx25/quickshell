@@ -16,7 +16,7 @@ Rectangle {
     readonly property color contentColor: Theme.foregroundFor(Theme.clipboardColor)
     color: Theme.clipboardColor
     Behavior on color { ColorAnimation { duration: Theme.animMedium } }
-    opacity: hasActive ? 1 : 0.74
+    opacity: 1 // Empty history must not dim the actionable clipboard icon.
     
     Behavior on opacity { NumberAnimation { duration: 180 } }
     

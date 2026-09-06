@@ -10,8 +10,12 @@ Rectangle {
     id: root
     width: 36
     height: 36
-    color: "transparent"
+    color: Theme.materialActive
+        ? (mouseArea.containsMouse ? Qt.lighter(Theme.notepadColor, 1.08) : Theme.notepadColor)
+        : "transparent"
     radius: 12
+    border.width: Theme.materialActive && notepadWindow.visible ? 1 : 0
+    border.color: Theme.foregroundFor(Theme.notepadColor)
 
     NotepadService { id: notepadService }
 
@@ -28,7 +32,8 @@ Rectangle {
         text: "󰠮" // Notepad icon
         font.family: "JetBrainsMono Nerd Font"
         font.pixelSize: 20
-        color: mouseArea.containsMouse || notepadWindow.visible ? "#f9e2af" : "#cdd6f4" // Yellow accent on hover/active
+        color: Theme.materialActive ? Theme.foregroundFor(root.color)
+            : (mouseArea.containsMouse || notepadWindow.visible ? Theme.cpYellow : Theme.cpText)
     }
     
     // --- NOTEPAD WINDOW ---
@@ -56,8 +61,8 @@ Rectangle {
 
         Rectangle {
             anchors.fill: parent
-            color: "#1e1e2e"
-            border.color: "#f9e2af"
+            color: Theme.cpBase
+            border.color: Theme.cpYellow
             border.width: 2
             radius: 12
 
@@ -74,7 +79,7 @@ Rectangle {
 
                 Text {
                     text: "Notepad"
-                    color: "#f9e2af"
+                    color: Theme.cpYellow
                     font.bold: true
                     font.pixelSize: 16
                     font.family: Theme.fontFamily
@@ -89,7 +94,7 @@ Rectangle {
                     TextArea {
                         id: textArea
                         placeholderText: "Take a note here..."
-                        color: "#cdd6f4"
+                        color: Theme.cpText
                         font.pixelSize: 13
                         font.family: Theme.fontFamily
                         wrapMode: TextEdit.Wrap
@@ -98,7 +103,7 @@ Rectangle {
                         background: Rectangle {
                             color: Qt.rgba(0,0,0,0.2)
                             radius: 8
-                            border.color: parent.activeFocus ? "#f9e2af" : Qt.rgba(255,255,255,0.1)
+                            border.color: parent.activeFocus ? Theme.cpYellow : Theme.withAlpha(Theme.text, 0.1)
                             border.width: 1
                         }
 

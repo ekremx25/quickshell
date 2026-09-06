@@ -63,22 +63,22 @@ Rectangle {
     readonly property color eqAccentButton: Qt.rgba(eqAccent.r, eqAccent.g, eqAccent.b, 0.32)
     readonly property real primaryLuma: (eqAccent.r * 0.299) + (eqAccent.g * 0.587) + (eqAccent.b * 0.114)
     readonly property bool uiIsLight: bgLuma > 0.62
-    readonly property color adaptiveText: uiIsLight ? "#0f172a" : Theme.text
-    readonly property color adaptiveSubtext: uiIsLight ? "#475569" : Theme.subtext
-    readonly property color adaptiveAccentText: uiIsLight ? "#0f172a" : root.eqAccent
-    readonly property color adaptiveOnPrimary: primaryLuma > 0.62 ? "#0b1220" : "#f8fafc"
-    readonly property color sinkAccent: uiIsLight ? "#0f766e" : "#a6e3a1"
-    readonly property color sourceAccent: uiIsLight ? "#0369a1" : "#94e2d5"
-    readonly property color glassPanel: Qt.rgba(28/255, 41/255, 56/255, 0.82)
-    readonly property color glassCard: Qt.rgba(164/255, 226/255, 255/255, 0.09)
-    readonly property color glassCardStrong: Qt.rgba(184/255, 239/255, 255/255, 0.14)
-    readonly property color glassStroke: Qt.rgba(113/255, 229/255, 255/255, 0.24)
-    readonly property color softText: "#eef6ff"
-    readonly property color dimText: "#c5d8e8"
-    readonly property color trackColor: Qt.rgba(210/255, 242/255, 255/255, 0.20)
-    readonly property color waveGlowColor: Qt.rgba(153/255, 244/255, 255/255, 0.24)
-    readonly property color waveLineColor: Qt.rgba(226/255, 255/255, 255/255, 0.86)
-    readonly property color waveFillColor: Qt.rgba(130/255, 236/255, 255/255, 0.08)
+    readonly property color adaptiveText: Theme.text
+    readonly property color adaptiveSubtext: Theme.subtext
+    readonly property color adaptiveAccentText: root.eqAccent
+    readonly property color adaptiveOnPrimary: Theme.foregroundFor(root.eqAccent)
+    readonly property color sinkAccent: Theme.green
+    readonly property color sourceAccent: Theme.secondary
+    readonly property color glassPanel: Theme.withAlpha(Theme.panelSurface, 0.96)
+    readonly property color glassCard: Theme.surfaceTintLow
+    readonly property color glassCardStrong: Theme.surfaceTintHigh
+    readonly property color glassStroke: Theme.withAlpha(root.eqAccent, 0.24)
+    readonly property color softText: Theme.text
+    readonly property color dimText: Theme.subtext
+    readonly property color trackColor: Theme.surfaceTintMax
+    readonly property color waveGlowColor: Theme.withAlpha(root.eqAccent, 0.24)
+    readonly property color waveLineColor: root.eqAccent
+    readonly property color waveFillColor: Theme.withAlpha(root.eqAccent, 0.08)
     property real wavePhase: 0
     PwObjectTracker { objects: [ root.defaultSink, root.defaultSource ] }
     onDefaultSinkChanged: backend.scheduleRefresh(80)
@@ -285,7 +285,7 @@ Rectangle {
                             width: 30
                             height: 30
                             radius: 15
-                            color: Qt.rgba(255,255,255,0.08)
+                            color: Theme.withAlpha(Theme.text, 0.08)
                             border.width: 1
                             border.color: root.glassStroke
                             Text {  anchors.centerIn: parent; text: "✕"; color: root.softText; font.pixelSize: 12; font.family: Theme.fontFamily }
@@ -386,7 +386,7 @@ Rectangle {
 
                                 Rectangle {
                                     width: 36; height: 36; radius: 18
-                                    color: prevMA.containsMouse ? Qt.rgba(255,255,255,0.12) : Qt.rgba(255,255,255,0.05)
+                                    color: prevMA.containsMouse ? Theme.withAlpha(Theme.text, 0.12) : Theme.withAlpha(Theme.text, 0.05)
                                     border.width: 1
                                     border.color: root.glassStroke
                                     Text { anchors.centerIn: parent; text: "󰒮"; font.family: "JetBrainsMono Nerd Font"; color: root.softText; font.pixelSize: 13 }
@@ -397,14 +397,14 @@ Rectangle {
                                     width: 52; height: 52; radius: 26
                                     color: root.eqAccent
                                     border.width: 1
-                                    border.color: Qt.rgba(255,255,255,0.18)
+                                    border.color: Theme.withAlpha(Theme.text, 0.18)
                                     Text {  anchors.centerIn: parent; text: root.isPlaying ? "⏸" : "⏵"; color: root.adaptiveOnPrimary; font.pixelSize: 18; font.bold: true; font.family: Theme.iconFontFamily }
                                     MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: if (root.currentPlayer) root.currentPlayer.togglePlaying() }
                                 }
 
                                 Rectangle {
                                     width: 36; height: 36; radius: 18
-                                    color: nextMA.containsMouse ? Qt.rgba(255,255,255,0.12) : Qt.rgba(255,255,255,0.05)
+                                    color: nextMA.containsMouse ? Theme.withAlpha(Theme.text, 0.12) : Theme.withAlpha(Theme.text, 0.05)
                                     border.width: 1
                                     border.color: root.glassStroke
                                     Text { anchors.centerIn: parent; text: "󰒭"; font.family: "JetBrainsMono Nerd Font"; color: root.softText; font.pixelSize: 13 }
@@ -469,9 +469,9 @@ Rectangle {
                                 width: ListView.view.width
                                 height: 42
                                 radius: 12
-                                color: modelData.selected ? Qt.rgba(root.eqAccent.r, root.eqAccent.g, root.eqAccent.b, 0.16) : Qt.rgba(255,255,255,0.04)
+                                color: modelData.selected ? Qt.rgba(root.eqAccent.r, root.eqAccent.g, root.eqAccent.b, 0.16) : Theme.withAlpha(Theme.text, 0.04)
                                 border.width: 1
-                                border.color: modelData.selected ? Qt.rgba(root.eqAccent.r, root.eqAccent.g, root.eqAccent.b, 0.38) : Qt.rgba(255,255,255,0.05)
+                                border.color: modelData.selected ? Qt.rgba(root.eqAccent.r, root.eqAccent.g, root.eqAccent.b, 0.38) : Theme.withAlpha(Theme.text, 0.05)
 
                                 RowLayout {
                                     anchors.fill: parent

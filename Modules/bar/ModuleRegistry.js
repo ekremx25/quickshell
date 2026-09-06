@@ -206,6 +206,20 @@ var _modules = [
         contexts: []
     },
     {
+        id: "hyprmoncfg",
+        name: "Hyprmoncfg",
+        component: "Hyprmoncfg",
+        icon: "󰍹",
+        label: "Display Studio",
+        description: "Monitor profiles, safe layout switching and hot-plug automation.",
+        category: "system",
+        color: "#89b4fa",
+        placements: ["bar"],
+        settingsPage: "monitors",
+        services: ["hyprmoncfg", "hyprmoncfgd"],
+        contexts: []
+    },
+    {
         id: "system-info-group",
         name: "SysInfoGroup",
         component: "SysInfoGroup",

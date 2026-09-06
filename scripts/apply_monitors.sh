@@ -8,6 +8,13 @@ CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 CONFIG_FILE="$CONFIG_HOME/quickshell/monitor_config.json"
 HYPR_MONITOR_APPLY="$CONFIG_HOME/quickshell/scripts/hypr_monitor_apply.sh"
 
+# hyprmoncfgd is the canonical writer while automatic profile switching is
+# active.  Keeping the legacy role manager idle prevents two hot-plug handlers
+# from racing and lets disabling hyprmoncfg restore the previous behaviour.
+if systemctl --user is-active --quiet hyprmoncfgd.service 2>/dev/null; then
+    exit 0
+fi
+
 # Hyprland uses the port-independent role manager. The legacy code below is
 # retained for Niri and Mango until they expose equivalent hot-plug metadata.
 if [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ] || hyprctl systeminfo >/dev/null 2>&1; then
@@ -26,7 +33,7 @@ if [ -n "$HYPRLAND_INSTANCE_SIGNATURE" ] || hyprctl systeminfo >/dev/null 2>&1; 
     IS_HYPRLAND=1
 elif [ -n "$NIRI_SOCKET" ]; then
     IS_NIRI=1
-elif command -v mmsg >/dev/null 2>&1; then
+elif [ -n "${MANGO_INSTANCE_SIGNATURE:-}" ] && command -v mmsg >/dev/null 2>&1; then
     IS_MANGO=1
 fi
 

@@ -1,0 +1,68 @@
+import QtQuick
+import Quickshell
+import "WIDGETS"
+import "SERVICES"
+ShellRoot {
+    id: test
+    property int phase: 0
+    property var published: []
+    property string first: FIRST
+    property string latest: LATEST
+    function check(ok, message) { if (!ok) throw new Error(message); }
+    function fail(error) { console.error("WALLPAPER_QUEUE_FAIL " + error); Qt.quit(); }
+    Connections {
+        target: ColorPaletteService
+        function onThemeApplied() {
+            if (test.phase > 0 && ColorPaletteService.appliedWallpaperPath.length > 0)
+                test.published.push(ColorPaletteService.appliedWallpaperPath);
+        }
+    }
+    Timer {
+        interval: 600; running: true
+        onTriggered: {
+            ColorPaletteService.configLoaded = false;
+            ColorPaletteService.available = true;
+            ColorPaletteService.enabled = true;
+            ColorPaletteService.liveUpdate = true;
+            ColorPaletteService.matugenType = "scheme-wallpaper-spectrum";
+            test.phase = 1;
+            ColorPaletteService.selectWallpaper(test.first);
+            ColorPaletteService.selectWallpaper(test.latest);
+            poll.start();
+        }
+    }
+    Timer {
+        id: poll; interval: 30; repeat: true
+        onTriggered: {
+            try {
+                if (ColorPaletteService.isBusy || ColorPaletteService.pendingWallpaperPath.length > 0) return;
+                if (test.phase === 1) {
+                    test.check(ColorPaletteService.appliedWallpaperPath === test.latest, "latest image did not win");
+                    test.check(test.published.indexOf(test.first) < 0, "stale first palette was published");
+                    test.check(ColorPaletteService.wallpaperSource === "selected", "manual source not preserved");
+                    test.check(Theme.primary.g > Theme.primary.r, "green image did not reach module colors");
+                    // Start a slow desktop lookup, then choose an image manually.
+                    test.phase = 2;
+                    ColorPaletteService.useDesktopWallpaper();
+                    ColorPaletteService.selectWallpaper(test.latest);
+                    settle.start();
+                    poll.stop();
+                }
+            } catch(e) { test.fail(e); }
+        }
+    }
+    Timer {
+        id: settle; interval: 600
+        onTriggered: {
+            try {
+                test.check(ColorPaletteService.wallpaperSource === "selected", "desktop lookup replaced source");
+                test.check(ColorPaletteService.wallpaperPath === test.latest, "desktop lookup replaced selected image");
+                test.check(ColorPaletteService.appliedWallpaperPath === test.latest, "desktop lookup published old palette");
+                test.check(test.published.indexOf(test.first) < 0, "stale desktop image was published");
+                console.log("WALLPAPER_QUEUE_PASS");
+                Qt.quit();
+            } catch(e) { test.fail(e); }
+        }
+    }
+    Timer { interval: 5000; running: true; onTriggered: test.fail("timed out") }
+}

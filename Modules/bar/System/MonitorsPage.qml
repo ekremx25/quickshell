@@ -3,7 +3,6 @@ import QtQuick.Layouts
 import Quickshell
 import "."
 import "../../../Widgets"
-import "../Settings/SettingsPalette.js" as SettingsPalette
 import "../../../Services"
 import "../../../Services/core/Log.js" as Log
 import "MonitorGeometry.js" as MonitorGeometry
@@ -56,10 +55,10 @@ Item {
     readonly property bool monitorOperationBusy: applyInProgress || backend.busy
 
     readonly property color cardColor: Qt.rgba(245 / 255, 247 / 255, 250 / 255, 0.05)
-    readonly property color cardBorder: Qt.rgba(255, 255, 255, 0.08)
-    readonly property color softBorder: Qt.rgba(255, 255, 255, 0.05)
-    readonly property color accentSoft: Qt.rgba(137 / 255, 180 / 255, 250 / 255, 0.14)
-    readonly property color accentBorder: Qt.rgba(137 / 255, 180 / 255, 250 / 255, 0.55)
+    readonly property color cardBorder: Theme.withAlpha(Theme.text, 0.08)
+    readonly property color softBorder: Theme.withAlpha(Theme.text, 0.05)
+    readonly property color accentSoft: Theme.withAlpha(Theme.primary, 0.14)
+    readonly property color accentBorder: Theme.withAlpha(Theme.primary, 0.55)
 
     function getDefaultMonitorName() {
         for (var i = 0; i < outputs.length; i++) {
@@ -614,7 +613,7 @@ Item {
 
                             Rectangle {
                                 radius: 10
-                                color: page.defaultMonitorName === (page.selectedOutput ? page.selectedOutput.name : "") ? page.accentSoft : Qt.rgba(255, 255, 255, 0.04)
+                                color: page.defaultMonitorName === (page.selectedOutput ? page.selectedOutput.name : "") ? page.accentSoft : Theme.withAlpha(Theme.text, 0.04)
                                 border.color: page.defaultMonitorName === (page.selectedOutput ? page.selectedOutput.name : "") ? page.accentBorder : page.softBorder
                                 border.width: 1
                                 implicitWidth: mainDisplayText.implicitWidth + 24
@@ -648,7 +647,7 @@ Item {
                             Rectangle {
                                 Layout.fillWidth: true
                                 radius: 12
-                                color: Qt.rgba(255, 255, 255, 0.03)
+                                color: Theme.withAlpha(Theme.text, 0.03)
                                 border.color: page.softBorder
                                 border.width: 1
                                 implicitHeight: 74
@@ -666,7 +665,7 @@ Item {
                             Rectangle {
                                 Layout.fillWidth: true
                                 radius: 12
-                                color: Qt.rgba(255, 255, 255, 0.03)
+                                color: Theme.withAlpha(Theme.text, 0.03)
                                 border.color: page.softBorder
                                 border.width: 1
                                 implicitHeight: 74
@@ -684,7 +683,7 @@ Item {
                             Rectangle {
                                 Layout.fillWidth: true
                                 radius: 12
-                                color: Qt.rgba(255, 255, 255, 0.03)
+                                color: Theme.withAlpha(Theme.text, 0.03)
                                 border.color: page.softBorder
                                 border.width: 1
                                 implicitHeight: 74
@@ -703,7 +702,7 @@ Item {
                             Rectangle {
                                 Layout.fillWidth: true
                                 radius: 12
-                                color: Qt.rgba(255, 255, 255, 0.03)
+                                color: Theme.withAlpha(Theme.text, 0.03)
                                 border.color: page.softBorder
                                 border.width: 1
                                 implicitHeight: 74
@@ -722,7 +721,7 @@ Item {
                         Rectangle {
                             Layout.fillWidth: true
                             radius: 12
-                            color: pendingChanges() ? page.accentSoft : Qt.rgba(255, 255, 255, 0.03)
+                            color: pendingChanges() ? page.accentSoft : Theme.withAlpha(Theme.text, 0.03)
                             border.color: pendingChanges() ? page.accentBorder : page.softBorder
                             border.width: 1
                             implicitHeight: hintRow.implicitHeight + 20
@@ -737,15 +736,15 @@ Item {
                                     width: 28
                                     height: 28
                                     radius: 9
-                                    color: pendingChanges() ? Qt.rgba(255, 255, 255, 0.14) : Qt.rgba(166 / 255, 227 / 255, 161 / 255, 0.16)
-                                    border.color: pendingChanges() ? Qt.rgba(255, 255, 255, 0.2) : Qt.rgba(166 / 255, 227 / 255, 161 / 255, 0.35)
+                                    color: pendingChanges() ? Theme.withAlpha(Theme.text, 0.14) : Theme.withAlpha(Theme.green, 0.16)
+                                    border.color: pendingChanges() ? Theme.withAlpha(Theme.text, 0.2) : Theme.withAlpha(Theme.green, 0.35)
                                     border.width: 1
 
                                     Text {
                                         font.family: Theme.fontFamily
                                         anchors.centerIn: parent
                                         text: pendingChanges() ? "!" : "i"
-                                        color: pendingChanges() ? "white" : "#a6e3a1"
+                                        color: pendingChanges() ? Theme.text : Theme.cpGreen
                                         font.pixelSize: 13
                                         font.bold: true
                                     }
@@ -773,7 +772,7 @@ Item {
                                     required property var modelData
                                     required property int index
                                     radius: 10
-                                    color: page.selectedIdx === index ? page.accentSoft : Qt.rgba(255, 255, 255, 0.03)
+                                    color: page.selectedIdx === index ? page.accentSoft : Theme.withAlpha(Theme.text, 0.03)
                                     border.color: page.selectedIdx === index ? page.accentBorder : page.softBorder
                                     border.width: 1
                                     implicitWidth: chipLabel.implicitWidth + 28

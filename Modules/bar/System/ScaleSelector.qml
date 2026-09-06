@@ -1,7 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
 import "../../../Widgets"
-import "../Settings/SettingsPalette.js" as SettingsPalette
 
 Item {
     id: root
@@ -22,10 +21,10 @@ Item {
     implicitWidth: selectorLayout.implicitWidth
     implicitHeight: selectorLayout.implicitHeight
 
-    readonly property color chipColor: Qt.rgba(255, 255, 255, 0.03)
-    readonly property color chipBorder: Qt.rgba(255, 255, 255, 0.05)
-    readonly property color activeChipColor: Qt.rgba(137 / 255, 180 / 255, 250 / 255, 0.14)
-    readonly property color activeChipBorder: Qt.rgba(137 / 255, 180 / 255, 250 / 255, 0.55)
+    readonly property color chipColor: Theme.withAlpha(Theme.text, 0.03)
+    readonly property color chipBorder: Theme.withAlpha(Theme.text, 0.05)
+    readonly property color activeChipColor: Theme.withAlpha(Theme.primary, 0.14)
+    readonly property color activeChipBorder: Theme.withAlpha(Theme.primary, 0.55)
 
     function isSelected(value) {
         return Math.abs(root.selectedScale - value) < 0.01;
@@ -66,8 +65,8 @@ Item {
 
             Rectangle {
                 radius: 9
-                color: downArea.containsMouse && root.canStepDown ? Qt.rgba(255, 255, 255, 0.08) : root.chipColor
-                border.color: root.canStepDown ? root.chipBorder : Qt.rgba(255, 255, 255, 0.03)
+                color: downArea.containsMouse && root.canStepDown ? Theme.withAlpha(Theme.text, 0.08) : root.chipColor
+                border.color: root.canStepDown ? root.chipBorder : Theme.withAlpha(Theme.text, 0.03)
                 border.width: 1
                 implicitWidth: 34
                 implicitHeight: 34
@@ -128,8 +127,8 @@ Item {
 
             Rectangle {
                 radius: 9
-                color: upArea.containsMouse && root.canStepUp ? Qt.rgba(255, 255, 255, 0.08) : root.chipColor
-                border.color: root.canStepUp ? root.chipBorder : Qt.rgba(255, 255, 255, 0.03)
+                color: upArea.containsMouse && root.canStepUp ? Theme.withAlpha(Theme.text, 0.08) : root.chipColor
+                border.color: root.canStepUp ? root.chipBorder : Theme.withAlpha(Theme.text, 0.03)
                 border.width: 1
                 implicitWidth: 34
                 implicitHeight: 34

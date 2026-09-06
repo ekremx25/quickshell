@@ -1,7 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
 import "../../../Widgets"
-import "../Settings/SettingsPalette.js" as SettingsPalette
 
 Rectangle {
     id: root
@@ -32,7 +31,7 @@ Rectangle {
             width: 48
             height: 26
             radius: 13
-            color: root.checked ? Theme.primary : Qt.rgba(49/255, 50/255, 68/255, 0.8)
+            color: root.checked ? Theme.primary : Theme.withAlpha(Theme.surface, 0.8)
 
             Behavior on color { ColorAnimation { duration: 200 } }
 
@@ -42,7 +41,7 @@ Rectangle {
                 radius: 10
                 anchors.verticalCenter: parent.verticalCenter
                 x: root.checked ? parent.width - width - 3 : 3
-                color: "white"
+                color: root.checked ? Theme.foregroundFor(Theme.primary) : Theme.text
 
                 Behavior on x {
                     NumberAnimation { duration: 200; easing.type: Easing.OutQuad }

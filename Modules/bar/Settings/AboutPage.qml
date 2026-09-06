@@ -1,6 +1,5 @@
 import QtQuick
 import QtQuick.Layouts
-import "SettingsPalette.js" as SettingsPalette
 import Quickshell
 import "../../../Widgets"
 import "../../../Services"
@@ -58,8 +57,8 @@ Item {
                 Layout.fillWidth: true
                 height: 120; radius: 16
                 gradient: Gradient {
-                    GradientStop { position: 0.0; color: Qt.rgba(137/255, 180/255, 250/255, 0.15) }
-                    GradientStop { position: 1.0; color: Qt.rgba(203/255, 166/255, 247/255, 0.1) }
+                    GradientStop { position: 0.0; color: Theme.withAlpha(Theme.primary, 0.15) }
+                    GradientStop { position: 1.0; color: Theme.withAlpha(Theme.mauve, 0.1) }
                 }
 
                 ColumnLayout {
@@ -103,7 +102,7 @@ Item {
                 Rectangle {
                     Layout.fillWidth: true
                     height: 42; radius: 8
-                    color: index % 2 === 0 ? Qt.rgba(255,255,255,0.02) : "transparent"
+                    color: index % 2 === 0 ? Theme.withAlpha(Theme.text, 0.02) : "transparent"
 
                     RowLayout {
                         anchors.fill: parent

@@ -9,7 +9,7 @@ Rectangle {
 
     color: "transparent"
     radius: 17
-    border.color: Qt.rgba(1, 1, 1, 0.12)
+    border.color: Theme.withAlpha(Theme.text, 0.12)
     border.width: 1
     implicitHeight: 34
     implicitWidth: trayRow.implicitWidth + 18

@@ -3,7 +3,6 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
 import "../../../Widgets"
-import "../Settings/SettingsPalette.js" as SettingsPalette
 
 Item {
     id: page
@@ -130,7 +129,7 @@ Item {
                     width: luaText.implicitWidth + 22
                     height: 28
                     radius: 8
-                    color: Qt.rgba(166 / 255, 227 / 255, 161 / 255, 0.12)
+                    color: Theme.withAlpha(Theme.green, 0.12)
                     Text { id: luaText; anchors.centerIn: parent; text: "Lua"; color: SettingsPalette.text; font.pixelSize: 12; font.bold: true }
                 }
             }
@@ -147,8 +146,8 @@ Item {
                             Layout.preferredWidth: 180
                             height: 54
                             radius: 8
-                            color: presetArea.containsMouse ? Qt.rgba(137 / 255, 180 / 255, 250 / 255, 0.16) : Qt.rgba(255, 255, 255, 0.04)
-                            border.color: Qt.rgba(255, 255, 255, 0.08)
+                            color: presetArea.containsMouse ? Theme.withAlpha(Theme.primary, 0.16) : Theme.withAlpha(Theme.text, 0.04)
+                            border.color: Theme.withAlpha(Theme.text, 0.08)
                             border.width: 1
                             Text { anchors.centerIn: parent; text: modelData.label; color: SettingsPalette.text; font.pixelSize: 13; font.bold: true }
                             MouseArea {
@@ -165,10 +164,10 @@ Item {
 
             Section {
                 title: "Window Spacing"
-                SliderControl { Layout.fillWidth: true; label: "Inner gap"; value: page.gapsIn; maximum: 80; accent: "#74c7ec"; onSetValue: value => page.gapsIn = page.clampInt(value, 0, 80) }
-                SliderControl { Layout.fillWidth: true; label: "Outer gap"; value: page.gapsOut; maximum: 120; accent: "#f9e2af"; onSetValue: value => page.gapsOut = page.clampInt(value, 0, 120) }
-                SliderControl { Layout.fillWidth: true; label: "Border size"; value: page.borderSize; maximum: 12; accent: "#cba6f7"; onSetValue: value => page.borderSize = page.clampInt(value, 0, 12) }
-                SliderControl { Layout.fillWidth: true; label: "Corner radius"; value: page.rounding; maximum: 40; accent: "#a6e3a1"; onSetValue: value => page.rounding = page.clampInt(value, 0, 40) }
+                SliderControl { Layout.fillWidth: true; label: "Inner gap"; value: page.gapsIn; maximum: 80; accent: Theme.cpSapphire; onSetValue: value => page.gapsIn = page.clampInt(value, 0, 80) }
+                SliderControl { Layout.fillWidth: true; label: "Outer gap"; value: page.gapsOut; maximum: 120; accent: Theme.cpYellow; onSetValue: value => page.gapsOut = page.clampInt(value, 0, 120) }
+                SliderControl { Layout.fillWidth: true; label: "Border size"; value: page.borderSize; maximum: 12; accent: Theme.cpMauve; onSetValue: value => page.borderSize = page.clampInt(value, 0, 12) }
+                SliderControl { Layout.fillWidth: true; label: "Corner radius"; value: page.rounding; maximum: 40; accent: Theme.cpGreen; onSetValue: value => page.rounding = page.clampInt(value, 0, 40) }
             }
 
             Section {
@@ -201,8 +200,8 @@ Item {
                             width: 196
                             height: 56
                             radius: 8
-                            color: page.palette === modelData.key ? Qt.rgba(137 / 255, 180 / 255, 250 / 255, 0.18) : Qt.rgba(255, 255, 255, 0.04)
-                            border.color: page.palette === modelData.key ? Theme.primary : Qt.rgba(255, 255, 255, 0.08)
+                            color: page.palette === modelData.key ? Theme.withAlpha(Theme.primary, 0.18) : Theme.withAlpha(Theme.text, 0.04)
+                            border.color: page.palette === modelData.key ? Theme.primary : Theme.withAlpha(Theme.text, 0.08)
                             border.width: page.palette === modelData.key ? 2 : 1
                             RowLayout {
                                 anchors.fill: parent
@@ -228,8 +227,8 @@ Item {
                     Layout.fillWidth: true
                     height: 56
                     radius: 10
-                    color: Qt.rgba(137 / 255, 180 / 255, 250 / 255, 0.08)
-                    border.color: Qt.rgba(255, 255, 255, 0.07)
+                    color: Theme.withAlpha(Theme.primary, 0.08)
+                    border.color: Theme.withAlpha(Theme.text, 0.07)
                     border.width: 1
                     Text { anchors.verticalCenter: parent.verticalCenter; anchors.left: parent.left; anchors.leftMargin: 14; text: page.statusMessage; color: Theme.primary; font.pixelSize: 12; font.bold: true }
                 }
@@ -239,7 +238,7 @@ Item {
                     height: 56
                     radius: 10
                     color: applyArea.containsMouse ? Qt.lighter(Theme.primary, 1.08) : Theme.primary
-                    Text { anchors.centerIn: parent; text: "Apply"; color: "#1e1e2e"; font.pixelSize: 13; font.bold: true }
+                    Text { anchors.centerIn: parent; text: "Apply"; color: Theme.foregroundFor(Theme.primary); font.pixelSize: 13; font.bold: true }
                     MouseArea {
                         id: applyArea
                         anchors.fill: parent
@@ -259,8 +258,8 @@ Item {
         Layout.fillWidth: true
         implicitHeight: sectionColumn.implicitHeight + 28
         radius: 10
-        color: Qt.rgba(255, 255, 255, 0.045)
-        border.color: Qt.rgba(255, 255, 255, 0.08)
+        color: Theme.withAlpha(Theme.text, 0.045)
+        border.color: Theme.withAlpha(Theme.text, 0.08)
         border.width: 1
 
         ColumnLayout {
@@ -284,7 +283,7 @@ Item {
         width: 74
         height: 38
         radius: 19
-        color: checked ? Qt.rgba(137 / 255, 180 / 255, 250 / 255, 0.45) : Qt.rgba(255, 255, 255, 0.10)
+        color: checked ? Theme.withAlpha(Theme.primary, 0.45) : Theme.withAlpha(Theme.text, 0.10)
         Rectangle {
             width: 30
             height: 30
@@ -326,7 +325,7 @@ Item {
                 width: parent.width
                 height: 7
                 radius: 4
-                color: Qt.rgba(255, 255, 255, 0.08)
+                color: Theme.withAlpha(Theme.text, 0.08)
                 Rectangle {
                     width: parent.width * Math.max(0, Math.min(1, control.value / Math.max(1, control.maximum)))
                     height: parent.height

@@ -24,10 +24,8 @@ Rectangle {
     // semantic Catppuccin/Kanagawa/Tokyo/Monochrome mappings already live.
     readonly property color preferredTextColor: directMaterialRoles
         ? S.ColorPaletteService.surfaceOnColor : Theme.text
-    readonly property color accent: directMaterialRoles
-        ? S.ColorPaletteService.primaryColor : Theme.systemColor
-    readonly property color chipText: directMaterialRoles
-        ? S.ColorPaletteService.primaryOnColor : Theme.foregroundFor(accent)
+    readonly property color accent: Theme.activityColor
+    readonly property color chipText: Theme.foregroundFor(accent)
     readonly property color panelColor: directMaterialRoles
         ? solidColor(S.ColorPaletteService.backgroundColor)
         : solidColor(Theme.background)

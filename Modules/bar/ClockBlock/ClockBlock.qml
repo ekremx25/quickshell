@@ -9,9 +9,9 @@ Rectangle {
     height: 54
     width: timeRow.implicitWidth + 40
     radius: 27
-    color: "#FFFFFF"
+    color: Theme.panelSurface
     border.width: 1
-    border.color: "#E5E5EA"
+    border.color: Theme.borderStrong
 
     layer.enabled: true
     layer.effect: MultiEffect {
@@ -31,7 +31,7 @@ Rectangle {
             anchors.verticalCenter: parent.verticalCenter
             Text {
                 text: "";
-                color: "#FF9500";
+                color: Theme.clockColor;
                 font.pixelSize: 16;
                 font.family: "JetBrainsMono Nerd Font"
                 anchors.verticalCenter: parent.verticalCenter
@@ -40,21 +40,21 @@ Rectangle {
                 font.family: Theme.fontFamily
                 id: dateText
                 text: ""
-                color: "#3A3A3C"
+                color: Theme.text
                 font.bold: true
                 font.pixelSize: 14
                 anchors.verticalCenter: parent.verticalCenter
             }
         }
 
-        Rectangle { width: 1; height: 16; color: "#D1D1D6"; anchors.verticalCenter: parent.verticalCenter }
+        Rectangle { width: 1; height: 16; color: Theme.borderStrong; anchors.verticalCenter: parent.verticalCenter }
 
         Row {
             spacing: 6
             anchors.verticalCenter: parent.verticalCenter
             Text {
                 text: "";
-                color: "#007AFF";
+                color: Theme.primary;
                 font.pixelSize: 16;
                 font.family: "JetBrainsMono Nerd Font"
                 anchors.verticalCenter: parent.verticalCenter
@@ -63,7 +63,7 @@ Rectangle {
                 font.family: Theme.fontFamily
                 id: timeText
                 text: ""
-                color: "#3A3A3C"
+                color: Theme.text
                 font.bold: true
                 font.pixelSize: 14
                 anchors.verticalCenter: parent.verticalCenter

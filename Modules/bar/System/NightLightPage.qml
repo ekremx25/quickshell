@@ -3,14 +3,13 @@ import QtQuick.Layouts
 import QtQuick.Controls
 import "../../../Widgets"
 import "../../../Services" as S
-import "../Settings/SettingsPalette.js" as SettingsPalette
 
 // Full Settings page for the blue-light filter.
 // All state lives in the S.NightLight singleton — this page is a view.
 Item {
     id: nightLightPage
 
-    readonly property color accent: "#f9a03c"
+    readonly property color accent: Theme.tempColor
 
     Flickable {
         anchors.fill: parent
@@ -53,10 +52,10 @@ Item {
                 Rectangle {
                     radius: 8
                     color: !S.NightLight.available
-                        ? Qt.rgba(243/255, 139/255, 168/255, 0.14)
+                        ? Theme.withAlpha(Theme.red, 0.14)
                         : (S.NightLight.enabled
                             ? Qt.rgba(249/255, 160/255, 60/255, 0.14)
-                            : Qt.rgba(255, 255, 255, 0.05))
+                            : Theme.withAlpha(Theme.text, 0.05))
                     implicitWidth: statusRow.implicitWidth + 16
                     implicitHeight: 28
                     RowLayout {
@@ -66,7 +65,7 @@ Item {
                         Text {
                             font.family: Theme.fontFamily
                             text: "●"
-                            color: !S.NightLight.available ? "#f38ba8" : (S.NightLight.enabled ? nightLightPage.accent : SettingsPalette.overlay)
+                            color: !S.NightLight.available ? Theme.cpRed : (S.NightLight.enabled ? nightLightPage.accent : SettingsPalette.overlay)
                             font.pixelSize: 11
                         }
                         Text {
@@ -88,8 +87,8 @@ Item {
                 Layout.fillWidth: true
                 Layout.preferredHeight: banner.implicitHeight + 24
                 radius: 12
-                color: Qt.rgba(243/255, 139/255, 168/255, 0.08)
-                border.color: Qt.rgba(243/255, 139/255, 168/255, 0.3)
+                color: Theme.withAlpha(Theme.red, 0.08)
+                border.color: Theme.withAlpha(Theme.red, 0.3)
                 border.width: 1
 
                 ColumnLayout {
@@ -101,7 +100,7 @@ Item {
                     Text {
                         font.family: Theme.fontFamily
                         text: "⚠  gammastep is not installed"
-                        color: "#f38ba8"
+                        color: Theme.cpRed
                         font.pixelSize: 13
                         font.bold: true
                     }
@@ -118,7 +117,7 @@ Item {
                         Layout.preferredHeight: 28
                         radius: 6
                         color: Qt.rgba(0, 0, 0, 0.35)
-                        border.color: Qt.rgba(255, 255, 255, 0.08)
+                        border.color: Theme.withAlpha(Theme.text, 0.08)
                         border.width: 1
                         Text {
                             id: cmdText
@@ -138,7 +137,7 @@ Item {
                 visible: S.NightLight.available
                 radius: 12
                 color: SettingsPalette.surface
-                border.color: Qt.rgba(255, 255, 255, 0.05)
+                border.color: Theme.withAlpha(Theme.text, 0.05)
                 border.width: 1
                 implicitHeight: toggleRow.implicitHeight + 28
 
@@ -173,7 +172,7 @@ Item {
                         Layout.preferredWidth: 52
                         Layout.preferredHeight: 26
                         radius: 13
-                        color: S.NightLight.enabled ? nightLightPage.accent : Qt.rgba(255, 255, 255, 0.14)
+                        color: S.NightLight.enabled ? nightLightPage.accent : Theme.withAlpha(Theme.text, 0.14)
                         Behavior on color { ColorAnimation { duration: 150 } }
 
                         Rectangle {
@@ -201,7 +200,7 @@ Item {
                 visible: S.NightLight.available
                 radius: 12
                 color: SettingsPalette.surface
-                border.color: Qt.rgba(255, 255, 255, 0.05)
+                border.color: Theme.withAlpha(Theme.text, 0.05)
                 border.width: 1
                 implicitHeight: tempColumn.implicitHeight + 28
                 opacity: S.NightLight.enabled ? 1.0 : 0.55
@@ -307,8 +306,8 @@ Item {
                                 readonly property bool isActive: S.NightLight.temperature === modelData.k
                                 color: isActive
                                     ? Qt.rgba(249/255, 160/255, 60/255, 0.2)
-                                    : (presetArea.containsMouse ? Qt.rgba(255, 255, 255, 0.06) : Qt.rgba(255, 255, 255, 0.03))
-                                border.color: isActive ? nightLightPage.accent : Qt.rgba(255, 255, 255, 0.08)
+                                    : (presetArea.containsMouse ? Theme.withAlpha(Theme.text, 0.06) : Theme.withAlpha(Theme.text, 0.03))
+                                border.color: isActive ? nightLightPage.accent : Theme.withAlpha(Theme.text, 0.08)
                                 border.width: 1
                                 Behavior on color { ColorAnimation { duration: 120 } }
 
@@ -354,7 +353,7 @@ Item {
                 visible: S.NightLight.available
                 radius: 12
                 color: SettingsPalette.surface
-                border.color: Qt.rgba(255, 255, 255, 0.05)
+                border.color: Theme.withAlpha(Theme.text, 0.05)
                 border.width: 1
                 implicitHeight: scheduleCol.implicitHeight + 28
 
@@ -394,7 +393,7 @@ Item {
                             Layout.preferredWidth: 44
                             Layout.preferredHeight: 22
                             radius: 11
-                            color: S.NightLight.scheduleEnabled ? nightLightPage.accent : Qt.rgba(255, 255, 255, 0.14)
+                            color: S.NightLight.scheduleEnabled ? nightLightPage.accent : Theme.withAlpha(Theme.text, 0.14)
                             Behavior on color { ColorAnimation { duration: 150 } }
 
                             Rectangle {
@@ -443,8 +442,8 @@ Item {
                                     Layout.preferredWidth: 60
                                     Layout.preferredHeight: 40
                                     radius: 8
-                                    color: Qt.rgba(255, 255, 255, 0.04)
-                                    border.color: onHourInput.activeFocus ? nightLightPage.accent : Qt.rgba(255, 255, 255, 0.1)
+                                    color: Theme.withAlpha(Theme.text, 0.04)
+                                    border.color: onHourInput.activeFocus ? nightLightPage.accent : Theme.withAlpha(Theme.text, 0.1)
                                     border.width: 1
 
                                     TextInput {
@@ -484,8 +483,8 @@ Item {
                                     Layout.preferredWidth: 60
                                     Layout.preferredHeight: 40
                                     radius: 8
-                                    color: Qt.rgba(255, 255, 255, 0.04)
-                                    border.color: onMinuteInput.activeFocus ? nightLightPage.accent : Qt.rgba(255, 255, 255, 0.1)
+                                    color: Theme.withAlpha(Theme.text, 0.04)
+                                    border.color: onMinuteInput.activeFocus ? nightLightPage.accent : Theme.withAlpha(Theme.text, 0.1)
                                     border.width: 1
 
                                     TextInput {
@@ -544,8 +543,8 @@ Item {
                                     Layout.preferredWidth: 60
                                     Layout.preferredHeight: 40
                                     radius: 8
-                                    color: Qt.rgba(255, 255, 255, 0.04)
-                                    border.color: offHourInput.activeFocus ? nightLightPage.accent : Qt.rgba(255, 255, 255, 0.1)
+                                    color: Theme.withAlpha(Theme.text, 0.04)
+                                    border.color: offHourInput.activeFocus ? nightLightPage.accent : Theme.withAlpha(Theme.text, 0.1)
                                     border.width: 1
 
                                     TextInput {
@@ -585,8 +584,8 @@ Item {
                                     Layout.preferredWidth: 60
                                     Layout.preferredHeight: 40
                                     radius: 8
-                                    color: Qt.rgba(255, 255, 255, 0.04)
-                                    border.color: offMinuteInput.activeFocus ? nightLightPage.accent : Qt.rgba(255, 255, 255, 0.1)
+                                    color: Theme.withAlpha(Theme.text, 0.04)
+                                    border.color: offMinuteInput.activeFocus ? nightLightPage.accent : Theme.withAlpha(Theme.text, 0.1)
                                     border.width: 1
 
                                     TextInput {
@@ -644,7 +643,7 @@ Item {
                 visible: S.NightLight.available
                 radius: 12
                 color: SettingsPalette.surface
-                border.color: Qt.rgba(255, 255, 255, 0.05)
+                border.color: Theme.withAlpha(Theme.text, 0.05)
                 border.width: 1
                 implicitHeight: behaviourCol.implicitHeight + 28
 
@@ -672,7 +671,7 @@ Item {
                             Layout.preferredHeight: 18
                             radius: 4
                             color: S.NightLight.applyOnStartup ? nightLightPage.accent : "transparent"
-                            border.color: S.NightLight.applyOnStartup ? nightLightPage.accent : Qt.rgba(255, 255, 255, 0.25)
+                            border.color: S.NightLight.applyOnStartup ? nightLightPage.accent : Theme.withAlpha(Theme.text, 0.25)
                             border.width: 1
 
                             Text {
@@ -732,8 +731,8 @@ Item {
                 Layout.fillWidth: true
                 visible: S.NightLight.available
                 radius: 8
-                color: Qt.rgba(255, 255, 255, 0.02)
-                border.color: Qt.rgba(255, 255, 255, 0.04)
+                color: Theme.withAlpha(Theme.text, 0.02)
+                border.color: Theme.withAlpha(Theme.text, 0.04)
                 border.width: 1
                 implicitHeight: hintCol.implicitHeight + 20
 

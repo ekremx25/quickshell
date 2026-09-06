@@ -2,7 +2,6 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import "../../../Widgets"
-import "../Settings/SettingsPalette.js" as SettingsPalette
 
 Item {
     id: networkPage
@@ -56,7 +55,7 @@ Item {
                 height: ethCol.height + 28
                 color: SettingsPalette.surface
                 radius: 12
-                border.color: Qt.rgba(255,255,255,0.04)
+                border.color: Theme.withAlpha(Theme.text, 0.04)
                 border.width: 1
 
                 ColumnLayout {
@@ -75,7 +74,7 @@ Item {
                     // Info line
                     Rectangle {
                         Layout.fillWidth: true; height: 36
-                        color: Qt.rgba(49/255, 50/255, 68/255, 0.4); radius: 8
+                        color: Theme.withAlpha(Theme.surface, 0.4); radius: 8
                         RowLayout {
                             anchors.fill: parent; anchors.margins: 10; spacing: 12
                             Text {  text: "Interface:"; color: SettingsPalette.subtext; font.pixelSize: 12; font.family: Theme.fontFamily }
@@ -95,7 +94,7 @@ Item {
                             width: 60; height: 32; radius: 8
                             color: editMA.containsMouse ? Qt.lighter(Theme.primary, 1.15) : Theme.primary
                             Behavior on color { ColorAnimation { duration: 100 } }
-                            Text {  anchors.centerIn: parent; text: "Edit"; color: "#1e1e2e"; font.pixelSize: 12; font.bold: true; font.family: Theme.fontFamily }
+                            Text {  anchors.centerIn: parent; text: "Edit"; color: Theme.foregroundFor(Theme.primary); font.pixelSize: 12; font.bold: true; font.family: Theme.fontFamily }
                             MouseArea {
                                 id: editMA; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
                                 onClicked: { editConnPopup.open(); }
@@ -104,9 +103,9 @@ Item {
 
                         Rectangle {
                             width: 90; height: 32; radius: 8
-                            color: discMA.containsMouse ? Qt.lighter("#f38ba8", 1.15) : Qt.rgba(243/255, 139/255, 168/255, 0.2)
+                            color: discMA.containsMouse ? Qt.lighter(Theme.cpRed, 1.15) : Theme.withAlpha(Theme.red, 0.2)
                             Behavior on color { ColorAnimation { duration: 100 } }
-                            Text {  anchors.centerIn: parent; text: "Disconnect"; color: "#f38ba8"; font.pixelSize: 12; font.bold: true; font.family: Theme.fontFamily }
+                            Text {  anchors.centerIn: parent; text: "Disconnect"; color: Theme.cpRed; font.pixelSize: 12; font.bold: true; font.family: Theme.fontFamily }
                             MouseArea {
                                 id: discMA; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
                                 onClicked: {
@@ -128,7 +127,7 @@ Item {
                 height: dnsCol.height + 28
                 color: SettingsPalette.surface
                 radius: 12
-                border.color: Qt.rgba(255,255,255,0.04)
+                border.color: Theme.withAlpha(Theme.text, 0.04)
                 border.width: 1
 
                 ColumnLayout {
@@ -139,7 +138,7 @@ Item {
 
                     RowLayout {
                         spacing: 8
-                        Text { text: "󰇧"; font.pixelSize: 18; font.family: "JetBrainsMono Nerd Font"; color: "#cba6f7" }
+                        Text { text: "󰇧"; font.pixelSize: 18; font.family: "JetBrainsMono Nerd Font"; color: Theme.cpMauve }
                         Text {  text: "DNS Configuration"; font.bold: true; font.pixelSize: 16; color: SettingsPalette.text; font.family: Theme.fontFamily }
                     }
 
@@ -163,7 +162,7 @@ Item {
                 height: ipCol.height + 28
                 color: SettingsPalette.surface
                 radius: 12
-                border.color: Qt.rgba(255,255,255,0.04)
+                border.color: Theme.withAlpha(Theme.text, 0.04)
                 border.width: 1
 
                 ColumnLayout {
@@ -174,7 +173,7 @@ Item {
 
                     RowLayout {
                         spacing: 8
-                        Text { text: ""; font.pixelSize: 16; font.family: Theme.fontFamily; color: "#fab387" }
+                        Text { text: ""; font.pixelSize: 16; font.family: Theme.fontFamily; color: Theme.cpPeach }
                         Text {  text: "IP Configuration"; font.bold: true; font.pixelSize: 16; color: SettingsPalette.text; font.family: Theme.fontFamily }
                     }
 
@@ -193,7 +192,7 @@ Item {
                     }
 
                     // IPv6
-                    Rectangle { Layout.fillWidth: true; height: 1; color: Qt.rgba(255,255,255,0.04) }
+                    Rectangle { Layout.fillWidth: true; height: 1; color: Theme.withAlpha(Theme.text, 0.04) }
                     Text {  text: "IPv6"; color: SettingsPalette.text; font.bold: true; font.pixelSize: 13; font.family: Theme.fontFamily }
                     RowLayout {
                         spacing: 10
@@ -215,7 +214,7 @@ Item {
                 height: proxyCol.height + 28
                 color: SettingsPalette.surface
                 radius: 12
-                border.color: Qt.rgba(255,255,255,0.04)
+                border.color: Theme.withAlpha(Theme.text, 0.04)
                 border.width: 1
 
                 ColumnLayout {
@@ -226,7 +225,7 @@ Item {
 
                     RowLayout {
                         spacing: 8
-                        Text { text: ""; font.pixelSize: 16; font.family: Theme.fontFamily; color: "#89b4fa" }
+                        Text { text: ""; font.pixelSize: 16; font.family: Theme.fontFamily; color: Theme.cpBlue }
                         Text {  text: "Proxy Configuration"; font.bold: true; font.pixelSize: 16; color: SettingsPalette.text; font.family: Theme.fontFamily }
                     }
 
@@ -250,7 +249,7 @@ Item {
                 height: advancedCol.height + 28
                 color: SettingsPalette.surface
                 radius: 12
-                border.color: Qt.rgba(255,255,255,0.04)
+                border.color: Theme.withAlpha(Theme.text, 0.04)
                 border.width: 1
 
                 ColumnLayout {
@@ -261,7 +260,7 @@ Item {
 
                     RowLayout {
                         spacing: 8
-                        Text { text: ""; font.pixelSize: 16; font.family: Theme.fontFamily; color: "#f5c2e7" }
+                        Text { text: ""; font.pixelSize: 16; font.family: Theme.fontFamily; color: Theme.cpPink }
                         Text {  text: "Advanced Settings"; font.bold: true; font.pixelSize: 16; color: SettingsPalette.text; font.family: Theme.fontFamily }
                     }
 
@@ -273,7 +272,7 @@ Item {
 
                         Rectangle {
                             width: 100; height: 36; radius: 8
-                            color: Qt.rgba(49/255, 50/255, 68/255, 0.6)
+                            color: Theme.withAlpha(Theme.surface, 0.6)
                             border.color: mtuInput.activeFocus ? Theme.primary : "transparent"
                             border.width: mtuInput.activeFocus ? 2 : 0
 
@@ -295,7 +294,7 @@ Item {
                             width: 60; height: 30; radius: 8
                             color: mtuApplyMA.containsMouse ? Qt.lighter(Theme.primary, 1.15) : Theme.primary
                             Behavior on color { ColorAnimation { duration: 100 } }
-                            Text {  anchors.centerIn: parent; text: "Apply"; color: "#1e1e2e"; font.pixelSize: 11; font.bold: true; font.family: Theme.fontFamily }
+                            Text {  anchors.centerIn: parent; text: "Apply"; color: Theme.foregroundFor(Theme.primary); font.pixelSize: 11; font.bold: true; font.family: Theme.fontFamily }
                             MouseArea {
                                 id: mtuApplyMA; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
                                 onClicked: {
@@ -307,7 +306,7 @@ Item {
                         }
                     }
 
-                    Rectangle { Layout.fillWidth: true; height: 1; color: Qt.rgba(255,255,255,0.04) }
+                    Rectangle { Layout.fillWidth: true; height: 1; color: Theme.withAlpha(Theme.text, 0.04) }
 
                     // MAC Address
                     RowLayout {
@@ -329,7 +328,7 @@ Item {
                             width: 60; height: 30; radius: 8
                             color: macApplyMA.containsMouse ? Qt.lighter(Theme.primary, 1.15) : Theme.primary
                             Behavior on color { ColorAnimation { duration: 100 } }
-                            Text {  anchors.centerIn: parent; text: "Apply"; color: "#1e1e2e"; font.pixelSize: 11; font.bold: true; font.family: Theme.fontFamily }
+                            Text {  anchors.centerIn: parent; text: "Apply"; color: Theme.foregroundFor(Theme.primary); font.pixelSize: 11; font.bold: true; font.family: Theme.fontFamily }
                             MouseArea {
                                 id: macApplyMA; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
                                 onClicked: {
@@ -353,7 +352,7 @@ Item {
 
 
             // ═══════════ 7. WIFI LIST ═══════════
-            Rectangle { Layout.fillWidth: true; height: 1; color: Qt.rgba(255,255,255,0.06) }
+            Rectangle { Layout.fillWidth: true; height: 1; color: Theme.withAlpha(Theme.text, 0.06) }
 
             RowLayout {
                 Layout.fillWidth: true
@@ -382,8 +381,8 @@ Item {
                     required property int index
                     Layout.fillWidth: true
                     height: wifiExpanded ? 96 : 48
-                    color: modelData.active ? Qt.rgba(137/255, 180/255, 250/255, 0.15)
-                         : (wifiHoverMa.containsMouse || wifiExpanded ? Qt.rgba(255,255,255,0.05) : "transparent")
+                    color: modelData.active ? Theme.withAlpha(Theme.primary, 0.15)
+                         : (wifiHoverMa.containsMouse || wifiExpanded ? Theme.withAlpha(Theme.text, 0.05) : "transparent")
                     radius: 8; clip: true
 
                     property bool wifiExpanded: false
@@ -438,7 +437,7 @@ Item {
                                 font.family: Theme.fontFamily
                                 anchors.centerIn: parent
                                 text: networkPage.connectingSsid === modelData.ssid ? "Connecting..." : "Connect"
-                                color: networkPage.connectingSsid === modelData.ssid ? SettingsPalette.subtext : "#1e1e2e"
+                                color: networkPage.connectingSsid === modelData.ssid ? SettingsPalette.subtext : Theme.foregroundFor(Theme.primary)
                                 font.bold: true; font.pixelSize: 12
                             }
                             MouseArea {
@@ -489,9 +488,9 @@ Item {
         Rectangle {
             width: 500; height: 600
             anchors.centerIn: parent
-            color: "#1e1e2e"
+            color: Theme.background
             radius: 16
-            border.color: Qt.rgba(255,255,255,0.1)
+            border.color: Theme.withAlpha(Theme.text, 0.1)
             border.width: 1
 
             MouseArea { anchors.fill: parent } // Block clicks
@@ -508,7 +507,7 @@ Item {
                     Text { font.family: Theme.fontFamily; text: "✕"; color: SettingsPalette.subtext; font.pixelSize: 16; MouseArea { anchors.fill: parent; onClicked: editConnPopup.close(); cursorShape: Qt.PointingHandCursor } }
                 }
 
-                Rectangle { Layout.fillWidth: true; height: 1; color: Qt.rgba(255,255,255,0.1) }
+                Rectangle { Layout.fillWidth: true; height: 1; color: Theme.withAlpha(Theme.text, 0.1) }
                 
                 // Content
                 ColumnLayout {
@@ -517,8 +516,8 @@ Item {
                     // Connection Name Display
                     Rectangle {
                         Layout.fillWidth: true; height: 40
-                        color: Qt.rgba(255,255,255,0.05); radius: 8
-                        border.color: Qt.rgba(255,255,255,0.1)
+                        color: Theme.withAlpha(Theme.text, 0.05); radius: 8
+                        border.color: Theme.withAlpha(Theme.text, 0.1)
                         TextInput { 
                             anchors.fill: parent; anchors.margins: 12
                             text: networkPage.connName || "Unknown Connection"
@@ -570,7 +569,7 @@ Item {
                         }
                     }
 
-                    Rectangle { Layout.fillWidth: true; height: 1; color: Qt.rgba(255,255,255,0.05) }
+                    Rectangle { Layout.fillWidth: true; height: 1; color: Theme.withAlpha(Theme.text, 0.05) }
 
                     // IPv6 Section (Simplified)
                     ColumnLayout {
@@ -588,7 +587,7 @@ Item {
                         }
                     }
 
-                    Rectangle { Layout.fillWidth: true; height: 1; color: Qt.rgba(255,255,255,0.05) }
+                    Rectangle { Layout.fillWidth: true; height: 1; color: Theme.withAlpha(Theme.text, 0.05) }
 
                     // DNS Section
                     ColumnLayout {
@@ -615,7 +614,7 @@ Item {
                     
                     Rectangle {
                         width: 80; height: 36; radius: 8
-                        color: Qt.rgba(255,255,255,0.1)
+                        color: Theme.withAlpha(Theme.text, 0.1)
                         Text {  anchors.centerIn: parent; text: "Cancel"; color: SettingsPalette.text; font.family: Theme.fontFamily }
                         MouseArea { anchors.fill: parent; onClicked: editConnPopup.close(); cursorShape: Qt.PointingHandCursor }
                     }
@@ -623,7 +622,7 @@ Item {
                     Rectangle {
                         width: 80; height: 36; radius: 8
                         color: Theme.primary
-                        Text {  anchors.centerIn: parent; text: "Save"; color: "#1e1e2e"; font.bold: true; font.family: Theme.fontFamily }
+                        Text {  anchors.centerIn: parent; text: "Save"; color: Theme.foregroundFor(Theme.primary); font.bold: true; font.family: Theme.fontFamily }
                         MouseArea { 
                             anchors.fill: parent; cursorShape: Qt.PointingHandCursor 
                             onClicked: {
@@ -673,7 +672,7 @@ Item {
                     horizontalAlignment: Text.AlignHCenter
                     text: networkPage.applyStatus
                     visible: networkPage.applyStatus !== ""
-                    color: networkPage.applyError ? "#f38ba8" : "#a6e3a1"
+                    color: networkPage.applyError ? Theme.cpRed : Theme.cpGreen
                     font.bold: true
                     wrapMode: Text.Wrap
                 }

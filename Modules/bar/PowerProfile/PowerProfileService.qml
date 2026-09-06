@@ -12,9 +12,9 @@ Item {
     property bool available: true
 
     readonly property var profileData: ({
-        "performance": { icon: "󰓅", label: "Performance", color: "#f38ba8" },
+        "performance": { icon: "󰓅", label: "Performance", color: Theme.cpRed },
         "balanced":    { icon: "󰾅", label: "Balanced", color: Theme.powerProfileColor },
-        "power-saver": { icon: "󰾆", label: "Power Saver", color: "#a6e3a1" }
+        "power-saver": { icon: "󰾆", label: "Power Saver", color: Theme.cpGreen }
     })
 
     function refresh() {

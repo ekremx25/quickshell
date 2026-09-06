@@ -1,6 +1,5 @@
 import QtQuick
 import QtQuick.Layouts
-import "SettingsPalette.js" as SettingsPalette
 import Quickshell
 import Quickshell.Io
 import "../../../Widgets"
@@ -27,7 +26,7 @@ Item {
             // Status indicator
             Rectangle {
                 width: statusRow.width + 16; height: 28; radius: 14
-                color: VpnService.connected ? Qt.rgba(166/255, 227/255, 161/255, 0.15) : Qt.rgba(255,255,255,0.05)
+                color: VpnService.connected ? Theme.withAlpha(Theme.green, 0.15) : Theme.withAlpha(Theme.text, 0.05)
 
                 RowLayout {
                     id: statusRow
@@ -49,7 +48,7 @@ Item {
             visible: VpnService.errorMessage.length > 0
             Layout.fillWidth: true
             height: 36; radius: 8
-            color: Qt.rgba(243/255, 139/255, 168/255, 0.15)
+            color: Theme.withAlpha(Theme.red, 0.15)
             Text {
                 font.family: Theme.fontFamily
                 anchors.centerIn: parent
@@ -69,8 +68,8 @@ Item {
             RowLayout {
                 anchors.centerIn: parent
                 spacing: 8
-                Text {  text: "+"; font.pixelSize: 16; font.bold: true; color: "#1e1e2e"; font.family: Theme.fontFamily }
-                Text {  text: "Add VPN Connection"; font.pixelSize: 13; font.bold: true; color: "#1e1e2e"; font.family: Theme.fontFamily }
+                Text {  text: "+"; font.pixelSize: 16; font.bold: true; color: Theme.foregroundFor(Theme.primary); font.family: Theme.fontFamily }
+                Text {  text: "Add VPN Connection"; font.pixelSize: 13; font.bold: true; color: Theme.foregroundFor(Theme.primary); font.family: Theme.fontFamily }
             }
 
             MouseArea {
@@ -88,7 +87,7 @@ Item {
         Rectangle {
             Layout.fillWidth: true
             height: 40; radius: 8
-            color: Qt.rgba(255,255,255,0.03)
+            color: Theme.withAlpha(Theme.text, 0.03)
 
             RowLayout {
                 anchors.fill: parent
@@ -101,14 +100,14 @@ Item {
 
                 Rectangle {
                     width: 44; height: 24; radius: 12
-                    color: VpnService.singleActive ? SettingsPalette.readableAccent(Theme.primary) : Qt.rgba(255,255,255,0.1)
+                    color: VpnService.singleActive ? SettingsPalette.readableAccent(Theme.primary) : Theme.withAlpha(Theme.text, 0.1)
                     Behavior on color { ColorAnimation { duration: 200 } }
 
                     Rectangle {
                         width: 18; height: 18; radius: 9
                         anchors.verticalCenter: parent.verticalCenter
                         x: VpnService.singleActive ? parent.width - width - 3 : 3
-                        color: "white"
+                        color: Theme.text
                         Behavior on x { NumberAnimation { duration: 200 } }
                     }
 
@@ -148,11 +147,11 @@ Item {
                         Layout.fillWidth: true
                         height: 56; radius: 10
                         color: {
-                            if (VpnService.isActiveUuid(modelData.uuid)) return Qt.rgba(166/255, 227/255, 161/255, 0.08);
-                            if (profileMA.containsMouse) return Qt.rgba(255,255,255,0.06);
-                            return Qt.rgba(255,255,255,0.03);
+                            if (VpnService.isActiveUuid(modelData.uuid)) return Theme.withAlpha(Theme.green, 0.08);
+                            if (profileMA.containsMouse) return Theme.withAlpha(Theme.text, 0.06);
+                            return Theme.withAlpha(Theme.text, 0.03);
                         }
-                        border.color: VpnService.isActiveUuid(modelData.uuid) ? Qt.rgba(166/255, 227/255, 161/255, 0.3) : "transparent"
+                        border.color: VpnService.isActiveUuid(modelData.uuid) ? Theme.withAlpha(Theme.green, 0.3) : "transparent"
                         border.width: 1
                         Behavior on color { ColorAnimation { duration: 150 } }
 
@@ -164,7 +163,7 @@ Item {
                             // Type icon
                             Rectangle {
                                 width: 32; height: 32; radius: 8
-                                color: Qt.rgba(137/255, 180/255, 250/255, 0.15)
+                                color: Theme.withAlpha(Theme.primary, 0.15)
                                 Text {
                                     anchors.centerIn: parent
                                     text: modelData.type === "wireguard" ? "󰖂" : "󰦝"
@@ -196,9 +195,9 @@ Item {
                             Rectangle {
                                 width: 80; height: 30; radius: 8
                                 color: {
-                                    if (VpnService.isBusy) return Qt.rgba(255,255,255,0.05);
-                                    if (VpnService.isActiveUuid(modelData.uuid)) return Qt.rgba(243/255, 139/255, 168/255, 0.2);
-                                    return Qt.rgba(166/255, 227/255, 161/255, 0.2);
+                                    if (VpnService.isBusy) return Theme.withAlpha(Theme.text, 0.05);
+                                    if (VpnService.isActiveUuid(modelData.uuid)) return Theme.withAlpha(Theme.red, 0.2);
+                                    return Theme.withAlpha(Theme.green, 0.2);
                                 }
                                 Behavior on color { ColorAnimation { duration: 150 } }
 
@@ -231,7 +230,7 @@ Item {
             visible: VpnService.connected
             Layout.fillWidth: true
             height: 36; radius: 8
-            color: disconnectAllMA.containsMouse ? Qt.rgba(243/255, 139/255, 168/255, 0.2) : Qt.rgba(243/255, 139/255, 168/255, 0.1)
+            color: disconnectAllMA.containsMouse ? Theme.withAlpha(Theme.red, 0.2) : Theme.withAlpha(Theme.red, 0.1)
             Behavior on color { ColorAnimation { duration: 150 } }
 
             Text {

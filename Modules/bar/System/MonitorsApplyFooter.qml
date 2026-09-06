@@ -1,6 +1,5 @@
 import QtQuick
 import QtQuick.Layouts
-import "../Settings/SettingsPalette.js" as SettingsPalette
 import "../../../Widgets"
 
 // Bottom footer with status copy + Revert / Apply buttons.
@@ -53,9 +52,9 @@ Rectangle {
         Rectangle {
             radius: 10
             color: revertArea.enabled
-                ? (revertArea.containsMouse ? Qt.rgba(255, 255, 255, 0.08) : Qt.rgba(255, 255, 255, 0.03))
-                : Qt.rgba(255, 255, 255, 0.02)
-            border.color: revertArea.enabled ? root.page.softBorder : Qt.rgba(255, 255, 255, 0.03)
+                ? (revertArea.containsMouse ? Theme.withAlpha(Theme.text, 0.08) : Theme.withAlpha(Theme.text, 0.03))
+                : Theme.withAlpha(Theme.text, 0.02)
+            border.color: revertArea.enabled ? root.page.softBorder : Theme.withAlpha(Theme.text, 0.03)
             border.width: 1
             implicitWidth: 90
             implicitHeight: 40
@@ -87,8 +86,8 @@ Rectangle {
             radius: 10
             color: applyArea.enabled
                 ? (applyArea.containsMouse ? Qt.lighter(Theme.primary, 1.1) : Theme.primary)
-                : Qt.rgba(255, 255, 255, 0.08)
-            border.color: applyArea.enabled ? Qt.lighter(Theme.primary, 1.2) : Qt.rgba(255, 255, 255, 0.05)
+                : Theme.withAlpha(Theme.text, 0.08)
+            border.color: applyArea.enabled ? Qt.lighter(Theme.primary, 1.2) : Theme.withAlpha(Theme.text, 0.05)
             border.width: 1
             implicitWidth: 118
             implicitHeight: 40
@@ -101,7 +100,7 @@ Rectangle {
                     : root.page.applyInProgress
                         ? "Applying…"
                         : root.page.pendingChanges() ? "Apply" : "Saved"
-                color: applyArea.enabled ? "#11151b" : SettingsPalette.subtext
+                color: applyArea.enabled ? Theme.foregroundFor(Theme.primary) : SettingsPalette.subtext
                 font.pixelSize: 13
                 font.bold: true
             }

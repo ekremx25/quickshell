@@ -7,6 +7,7 @@ import "./Workspaces"
 import "./Tray"
 import "./SysInfo"
 import "./ActivityMonitor"
+import "./Hyprmoncfg"
 import "./Volume"
 import "./power"
 import "./Calendar"
@@ -57,6 +58,7 @@ Item {
         "NightLight": nightLightComp,
         "PowerGroup": powerGroupComp,
         "ActivityMonitor": activityMonitorComp,
+        "Hyprmoncfg": hyprmoncfgComp,
         "SysInfoGroup": sysInfoGroupComp,
         "RamModule": ramModuleComp,
         "Media": mediaComp,
@@ -111,6 +113,7 @@ Item {
     Component { id: nightLightComp; NightLight {} }
     Component { id: powerGroupComp; PowerGroup {} }
     Component { id: activityMonitorComp; ActivityMonitor {} }
+    Component { id: hyprmoncfgComp; Hyprmoncfg {} }
     Component { id: sysInfoGroupComp; SysInfoGroup {} }
     Component { id: ramModuleComp; RamModule {} }
     Component { id: currencyConverterComp; CurrencyConverter {} }

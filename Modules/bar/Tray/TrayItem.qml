@@ -50,8 +50,8 @@ MouseArea {
         width: 24
         height: 24
         radius: 8
-        color: root.menuOpening ? Qt.rgba(1, 1, 1, 0.62) : (root.containsMouse ? Qt.rgba(1, 1, 1, 0.52) : Qt.rgba(1, 1, 1, 0.42))
-        border.color: root.menuOpening ? Qt.rgba(1, 1, 1, 0.80) : (root.containsMouse ? Qt.rgba(1, 1, 1, 0.66) : Qt.rgba(1, 1, 1, 0.34))
+        color: root.menuOpening ? Theme.withAlpha(Theme.text, 0.62) : (root.containsMouse ? Theme.withAlpha(Theme.text, 0.52) : Theme.withAlpha(Theme.text, 0.42))
+        border.color: root.menuOpening ? Theme.withAlpha(Theme.text, 0.80) : (root.containsMouse ? Theme.withAlpha(Theme.text, 0.66) : Theme.withAlpha(Theme.text, 0.34))
         border.width: 1
         scale: root.menuOpening ? 1.08 : (root.containsMouse ? 1.04 : 1.0)
 

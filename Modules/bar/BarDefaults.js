@@ -5,10 +5,10 @@
 function createWorkspacesConfig() {
     return {
         "format": "roman",
-        "style": "square",
-        "transparent": true,
+        "style": "circle",
+        "transparent": false,
         "displayMode": "role",
-        "workspaceCount": 5,
+        "workspaceCount": 4,
         "showEmpty": true,
         "showSpecial": true,
         "showApps": true,
@@ -17,7 +17,7 @@ function createWorkspacesConfig() {
         "wrapAround": true,
         "reverseScroll": false,
         "iconSize": 20,
-        "maxIcons": 4
+        "maxIcons": 3
     };
 }
 
@@ -61,7 +61,7 @@ function createBarConfig() {
     return {
         left: ["Launcher","RamModule","SysInfoGroup","CurrencyConverter"],
         center: ["Workspaces","Notifications","Notepad","ActivityMonitor"],
-        right: ["Equalizer","Volume","Clipboard","PowerGroup"],
+        right: ["Equalizer","Volume","Clipboard","Hyprmoncfg","PowerGroup"],
         inactive: ["NightLight"],
         workspaces: createWorkspacesConfig(),
         theme: "",

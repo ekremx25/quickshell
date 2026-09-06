@@ -105,6 +105,9 @@ Canvas {
         }
     }
 
+    onEqAccentChanged: requestPaint()
+    onWaveGlowColorChanged: requestPaint()
+    onWaveLineColorChanged: requestPaint()
     onEqBandsChanged:   requestPaint()
     onWavePhaseChanged: requestPaint()
     Component.onCompleted: requestPaint()

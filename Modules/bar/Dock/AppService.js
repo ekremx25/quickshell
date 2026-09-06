@@ -132,18 +132,27 @@ function resolveThemedIconName(iconName) {
 
 function getIcon(appId, desktopIcons, desktopEntries, desktopCommands) {
     if (!appId) return "application-x-executable";
+    // Desktop metadata arrives asynchronously. Do not ask the icon provider
+    // to load a window class (e.g. affinity.exe) while that lookup is pending.
+    desktopIcons = desktopIcons || {};
+    if (Object.keys(desktopIcons).length === 0) return "application-x-executable";
     var id = String(appId).toLowerCase();
     var resolvedKey = resolveDesktopKey(id, desktopEntries || {}, desktopIcons || {}, desktopCommands || {});
 
     if (resolvedKey !== "") return desktopIcons[resolvedKey] || id;
     if (desktopIcons[id]) return desktopIcons[id];
 
+    if (/\.exe$/.test(id)) {
+        var executableKey = resolveDesktopKey(id.replace(/\.exe$/, ""), desktopEntries || {}, desktopIcons, desktopCommands || {});
+        if (executableKey && desktopIcons[executableKey]) return desktopIcons[executableKey];
+    }
+
     var shortName = lastToken(id);
     if (shortName && desktopIcons[shortName]) return desktopIcons[shortName];
 
     if (/resolve|davinci/.test(id)) return "/opt/resolve/graphics/DV_Resolve.png";
     if (SPECIAL_ICON_NAMES[id]) return SPECIAL_ICON_NAMES[id];
-    return id;
+    return /\.exe$/.test(id) ? "application-x-executable" : id;
 }
 
 function getAppName(appId) {

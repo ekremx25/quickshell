@@ -4,7 +4,6 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
 import "."
-import "SettingsPalette.js" as SettingsPalette
 import "../../../Widgets"
 import "../System" as Sys
 
@@ -38,9 +37,9 @@ PanelWindow {
     property alias dockConfigPath: backend.dockConfigPath
     property alias dockLeftModulesList: backend.dockLeftModulesList
     property alias dockRightModulesList: backend.dockRightModulesList
-    readonly property color sidebarTitleColor: "#f5f7ff"
-    readonly property color sidebarMutedColor: Qt.rgba(245 / 255, 247 / 255, 255 / 255, 0.72)
-    readonly property color contentBackgroundColor: Qt.rgba(0, 0, 0, 0.92)
+    readonly property color sidebarTitleColor: SettingsPalette.text
+    readonly property color sidebarMutedColor: SettingsPalette.subtext
+    readonly property color contentBackgroundColor: SettingsPalette.surface
     readonly property color contentPanelColor: SettingsPalette.background
     readonly property color accentColor: SettingsPalette.readableAccent(Theme.primary)
     readonly property color dangerColor: SettingsPalette.readableAccent(Theme.red)
@@ -219,7 +218,7 @@ PanelWindow {
             Rectangle {
                 Layout.preferredWidth: 190
                 Layout.fillHeight: true
-                color: Qt.rgba(0, 0, 0, 0.92)
+                color: SettingsPalette.surface
                 radius: Theme.radius
 
                 ColumnLayout {
@@ -300,7 +299,7 @@ PanelWindow {
                         }
                     }
 
-                    Rectangle { Layout.fillWidth: true; height: 1; color: Qt.rgba(255,255,255,0.06) }
+                    Rectangle { Layout.fillWidth: true; height: 1; color: Theme.withAlpha(Theme.text, 0.06) }
                     Item { height: 6 }
 
                     Flickable {
@@ -329,7 +328,7 @@ PanelWindow {
                                     Rectangle {
                                         Layout.fillWidth: true
                                         height: 28
-                                        color: headerMA.containsMouse ? Qt.rgba(255,255,255,0.05) : "transparent"
+                                        color: headerMA.containsMouse ? Theme.withAlpha(Theme.text, 0.05) : "transparent"
                                         radius: 6
 
                                         RowLayout {
@@ -379,7 +378,7 @@ PanelWindow {
                                                 radius: 10
                                                 color: {
                                                     if (settingsPopup.currentPage === modelData.key) return Qt.rgba(settingsPopup.accentColor.r, settingsPopup.accentColor.g, settingsPopup.accentColor.b, 0.14);
-                                                    if (menuMA.containsMouse) return Qt.rgba(255,255,255,0.05);
+                                                    if (menuMA.containsMouse) return Theme.withAlpha(Theme.text, 0.05);
                                                     return "transparent";
                                                 }
                                                 Behavior on color { ColorAnimation { duration: settingsContent.resizing ? 0 : 120 } }
@@ -437,7 +436,7 @@ PanelWindow {
             }
 
             // Separator
-            Rectangle { width: 1; Layout.fillHeight: true; color: Qt.rgba(255,255,255,0.06) }
+            Rectangle { width: 1; Layout.fillHeight: true; color: Theme.withAlpha(Theme.text, 0.06) }
 
             // ═══ CONTENT ═══
             Rectangle {
@@ -451,7 +450,7 @@ PanelWindow {
                     anchors.margins: 12
                     radius: Math.max(Theme.radius - 2, 10)
                     color: contentPanelColor
-                    border.color: Qt.rgba(255, 255, 255, 0.06)
+                    border.color: Theme.withAlpha(Theme.text, 0.06)
                     border.width: 1
                     clip: true
 

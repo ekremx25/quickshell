@@ -1,6 +1,5 @@
 import QtQuick
 import QtQuick.Layouts
-import "SettingsPalette.js" as SettingsPalette
 import "../../../Widgets"
 
 // Provider card in the picker grid.
@@ -17,10 +16,10 @@ Rectangle {
     radius: 10
     color: selected
         ? Qt.rgba(SettingsPalette.readableAccent(Theme.primary).r, SettingsPalette.readableAccent(Theme.primary).g, SettingsPalette.readableAccent(Theme.primary).b, 0.18)
-        : Qt.rgba(255, 255, 255, 0.03)
+        : Theme.withAlpha(Theme.text, 0.03)
     border.color: selected
         ? SettingsPalette.readableAccent(Theme.primary)
-        : Qt.rgba(255, 255, 255, 0.08)
+        : Theme.withAlpha(Theme.text, 0.08)
     border.width: selected ? 2 : 1
 
     Behavior on color { ColorAnimation { duration: 120 } }

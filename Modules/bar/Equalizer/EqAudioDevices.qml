@@ -51,7 +51,7 @@ RowLayout {
 
                 Rectangle {
                     width: 28; height: 28; radius: 8
-                    color: eq.sinkMuted ? Qt.rgba(243/255, 139/255, 168/255, 0.18) : Qt.rgba(166/255, 227/255, 161/255, 0.12)
+                    color: eq.sinkMuted ? Theme.withAlpha(Theme.red, 0.18) : Theme.withAlpha(Theme.green, 0.12)
                     border.width: 1
                     border.color: eq.glassStroke
                     Text {
@@ -59,7 +59,7 @@ RowLayout {
                         text: eq.sinkMuted ? "󰝟" : "󰕾"
                         font.family: "JetBrainsMono Nerd Font"
                         font.pixelSize: 13
-                        color: eq.sinkMuted ? "#f38ba8" : eq.sinkAccent
+                        color: eq.sinkMuted ? Theme.cpRed : eq.sinkAccent
                     }
                     MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: eq.toggleSinkMute() }
                 }
@@ -130,7 +130,7 @@ RowLayout {
 
                 Rectangle {
                     width: 28; height: 28; radius: 8
-                    color: eq.sourceMuted ? Qt.rgba(243/255, 139/255, 168/255, 0.18) : Qt.rgba(148/255, 226/255, 213/255, 0.12)
+                    color: eq.sourceMuted ? Theme.withAlpha(Theme.red, 0.18) : Theme.withAlpha(Theme.secondary, 0.12)
                     border.width: 1
                     border.color: eq.glassStroke
                     Text {
@@ -138,7 +138,7 @@ RowLayout {
                         text: eq.sourceMuted ? "󰍭" : "󰍬"
                         font.family: "JetBrainsMono Nerd Font"
                         font.pixelSize: 13
-                        color: eq.sourceMuted ? "#f38ba8" : eq.sourceAccent
+                        color: eq.sourceMuted ? Theme.cpRed : eq.sourceAccent
                     }
                     MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: eq.toggleSourceMute() }
                 }

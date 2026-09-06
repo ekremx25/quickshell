@@ -3,7 +3,6 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
 import "../../../Widgets"
-import "../Settings/SettingsPalette.js" as SettingsPalette
 
 PopupWindow {
     id: root
@@ -40,7 +39,7 @@ PopupWindow {
 
     Rectangle {
         anchors.fill: parent
-        color: Qt.rgba(30/255, 30/255, 46/255, 0.95) // Dark background
+        color: Theme.withAlpha(Theme.background, 0.95) // Dark background
         border.color: root.accentColor
         border.width: 1
         radius: 10
@@ -54,7 +53,7 @@ PopupWindow {
             // Header Row
             RowLayout {
                 Layout.fillWidth: true
-                Text {  text: root.title; color: "#cdd6f4"; font.bold: true; font.pixelSize: 14; font.family: Theme.fontFamily }
+                Text {  text: root.title; color: Theme.cpText; font.bold: true; font.pixelSize: 14; font.family: Theme.fontFamily }
                 Item { Layout.fillWidth: true }
                 Text {  text: root.valueText; color: root.accentColor; font.bold: true; font.pixelSize: 14; font.family: Theme.fontFamily }
             }
@@ -64,7 +63,7 @@ PopupWindow {
                 font.family: Theme.fontFamily
                 visible: root.subText !== ""
                 text: root.subText
-                color: "#a6adc8"
+                color: Theme.cpSubtext0
                 font.pixelSize: 12
                 Layout.fillWidth: true
                 elide: Text.ElideRight

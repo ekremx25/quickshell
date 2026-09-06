@@ -10,6 +10,19 @@ import "ThemeSchemeRegistry.js" as ThemeSchemes
 Singleton {
     id: root
 
+    IpcHandler {
+        target: "materialYou"
+        function status(): string {
+            return JSON.stringify({
+                enabled: root.enabled, live: root.liveUpdate, source: root.wallpaperSource,
+                selected: root.wallpaperPath, applied: root.appliedWallpaperPath,
+                detected: root.lastDesktopWallpaperPath, backend: root.autoDetectBackend,
+                busy: root.isBusy, error: root.errorMessage,
+                revision: root.paletteRevision, spectrum: root.spectrumColors
+            });
+        }
+    }
+
     // State
     property bool available: false
     property bool enabled: false
@@ -20,10 +33,14 @@ Singleton {
 
     // Config
     property string wallpaperPath: ""
+    property string wallpaperSource: "selected" // "selected" or "desktop"
+    property string appliedWallpaperPath: ""
+    property string lastDesktopWallpaperPath: ""
+    property int manualSelectionRevision: 0
+    property int paletteRequestId: 0
     property string mode: "dark"  // "dark" or "light"
     property string matugenType: "scheme-tonal-spot"
     property bool applyToKitty: true
-    property bool applyToGtk: false
     property bool liveUpdate: false
     property string autoDetectBackend: "unknown"
     property string pendingWallpaperPath: ""
@@ -50,6 +67,8 @@ Singleton {
     property color tertiaryFixedDimColor: "#EFB8C8"
     property color tertiaryFixedOnColor: "#31111D"
     property color surfaceColor: "#1C1B1F"
+    property color surfaceContainerColor: "#211f26"
+    property color surfaceContainerHighColor: "#2b2930"
     property color surfaceOnColor: "#E6E1E5"
     property color backgroundColor: "#1C1B1F"
     property color surfaceVariantColor: "#49454F"
@@ -63,6 +82,94 @@ Singleton {
     // Actual dominant colours sampled from the wallpaper. This complements
     // Matugen's single-source harmonic palette in Wallpaper Spectrum mode.
     property var spectrumColors: []
+    property var manualAccentColors: ["", "", "", "", "", ""]
+    function normalizedAccents(values) {
+        var result = [];
+        for (var i = 0; i < 6; ++i) {
+            var value = values instanceof Array ? String(values[i] || "").trim() : "";
+            result.push(/^#[0-9a-fA-F]{6}$/.test(value) ? value.toLowerCase() : "");
+        }
+        return result;
+    }
+    function setManualAccent(index, value) {
+        if (index < 0 || index >= 6 || Math.floor(index) !== index) return;
+        value = String(value).trim();
+        if (value !== "" && !/^#[0-9a-fA-F]{6}$/.test(value)) return;
+        var next = normalizedAccents(root.manualAccentColors);
+        next[index] = value.toLowerCase();
+        root.manualAccentColors = next;
+        saveConfig();
+    }
+    function resetManualAccents() {
+        root.manualAccentColors = ["", "", "", "", "", ""];
+        saveConfig();
+    }
+
+    readonly property var colorModules: [
+        {key:"launcher", label:"Launcher", icon:"󰣇"},
+        {key:"cpu", label:"CPU", icon:""},
+        {key:"temp", label:"Temperature", icon:""},
+        {key:"activity", label:"Activity", icon:"󰨇"},
+        {key:"ram", label:"Memory", icon:""},
+        {key:"gpu", label:"GPU", icon:"󰢮"},
+        {key:"clock", label:"Clock", icon:""},
+        {key:"nightLight", label:"Night light", icon:""},
+        {key:"disk", label:"Disk", icon:""},
+        {key:"workspaces", label:"Workspaces", icon:"󰍹"},
+        {key:"calendar", label:"Calendar", icon:""},
+        {key:"notepad", label:"Notepad", icon:""},
+        {key:"weather", label:"Weather", icon:"󰖐"},
+        {key:"media", label:"Media", icon:""},
+        {key:"equalizer", label:"Equalizer", icon:"󰺢"},
+        {key:"currency", label:"Currency", icon:""},
+        {key:"clipboard", label:"Clipboard", icon:""},
+        {key:"notification", label:"Notifications", icon:""},
+        {key:"system", label:"System", icon:""},
+        {key:"power", label:"Power", icon:""},
+        {key:"tray", label:"System tray", icon:"󰀻"},
+        {key:"display", label:"Display", icon:"󰍹"},
+        {key:"bluetooth", label:"Bluetooth", icon:""},
+        {key:"battery", label:"Battery", icon:""},
+        {key:"powerProfile", label:"Power profile", icon:""}
+    ]
+    property var moduleAccentColors: ({})
+    function normalizedModuleColors(values, legacy) {
+        var result = {};
+        var groups = [["launcher","temp","clock","nightLight","cpu","ram","battery","system"],
+            ["calendar","notepad","workspaces","notification"], ["weather","gpu","tray","display","bluetooth"],
+            ["media","disk","equalizer","powerProfile"], ["currency","power"], ["clipboard"]];
+        if (!values || typeof values !== "object" || values instanceof Array) {
+            var previous = normalizedAccents(legacy);
+            for (var i = 0; i < groups.length; ++i)
+                if (previous[i]) for (var j = 0; j < groups[i].length; ++j) result[groups[i][j]] = previous[i];
+            return result;
+        }
+        for (var k = 0; k < colorModules.length; ++k) {
+            var key = colorModules[k].key;
+            var value = String(values[key] || "").trim();
+            if (/^#[0-9a-fA-F]{6}$/.test(value)) result[key] = value.toLowerCase();
+        }
+        return result;
+    }
+    function setModuleColor(key, value) {
+        if (!colorModules.some(function(m) { return m.key === key; })) return;
+        value = String(value).trim();
+        if (value !== "" && !/^#[0-9a-fA-F]{6}$/.test(value)) return;
+        var next = normalizedModuleColors(moduleAccentColors);
+        if (value) next[key] = value.toLowerCase(); else delete next[key];
+        moduleAccentColors = next;
+        saveConfig();
+    }
+    // Restore through the same validation and persistence path as regular edits.
+    function restoreModuleColors(colors) {
+        moduleAccentColors = normalizedModuleColors(colors);
+        saveConfig();
+    }
+    function resetModuleColors() {
+        moduleAccentColors = ({});
+        manualAccentColors = ["", "", "", "", "", ""];
+        saveConfig();
+    }
 
     signal colorsExtracted()
     signal themeApplied()
@@ -123,12 +230,14 @@ Singleton {
     function saveConfig() {
         var cfg = {
             materialYou: root.enabled,
+            wallpaperSource: root.wallpaperSource,
             wallpaperPath: Core.PathService.compactHome(root.wallpaperPath),
             mode: root.mode,
             matugenType: root.matugenType,
             applyToKitty: root.applyToKitty,
-            applyToGtk: root.applyToGtk,
-            liveUpdate: root.liveUpdate
+            liveUpdate: root.liveUpdate,
+            manualAccentColors: root.manualAccentColors,
+            moduleAccentColors: root.moduleAccentColors
         };
         configStore.save(cfg);
     }
@@ -144,11 +253,28 @@ Singleton {
         if (!root.configLoaded || !root.enabled || !root.available) return;
         if (root.isStaticType(root.matugenType)) {
             root.themeApplied();
+        } else if (root.wallpaperSource === "desktop") {
+            root.detectCurrentWallpaper();
         } else if (root.wallpaperPath.length > 0) {
             root.generateFromWallpaper(root.wallpaperPath);
         } else {
-            root.detectCurrentWallpaper();
+            root.useDesktopWallpaper();
         }
+    }
+
+    function selectWallpaper(path) {
+        root.manualSelectionRevision += 1;
+        root.wallpaperSource = "selected";
+        root.generateFromWallpaper(path);
+    }
+
+    function useDesktopWallpaper() {
+        root.wallpaperSource = "desktop";
+        root.paletteRequestId += 1;
+        root.pendingWallpaperPath = "";
+        root.pendingPaletteRefresh = false;
+        root.saveConfig();
+        root.detectCurrentWallpaper();
     }
 
     // Generate colors from wallpaper
@@ -163,6 +289,8 @@ Singleton {
         }
 
         root.wallpaperPath = Core.PathService.expandHome(wallpaperPath);
+        root.paletteRequestId += 1;
+        root.saveConfig();
         root.errorMessage = "";
 
         // Static themes don't use matugen — just apply directly
@@ -182,13 +310,16 @@ Singleton {
 
         root.isBusy = true;
 
+        matugenProc.requestId = root.paletteRequestId;
+        matugenProc.wallpaper = root.wallpaperPath;
         matugenProc.command = [
             "bash",
             root.scriptPath,
             root.wallpaperPath,
             root.mode,
             root.matugenCommandType(root.matugenType),
-            root.applyToKitty ? "true" : "false"
+            root.applyToKitty ? "true" : "false",
+            root.binPath
         ];
         matugenProc.buf = "";
         matugenProc.errorBuf = "";
@@ -202,9 +333,15 @@ Singleton {
             return;
         }
 
+        if (matugenProc.running) {
+            root.errorMessage = "Wait for the current palette to finish";
+            return;
+        }
         root.isBusy = true;
         root.errorMessage = "";
-
+        root.paletteRequestId += 1;
+        matugenProc.requestId = root.paletteRequestId;
+        matugenProc.wallpaper = "";
         matugenProc.command = [root.binPath, "color", "hex", hexColor, "-t", root.matugenCommandType(root.matugenType), "--json", "hex"];
         matugenProc.buf = "";
         matugenProc.errorBuf = "";
@@ -214,12 +351,20 @@ Singleton {
     Process {
         id: matugenProc
         running: false
+        property int requestId: 0
+        property string wallpaper: ""
         property string buf: ""
         property string errorBuf: ""
         stdout: SplitParser { onRead: data => { matugenProc.buf += data; } }
         stderr: SplitParser { onRead: data => { matugenProc.errorBuf += data; } }
         onExited: (exitCode) => {
             root.isBusy = false;
+            if (matugenProc.requestId !== root.paletteRequestId) {
+                matugenProc.buf = "";
+                matugenProc.errorBuf = "";
+                Qt.callLater(root.flushPendingWallpaper);
+                return;
+            }
             if (exitCode !== 0) {
                 var details = matugenProc.errorBuf.toString().trim();
                 root.errorMessage = details.length > 0
@@ -232,7 +377,10 @@ Singleton {
             }
             try {
                 var result = JSON.parse(matugenProc.buf);
+                if (!result.colors || !result.colors.primary || !result.colors.background)
+                    throw new Error("Incomplete wallpaper palette");
                 root.fullPalette = result;
+                root.appliedWallpaperPath = matugenProc.wallpaper;
                 applyPalette(result);
                 root.colorsExtracted();
             } catch(e) {
@@ -247,10 +395,10 @@ Singleton {
     function flushPendingWallpaper() {
         if (root.isBusy || matugenProc.running || root.pendingWallpaperPath.length === 0) return;
         var nextPath = root.pendingWallpaperPath;
-        var forceRefresh = root.pendingPaletteRefresh;
+
         root.pendingWallpaperPath = "";
         root.pendingPaletteRefresh = false;
-        if (forceRefresh || nextPath !== root.wallpaperPath) root.generateFromWallpaper(nextPath);
+        root.generateFromWallpaper(nextPath);
     }
 
     function applyPalette(palette) {
@@ -299,6 +447,8 @@ Singleton {
         root.tertiaryFixedOnColor = c("on_tertiary_fixed") || root.tertiaryFixedOnColor;
         
         root.surfaceColor = c("surface") || root.surfaceColor;
+        root.surfaceContainerColor = c("surface_container") || root.surfaceColor;
+        root.surfaceContainerHighColor = c("surface_container_high") || c("surface_variant") || root.surfaceColor;
         root.surfaceOnColor = c("on_surface") || root.surfaceOnColor;
         root.backgroundColor = c("background") || root.backgroundColor;
         root.surfaceVariantColor = c("surface_variant") || root.surfaceVariantColor;
@@ -318,6 +468,8 @@ Singleton {
         root.enabled = v;
         saveConfig();
         if (!v) {
+            root.paletteRequestId += 1;
+            root.pendingWallpaperPath = "";
             root.themeApplied();
             return;
         }
@@ -326,7 +478,7 @@ Singleton {
         } else if (root.wallpaperPath.length > 0) {
             root.generateFromWallpaper(root.wallpaperPath);
         } else {
-            root.detectCurrentWallpaper();
+            root.useDesktopWallpaper();
         }
     }
 
@@ -346,6 +498,8 @@ Singleton {
 
         if (root.matugenType === t) return;
         root.matugenType = t;
+        root.paletteRequestId += 1;
+        root.pendingWallpaperPath = "";
         // Authored palettes currently ship as dark variants. Keeping the
         // stored mode aligned prevents the UI from claiming that a light
         // variant is active when the palette itself is unchanged.
@@ -369,15 +523,19 @@ Singleton {
         if (root.wallpaperPath.length > 0) {
             root.generateFromWallpaper(root.wallpaperPath);
         } else {
-            root.detectCurrentWallpaper();
+            root.useDesktopWallpaper();
         }
     }
     function setApplyToKitty(v) { root.applyToKitty = v; saveConfig(); }
-    function setApplyToGtk(v) { root.applyToGtk = v; saveConfig(); }
     function setLiveUpdate(v) {
         root.liveUpdate = v;
-        saveConfig();
-        if (v) wallpaperDetectDebounce.restart();
+        if (v) {
+            root.useDesktopWallpaper();
+        } else {
+            root.manualSelectionRevision += 1;
+            root.wallpaperSource = "selected";
+            root.saveConfig();
+        }
     }
 
     // Auto-detect wallpaper
@@ -385,6 +543,7 @@ Singleton {
         id: autoDetectProc
         command: ["bash", root.autoDetectScriptPath, "--with-backend"]
         property string output: ""
+        property int selectionRevision: 0
         stdout: SplitParser { onRead: data => autoDetectProc.output += data }
         onExited: (exitCode) => {
             var detected = autoDetectProc.output.toString().trim();
@@ -395,13 +554,18 @@ Singleton {
 
             if (path.length > 0) {
                 root.autoDetectBackend = backend;
-                root.errorMessage = "";
-                if (path !== root.wallpaperPath) {
-                    if (root.isBusy || matugenProc.running) {
-                        root.pendingWallpaperPath = path;
-                    } else {
-                        root.generateFromWallpaper(path);
-                    }
+                var desktopChanged = root.lastDesktopWallpaperPath.length > 0
+                    && path !== root.lastDesktopWallpaperPath;
+                root.lastDesktopWallpaperPath = path;
+                // A lookup started before a manual selection must not undo it.
+                // Keep observing the desktop, however: the NEXT actual wallpaper
+                // change should take effect whenever Live is enabled.
+                var currentSelection = autoDetectProc.selectionRevision === root.manualSelectionRevision;
+                var followDesktop = root.wallpaperSource === "desktop" || (root.liveUpdate && desktopChanged);
+                if (currentSelection && followDesktop
+                        && (path !== root.wallpaperPath || (!root.isBusy && path !== root.appliedWallpaperPath))) {
+                    root.wallpaperSource = "desktop";
+                    root.generateFromWallpaper(path);
                 }
             } else {
                 root.autoDetectBackend = "unknown";
@@ -413,6 +577,7 @@ Singleton {
 
     function detectCurrentWallpaper() {
         if (autoDetectProc.running) return;
+        autoDetectProc.selectionRevision = root.manualSelectionRevision;
         autoDetectProc.running = true;
     }
 
@@ -425,7 +590,7 @@ Singleton {
 
     Core.FileChangeWatcher {
         path: root.waypaperConfigPath
-        active: root.enabled && root.liveUpdate && root.autoDetectBackend === "waypaper"
+        active: root.enabled && root.liveUpdate
         interval: 2000
         onChanged: wallpaperDetectDebounce.restart()
     }
@@ -448,12 +613,11 @@ Singleton {
         onTriggered: root.generateFromWallpaper(root.wallpaperPath)
     }
 
-    // swww and swaybg do not expose a portable config file to watch. Keep a
-    // slower safety check for those backends; unchanged paths no longer invoke
-    // matugen, so this remains inexpensive.
+    // Detect changes made outside Waypaper as well. Unchanged paths do not
+    // regenerate the palette; manually selected images are never polled over.
     Timer {
-        interval: 15000
-        running: root.enabled && root.liveUpdate && root.autoDetectBackend !== "waypaper"
+        interval: 2000
+        running: root.configLoaded && root.enabled && root.liveUpdate
         repeat: true
         triggeredOnStart: true
         onTriggered: wallpaperDetectDebounce.restart()
@@ -465,29 +629,35 @@ Singleton {
         schemaVersion: 1
         defaultValue: ({
             materialYou: false,
+            wallpaperSource: "selected",
             wallpaperPath: "",
             mode: "dark",
             matugenType: "scheme-tonal-spot",
             applyToKitty: true,
-            applyToGtk: false,
-            liveUpdate: false
+            liveUpdate: false,
+            manualAccentColors: ["", "", "", "", "", ""]
         })
         function validate(data) {
             if (data.mode !== "dark" && data.mode !== "light") data.mode = "dark";
             if (!ThemeSchemes.isSupported(data.matugenType)) data.matugenType = "scheme-tonal-spot";
             if (typeof data.materialYou !== "boolean") data.materialYou = !!data.materialYou;
             if (typeof data.applyToKitty !== "boolean") data.applyToKitty = !!data.applyToKitty;
-            if (typeof data.applyToGtk !== "boolean") data.applyToGtk = !!data.applyToGtk;
+            delete data.applyToGtk; // Retired setting: no GTK integration exists.
             if (typeof data.liveUpdate !== "boolean") data.liveUpdate = !!data.liveUpdate;
+            data.moduleAccentColors = root.normalizedModuleColors(data.moduleAccentColors, data.manualAccentColors);
+            data.manualAccentColors = root.normalizedAccents(data.manualAccentColors);
             return data;
         }
         onLoadedValue: function(cfg) {
+            root.moduleAccentColors = root.normalizedModuleColors(cfg.moduleAccentColors, cfg.manualAccentColors);
+            root.manualAccentColors = ["", "", "", "", "", ""];
             root.enabled = cfg.materialYou || false;
             root.wallpaperPath = Core.PathService.expandHome(cfg.wallpaperPath || "");
+            // Live means follow the active desktop, including after a restart.
+            root.wallpaperSource = cfg.liveUpdate ? "desktop" : "selected";
             root.mode = cfg.mode || "dark";
             root.matugenType = cfg.matugenType || "scheme-tonal-spot";
             root.applyToKitty = cfg.applyToKitty !== undefined ? cfg.applyToKitty : true;
-            root.applyToGtk = cfg.applyToGtk !== undefined ? cfg.applyToGtk : false;
             root.liveUpdate = cfg.liveUpdate !== undefined ? cfg.liveUpdate : false;
             root.configLoaded = true;
             root.refreshEnabledPalette();

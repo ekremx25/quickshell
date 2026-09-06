@@ -16,9 +16,9 @@ Rectangle {
     readonly property int temp: S.NightLight.temperature
 
     // Warm orange when enabled, muted surface colour when off.
-    readonly property color offColor: Qt.rgba(1, 1, 1, 0.08)
+    readonly property color offColor: Theme.withAlpha(Theme.text, 0.08)
     color: on
-        ? (mouseArea.containsMouse ? Qt.lighter("#f9a03c", 1.15) : "#f9a03c")
+        ? (mouseArea.containsMouse ? Qt.lighter(Theme.nightLightColor, 1.15) : Theme.nightLightColor)
         : (mouseArea.containsMouse ? Qt.lighter(offColor, 1.15) : offColor)
     Behavior on color { ColorAnimation { duration: Theme.animMedium } }
 
@@ -34,7 +34,7 @@ Rectangle {
             text: root.on ? "󰽥" : "󰌵"  // sun-with-filter / lightbulb-off
             font.pixelSize: 16
             font.family: "JetBrainsMono Nerd Font"
-            color: root.on ? "#1e1e2e" : Theme.text
+            color: root.on ? Theme.foregroundFor(root.color) : Theme.text
         }
 
         Text {
@@ -42,7 +42,7 @@ Rectangle {
             font.bold: true
             font.pixelSize: 12
             font.family: Theme.fontFamily
-            color: root.on ? "#1e1e2e" : Theme.text
+            color: root.on ? Theme.foregroundFor(root.color) : Theme.text
         }
     }
 

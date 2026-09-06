@@ -1,7 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
 import "../../../Widgets"
-import "../Settings/SettingsPalette.js" as SettingsPalette
 
 Row {
     id: root
@@ -22,7 +21,7 @@ Row {
             width: Math.max(segText.implicitWidth + 20, 70)
             height: 30
             radius: 6
-            color: index === root.selectedIndex ? Theme.primary : Qt.rgba(49/255, 50/255, 68/255, 0.6)
+            color: index === root.selectedIndex ? Theme.primary : Theme.withAlpha(Theme.surface, 0.6)
 
             Behavior on color {
                 ColorAnimation { duration: 150 }
@@ -33,7 +32,7 @@ Row {
                 id: segText
                 anchors.centerIn: parent
                 text: modelData
-                color: index === root.selectedIndex ? "#1e1e2e" : SettingsPalette.text
+                color: index === root.selectedIndex ? Theme.foregroundFor(Theme.primary) : SettingsPalette.text
                 font.pixelSize: 11
                 font.bold: index === root.selectedIndex
             }

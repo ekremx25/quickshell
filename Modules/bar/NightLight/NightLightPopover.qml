@@ -31,8 +31,8 @@ PopupWindow {
 
     Rectangle {
         anchors.fill: parent
-        color: Qt.rgba(30/255, 30/255, 46/255, 0.96)
-        border.color: S.NightLight.enabled ? "#f9a03c" : Qt.rgba(1, 1, 1, 0.2)
+        color: Theme.withAlpha(Theme.background, 0.96)
+        border.color: S.NightLight.enabled ? Theme.nightLightColor : Theme.withAlpha(Theme.text, 0.2)
         border.width: 2
         radius: 12
 
@@ -56,7 +56,7 @@ PopupWindow {
                     text: "󰽥"
                     font.pixelSize: 18
                     font.family: "JetBrainsMono Nerd Font"
-                    color: S.NightLight.enabled ? "#f9a03c" : Theme.subtext
+                    color: S.NightLight.enabled ? Theme.nightLightColor : Theme.subtext
                 }
 
                 Text {
@@ -73,14 +73,14 @@ PopupWindow {
                     Layout.preferredWidth: 46
                     Layout.preferredHeight: 22
                     radius: 11
-                    color: S.NightLight.enabled ? "#f9a03c" : Qt.rgba(255, 255, 255, 0.12)
+                    color: S.NightLight.enabled ? Theme.nightLightColor : Theme.withAlpha(Theme.text, 0.12)
                     Behavior on color { ColorAnimation { duration: 150 } }
 
                     Rectangle {
                         width: 18
                         height: 18
                         radius: 9
-                        color: "#1e1e2e"
+                        color: Theme.foregroundFor(Theme.nightLightColor)
                         y: 2
                         x: S.NightLight.enabled ? parent.width - width - 2 : 2
                         Behavior on x { NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
@@ -100,15 +100,15 @@ PopupWindow {
                 Layout.fillWidth: true
                 Layout.preferredHeight: unavailText.implicitHeight + 16
                 radius: 6
-                color: Qt.rgba(243/255, 139/255, 168/255, 0.15)
-                border.color: Qt.rgba(243/255, 139/255, 168/255, 0.4)
+                color: Theme.withAlpha(Theme.red, 0.15)
+                border.color: Theme.withAlpha(Theme.red, 0.4)
                 border.width: 1
                 Text {
                     id: unavailText
                     anchors.fill: parent
                     anchors.margins: 8
                     text: "gammastep is not installed. Run:\n  sudo pacman -S gammastep"
-                    color: "#f38ba8"
+                    color: Theme.cpRed
                     font.pixelSize: 11
                     font.family: Theme.fontFamily
                     wrapMode: Text.WordWrap
@@ -129,7 +129,7 @@ PopupWindow {
                 }
                 Text {
                     text: S.NightLight.temperature + "K"
-                    color: S.NightLight.enabled ? "#f9a03c" : Theme.text
+                    color: S.NightLight.enabled ? Theme.nightLightColor : Theme.text
                     font.pixelSize: 12
                     font.bold: true
                     font.family: Theme.fontFamily
@@ -170,8 +170,8 @@ PopupWindow {
                     width: 18
                     height: 18
                     radius: 9
-                    color: "#1e1e2e"
-                    border.color: S.NightLight.enabled ? "#f9a03c" : Qt.rgba(1, 1, 1, 0.2)
+                    color: Theme.foregroundFor(Theme.nightLightColor)
+                    border.color: S.NightLight.enabled ? Theme.nightLightColor : Theme.withAlpha(Theme.text, 0.2)
                     border.width: 2
                 }
             }
@@ -197,15 +197,15 @@ PopupWindow {
                         readonly property bool isActive: S.NightLight.temperature === modelData.k
                         color: isActive
                             ? Qt.rgba(249/255, 160/255, 60/255, 0.2)
-                            : (presetArea.containsMouse ? Qt.rgba(255, 255, 255, 0.06) : Qt.rgba(255, 255, 255, 0.03))
-                        border.color: isActive ? "#f9a03c" : Qt.rgba(255, 255, 255, 0.08)
+                            : (presetArea.containsMouse ? Theme.withAlpha(Theme.text, 0.06) : Theme.withAlpha(Theme.text, 0.03))
+                        border.color: isActive ? Theme.nightLightColor : Theme.withAlpha(Theme.text, 0.08)
                         border.width: 1
 
                         Text {
                             font.family: Theme.fontFamily
                             anchors.centerIn: parent
                             text: modelData.label
-                            color: parent.isActive ? "#f9a03c" : Theme.text
+                            color: parent.isActive ? Theme.nightLightColor : Theme.text
                             font.pixelSize: 10
                             font.bold: parent.isActive
                         }
@@ -235,8 +235,8 @@ PopupWindow {
                     Layout.preferredWidth: 16
                     Layout.preferredHeight: 16
                     radius: 4
-                    color: S.NightLight.applyOnStartup ? "#f9a03c" : "transparent"
-                    border.color: S.NightLight.applyOnStartup ? "#f9a03c" : Qt.rgba(1, 1, 1, 0.2)
+                    color: S.NightLight.applyOnStartup ? Theme.nightLightColor : "transparent"
+                    border.color: S.NightLight.applyOnStartup ? Theme.nightLightColor : Theme.withAlpha(Theme.text, 0.2)
                     border.width: 1
 
                     Text {
@@ -244,7 +244,7 @@ PopupWindow {
                         anchors.centerIn: parent
                         visible: S.NightLight.applyOnStartup
                         text: "✓"
-                        color: "#1e1e2e"
+                        color: Theme.foregroundFor(Theme.nightLightColor)
                         font.pixelSize: 11
                         font.bold: true
                     }

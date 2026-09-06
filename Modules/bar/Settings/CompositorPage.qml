@@ -1,6 +1,5 @@
 import QtQuick
 import QtQuick.Layouts
-import "SettingsPalette.js" as SettingsPalette
 import Quickshell
 import Quickshell.Io
 import "../../../Widgets"
@@ -27,8 +26,8 @@ Item {
             Layout.fillWidth: true
             height: compositorInfo.height + 32
             radius: 12
-            color: Qt.rgba(137/255, 180/255, 250/255, 0.08)
-            border.color: Qt.rgba(137/255, 180/255, 250/255, 0.15)
+            color: Theme.withAlpha(Theme.primary, 0.08)
+            border.color: Theme.withAlpha(Theme.primary, 0.15)
             border.width: 1
 
             ColumnLayout {
@@ -42,7 +41,7 @@ Item {
                     spacing: 12
                     Rectangle {
                         width: 48; height: 48; radius: 12
-                        color: Qt.rgba(137/255, 180/255, 250/255, 0.15)
+                        color: Theme.withAlpha(Theme.primary, 0.15)
                         Text {
                             anchors.centerIn: parent
                             text: ""
@@ -81,7 +80,7 @@ Item {
             Rectangle {
                 Layout.fillWidth: true
                 height: 36; radius: 8
-                color: index % 2 === 0 ? Qt.rgba(255,255,255,0.02) : "transparent"
+                color: index % 2 === 0 ? Theme.withAlpha(Theme.text, 0.02) : "transparent"
 
                 RowLayout {
                     anchors.fill: parent; anchors.margins: 12
@@ -113,15 +112,15 @@ Item {
                     Rectangle {
                         Layout.fillWidth: true
                         height: 64; radius: 10
-                        color: Qt.rgba(255,255,255,0.03)
-                        border.color: Qt.rgba(255,255,255,0.06); border.width: 1
+                        color: Theme.withAlpha(Theme.text, 0.03)
+                        border.color: Theme.withAlpha(Theme.text, 0.06); border.width: 1
 
                         RowLayout {
                             anchors.fill: parent; anchors.margins: 12; spacing: 10
 
                             Rectangle {
                                 width: 40; height: 40; radius: 8
-                                color: Qt.rgba(203/255, 166/255, 247/255, 0.15)
+                                color: Theme.withAlpha(Theme.mauve, 0.15)
                                 Text { anchors.centerIn: parent; text: "󰍹"; font.pixelSize: 18; font.family: "JetBrainsMono Nerd Font"; color: SettingsPalette.readableAccent(Theme.primary) }
                             }
 
@@ -144,7 +143,7 @@ Item {
 
             Rectangle {
                 Layout.fillWidth: true; height: 36; radius: 8
-                color: powerOnMA.containsMouse ? Qt.rgba(166/255, 227/255, 161/255, 0.15) : Qt.rgba(255,255,255,0.04)
+                color: powerOnMA.containsMouse ? Theme.withAlpha(Theme.green, 0.15) : Theme.withAlpha(Theme.text, 0.04)
                 Behavior on color { ColorAnimation { duration: 150 } }
                 Text {  anchors.centerIn: parent; text: "Power On Monitors"; font.pixelSize: 12; color: SettingsPalette.readableAccent(Theme.green); font.family: Theme.fontFamily }
                 MouseArea { id: powerOnMA; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: CompositorService.powerOnMonitors() }
@@ -152,7 +151,7 @@ Item {
 
             Rectangle {
                 Layout.fillWidth: true; height: 36; radius: 8
-                color: powerOffMA.containsMouse ? Qt.rgba(243/255, 139/255, 168/255, 0.15) : Qt.rgba(255,255,255,0.04)
+                color: powerOffMA.containsMouse ? Theme.withAlpha(Theme.red, 0.15) : Theme.withAlpha(Theme.text, 0.04)
                 Behavior on color { ColorAnimation { duration: 150 } }
                 Text {  anchors.centerIn: parent; text: "Power Off Monitors"; font.pixelSize: 12; color: SettingsPalette.readableAccent(Theme.red); font.family: Theme.fontFamily }
                 MouseArea { id: powerOffMA; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: CompositorService.powerOffMonitors() }

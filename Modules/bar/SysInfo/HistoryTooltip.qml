@@ -8,9 +8,9 @@ PopupWindow {
     id: root
 
     required property Item ownerItem
-    property color accentColor: "#cba6f7"
-    property color surfaceColor: "#1e1e2e"
-    property color textColor: "#cdd6f4"
+    property color accentColor: Theme.cpMauve
+    property color surfaceColor: Theme.cpBase
+    property color textColor: Theme.cpText
     property string primaryLineLeft: ""
     property string primaryLineRight: ""
     property var historyValues: []
@@ -73,7 +73,7 @@ PopupWindow {
                 onPaint: {
                     var ctx = getContext("2d");
                     ctx.clearRect(0, 0, width, height);
-                    ctx.fillStyle = "#313244";
+                    ctx.fillStyle = Theme.cpSurface0;
                     ctx.fillRect(0, 0, width, height);
                     ctx.fillStyle = root.accentColor;
 
@@ -115,7 +115,15 @@ PopupWindow {
         }
     }
 
+    onAccentColorChanged: refreshGraph()
+    onSurfaceColorChanged: refreshGraph()
+    onTextColorChanged: refreshGraph()
+    Connections {
+        target: Theme
+        function onActiveThemeChanged() { root.refreshGraph(); }
+    }
+
     function refreshGraph() {
-        historyCanvas.requestPaint();
+        if (historyCanvas) historyCanvas.requestPaint();
     }
 }

@@ -2,7 +2,6 @@ import QtQuick
 import Qt.labs.platform
 import QtQuick.Layouts
 import "../../../Widgets"
-import "../Settings/SettingsPalette.js" as SettingsPalette
 
 Item {
     id: weatherPage
@@ -36,7 +35,7 @@ Item {
             // ═══ HEADER ═══
             RowLayout {
                 Layout.fillWidth: true
-                Text { text: "󰖕"; font.pixelSize: 20; font.family: "JetBrainsMono Nerd Font"; color: "#f9e2af" }
+                Text { text: "󰖕"; font.pixelSize: 20; font.family: "JetBrainsMono Nerd Font"; color: Theme.cpYellow }
                 Text {  text: "Weather Settings"; font.bold: true; font.pixelSize: 18; color: SettingsPalette.text; font.family: Theme.fontFamily }
             }
 
@@ -76,9 +75,9 @@ Item {
             Rectangle {
                 Layout.fillWidth: true
                 height: currentLocCol.height + 24
-                color: Qt.rgba(166/255, 227/255, 161/255, 0.08)
+                color: Theme.withAlpha(Theme.green, 0.08)
                 radius: 12
-                border.color: Qt.rgba(166/255, 227/255, 161/255, 0.2)
+                border.color: Theme.withAlpha(Theme.green, 0.2)
                 border.width: 1
 
                 ColumnLayout {
@@ -89,8 +88,8 @@ Item {
 
                     RowLayout {
                         spacing: 8
-                        Text { text: ""; font.pixelSize: 16; font.family: Theme.fontFamily; color: "#a6e3a1" }
-                        Text {  text: "Current Location"; color: "#a6e3a1"; font.bold: true; font.pixelSize: 13; font.family: Theme.fontFamily }
+                        Text { text: ""; font.pixelSize: 16; font.family: Theme.fontFamily; color: Theme.cpGreen }
+                        Text {  text: "Current Location"; color: Theme.cpGreen; font.bold: true; font.pixelSize: 13; font.family: Theme.fontFamily }
                     }
 
                     RowLayout {
@@ -122,7 +121,7 @@ Item {
                     Text {  text: "Latitude"; color: SettingsPalette.subtext; font.pixelSize: 11; font.family: Theme.fontFamily }
                     Rectangle {
                         Layout.fillWidth: true; height: 40; radius: 8
-                        color: Qt.rgba(49/255, 50/255, 68/255, 0.6)
+                        color: Theme.withAlpha(Theme.surface, 0.6)
                         border.color: latInput.activeFocus ? Theme.primary : "transparent"
                         border.width: latInput.activeFocus ? 2 : 0
 
@@ -145,7 +144,7 @@ Item {
                     Text {  text: "Longitude"; color: SettingsPalette.subtext; font.pixelSize: 11; font.family: Theme.fontFamily }
                     Rectangle {
                         Layout.fillWidth: true; height: 40; radius: 8
-                        color: Qt.rgba(49/255, 50/255, 68/255, 0.6)
+                        color: Theme.withAlpha(Theme.surface, 0.6)
                         border.color: lonInput.activeFocus ? Theme.primary : "transparent"
                         border.width: lonInput.activeFocus ? 2 : 0
 
@@ -173,7 +172,7 @@ Item {
 
             Rectangle {
                 Layout.fillWidth: true; height: 44; radius: 10
-                color: Qt.rgba(49/255, 50/255, 68/255, 0.6)
+                color: Theme.withAlpha(Theme.surface, 0.6)
                 border.color: searchInput.activeFocus ? Theme.primary : "transparent"
                 border.width: searchInput.activeFocus ? 2 : 0
                 visible: !weatherPage.autoLocation
@@ -217,7 +216,7 @@ Item {
                         width: 70; height: 28; radius: 6
                         color: searchBtnMA.containsMouse ? Qt.lighter(Theme.primary, 1.2) : Theme.primary
                         Behavior on color { ColorAnimation { duration: 100 } }
-                        Text {  anchors.centerIn: parent; text: "Search"; color: "#1e1e2e"; font.pixelSize: 12; font.bold: true; font.family: Theme.fontFamily }
+                        Text {  anchors.centerIn: parent; text: "Search"; color: Theme.foregroundFor(Theme.primary); font.pixelSize: 12; font.bold: true; font.family: Theme.fontFamily }
                         MouseArea {
                             id: searchBtnMA; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
                             onClicked: weatherService.searchCity()
@@ -239,7 +238,7 @@ Item {
                 Rectangle {
                     Layout.fillWidth: true
                     height: 48; radius: 10
-                    color: resultMA.containsMouse ? Qt.rgba(137/255, 180/255, 250/255, 0.12) : Qt.rgba(49/255, 50/255, 68/255, 0.4)
+                    color: resultMA.containsMouse ? Theme.withAlpha(Theme.primary, 0.12) : Theme.withAlpha(Theme.surface, 0.4)
                     Behavior on color { ColorAnimation { duration: 120 } }
 
                     RowLayout {
@@ -259,9 +258,9 @@ Item {
 
                         Rectangle {
                             width: 60; height: 28; radius: 6
-                            color: selectMA.containsMouse ? Qt.lighter("#a6e3a1", 1.2) : "#a6e3a1"
+                            color: selectMA.containsMouse ? Qt.lighter(Theme.cpGreen, 1.2) : Theme.cpGreen
                             Behavior on color { ColorAnimation { duration: 100 } }
-                            Text {  anchors.centerIn: parent; text: "Select"; color: "#1e1e2e"; font.pixelSize: 11; font.bold: true; font.family: Theme.fontFamily }
+                            Text {  anchors.centerIn: parent; text: "Select"; color: Theme.foregroundFor(Theme.primary); font.pixelSize: 11; font.bold: true; font.family: Theme.fontFamily }
                             MouseArea {
                                 id: selectMA; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
                                 onClicked: weatherService.selectSearchResult(modelData)
@@ -278,7 +277,7 @@ Item {
             }
 
             // ═══ SAVE AND APPLY ═══
-            Rectangle { Layout.fillWidth: true; height: 1; color: Qt.rgba(255,255,255,0.06) }
+            Rectangle { Layout.fillWidth: true; height: 1; color: Theme.withAlpha(Theme.text, 0.06) }
 
             RowLayout {
                 Layout.fillWidth: true
@@ -292,7 +291,7 @@ Item {
                     width: 160; height: 40; radius: 10
                     color: applyMA.containsMouse ? Qt.lighter(Theme.primary, 1.2) : Theme.primary
                     Behavior on color { ColorAnimation { duration: 150 } }
-                    Text {  anchors.centerIn: parent; text: "💾  Save & Apply"; color: "#1e1e2e"; font.pixelSize: 13; font.bold: true; font.family: Theme.fontFamily }
+                    Text {  anchors.centerIn: parent; text: "💾  Save & Apply"; color: Theme.foregroundFor(Theme.primary); font.pixelSize: 13; font.bold: true; font.family: Theme.fontFamily }
                     MouseArea {
                         id: applyMA; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
                         onClicked: weatherService.saveConfig()

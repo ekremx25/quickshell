@@ -11,7 +11,7 @@ ColumnLayout {
     // --- UI ---
     Text {
         text: "Notepad"
-        color: Theme.text || "#cdd6f4"
+        color: Theme.text || Theme.cpText
         font.bold: true
         font.pixelSize: 18
         font.family: Theme.fontFamily
@@ -27,7 +27,7 @@ ColumnLayout {
             id: textArea
             placeholderText: "Write your notes here..."
             text: notesService.text
-            color: "#cdd6f4"
+            color: Theme.cpText
             font.pixelSize: 13
             font.family: Theme.fontFamily
             wrapMode: TextEdit.Wrap
@@ -35,7 +35,7 @@ ColumnLayout {
             background: Rectangle {
                 color: Qt.rgba(0,0,0,0.2)
                 radius: 8
-                border.color: parent.activeFocus ? Theme.primary : Qt.rgba(255,255,255,0.1)
+                border.color: parent.activeFocus ? Theme.primary : Theme.withAlpha(Theme.text, 0.1)
                 border.width: 1
             }
 

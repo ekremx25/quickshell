@@ -1,6 +1,5 @@
 import QtQuick
 import QtQuick.Layouts
-import "SettingsPalette.js" as SettingsPalette
 import "../../../Widgets"
 
 // Panel shown when the "Local only" provider is selected.

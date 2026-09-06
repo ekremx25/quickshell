@@ -1,7 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
 import "../../../Widgets"
-import "../Settings/SettingsPalette.js" as SettingsPalette
 
 Rectangle {
     id: root
@@ -56,14 +55,14 @@ Rectangle {
                 width: 30
                 height: 30
                 radius: 8
-                color: root.muted ? Qt.rgba(243/255, 139/255, 168/255, 0.2) : Qt.rgba(root.accentColor.r, root.accentColor.g, root.accentColor.b, 0.1)
+                color: root.muted ? Theme.withAlpha(Theme.red, 0.2) : Qt.rgba(root.accentColor.r, root.accentColor.g, root.accentColor.b, 0.1)
 
                 Text {
                     anchors.centerIn: parent
                     text: root.muted ? root.mutedIconText : root.unmutedIconText
                     font.pixelSize: 14
                     font.family: "JetBrainsMono Nerd Font"
-                    color: root.muted ? "#f38ba8" : root.accentColor
+                    color: root.muted ? Theme.cpRed : root.accentColor
                 }
 
                 MouseArea {
@@ -77,7 +76,7 @@ Rectangle {
                 Layout.fillWidth: true
                 height: 6
                 radius: 3
-                color: Qt.rgba(49/255, 50/255, 68/255, 0.8)
+                color: Theme.withAlpha(Theme.surface, 0.8)
 
                 Rectangle {
                     width: parent.width * (Math.max(0, Math.min(root.volumePercent, root.volumeMax)) / root.volumeMax)

@@ -1,6 +1,5 @@
 import QtQuick
 import QtQuick.Layouts
-import "../Settings/SettingsPalette.js" as SettingsPalette
 import "../../../Widgets"
 
 // Display settings card: resolution, refresh rate, scale, position.
@@ -67,7 +66,7 @@ Rectangle {
                     Rectangle {
                         required property string modelData
                         radius: 9
-                        color: page.selRes === modelData ? page.accentSoft : Qt.rgba(255, 255, 255, 0.03)
+                        color: page.selRes === modelData ? page.accentSoft : Theme.withAlpha(Theme.text, 0.03)
                         border.color: page.selRes === modelData ? page.accentBorder : page.softBorder
                         border.width: 1
                         implicitWidth: resolutionText.implicitWidth + 22
@@ -91,8 +90,8 @@ Rectangle {
                             anchors.right: parent.right
                             anchors.rightMargin: 8
                             radius: 6
-                            color: page.selRes === modelData ? Qt.rgba(255, 255, 255, 0.16) : Qt.rgba(166 / 255, 227 / 255, 161 / 255, 0.16)
-                            border.color: page.selRes === modelData ? Qt.rgba(255, 255, 255, 0.26) : Qt.rgba(166 / 255, 227 / 255, 161 / 255, 0.44)
+                            color: page.selRes === modelData ? Theme.withAlpha(Theme.text, 0.16) : Theme.withAlpha(Theme.green, 0.16)
+                            border.color: page.selRes === modelData ? Theme.withAlpha(Theme.text, 0.26) : Theme.withAlpha(Theme.green, 0.44)
                             border.width: 1
                             implicitWidth: recommendedText.implicitWidth + 12
                             implicitHeight: 20
@@ -102,7 +101,7 @@ Rectangle {
                                 id: recommendedText
                                 anchors.centerIn: parent
                                 text: "Recommended"
-                                color: page.selRes === modelData ? "white" : "#a6e3a1"
+                                color: page.selRes === modelData ? Theme.text : Theme.cpGreen
                                 font.pixelSize: 9
                                 font.bold: true
                             }
@@ -147,7 +146,7 @@ Rectangle {
                     Rectangle {
                         required property var modelData
                         radius: 9
-                        color: page.selHz === modelData.hz ? page.accentSoft : Qt.rgba(255, 255, 255, 0.03)
+                        color: page.selHz === modelData.hz ? page.accentSoft : Theme.withAlpha(Theme.text, 0.03)
                         border.color: page.selHz === modelData.hz ? page.accentBorder : page.softBorder
                         border.width: 1
                         implicitWidth: refreshText.implicitWidth + 22
@@ -231,7 +230,7 @@ Rectangle {
                     Rectangle {
                         required property var modelData
                         radius: 8
-                        color: buttonArea.containsMouse ? Qt.rgba(255, 255, 255, 0.08) : Qt.rgba(255, 255, 255, 0.03)
+                        color: buttonArea.containsMouse ? Theme.withAlpha(Theme.text, 0.08) : Theme.withAlpha(Theme.text, 0.03)
                         border.color: page.softBorder
                         border.width: 1
                         implicitWidth: 44
@@ -261,7 +260,7 @@ Rectangle {
 
             Rectangle {
                 radius: 8
-                color: Qt.rgba(255, 255, 255, 0.03)
+                color: Theme.withAlpha(Theme.text, 0.03)
                 border.color: page.softBorder
                 border.width: 1
                 implicitWidth: 90
@@ -279,7 +278,7 @@ Rectangle {
 
             Rectangle {
                 radius: 8
-                color: Qt.rgba(255, 255, 255, 0.03)
+                color: Theme.withAlpha(Theme.text, 0.03)
                 border.color: page.softBorder
                 border.width: 1
                 implicitWidth: 90
@@ -297,7 +296,7 @@ Rectangle {
 
             Rectangle {
                 radius: 8
-                color: resetYArea.containsMouse ? Qt.rgba(255, 255, 255, 0.08) : Qt.rgba(255, 255, 255, 0.03)
+                color: resetYArea.containsMouse ? Theme.withAlpha(Theme.text, 0.08) : Theme.withAlpha(Theme.text, 0.03)
                 border.color: page.softBorder
                 border.width: 1
                 implicitWidth: 86

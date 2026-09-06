@@ -2,7 +2,6 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
 import "../../../Widgets"
-import "../Settings/SettingsPalette.js" as SettingsPalette
 
 Item {
     id: lockPage
@@ -39,14 +38,14 @@ Item {
                 Item { Layout.fillWidth: true }
                 Rectangle {
                     radius: 8
-                    color: lockService.hyprlandActive ? Qt.rgba(166/255, 227/255, 161/255, 0.14) : Qt.rgba(249/255, 226/255, 175/255, 0.14)
+                    color: lockService.hyprlandActive ? Theme.withAlpha(Theme.green, 0.14) : Theme.withAlpha(Theme.yellow, 0.14)
                     implicitWidth: statusRow.implicitWidth + 16
                     implicitHeight: 28
                     RowLayout {
                         id: statusRow
                         anchors.centerIn: parent
                         spacing: 6
-                        Text {  text: "●"; color: lockService.hyprlandActive ? Theme.green : "#f9e2af"; font.pixelSize: 11; font.family: Theme.fontFamily }
+                        Text {  text: "●"; color: lockService.hyprlandActive ? Theme.green : Theme.cpYellow; font.pixelSize: 11; font.family: Theme.fontFamily }
                         Text {  text: lockService.hyprlandActive ? "Hyprland active" : "Saved for Hyprland"; color: SettingsPalette.text; font.pixelSize: 11; font.bold: true; font.family: Theme.fontFamily }
                     }
                 }
@@ -56,7 +55,7 @@ Item {
                 Layout.fillWidth: true
                 radius: 12
                 color: SettingsPalette.surface
-                border.color: Qt.rgba(255,255,255,0.05)
+                border.color: Theme.withAlpha(Theme.text, 0.05)
                 border.width: 1
                 implicitHeight: previewRow.implicitHeight + 24
 
@@ -70,7 +69,7 @@ Item {
                         Layout.preferredWidth: 220
                         Layout.preferredHeight: 124
                         radius: 12
-                        color: Qt.rgba(255,255,255,0.06)
+                        color: Theme.withAlpha(Theme.text, 0.06)
                         clip: true
 
                         Loader {
@@ -117,7 +116,7 @@ Item {
                             spacing: 8
                             Rectangle {
                                 width: 110; height: 34; radius: 8
-                                color: Qt.rgba(137/255, 180/255, 250/255, 0.18)
+                                color: Theme.withAlpha(Theme.primary, 0.18)
                                 Text {  anchors.centerIn: parent; text: "Browse"; color: SettingsPalette.text; font.bold: true; font.pixelSize: 12; font.family: Theme.fontFamily }
                                 MouseArea {
                                     anchors.fill: parent
@@ -127,7 +126,7 @@ Item {
                             }
                             Rectangle {
                                 width: 110; height: 34; radius: 8
-                                color: Qt.rgba(255,255,255,0.08)
+                                color: Theme.withAlpha(Theme.text, 0.08)
                                 Text {  anchors.centerIn: parent; text: "Lock now"; color: SettingsPalette.text; font.bold: true; font.pixelSize: 12; font.family: Theme.fontFamily }
                                 MouseArea {
                                     anchors.fill: parent
@@ -180,7 +179,7 @@ Item {
                             Layout.fillWidth: true
                             Text {  text: "Lock session"; color: SettingsPalette.text; font.pixelSize: 14; font.bold: true; font.family: Theme.fontFamily }
                             Item { Layout.fillWidth: true }
-                            Text {  text: lockService.lockTimeoutMinutes + " min"; color: "#f9e2af"; font.pixelSize: 12; font.bold: true; font.family: Theme.fontFamily }
+                            Text {  text: lockService.lockTimeoutMinutes + " min"; color: Theme.cpYellow; font.pixelSize: 12; font.bold: true; font.family: Theme.fontFamily }
                         }
                         Slider {
                             Layout.fillWidth: true
@@ -199,7 +198,7 @@ Item {
                             Layout.fillWidth: true
                             Text {  text: "Screen off"; color: SettingsPalette.text; font.pixelSize: 14; font.bold: true; font.family: Theme.fontFamily }
                             Item { Layout.fillWidth: true }
-                            Text {  text: lockService.screenOffTimeoutMinutes + " min"; color: "#94e2d5"; font.pixelSize: 12; font.bold: true; font.family: Theme.fontFamily }
+                            Text {  text: lockService.screenOffTimeoutMinutes + " min"; color: Theme.cpTeal; font.pixelSize: 12; font.bold: true; font.family: Theme.fontFamily }
                         }
                         Slider {
                             Layout.fillWidth: true
@@ -218,7 +217,7 @@ Item {
                             Layout.fillWidth: true
                             Text {  text: "Suspend"; color: SettingsPalette.text; font.pixelSize: 14; font.bold: true; font.family: Theme.fontFamily }
                             Item { Layout.fillWidth: true }
-                            Text {  text: lockService.suspendTimeoutMinutes + " min"; color: "#cba6f7"; font.pixelSize: 12; font.bold: true; font.family: Theme.fontFamily }
+                            Text {  text: lockService.suspendTimeoutMinutes + " min"; color: Theme.cpMauve; font.pixelSize: 12; font.bold: true; font.family: Theme.fontFamily }
                         }
                         Slider {
                             Layout.fillWidth: true
@@ -242,7 +241,7 @@ Item {
                                 width: 52
                                 height: 28
                                 radius: 14
-                                color: lockService.ignoreMediaInhibit ? Theme.primary : Qt.rgba(255,255,255,0.12)
+                                color: lockService.ignoreMediaInhibit ? Theme.primary : Theme.withAlpha(Theme.text, 0.12)
 
                                 Rectangle {
                                     width: 22
@@ -250,7 +249,7 @@ Item {
                                     radius: 11
                                     y: 3
                                     x: lockService.ignoreMediaInhibit ? 27 : 3
-                                    color: lockService.ignoreMediaInhibit ? "#1e1e2e" : SettingsPalette.text
+                                    color: lockService.ignoreMediaInhibit ? Theme.foregroundFor(Theme.primary) : SettingsPalette.text
                                 }
 
                                 MouseArea {
@@ -276,7 +275,7 @@ Item {
                         Layout.fillWidth: true
                         visible: !lockService.brightnessctlAvailable
                         text: "brightnessctl was not found. The dim screen rule will be skipped, and the remaining lock rules will continue to work."
-                        color: "#f9e2af"
+                        color: Theme.cpYellow
                         font.pixelSize: 11
                         wrapMode: Text.Wrap
                     }
@@ -286,7 +285,7 @@ Item {
             Rectangle {
                 Layout.fillWidth: true
                 radius: 12
-                color: Qt.rgba(255,255,255,0.04)
+                color: Theme.withAlpha(Theme.text, 0.04)
                 implicitHeight: statusText.implicitHeight + 24
 
                 Text {
@@ -306,7 +305,7 @@ Item {
                 Item { Layout.fillWidth: true }
                 Rectangle {
                     width: 110; height: 38; radius: 10
-                    color: Qt.rgba(255,255,255,0.10)
+                    color: Theme.withAlpha(Theme.text, 0.10)
                     Text {  anchors.centerIn: parent; text: "Reload"; color: SettingsPalette.text; font.pixelSize: 13; font.bold: true; font.family: Theme.fontFamily }
                     MouseArea {
                         anchors.fill: parent
@@ -316,8 +315,8 @@ Item {
                 }
                 Rectangle {
                     width: 150; height: 38; radius: 10
-                    color: lockService.isBusy ? Qt.rgba(137/255, 180/255, 250/255, 0.45) : Theme.primary
-                    Text {  anchors.centerIn: parent; text: lockService.isBusy ? "Working..." : "Apply"; color: "#1e1e2e"; font.pixelSize: 13; font.bold: true; font.family: Theme.fontFamily }
+                    color: lockService.isBusy ? Theme.withAlpha(Theme.primary, 0.45) : Theme.primary
+                    Text {  anchors.centerIn: parent; text: lockService.isBusy ? "Working..." : "Apply"; color: Theme.foregroundFor(Theme.primary); font.pixelSize: 13; font.bold: true; font.family: Theme.fontFamily }
                     MouseArea {
                         anchors.fill: parent
                         enabled: !lockService.isBusy

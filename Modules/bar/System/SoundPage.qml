@@ -4,7 +4,6 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Services.Pipewire
 import "../../../Widgets"
-import "../Settings/SettingsPalette.js" as SettingsPalette
 
 Item {
     id: soundPage
@@ -98,9 +97,9 @@ Item {
 
                 RowLayout {
                     spacing: 8
-                    Text { text: "󰃞"; font.pixelSize: 16; font.family: "JetBrainsMono Nerd Font"; color: "#f9e2af" }
+                    Text { text: "󰃞"; font.pixelSize: 16; font.family: "JetBrainsMono Nerd Font"; color: Theme.cpYellow }
                     Text {  text: "Brightness"; color: SettingsPalette.text; font.bold: true; font.pixelSize: 13; Layout.fillWidth: true; font.family: Theme.fontFamily }
-                    Text {  text: brightness.value + "%"; color: "#f9e2af"; font.bold: true; font.pixelSize: 13; font.family: Theme.fontFamily }
+                    Text {  text: brightness.value + "%"; color: Theme.cpYellow; font.bold: true; font.pixelSize: 13; font.family: Theme.fontFamily }
                 }
 
                 RowLayout {
@@ -109,21 +108,21 @@ Item {
 
                     Rectangle {
                         width: 30; height: 30; radius: 8
-                        color: Qt.rgba(249/255, 226/255, 175/255, 0.1)
+                        color: Theme.withAlpha(Theme.yellow, 0.1)
                         Text {
                             anchors.centerIn: parent
                             text: brightness.value < 30 ? "󰃞" : brightness.value < 70 ? "󰃟" : "󰃠"
-                            font.pixelSize: 14; font.family: "JetBrainsMono Nerd Font"; color: "#f9e2af"
+                            font.pixelSize: 14; font.family: "JetBrainsMono Nerd Font"; color: Theme.cpYellow
                         }
                     }
 
                     Rectangle {
                         Layout.fillWidth: true; height: 6; radius: 3
-                        color: Qt.rgba(49/255, 50/255, 68/255, 0.8)
+                        color: Theme.withAlpha(Theme.surface, 0.8)
 
                         Rectangle {
                             width: parent.width * (brightness.value / 100)
-                            height: parent.height; radius: 3; color: "#f9e2af"
+                            height: parent.height; radius: 3; color: Theme.cpYellow
                             Behavior on width { NumberAnimation { duration: 50 } }
                         }
 
@@ -141,7 +140,7 @@ Item {
         // --- Output (Speaker) ---
         SoundDeviceCard {
             iconText: "󰓃"
-            accentColor: "#a6e3a1"
+            accentColor: Theme.cpGreen
             title: soundService.sinkDisplayName
             volumePercent: soundService.sinkVolumePercent
             volumeMax: 150
@@ -155,7 +154,7 @@ Item {
         // --- Input (Microphone) ---
         SoundDeviceCard {
             iconText: "󰍬"
-            accentColor: "#94e2d5"
+            accentColor: Theme.cpTeal
             title: soundService.sourceDisplayName
             volumePercent: soundService.sourceVolumePercent
             volumeMax: 100
@@ -194,7 +193,7 @@ Item {
                     spacing: 10
 
                     Rectangle {
-                        width: 30; height: 30; color: Qt.rgba(137/255, 180/255, 250/255, 0.1); radius: 8
+                        width: 30; height: 30; color: Theme.withAlpha(Theme.primary, 0.1); radius: 8
                         Text { anchors.centerIn: parent; text: ""; color: Theme.primary; font.family: Theme.fontFamily }
                     }
 
@@ -208,7 +207,7 @@ Item {
                             Layout.fillWidth: true
                         }
                         Rectangle {
-                            Layout.fillWidth: true; height: 4; radius: 2; color: Qt.rgba(49/255, 50/255, 68/255, 0.8)
+                            Layout.fillWidth: true; height: 4; radius: 2; color: Theme.withAlpha(Theme.surface, 0.8)
                             Rectangle {
                                 width: parent.width * appNode.audio.volume
                                 height: parent.height; radius: 2; color: Theme.primary

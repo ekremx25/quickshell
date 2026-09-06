@@ -129,7 +129,7 @@ PanelWindow {
                     Layout.fillWidth: true
                     height: 16
                     radius: 8
-                    color: Qt.rgba(255,255,255, 0.05)
+                    color: Theme.withAlpha(Theme.text, 0.05)
                     
                     // Track
                     Rectangle {

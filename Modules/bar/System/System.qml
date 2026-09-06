@@ -2,7 +2,6 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import "../../../Widgets"
-import "../Settings/SettingsPalette.js" as SettingsPalette
 
 Rectangle {
 	id: root

@@ -1,7 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
 import "../../../Widgets"
-import "../Settings/SettingsPalette.js" as SettingsPalette
 
 Item {
     id: page
@@ -31,7 +30,7 @@ Item {
                 width: enabledText.width + 28
                 height: 30
                 radius: 15
-                color: service.worldClockEnabled ? Qt.rgba(166/255, 227/255, 161/255, 0.14) : Qt.rgba(243/255, 139/255, 168/255, 0.14)
+                color: service.worldClockEnabled ? Theme.withAlpha(Theme.green, 0.14) : Theme.withAlpha(Theme.red, 0.14)
                 border.width: 1
                 border.color: service.worldClockEnabled ? Theme.green : Theme.red
                 Text {
@@ -67,9 +66,9 @@ Item {
                 Layout.preferredWidth: Math.max(300, page.width * 0.34)
                 Layout.fillHeight: true
                 radius: 14
-                color: Qt.rgba(49/255, 50/255, 68/255, 0.38)
+                color: Theme.withAlpha(Theme.surface, 0.38)
                 border.width: 1
-                border.color: Qt.rgba(255, 255, 255, 0.06)
+                border.color: Theme.withAlpha(Theme.text, 0.06)
 
                 ColumnLayout {
                     anchors.fill: parent
@@ -87,9 +86,9 @@ Item {
                         Layout.fillWidth: true
                         height: 40
                         radius: 9
-                        color: Qt.rgba(17/255, 17/255, 27/255, 0.62)
+                        color: Theme.withAlpha(Theme.background, 0.62)
                         border.width: countryFilter.activeFocus ? 2 : 1
-                        border.color: countryFilter.activeFocus ? Theme.primary : Qt.rgba(255, 255, 255, 0.05)
+                        border.color: countryFilter.activeFocus ? Theme.primary : Theme.withAlpha(Theme.text, 0.05)
 
                         RowLayout {
                             anchors.fill: parent
@@ -135,8 +134,8 @@ Item {
                             radius: 8
                             property bool selected: service.selectedCountryCode === modelData.code
                             color: selected
-                                   ? Qt.rgba(137/255, 180/255, 250/255, 0.19)
-                                   : countryMA.containsMouse ? Qt.rgba(255, 255, 255, 0.06) : "transparent"
+                                   ? Theme.withAlpha(Theme.primary, 0.19)
+                                   : countryMA.containsMouse ? Theme.withAlpha(Theme.text, 0.06) : "transparent"
                             border.width: selected ? 1 : 0
                             border.color: selected ? Theme.primary : "transparent"
 
@@ -179,9 +178,9 @@ Item {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 radius: 14
-                color: Qt.rgba(49/255, 50/255, 68/255, 0.28)
+                color: Theme.withAlpha(Theme.surface, 0.28)
                 border.width: 1
-                border.color: Qt.rgba(255, 255, 255, 0.06)
+                border.color: Theme.withAlpha(Theme.text, 0.06)
 
                 Flickable {
                     anchors.fill: parent
@@ -214,9 +213,9 @@ Item {
                             Layout.fillWidth: true
                             height: 42
                             radius: 9
-                            color: Qt.rgba(17/255, 17/255, 27/255, 0.62)
+                            color: Theme.withAlpha(Theme.background, 0.62)
                             border.width: cityInput.activeFocus ? 2 : 1
-                            border.color: cityInput.activeFocus ? Theme.primary : Qt.rgba(255, 255, 255, 0.05)
+                            border.color: cityInput.activeFocus ? Theme.primary : Theme.withAlpha(Theme.text, 0.05)
                             opacity: service.selectedCountryCode.length > 0 ? 1 : 0.45
 
                             RowLayout {
@@ -251,7 +250,7 @@ Item {
                                     width: 74; height: 28; radius: 7
                                     color: searchMA.containsMouse ? Qt.lighter(Theme.primary, 1.15) : Theme.primary
                                     opacity: service.selectedCountryCode.length > 0 && service.searchText.trim().length > 0 ? 1 : 0.4
-                                    Text { anchors.centerIn: parent; text: service.searching ? "..." : "Search"; color: "#1e1e2e"; font.pixelSize: 10; font.bold: true; font.family: Theme.fontFamily }
+                                    Text { anchors.centerIn: parent; text: service.searching ? "..." : "Search"; color: Theme.foregroundFor(Theme.primary); font.pixelSize: 10; font.bold: true; font.family: Theme.fontFamily }
                                     MouseArea {
                                         id: searchMA
                                         anchors.fill: parent
@@ -279,7 +278,7 @@ Item {
                                 Layout.fillWidth: true
                                 height: 50
                                 radius: 9
-                                color: resultMA.containsMouse ? Qt.rgba(137/255, 180/255, 250/255, 0.12) : Qt.rgba(255, 255, 255, 0.035)
+                                color: resultMA.containsMouse ? Theme.withAlpha(Theme.primary, 0.12) : Theme.withAlpha(Theme.text, 0.035)
 
                                 RowLayout {
                                     anchors.fill: parent
@@ -301,7 +300,7 @@ Item {
                                         width: 86; height: 28; radius: 7
                                         color: addMA.containsMouse ? Qt.lighter(Theme.primary, 1.15) : Theme.primary
                                         opacity: service.canAddWorldClock(modelData) ? 1 : 0.38
-                                        Text { anchors.centerIn: parent; text: service.canAddWorldClock(modelData) ? "Add clock" : "Added"; color: "#1e1e2e"; font.pixelSize: 10; font.bold: true; font.family: Theme.fontFamily }
+                                        Text { anchors.centerIn: parent; text: service.canAddWorldClock(modelData) ? "Add clock" : "Added"; color: Theme.foregroundFor(Theme.primary); font.pixelSize: 10; font.bold: true; font.family: Theme.fontFamily }
                                         MouseArea {
                                             id: addMA
                                             anchors.fill: parent
@@ -316,7 +315,7 @@ Item {
                             }
                         }
 
-                        Rectangle { Layout.fillWidth: true; height: 1; color: Qt.rgba(255, 255, 255, 0.06); Layout.topMargin: 4 }
+                        Rectangle { Layout.fillWidth: true; height: 1; color: Theme.withAlpha(Theme.text, 0.06); Layout.topMargin: 4 }
 
                         Text { text: "Desktop clocks"; color: SettingsPalette.text; font.pixelSize: 13; font.bold: true; font.family: Theme.fontFamily }
 
@@ -335,7 +334,7 @@ Item {
                                 Layout.fillWidth: true
                                 height: 52
                                 radius: 9
-                                color: Qt.rgba(255, 255, 255, 0.04)
+                                color: Theme.withAlpha(Theme.text, 0.04)
 
                                 RowLayout {
                                     anchors.fill: parent
@@ -355,19 +354,19 @@ Item {
                                     }
                                     Rectangle {
                                         width: 28; height: 28; radius: 7; opacity: index > 0 ? 1 : 0.3
-                                        color: upMA.containsMouse ? Qt.rgba(137/255, 180/255, 250/255, 0.18) : "transparent"
+                                        color: upMA.containsMouse ? Theme.withAlpha(Theme.primary, 0.18) : "transparent"
                                         Text { anchors.centerIn: parent; text: "󰁝"; color: SettingsPalette.text; font.pixelSize: 12; font.family: Theme.iconFontFamily }
                                         MouseArea { id: upMA; anchors.fill: parent; enabled: index > 0; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: service.moveWorldClock(index, -1) }
                                     }
                                     Rectangle {
                                         width: 28; height: 28; radius: 7; opacity: index < service.worldClocks.length - 1 ? 1 : 0.3
-                                        color: downMA.containsMouse ? Qt.rgba(137/255, 180/255, 250/255, 0.18) : "transparent"
+                                        color: downMA.containsMouse ? Theme.withAlpha(Theme.primary, 0.18) : "transparent"
                                         Text { anchors.centerIn: parent; text: "󰁅"; color: SettingsPalette.text; font.pixelSize: 12; font.family: Theme.iconFontFamily }
                                         MouseArea { id: downMA; anchors.fill: parent; enabled: index < service.worldClocks.length - 1; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: service.moveWorldClock(index, 1) }
                                     }
                                     Rectangle {
                                         width: 32; height: 28; radius: 7
-                                        color: removeMA.containsMouse ? Qt.rgba(243/255, 139/255, 168/255, 0.2) : "transparent"
+                                        color: removeMA.containsMouse ? Theme.withAlpha(Theme.red, 0.2) : "transparent"
                                         Text { anchors.centerIn: parent; text: "󰆴"; color: Theme.red; font.pixelSize: 13; font.family: Theme.iconFontFamily }
                                         MouseArea { id: removeMA; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: service.removeWorldClock(index) }
                                     }

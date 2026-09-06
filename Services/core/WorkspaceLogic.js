@@ -14,12 +14,12 @@ function normalizeConfig(config) {
         : "role";
     return {
         displayMode: mode,
-        workspaceCount: clampInt(source.workspaceCount, 1, 20, 5),
+        workspaceCount: clampInt(source.workspaceCount, 1, 20, 4),
         showEmpty: source.showEmpty !== false,
-        showSpecial: source.showSpecial === true,
+        showSpecial: source.showSpecial !== false,
         wrapAround: source.wrapAround !== false,
         reverseScroll: source.reverseScroll === true,
-        maxIcons: clampInt(source.maxIcons, 1, 12, 4)
+        maxIcons: clampInt(source.maxIcons, 1, 12, 3)
     };
 }
 

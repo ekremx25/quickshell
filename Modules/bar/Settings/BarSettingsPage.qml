@@ -1,6 +1,5 @@
 import QtQuick
 import QtQuick.Layouts
-import "SettingsPalette.js" as SettingsPalette
 import "../../../Widgets"
 
 Item {
@@ -102,8 +101,8 @@ Item {
                     color: {
                         var currentPosition = root.barConfig.barPosition || "top";
                         if (currentPosition === modelData.key) return Qt.rgba(root.accentColor.r, root.accentColor.g, root.accentColor.b, 0.18);
-                        if (positionMouseArea.containsMouse) return Qt.rgba(255, 255, 255, 0.08);
-                        return Qt.rgba(255, 255, 255, 0.04);
+                        if (positionMouseArea.containsMouse) return Theme.withAlpha(Theme.text, 0.08);
+                        return Theme.withAlpha(Theme.text, 0.04);
                     }
 
                     border.color: {

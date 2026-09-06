@@ -16,8 +16,8 @@ Rectangle {
     width: tooltipText.implicitWidth + (18 * dockScale)
     height: tooltipText.implicitHeight + (10 * dockScale)
     radius: 9 * dockScale
-    color: Qt.rgba(30/255, 30/255, 46/255, 0.96)
-    border.color: Qt.rgba(49/255, 50/255, 68/255, 0.8)
+    color: Theme.withAlpha(Theme.background, 0.96)
+    border.color: Theme.withAlpha(Theme.surface, 0.8)
     border.width: 1
 
     visible: shown

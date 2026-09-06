@@ -1,0 +1,89 @@
+import QtQuick
+import Quickshell
+import "WIDGETS"
+import "SERVICES"
+ShellRoot {
+ id: test
+ property color boundSettings: SettingsPalette.background
+ property color boundLegacy: Theme.cpBase
+ property var palette: PALETTE
+ function check(ok, message) { if (!ok) throw new Error(message); }
+ Timer { interval: 600; running: true; onTriggered: {
+  try {
+   ColorPaletteService.configLoaded = false;
+   ColorPaletteService.available = false;
+   ColorPaletteService.liveUpdate = false;
+   ColorPaletteService.matugenType = "scheme-wallpaper-spectrum";
+   ColorPaletteService.enabled = true;
+   for (let mode of ["dark", "light"]) {
+    ColorPaletteService.mode = mode;
+    ColorPaletteService.applyPalette(test.palette);
+    check(String(Theme.background) === test.palette.colors.background[mode].color, "background " + mode);
+    check(String(test.boundSettings) === String(Theme.background), "settings binding " + mode);
+    check(String(test.boundLegacy) === String(Theme.background), "legacy binding " + mode);
+    check(String(SettingsPalette.text) === String(Theme.text), "settings text " + mode);
+    check(SettingsPalette.contrast(SettingsPalette.text, SettingsPalette.background) >= 4.5, "text contrast " + mode);
+    check(SettingsPalette.contrast(Theme.primary, Theme.foregroundFor(Theme.primary)) >= 4.5, "button contrast " + mode);
+   }
+   let next = JSON.parse(JSON.stringify(test.palette));
+   next.colors.background.light.color = "#e8f4ff";
+   next.colors.primary.light.color = "#124f9e";
+   next.colors.secondary.light.color = "#365f90";
+   ColorPaletteService.applyPalette(next);
+   check(String(test.boundSettings) === "#e8f4ff", "second wallpaper propagation");
+   check(String(Theme.primary) === "#365f90", "second wallpaper accent");
+   let generated = String(Theme.launcherColor);
+   ColorPaletteService.setManualAccent(0, "#12abef");
+   check(String(Theme.launcherColor) === "#12abef", "manual override propagates");
+   check(String(Theme.cpuColor) === "#12abef", "manual group propagates");
+   ColorPaletteService.applyPalette(next);
+   check(String(Theme.launcherColor) === "#12abef", "override survives generation");
+   ColorPaletteService.setManualAccent(0, "invalid");
+   check(String(Theme.launcherColor) === "#12abef", "invalid input ignored");
+   check(SettingsPalette.contrast(Theme.launcherColor, Theme.foregroundFor(Theme.launcherColor)) >= 4.5, "manual foreground contrast");
+   ColorPaletteService.setManualAccent(0, "");
+   check(String(Theme.launcherColor) === generated, "reset restores automatic color");
+   ColorPaletteService.setManualAccent(5, "#ff1100");
+   ColorPaletteService.resetManualAccents();
+   check(ColorPaletteService.manualAccentColors.every(function(c) { return c === ""; }), "reset all");
+   check(ColorPaletteService.normalizedAccents(["#ABCDEF", "bad"])[0] === "#abcdef", "normalize config");
+   const ramBefore = String(Theme.ramColor);
+   const cpuBefore = String(Theme.cpuColor);
+   ColorPaletteService.setModuleColor("launcher", "#22bb88");
+   check(String(Theme.launcherColor) === "#22bb88", "independent launcher");
+   check(String(Theme.ramColor) === ramBefore && String(Theme.cpuColor) === cpuBefore, "other modules unchanged");
+   ColorPaletteService.setModuleColor("ram", "#ffaa33");
+   ColorPaletteService.applyPalette(next);
+   check(String(Theme.ramColor) === "#ffaa33" && String(Theme.launcherColor) === "#22bb88", "independent overrides survive wallpaper");
+   ColorPaletteService.setModuleColor("launcher", "");
+   check(String(Theme.launcherColor) !== "#22bb88" && String(Theme.ramColor) === "#ffaa33", "individual reset");
+   const migrated = ColorPaletteService.normalizedModuleColors(null, ["#112233"]);
+   check(migrated.cpu === "#112233" && migrated.ram === "#112233", "migration preserves old choices");
+   check(Object.keys(ColorPaletteService.normalizedModuleColors({ram:"bad", unknown:"#112233"})).length === 0, "invalid stored colors removed");
+   ColorPaletteService.resetModuleColors();
+   check(String(Theme.ramColor) === ramBefore, "reset module colors");
+   const automaticTemp = String(Theme.tempColor);
+   ColorPaletteService.setModuleColor("temp", "#33bb77");
+   check(String(Theme.tempColor) === "#33bb77", "temperature override propagates");
+   check(ColorPaletteService.normalizedModuleColors({temp:"#33bb77"}).temp === "#33bb77", "temperature survives normalization");
+   ColorPaletteService.applyPalette(next);
+   check(String(Theme.tempColor) === "#33bb77", "temperature survives regeneration");
+   ColorPaletteService.setModuleColor("temp", "");
+   check(String(Theme.tempColor) === automaticTemp, "temperature automatic reset");
+   const activityBefore = String(Theme.activityColor);
+   const systemBefore = String(Theme.systemColor);
+   ColorPaletteService.setModuleColor("activity", "#32a6ff");
+   check(String(Theme.activityColor) === "#32a6ff", "Activity override propagates");
+   check(String(Theme.systemColor) === systemBefore, "Activity leaves System unchanged");
+   ColorPaletteService.applyPalette(next);
+   check(String(Theme.activityColor) === "#32a6ff", "Activity survives regeneration");
+   ColorPaletteService.setModuleColor("activity", "");
+   check(String(Theme.activityColor) === activityBefore, "Activity automatic reset");
+   ColorPaletteService.enabled = false;
+   check(Theme.currentTheme !== "Material You", "disable restores preset");
+   check(String(SettingsPalette.background) === "#11141b", "settings fallback");
+   console.log("MATERIAL_YOU_SMOKE_PASS");
+  } catch(e) { console.error("MATERIAL_YOU_SMOKE_FAIL " + e); }
+  Qt.quit();
+ }}
+}

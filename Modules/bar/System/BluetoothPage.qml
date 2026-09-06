@@ -4,7 +4,6 @@ import Quickshell
 import Quickshell.Io
 import "../../../Widgets"
 import "../../../Services/core" as Core
-import "../Settings/SettingsPalette.js" as SettingsPalette
 
 Item {
     id: bluetoothPage
@@ -95,7 +94,7 @@ Item {
             // Power toggle
             Rectangle {
                 width: 52; height: 28; radius: 14
-                color: bluetoothPage.powered ? Qt.rgba(137/255, 180/255, 250/255, 0.3) : Qt.rgba(255,255,255,0.08)
+                color: bluetoothPage.powered ? Theme.withAlpha(Theme.primary, 0.3) : Theme.withAlpha(Theme.text, 0.08)
                 Behavior on color { ColorAnimation { duration: 150 } }
 
                 Rectangle {
@@ -184,8 +183,8 @@ Item {
                             Rectangle {
                                 width: 32; height: 32; radius: 8
                                 color: modelData.connected
-                                    ? Qt.rgba(137/255, 180/255, 250/255, 0.15)
-                                    : Qt.rgba(255,255,255,0.05)
+                                    ? Theme.withAlpha(Theme.primary, 0.15)
+                                    : Theme.withAlpha(Theme.text, 0.05)
                                 Text {
                                     anchors.centerIn: parent
                                     font.pixelSize: 16
@@ -228,15 +227,15 @@ Item {
                             Rectangle {
                                 width: 80; height: 28; radius: 8
                                 color: modelData.connected
-                                    ? Qt.rgba(243/255, 139/255, 168/255, 0.15)
-                                    : Qt.rgba(137/255, 180/255, 250/255, 0.15)
+                                    ? Theme.withAlpha(Theme.red, 0.15)
+                                    : Theme.withAlpha(Theme.primary, 0.15)
                                 Behavior on color { ColorAnimation { duration: 120 } }
 
                                 Text {
                                     font.family: Theme.fontFamily
                                     anchors.centerIn: parent
                                     text: modelData.connected ? "Disconnect" : "Connect"
-                                    color: modelData.connected ? "#f38ba8" : Theme.primary
+                                    color: modelData.connected ? Theme.cpRed : Theme.primary
                                     font.pixelSize: 11
                                     font.bold: true
                                 }

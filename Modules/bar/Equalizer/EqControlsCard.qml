@@ -17,8 +17,8 @@ Rectangle {
 
     component MetaChip: Rectangle {
         required property string label
-        property color fillColor: Qt.rgba(255,255,255,0.05)
-        property color strokeColor: Qt.rgba(255,255,255,0.08)
+        property color fillColor: Theme.withAlpha(Theme.text, 0.05)
+        property color strokeColor: Theme.withAlpha(Theme.text, 0.08)
         property color textColor: card.eq.softText
         radius: 9; color: fillColor; border.width: 1; border.color: strokeColor
         implicitWidth: metaChipText.implicitWidth + 16; implicitHeight: 26
@@ -28,9 +28,9 @@ Rectangle {
     component PresetChip: Rectangle {
         required property string presetName
         Layout.fillWidth: true; Layout.preferredHeight: 34; radius: 10
-        color: card.eq.selectedPreset === presetName ? Qt.rgba(card.eq.eqAccent.r, card.eq.eqAccent.g, card.eq.eqAccent.b, 0.22) : Qt.rgba(255,255,255,0.035)
+        color: card.eq.selectedPreset === presetName ? Qt.rgba(card.eq.eqAccent.r, card.eq.eqAccent.g, card.eq.eqAccent.b, 0.22) : Theme.withAlpha(Theme.text, 0.035)
         border.width: 1
-        border.color: card.eq.selectedPreset === presetName ? Qt.rgba(card.eq.eqAccent.r, card.eq.eqAccent.g, card.eq.eqAccent.b, 0.46) : Qt.rgba(255,255,255,0.06)
+        border.color: card.eq.selectedPreset === presetName ? Qt.rgba(card.eq.eqAccent.r, card.eq.eqAccent.g, card.eq.eqAccent.b, 0.46) : Theme.withAlpha(Theme.text, 0.06)
         Rectangle {
             anchors.left: parent.left; anchors.verticalCenter: parent.verticalCenter; anchors.leftMargin: 10
             width: 5; height: parent.height - 14; radius: 2.5
@@ -81,12 +81,12 @@ Rectangle {
                                 anchors.horizontalCenter: parent.horizontalCenter; width: 16; height: 36; radius: 8
                                 color: Qt.rgba(eq.eqAccent.r, eq.eqAccent.g, eq.eqAccent.b, 0.92)
                                 y: { var db = eq.eqBands[index]; return (1 - (db + 12) / 24.0) * (parent.height - height); }
-                                border.width: 1; border.color: Qt.rgba(255,255,255,0.35)
+                                border.width: 1; border.color: Theme.withAlpha(Theme.text, 0.35)
                             }
                             Rectangle {
                                 anchors.horizontalCenter: parent.horizontalCenter; width: 20; height: 20; radius: 10
                                 y: { var db2 = eq.eqBands[index]; return (1 - (db2 + 12) / 24.0) * (parent.height - height); }
-                                color: "#dff8ff"; border.width: 1; border.color: Qt.rgba(255,255,255,0.35)
+                                color: Theme.foregroundFor(eq.eqAccent); border.width: 1; border.color: Theme.withAlpha(Theme.text, 0.35)
                             }
                             MouseArea {
                                 anchors.fill: parent; cursorShape: Qt.PointingHandCursor
@@ -105,7 +105,7 @@ Rectangle {
             Layout.fillWidth: true; spacing: 6
             Rectangle {
                 Layout.fillWidth: true; implicitHeight: 46; radius: 12
-                color: Qt.rgba(255,255,255,0.035); border.width: 1; border.color: Qt.rgba(255,255,255,0.06)
+                color: Theme.withAlpha(Theme.text, 0.035); border.width: 1; border.color: Theme.withAlpha(Theme.text, 0.06)
                 RowLayout {
                     anchors.fill: parent; anchors.margins: 10; spacing: 10
                     ColumnLayout {
@@ -114,7 +114,7 @@ Rectangle {
                         Text {  text: "Curated starting points for quick tuning."; color: eq.dimText; font.pixelSize: 9; font.family: Theme.fontFamily }
                     }
                     Item { Layout.fillWidth: true }
-                    MetaChip { label: eq.eqModeLabel; fillColor: Qt.rgba(255,255,255,0.045); strokeColor: Qt.rgba(255,255,255,0.08); textColor: eq.softText }
+                    MetaChip { label: eq.eqModeLabel; fillColor: Theme.withAlpha(Theme.text, 0.045); strokeColor: Theme.withAlpha(Theme.text, 0.08); textColor: eq.softText }
                 }
             }
             RowLayout {
@@ -129,21 +129,21 @@ Rectangle {
 
         Rectangle {
             Layout.fillWidth: true; implicitHeight: 38; radius: 12
-            color: Qt.rgba(255,255,255,0.03); border.width: 1; border.color: Qt.rgba(255,255,255,0.06)
+            color: Theme.withAlpha(Theme.text, 0.03); border.width: 1; border.color: Theme.withAlpha(Theme.text, 0.06)
             RowLayout {
                 anchors.fill: parent; anchors.margins: 8; spacing: 10
                 MetaChip { label: eq.eqModeLabel; fillColor: Qt.rgba(eq.eqAccent.r, eq.eqAccent.g, eq.eqAccent.b, 0.14); strokeColor: Qt.rgba(eq.eqAccent.r, eq.eqAccent.g, eq.eqAccent.b, 0.26); textColor: eq.softText }
                 MetaChip {
                     label: eq.eqStateLabel
-                    fillColor: backend.isBusy ? Qt.rgba(250/255, 204/255, 21/255, 0.16) : (eq.eqIsBypassed ? Qt.rgba(243/255, 139/255, 168/255, 0.12) : Qt.rgba(255,255,255,0.045))
-                    strokeColor: backend.isBusy ? Qt.rgba(250/255, 204/255, 21/255, 0.26) : (eq.eqIsBypassed ? Qt.rgba(243/255, 139/255, 168/255, 0.24) : Qt.rgba(255,255,255,0.08))
+                    fillColor: backend.isBusy ? Theme.withAlpha(Theme.yellow, 0.16) : (eq.eqIsBypassed ? Theme.withAlpha(Theme.red, 0.12) : Theme.withAlpha(Theme.text, 0.045))
+                    strokeColor: backend.isBusy ? Theme.withAlpha(Theme.yellow, 0.26) : (eq.eqIsBypassed ? Theme.withAlpha(Theme.red, 0.24) : Theme.withAlpha(Theme.text, 0.08))
                     textColor: eq.softText
                 }
                 Item { Layout.fillWidth: true }
                 Rectangle {
                     implicitWidth: disableEqText.implicitWidth + 28; implicitHeight: 28; radius: 9
-                    color: Qt.rgba(243/255,139/255,168/255,0.12); border.width: 1; border.color: Qt.rgba(243/255,139/255,168/255,0.26)
-                    Text {  id: disableEqText; anchors.centerIn: parent; text: eq.eqIsBypassed ? "EQ Bypassed" : "Bypass EQ"; color: "#f7b4c5"; font.bold: true; font.pixelSize: 11; font.family: Theme.fontFamily }
+                    color: Theme.withAlpha(Theme.red, 0.12); border.width: 1; border.color: Theme.withAlpha(Theme.red, 0.26)
+                    Text {  id: disableEqText; anchors.centerIn: parent; text: eq.eqIsBypassed ? "EQ Bypassed" : "Bypass EQ"; color: Theme.red; font.bold: true; font.pixelSize: 11; font.family: Theme.fontFamily }
                     MouseArea { anchors.fill: parent; enabled: !backend.isBusy && !eq.eqIsBypassed; cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor; onClicked: eq.disablePipeWireEq() }
                 }
             }

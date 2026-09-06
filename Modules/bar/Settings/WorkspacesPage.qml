@@ -4,16 +4,14 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
 import "../../../Widgets"
+import "../BarDefaults.js" as BarDefaults
 import "../../../Services/core/Log.js" as Log
-import "SettingsPalette.js" as SettingsPalette
 
 Item {
     id: root
     property var settingsPopup: null
     
-    // Settings uses a deliberately dark, stable canvas. Content colors must
-    // therefore come from SettingsPalette instead of a potentially light
-    // desktop theme (for example Material You's light monochrome scheme).
+    // SettingsPalette follows both light and dark Material You surfaces.
     property color colorText: SettingsPalette.text
     property color colorSubtext: SettingsPalette.subtext
     property color colorSurface: SettingsPalette.cardStrong
@@ -21,16 +19,16 @@ Item {
     property color colorPrimaryText: SettingsPalette.foregroundFor(colorPrimary)
     property color colorBackground: SettingsPalette.background
 
-    readonly property var workspaceConfig: settingsPopup && settingsPopup.barConfig && settingsPopup.barConfig.workspaces
+    readonly property var workspaceConfig: BarDefaults.normalizeWorkspacesConfig(settingsPopup && settingsPopup.barConfig && settingsPopup.barConfig.workspaces
         ? settingsPopup.barConfig.workspaces
-        : ({})
+        : ({}))
 
     // Temporary selection state (Not yet saved)
     property string selectedFormat: workspaceConfig.format || "roman"
-    property string selectedStyle: workspaceConfig.style || "square"
+    property string selectedStyle: workspaceConfig.style
     property bool isTransparent: workspaceConfig.transparent !== false
     property string displayMode: workspaceConfig.displayMode || "role"
-    property int workspaceCount: workspaceConfig.workspaceCount || 5
+    property int workspaceCount: workspaceConfig.workspaceCount
     property bool showEmpty: workspaceConfig.showEmpty !== false
     property bool showSpecial: workspaceConfig.showSpecial === true
     property bool showApps: workspaceConfig.showApps !== false
@@ -39,23 +37,24 @@ Item {
     property bool wrapAround: workspaceConfig.wrapAround !== false
     property bool reverseScroll: workspaceConfig.reverseScroll === true
     property int iconSize: workspaceConfig.iconSize || 20
-    property int maxIcons: workspaceConfig.maxIcons || 4
+    property int maxIcons: workspaceConfig.maxIcons
 
     function resetWorkspaceSettings() {
-        selectedFormat = "roman";
-        selectedStyle = "square";
-        isTransparent = true;
-        displayMode = "role";
-        workspaceCount = 5;
-        showEmpty = true;
-        showSpecial = true;
-        showApps = true;
-        groupApps = true;
-        scrollEnabled = true;
-        wrapAround = true;
-        reverseScroll = false;
-        iconSize = 20;
-        maxIcons = 4;
+        var defaults = BarDefaults.createWorkspacesConfig();
+        selectedFormat = defaults.format;
+        selectedStyle = defaults.style;
+        isTransparent = defaults.transparent;
+        displayMode = defaults.displayMode;
+        workspaceCount = defaults.workspaceCount;
+        showEmpty = defaults.showEmpty;
+        showSpecial = defaults.showSpecial;
+        showApps = defaults.showApps;
+        groupApps = defaults.groupApps;
+        scrollEnabled = defaults.scrollEnabled;
+        wrapAround = defaults.wrapAround;
+        reverseScroll = defaults.reverseScroll;
+        iconSize = defaults.iconSize;
+        maxIcons = defaults.maxIcons;
     }
 
     function applyWorkspaceSettings() {
@@ -89,7 +88,7 @@ Item {
             implicitHeight: 20
             radius: 10
             color: settingSwitchRoot.checked ? root.colorPrimary : root.colorSurface
-            border.color: Qt.rgba(255, 255, 255, 0.1)
+            border.color: Theme.withAlpha(Theme.text, 0.1)
 
             Rectangle {
                 x: settingSwitchRoot.checked ? parent.width - width - 2 : 2
@@ -381,7 +380,6 @@ Item {
 
                 Repeater {
                     model: ListModel {
-                        // ListElement { name: "Fill"; value: "fill" } // Removed
                         ListElement { name: "Square"; value: "square" }
                         ListElement { name: "Circle"; value: "circle" }
                         ListElement { name: "Outline"; value: "outline" }
@@ -511,7 +509,7 @@ Item {
         // Transparency Option
         Rectangle {
             Layout.fillWidth: true
-            height: 50
+            height: 72
             color: Qt.rgba(colorSurface.r, colorSurface.g, colorSurface.b, 0.3)
             radius: 10
             
@@ -520,12 +518,24 @@ Item {
                 anchors.margins: 12
                 spacing: 16
                 
-                Text {
-                    font.family: Theme.fontFamily
-                    text: "Transparent Background"
-                    font.pixelSize: 14
-                    color: colorText
+                ColumnLayout {
                     Layout.fillWidth: true
+                    spacing: 2
+                    Text {
+                        text: "Transparent Background"
+                        font.family: Theme.fontFamily
+                        font.pixelSize: 14
+                        color: colorText
+                    }
+                    Text {
+                        text: "On: clear workspace backgrounds. Off: colored tiles. Click Apply to save."
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                        font.family: Theme.fontFamily
+                        font.pixelSize: 10
+                        color: colorText
+                        opacity: 0.75
+                    }
                 }
                 
                 SettingSwitch {
@@ -775,7 +785,7 @@ Item {
                     font.family: Theme.fontFamily
                     anchors.centerIn: parent
                     text: "Apply"
-                    color: colorBackground
+                    color: colorPrimaryText
                     font.bold: true
                     font.pixelSize: 14
                 }

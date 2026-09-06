@@ -12,7 +12,7 @@ Item {
     readonly property string homeDir: Quickshell.env("HOME") || ""
     readonly property string configHome: Quickshell.env("XDG_CONFIG_HOME") || (homeDir + "/.config")
     readonly property string eventScript: configHome + "/quickshell/scripts/hypr_events.sh"
-    readonly property string roleManager: configHome + "/quickshell/scripts/monitor_role_manager.py"
+    readonly property string roleManager: configHome + "/quickshell/scripts/apply_monitors.sh"
 
     function scheduleApply() {
         applyDebounce.restart();

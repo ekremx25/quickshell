@@ -1,7 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
 import "../../../Widgets"
-import "../Settings/SettingsPalette.js" as SettingsPalette
 
 Rectangle {
     id: root
@@ -18,7 +17,7 @@ Rectangle {
 
     Layout.fillWidth: true
     implicitHeight: contentCol.implicitHeight + 24
-    color: useSurfaceColor ? SettingsPalette.surface : Qt.rgba(49/255, 50/255, 68/255, 0.4)
+    color: useSurfaceColor ? SettingsPalette.surface : Theme.withAlpha(Theme.surface, 0.4)
     radius: 12
 
     ColumnLayout {
@@ -44,7 +43,7 @@ Rectangle {
             }
         }
 
-        Rectangle { Layout.fillWidth: true; height: 1; color: Qt.rgba(255,255,255,0.04) }
+        Rectangle { Layout.fillWidth: true; height: 1; color: Theme.withAlpha(Theme.text, 0.04) }
 
         Repeater {
             model: root.rows || []

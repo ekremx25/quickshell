@@ -3,6 +3,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import "../Services"
+import "../Services/core/WallpaperSpectrum.js" as WallpaperSpectrum
 
 QtObject {
     id: root
@@ -199,6 +200,13 @@ QtObject {
     property color surface: activeTheme.surface
     property color text: activeTheme.text
     
+    readonly property bool materialActive: currentTheme === "Material You"
+    readonly property bool wallpaperActive: materialActive && ColorPaletteService.isWallpaperReactive(ColorPaletteService.matugenType)
+    readonly property color panelSurface: activeTheme.panelSurface || (wallpaperActive ? ColorPaletteService.surfaceContainerColor : surface)
+    readonly property color raisedSurface: activeTheme.raisedSurface || (wallpaperActive ? ColorPaletteService.surfaceContainerHighColor : Qt.lighter(surface, 1.12))
+    readonly property color surfaceVariant: activeTheme.surfaceVariant || (wallpaperActive ? ColorPaletteService.surfaceVariantColor : Qt.lighter(surface, 1.25))
+    function withAlpha(value, alpha) { return Qt.rgba(value.r, value.g, value.b, alpha); }
+
     // Module Colors
     property color launcherColor: activeTheme.launcher
     property color launcherIconColor: activeTheme.launcherIcon || "#1e1e2e"
@@ -209,6 +217,9 @@ QtObject {
     property color gpuColor: activeTheme.gpu
     property color ramColor: activeTheme.ram || activeTheme.green || "#a6e3a1"
     property color diskColor: activeTheme.disk
+    property color clockColor: activeTheme.clock || activeTheme.temp
+    property color nightLightColor: activeTheme.nightLight || activeTheme.temp
+    property color notepadColor: activeTheme.notepad || activeTheme.calendar
     property color calendarColor: activeTheme.calendar
     property color weatherColor: activeTheme.weather
     property color mediaColor: activeTheme.media
@@ -216,6 +227,7 @@ QtObject {
     property color currencyColor: activeTheme.currency || activeTheme.ram || activeTheme.launcher
     property color notificationColor: activeTheme.notification || activeTheme.temp || activeTheme.launcher
     property color clipboardColor: activeTheme.clipboard || activeTheme.calendar || activeTheme.media || activeTheme.launcher
+    property color activityColor: activeTheme.activity || activeTheme.system
     property color systemColor: activeTheme.system
     property color powerColor: activeTheme.power
     property color trayColor: activeTheme.tray
@@ -233,21 +245,21 @@ QtObject {
     property color yellow: activeTheme.yellowText || activeTheme.calendar || "#f9e2af"
     property color mauve: activeTheme.mauveText || activeTheme.powerProfile || "#cba6f7"
     property color base: activeTheme.background
-    property color overlay2: "#9399b2"
-    property color overlay: "#6c7086"
+    property color overlay2: materialActive ? subtext : "#9399b2"
+    property color overlay: materialActive ? subtext : "#6c7086"
     property int radius: themeConfig.radius || 12
 
     // ── Surface tints (white overlays on dark UI) ───────────────────────
     // Use these instead of inline `Qt.rgba(255, 255, 255, X)` calls.
-    property color surfaceTintFaint:  Qt.rgba(1, 1, 1, 0.03)   // very subtle card background
-    property color surfaceTintLow:    Qt.rgba(1, 1, 1, 0.05)   // soft card background
-    property color surfaceTintMed:    Qt.rgba(1, 1, 1, 0.08)   // hover background
-    property color surfaceTintHigh:   Qt.rgba(1, 1, 1, 0.12)   // pressed / active background
-    property color surfaceTintMax:    Qt.rgba(1, 1, 1, 0.18)   // strong selection background
-    property color borderFaint:       Qt.rgba(1, 1, 1, 0.05)   // subtle separator
-    property color borderSoft:        Qt.rgba(1, 1, 1, 0.08)   // standard border
-    property color borderStrong:      Qt.rgba(1, 1, 1, 0.12)   // emphasis border
-    property color outline:           Qt.rgba(1, 1, 1, 0.20)   // visible outline
+    property color surfaceTintFaint:  root.withAlpha(root.text, 0.03)   // very subtle card background
+    property color surfaceTintLow:    root.withAlpha(root.text, 0.05)   // soft card background
+    property color surfaceTintMed:    root.withAlpha(root.text, 0.08)   // hover background
+    property color surfaceTintHigh:   root.withAlpha(root.text, 0.12)   // pressed / active background
+    property color surfaceTintMax:    root.withAlpha(root.text, 0.18)   // strong selection background
+    property color borderFaint:       root.withAlpha(root.text, 0.05)   // subtle separator
+    property color borderSoft:        root.withAlpha(root.text, 0.08)   // standard border
+    property color borderStrong:      root.withAlpha(root.text, 0.12)   // emphasis border
+    property color outline:           root.withAlpha(root.text, 0.20)   // visible outline
     property color shadowSoft:        Qt.rgba(0, 0, 0, 0.20)   // subtle shadow
     property color shadowStrong:      Qt.rgba(0, 0, 0, 0.35)   // strong shadow
 
@@ -268,8 +280,8 @@ QtObject {
         return (lighter + 0.05) / (darker + 0.05);
     }
     function foregroundFor(backgroundColor) {
-        var dark = Qt.color("#171721");
-        var light = Qt.color("#F7F7FC");
+        var dark = Qt.color("#080a0d");
+        var light = Qt.color("#ffffff");
         return _contrastRatio(backgroundColor, dark) >= _contrastRatio(backgroundColor, light)
             ? dark
             : light;
@@ -277,33 +289,33 @@ QtObject {
 
     // ── Catppuccin Mocha named colors (use these instead of inline hex) ─
     // Surface scale (darker → lighter)
-    property color cpBase:     "#1e1e2e"
-    property color cpMantle:   "#181825"
-    property color cpCrust:    "#11111b"
-    property color cpSurface0: "#313244"
-    property color cpSurface1: "#45475a"
-    property color cpSurface2: "#585b70"
-    property color cpOverlay0: "#6c7086"
-    property color cpOverlay1: "#7f849c"
-    property color cpOverlay2: "#9399b2"
-    property color cpText:     "#cdd6f4"
-    property color cpSubtext1: "#bac2de"
-    property color cpSubtext0: "#a6adc8"
+    property color cpBase:     materialActive ? background : "#1e1e2e"
+    property color cpMantle:   materialActive ? panelSurface : "#181825"
+    property color cpCrust:    materialActive ? background : "#11111b"
+    property color cpSurface0: materialActive ? surface : "#313244"
+    property color cpSurface1: materialActive ? raisedSurface : "#45475a"
+    property color cpSurface2: materialActive ? surfaceVariant : "#585b70"
+    property color cpOverlay0: materialActive ? subtext : "#6c7086"
+    property color cpOverlay1: materialActive ? subtext : "#7f849c"
+    property color cpOverlay2: materialActive ? subtext : "#9399b2"
+    property color cpText:     materialActive ? text : "#cdd6f4"
+    property color cpSubtext1: materialActive ? subtext : "#bac2de"
+    property color cpSubtext0: materialActive ? subtext : "#a6adc8"
     // Accents
-    property color cpRosewater: "#f5e0dc"
-    property color cpFlamingo:  "#f2cdcd"
-    property color cpPink:      "#f5c2e7"
-    property color cpMauve:     "#cba6f7"
-    property color cpRed:       "#f38ba8"
-    property color cpMaroon:    "#eba0ac"
-    property color cpPeach:     "#fab387"
-    property color cpYellow:    "#f9e2af"
-    property color cpGreen:     "#a6e3a1"
-    property color cpTeal:      "#94e2d5"
-    property color cpSky:       "#89dceb"
-    property color cpSapphire:  "#74c7ec"
-    property color cpBlue:      "#89b4fa"
-    property color cpLavender:  "#b4befe"
+    property color cpRosewater: materialActive ? secondary : "#f5e0dc"
+    property color cpFlamingo:  materialActive ? secondary : "#f2cdcd"
+    property color cpPink:      materialActive ? mediaColor : "#f5c2e7"
+    property color cpMauve:     materialActive ? mauve : "#cba6f7"
+    property color cpRed:       materialActive ? red : "#f38ba8"
+    property color cpMaroon:    materialActive ? red : "#eba0ac"
+    property color cpPeach:     materialActive ? tempColor : "#fab387"
+    property color cpYellow:    materialActive ? yellow : "#f9e2af"
+    property color cpGreen:     materialActive ? green : "#a6e3a1"
+    property color cpTeal:      materialActive ? weatherColor : "#94e2d5"
+    property color cpSky:       materialActive ? secondary : "#89dceb"
+    property color cpSapphire:  materialActive ? systemColor : "#74c7ec"
+    property color cpBlue:      materialActive ? primary : "#89b4fa"
+    property color cpLavender:  materialActive ? primary : "#b4befe"
 
     // External theme switching
     function setTheme(name) {
@@ -331,6 +343,8 @@ QtObject {
         // sampled wallpaper colours before the final themeApplied signal.
         // The signature guard in syncMaterialYou() makes duplicate calls cheap.
         function onColorsExtracted() { root.syncMaterialYou(); }
+        function onModuleAccentColorsChanged() { root.syncMaterialYou(); }
+        function onManualAccentColorsChanged() { root.syncMaterialYou(); }
         function onSpectrumColorsChanged() { root.syncMaterialYou(); }
         function onPaletteRevisionChanged() { root.syncMaterialYou(); }
         function onEnabledChanged() { root.syncMaterialYou(); }
@@ -348,6 +362,8 @@ QtObject {
                 p.matugenType,
                 p.paletteRevision,
                 JSON.stringify(p.spectrumColors),
+                JSON.stringify(p.manualAccentColors),
+                JSON.stringify(p.moduleAccentColors),
                 p.primaryColor,
                 p.primaryFixedDimColor,
                 p.secondaryFixedDimColor,
@@ -360,55 +376,28 @@ QtObject {
             var newTheme;
             var presentation = p.schemePresentation(p.matugenType);
 
-            function spectrum(index, fallbackColor) {
-                var colors = p.spectrumColors;
-                if (colors && colors.length > 0) {
-                    return colors[index % colors.length];
-                }
-                return fallbackColor;
-            }
-
             if (presentation === "wallpaper-spectrum") {
-                // Fidelity supplies a compact, contrast-safe photographic
-                // palette. Keeping module roles semantic prevents the bar
-                // from becoming a collection of unrelated colour badges.
+                var surfaces = WallpaperSpectrum.surfaces(p.spectrumColors, isLight);
+                var accents = WallpaperSpectrum.accents(p.spectrumColors, surfaces ? surfaces.background : String(p.backgroundColor),
+                    [p.secondaryColor, p.tertiaryColor, p.primaryColor, p.secondaryColor, p.tertiaryColor, p.primaryColor]);
+                // Every decorative role comes from the image; error text
+                // retains its semantic Material role for destructive actions.
                 newTheme = {
-                    background: p.backgroundColor,
-                    surface: p.surfaceColor,
-                    text: p.surfaceOnColor,
-
-                    launcher: p.secondaryColor,
-                    launcherIcon: root.foregroundFor(p.secondaryColor),
-                    workspaces: p.tertiaryColor,
-                    workspaceActiveText: root.foregroundFor(p.tertiaryColor),
-
-                    // Deliberate families keep related chips consistent:
-                    // CPU = RAM = AC, and EQ = volume.
-                    temp: p.primaryColor,
-                    cpu: p.primaryColor,
-                    gpu: p.errorColor,
-                    ram: p.primaryColor,
-                    disk: p.secondaryColor,
-                    calendar: p.tertiaryColor,
-                    weather: p.tertiaryColor,
-                    media: p.tertiaryColor,
-                    equalizer: p.tertiaryColor,
-                    currency: p.tertiaryColor,
-                    notification: p.primaryColor,
-                    clipboard: p.tertiaryColor,
-                    system: p.secondaryColor,
-                    power: p.errorColor,
-                    tray: p.secondaryColor,
-                    display: p.tertiaryColor,
-                    bluetooth: p.tertiaryColor,
-                    battery: p.primaryColor,
-                    powerProfile: p.secondaryColor,
-
-                    redText: p.errorColor,
-                    greenText: p.tertiaryColor,
-                    yellowText: p.secondaryColor,
-                    mauveText: p.primaryColor,
-                    subtext: p.surfaceVariantOnColor
+                    background: surfaces ? surfaces.background : p.backgroundColor,
+                    surface: surfaces ? surfaces.panel : p.surfaceColor,
+                    panelSurface: surfaces ? surfaces.panel : p.surfaceContainerColor,
+                    raisedSurface: surfaces ? surfaces.raised : p.surfaceContainerHighColor,
+                    surfaceVariant: surfaces ? surfaces.variant : p.surfaceVariantColor,
+                    text: surfaces ? surfaces.text : p.surfaceOnColor,
+                    launcher: accents[0], launcherIcon: root.foregroundFor(Qt.color(accents[0])),
+                    workspaces: accents[1], workspaceActiveText: root.foregroundFor(Qt.color(accents[1])),
+                    temp: accents[0], cpu: accents[0], ram: accents[0], battery: accents[0],
+                    gpu: accents[2], disk: accents[3], calendar: accents[1], weather: accents[2],
+                    media: accents[3], equalizer: accents[3], currency: accents[4], clipboard: accents[5],
+                    notification: accents[1], system: accents[0], power: accents[4], tray: accents[2],
+                    display: accents[2], bluetooth: accents[2], powerProfile: accents[3],
+                    redText: p.errorColor, greenText: accents[0], yellowText: accents[1],
+                    mauveText: accents[3], subtext: surfaces ? surfaces.subtext : p.surfaceVariantOnColor
                 };
             } else if (presentation === "monochrome") {
                  // Monochrome Override (Pitch Black / Pure White)
@@ -546,6 +535,24 @@ QtObject {
                 };
             }
             
+            // Overrides affect the six preview groups, preserving untouched generated roles.
+            var groups = [
+                ["launcher", "temp", "cpu", "ram", "battery", "system"],
+                ["calendar", "workspaces", "notification"],
+                ["weather", "gpu", "tray", "display", "bluetooth"],
+                ["media", "disk", "equalizer", "powerProfile"],
+                ["currency", "power"], ["clipboard"]
+            ];
+            for (var i = 0; i < groups.length; ++i) {
+                var custom = p.manualAccentColors[i];
+                if (!custom) continue;
+                for (var j = 0; j < groups[i].length; ++j) newTheme[groups[i][j]] = custom;
+            }
+            newTheme.activity = presentation === "material" ? p.primaryColor : newTheme.system;
+            var overrides = p.normalizedModuleColors(p.moduleAccentColors);
+            for (var key in overrides) newTheme[key] = overrides[key];
+            newTheme.launcherIcon = foregroundFor(Qt.color(String(newTheme.launcher)));
+            newTheme.workspaceActiveText = foregroundFor(Qt.color(String(newTheme.workspaces)));
             materialYouTheme = newTheme;
             root.lastMaterialSyncSignature = signature;
             currentTheme = "Material You";

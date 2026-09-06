@@ -322,6 +322,9 @@ Required versions:
 | `fontconfig` | Fonts picker catalogue via `fc-list` (pre-installed on most distros) |
 | `inotify-tools` | Event-driven config file watching (otherwise falls back to polling) |
 | `grim` + `slurp` | Screenshot helpers |
+| `imagemagick` | Wallpaper Spectrum image sampling and the module colour eyedropper (`magick`) |
+| `wl-clipboard` | Copy captured screenshots to the clipboard |
+| `hyprmoncfg` + `xdg-terminal-exec` | Optional Hyprland display-profile management in Display Studio; not required by the built-in monitor settings |
 
 ### One-liner install (Arch)
 
@@ -433,11 +436,22 @@ choose the desired roles once, and keep the generated identity file local.
 ### Wallpaper Spectrum theming
 
 Open **Settings → Appearance → Material You**, enable Material You and select
-**Wallpaper Spectrum**. This Quickshell-specific scheme uses matugen's vibrant
-engine and distributes the resulting fixed primary, secondary and tertiary
-roles across the bar modules. RAM, CPU/GPU, weather, media, calendar, power and
-the remaining module groups therefore keep distinct accents while still
-belonging to one wallpaper-derived palette.
+**Wallpaper Spectrum**. With ImageMagick installed, this Quickshell-specific
+scheme samples colours from the image and derives distinct, contrast-adjusted
+module accents and tinted surfaces. Without ImageMagick, it falls back to
+matugen's generated palette.
+
+The responsive editor includes a live bar preview, wallpaper thumbnail,
+descriptive scheme cards, and light/dark controls. **Follow desktop** tracks
+the current wallpaper through `awww`, `swww`, `swaybg`, or Waypaper's saved
+selection. A selected image can also be used independently of the desktop.
+
+Use the module colour editor to search modules, show only custom colours,
+choose presets, enter a six-digit hex colour, or sample a screen pixel
+(`grim`, `slurp`, and `magick` required). Individual colours can be returned
+to automatic mode, and the editor provides undo and reset actions. Custom
+module accents are saved in `theme_config.json`; they are local preferences,
+not a requirement for other users.
 
 - **Live Update** watches both the wallpaper backend and the selected image.
   Changing paths or overwriting the same image file regenerates the palette.
@@ -447,6 +461,44 @@ belonging to one wallpaper-derived palette.
   is applied after any running matugen process completes.
 - Catppuccin, Kanagawa and Tokyo Night are authored static palettes and do not
   react to wallpaper changes.
+
+### Workspace appearance
+
+Workspace shape and transparency are independent settings, including a true
+outline style. Reset uses the same defaults as a fresh bar configuration.
+Application icons keep their desktop-file colours, with a fallback while icon
+metadata loads. The appearance layer is shared by Niri, MangoWC and Hyprland;
+workspace discovery still uses each compositor's own adapter.
+
+### Display Studio and screenshot helper
+
+**Display Studio** is available in Bar Settings and opens a movable, resizable
+monitor-settings panel. Its separate `hyprmoncfg` profile and automatic
+switching controls require Hyprland and an installed `hyprmoncfg` tool. They
+are not a replacement for the Niri/MangoWC monitor backend. When
+`hyprmoncfgd.service` is active, the monitor-apply helper defers to that daemon
+to avoid competing layout writers.
+
+`bash scripts/screenshot_capture.sh full` captures the desktop; use `region`
+for an interactive selection. Images are saved under `Pictures/screen` by
+default, with optional clipboard copying and a desktop notification. Set
+`SCREENSHOT_DIR` to override the destination. Bind the helper in your own
+compositor configuration; installing this repository does not add a keybind.
+
+### Regression checks
+
+Run from the repository root:
+
+```bash
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -p 'test_*.py' -v
+for test_file in tests/test_*.js; do node "$test_file" || break; done
+```
+
+QML tests use isolated temporary configuration and an offscreen renderer;
+they require Quickshell. JavaScript checks require Node.js. These checks
+cover palette updates, module colour persistence, workspace appearance,
+compositor adapters, and monitor-role logic; they do not replace live testing
+of every compositor and display setup.
 
 ### World clocks
 

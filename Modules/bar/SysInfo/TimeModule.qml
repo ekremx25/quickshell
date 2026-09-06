@@ -6,7 +6,7 @@ Rectangle {
     id: root
     height: 30
     width: layout.implicitWidth + 24
-    color: "#a6e3a1" // Green
+    color: Theme.cpGreen // Green
     radius: 15
 
     Behavior on width { NumberAnimation { duration: 200; easing.type: Easing.InOutQuad } }
@@ -42,7 +42,7 @@ Rectangle {
             // I will stick to the code's icon for now, or maybe the user wants the exact style of Image 4 which has a clock icon.
             // Let's stick to the code's icon to be safe, but maybe add the separator.
             font.pixelSize: 16
-            color: "#1e1e2e"
+            color: Theme.foregroundFor(root.color)
         }
 
         Text {
@@ -51,7 +51,7 @@ Rectangle {
             text: Qt.formatTime(new Date(), "HH:mm")
             font.pixelSize: 13
             font.bold: true
-            color: "#1e1e2e"
+            color: Theme.foregroundFor(root.color)
         }
 
         // Date part - only visible on hover
@@ -60,14 +60,14 @@ Rectangle {
             spacing: 8
             
             Rectangle { 
-                width: 1; height: 16; color: "#1e1e2e"; opacity: 0.5 
+                width: 1; height: 16; color: Theme.foregroundFor(root.color); opacity: 0.5
                 visible: parent.visible
             }
 
             Text {
                 text: "" // Calendar Icon
                 font.pixelSize: 16
-                color: "#1e1e2e"
+                color: Theme.foregroundFor(root.color)
                 font.family: "JetBrainsMono Nerd Font"
             }
 
@@ -76,7 +76,7 @@ Rectangle {
                 text: Qt.formatDate(new Date(), "yyyy, d MMMM dddd")
                 font.pixelSize: 13
                 font.bold: true
-                color: "#1e1e2e"
+                color: Theme.foregroundFor(root.color)
             }
         }
     }

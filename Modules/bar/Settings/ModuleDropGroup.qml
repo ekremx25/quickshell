@@ -1,6 +1,5 @@
 import QtQuick
 import QtQuick.Layouts
-import "SettingsPalette.js" as SettingsPalette
 import "../../../Widgets"
 
 ColumnLayout {
@@ -9,7 +8,7 @@ ColumnLayout {
     property string groupName: ""
     property string title: ""
     property ListModel groupModel: null
-    property color groupColor: "#cdd6f4"
+    property color groupColor: Theme.cpText
     property var moduleInfo: ({})
     property Item dragLayer: null
 
@@ -18,7 +17,7 @@ ColumnLayout {
     signal dragFinished()
 
     function moduleThemeColor(moduleName, fallbackColor) {
-        var candidate = fallbackColor;
+        var candidate = Theme.materialActive ? Theme.primary : fallbackColor;
         switch (moduleName) {
         case "Launcher":          candidate = Theme.launcherColor; break;
         case "Calendar":          candidate = Theme.calendarColor; break;
@@ -36,6 +35,8 @@ ColumnLayout {
         case "SysInfoGroup":      candidate = Theme.cpuColor; break;
         case "RamModule":         candidate = Theme.ramColor; break;
         case "Media":             candidate = Theme.mediaColor; break;
+        case "Hyprmoncfg":        candidate = Theme.displayColor; break;
+        case "ActivityMonitor":   candidate = Theme.cpuColor; break;
         case "CurrencyConverter": candidate = Theme.currencyColor; break;
         }
         return SettingsPalette.readableAccent(candidate, SettingsPalette.card);
@@ -85,7 +86,7 @@ ColumnLayout {
 
                 property var info: root.moduleInfo && root.moduleInfo[model.name]
                     ? root.moduleInfo[model.name]
-                    : ({ icon: "?", label: model.name, color: "#cdd6f4" })
+                    : ({ icon: "?", label: model.name, color: Theme.cpText })
 
                 DropArea {
                     anchors.fill: parent

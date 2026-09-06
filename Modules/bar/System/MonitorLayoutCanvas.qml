@@ -1,7 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
 import "../../../Widgets"
-import "../Settings/SettingsPalette.js" as SettingsPalette
 
 // Draggable monitor layout canvas card.
 // All state access flows through the `page` reference.
@@ -46,7 +45,7 @@ Rectangle {
 
             Rectangle {
                 radius: 8
-                color: Qt.rgba(255, 255, 255, 0.04)
+                color: Theme.withAlpha(Theme.text, 0.04)
                 border.color: page.softBorder
                 border.width: 1
                 implicitWidth: hintText.implicitWidth + 16
@@ -68,7 +67,7 @@ Rectangle {
             Layout.fillHeight: true
             radius: 14
             color: Qt.rgba(12 / 255, 15 / 255, 21 / 255, 0.55)
-            border.color: Qt.rgba(255, 255, 255, 0.06)
+            border.color: Theme.withAlpha(Theme.text, 0.06)
             border.width: 1
 
             Rectangle {
@@ -125,7 +124,7 @@ Rectangle {
                         height: page.boxHeightForOutput(modelData, layoutCanvas.width, layoutCanvas.height)
                         radius: 14
                         color: page.selectedIdx === index ? Qt.rgba(65 / 255, 101 / 255, 166 / 255, 0.60) : Qt.rgba(65 / 255, 72 / 255, 84 / 255, 0.78)
-                        border.color: page.selectedIdx === index ? "#8dbbff" : Qt.rgba(255, 255, 255, 0.16)
+                        border.color: page.selectedIdx === index ? Theme.primary : Theme.withAlpha(Theme.text, 0.16)
                         border.width: page.selectedIdx === index ? 2 : 1
 
                         Behavior on color { ColorAnimation { duration: 140 } }
@@ -146,14 +145,14 @@ Rectangle {
                                 Rectangle {
                                     width: 26; height: 26; radius: 8
                                     color: Qt.rgba(255, 255, 255, page.selectedIdx === index ? 0.18 : 0.10)
-                                    border.color: Qt.rgba(255, 255, 255, 0.22)
+                                    border.color: Theme.withAlpha(Theme.text, 0.22)
                                     border.width: 1
 
                                     Text {
                                         font.family: Theme.fontFamily
                                         anchors.centerIn: parent
                                         text: page.monitorLabel(index)
-                                        color: "white"
+                                        color: Theme.text
                                         font.pixelSize: 13
                                         font.bold: true
                                     }
@@ -164,8 +163,8 @@ Rectangle {
                                 Rectangle {
                                     visible: page.defaultMonitorName === modelData.name
                                     radius: 7
-                                    color: Qt.rgba(255, 255, 255, 0.12)
-                                    border.color: Qt.rgba(255, 255, 255, 0.18)
+                                    color: Theme.withAlpha(Theme.text, 0.12)
+                                    border.color: Theme.withAlpha(Theme.text, 0.18)
                                     border.width: 1
                                     implicitWidth: mainText.implicitWidth + 14
                                     implicitHeight: 24
@@ -175,7 +174,7 @@ Rectangle {
                                         id: mainText
                                         anchors.centerIn: parent
                                         text: "Main display"
-                                        color: "white"
+                                        color: Theme.text
                                         font.pixelSize: 10
                                         font.bold: true
                                     }
@@ -187,7 +186,7 @@ Rectangle {
                             Text {
                                 font.family: Theme.fontFamily
                                 text: modelData.name
-                                color: "white"
+                                color: Theme.text
                                 font.pixelSize: Math.max(13, Math.min(17, parent.width / 7))
                                 font.bold: true
                                 Layout.alignment: Qt.AlignHCenter
@@ -196,7 +195,7 @@ Rectangle {
                             Text {
                                 font.family: Theme.fontFamily
                                 text: page.effectiveWidth(modelData) + " x " + page.effectiveHeight(modelData)
-                                color: Qt.rgba(255, 255, 255, 0.86)
+                                color: Theme.withAlpha(Theme.text, 0.86)
                                 font.pixelSize: 10
                                 Layout.alignment: Qt.AlignHCenter
                             }
@@ -204,7 +203,7 @@ Rectangle {
                             Text {
                                 font.family: Theme.fontFamily
                                 text: Math.round(page.outputPosX(modelData)) + ", " + Math.round(page.outputPosY(modelData))
-                                color: Qt.rgba(255, 255, 255, 0.74)
+                                color: Theme.withAlpha(Theme.text, 0.74)
                                 font.pixelSize: 10
                                 Layout.alignment: Qt.AlignHCenter
                             }
@@ -218,7 +217,7 @@ Rectangle {
                             height: width
                             radius: width / 2
                             color: Qt.rgba(11 / 255, 17 / 255, 26 / 255, 0.88)
-                            border.color: Qt.rgba(255, 255, 255, 0.28)
+                            border.color: Theme.withAlpha(Theme.text, 0.28)
                             border.width: 2
                             visible: page.identifyMode
                             opacity: page.identifyMode ? 1 : 0
@@ -229,7 +228,7 @@ Rectangle {
                                 font.family: Theme.fontFamily
                                 anchors.centerIn: parent
                                 text: page.monitorLabel(index)
-                                color: "white"
+                                color: Theme.text
                                 font.pixelSize: Math.max(24, parent.width * 0.34)
                                 font.bold: true
                             }

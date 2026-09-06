@@ -4,7 +4,6 @@ import Quickshell
 import Quickshell.Io
 import "../../../Widgets"
 import "../../../Services" as S
-import "../Settings/SettingsPalette.js" as SettingsPalette
 
 Item {
     id: powerPage
@@ -25,12 +24,12 @@ Item {
     }
 
     readonly property var actions: [
-        { key: "shutdown",  icon: "⏻",  label: "Shutdown",       desc: "Power off the system",    color: "#f38ba8", cmd: ["systemctl", "poweroff"] },
-        { key: "reboot",    icon: "󰜉", label: "Reboot",          desc: "Restart the system",      color: "#fab387", cmd: ["systemctl", "reboot"] },
-        { key: "suspend",   icon: "󰒲", label: "Suspend",         desc: "Enter sleep mode",        color: "#89b4fa", cmd: ["systemctl", "suspend"] },
-        { key: "hibernate", icon: "󰋊", label: "Hibernate",       desc: "Save to disk and power off", color: "#cba6f7", cmd: ["systemctl", "hibernate"] },
-        { key: "logout",    icon: "󰍃", label: "Log Out",         desc: "End the desktop session", color: "#94e2d5", cmd: powerPage.logoutCommand() },
-        { key: "lock",      icon: "󰌾", label: "Lock",            desc: "Lock the screen",         color: "#a6adc8", cmd: ["loginctl", "lock-session"] }
+        { key: "shutdown",  icon: "⏻",  label: "Shutdown",       desc: "Power off the system",    color: Theme.cpRed, cmd: ["systemctl", "poweroff"] },
+        { key: "reboot",    icon: "󰜉", label: "Reboot",          desc: "Restart the system",      color: Theme.cpPeach, cmd: ["systemctl", "reboot"] },
+        { key: "suspend",   icon: "󰒲", label: "Suspend",         desc: "Enter sleep mode",        color: Theme.cpBlue, cmd: ["systemctl", "suspend"] },
+        { key: "hibernate", icon: "󰋊", label: "Hibernate",       desc: "Save to disk and power off", color: Theme.cpMauve, cmd: ["systemctl", "hibernate"] },
+        { key: "logout",    icon: "󰍃", label: "Log Out",         desc: "End the desktop session", color: Theme.cpTeal, cmd: powerPage.logoutCommand() },
+        { key: "lock",      icon: "󰌾", label: "Lock",            desc: "Lock the screen",         color: Theme.cpSubtext0, cmd: ["loginctl", "lock-session"] }
     ]
 
     ColumnLayout {

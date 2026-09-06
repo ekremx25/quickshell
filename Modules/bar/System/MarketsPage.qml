@@ -4,7 +4,6 @@ import QtQuick.Controls
 import QtQuick.Controls.Basic as Basic
 import "../../../Widgets"
 import "../../../Services" as S
-import "../Settings/SettingsPalette.js" as SettingsPalette
 
 Item {
     id: page
@@ -43,7 +42,7 @@ Item {
             }
             Rectangle {
                 width: 104; height: 36; radius: 10
-                color: refreshMA.containsMouse ? Qt.rgba(137/255, 180/255, 250/255, 0.25) : Qt.rgba(137/255, 180/255, 250/255, 0.14)
+                color: refreshMA.containsMouse ? Theme.withAlpha(Theme.primary, 0.25) : Theme.withAlpha(Theme.primary, 0.14)
                 border.width: 1
                 border.color: Theme.primary
                 opacity: markets.refreshing ? 0.55 : 1
@@ -107,9 +106,9 @@ Item {
             Layout.fillWidth: true
             height: 176
             radius: 16
-            color: Qt.rgba(49/255, 50/255, 68/255, 0.42)
+            color: Theme.withAlpha(Theme.surface, 0.42)
             border.width: 1
-            border.color: Qt.rgba(137/255, 180/255, 250/255, 0.18)
+            border.color: Theme.withAlpha(Theme.primary, 0.18)
 
             ColumnLayout {
                 anchors.fill: parent
@@ -141,9 +140,9 @@ Item {
                         Layout.fillWidth: true
                         Layout.preferredHeight: 76
                         radius: 12
-                        color: Qt.rgba(30/255, 30/255, 46/255, 0.54)
+                        color: Theme.withAlpha(Theme.background, 0.54)
                         border.width: 1
-                        border.color: amountInput.activeFocus ? Theme.primary : Qt.rgba(255,255,255,0.06)
+                        border.color: amountInput.activeFocus ? Theme.primary : Theme.withAlpha(Theme.text, 0.06)
 
                         RowLayout {
                             anchors.fill: parent
@@ -178,7 +177,7 @@ Item {
 
                     Rectangle {
                         width: 40; height: 40; radius: 12
-                        color: swapMA.containsMouse ? Qt.rgba(137/255,180/255,250/255,0.24) : Qt.rgba(137/255,180/255,250/255,0.12)
+                        color: swapMA.containsMouse ? Theme.withAlpha(Theme.primary, 0.24) : Theme.withAlpha(Theme.primary, 0.12)
                         border.width: 1; border.color: Theme.primary
                         Text { anchors.centerIn: parent; text: "󰑕"; color: Theme.primary; font.pixelSize: 17; font.family: Theme.iconFontFamily }
                         MouseArea { id: swapMA; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: markets.swapConverterPair() }
@@ -188,9 +187,9 @@ Item {
                         Layout.fillWidth: true
                         Layout.preferredHeight: 76
                         radius: 12
-                        color: Qt.rgba(30/255, 30/255, 46/255, 0.54)
+                        color: Theme.withAlpha(Theme.background, 0.54)
                         border.width: 1
-                        border.color: Qt.rgba(255,255,255,0.06)
+                        border.color: Theme.withAlpha(Theme.text, 0.06)
 
                         RowLayout {
                             anchors.fill: parent
@@ -238,9 +237,9 @@ Item {
             Layout.fillWidth: true
             height: 86
             radius: 14
-            color: Qt.rgba(49/255, 50/255, 68/255, 0.32)
+            color: Theme.withAlpha(Theme.surface, 0.32)
             border.width: 1
-            border.color: Qt.rgba(255, 255, 255, 0.05)
+            border.color: Theme.withAlpha(Theme.text, 0.05)
 
             RowLayout {
                 anchors.fill: parent
@@ -276,7 +275,7 @@ Item {
 
         implicitHeight: 224
         radius: 18
-        color: Qt.rgba(49/255, 50/255, 68/255, 0.48)
+        color: Theme.withAlpha(Theme.surface, 0.48)
         border.width: 1
         border.color: Qt.rgba(symbolColor.r, symbolColor.g, symbolColor.b, 0.25)
 
@@ -301,7 +300,7 @@ Item {
                 Rectangle {
                     visible: showChange
                     width: changeLabel.width + 18; height: 28; radius: 9
-                    color: changeValue >= 0 ? Qt.rgba(166/255, 227/255, 161/255, 0.13) : Qt.rgba(243/255, 139/255, 168/255, 0.13)
+                    color: changeValue >= 0 ? Theme.withAlpha(Theme.green, 0.13) : Theme.withAlpha(Theme.red, 0.13)
                     Text {
                         id: changeLabel
                         anchors.centerIn: parent
@@ -316,7 +315,7 @@ Item {
             Text { text: mainValue; color: SettingsPalette.text; font.pixelSize: 28; font.bold: true; font.family: Theme.fontFamily }
             Text { text: secondaryValue; color: symbolColor; font.pixelSize: 13; font.bold: true; font.family: Theme.fontFamily }
             Item { Layout.fillHeight: true }
-            Rectangle { Layout.fillWidth: true; height: 1; color: Qt.rgba(255, 255, 255, 0.06) }
+            Rectangle { Layout.fillWidth: true; height: 1; color: Theme.withAlpha(Theme.text, 0.06) }
             Text { text: detailText; color: SettingsPalette.overlay; font.pixelSize: 9; font.family: Theme.fontFamily }
         }
     }
@@ -359,9 +358,9 @@ Item {
 
         background: Rectangle {
             radius: 9
-            color: combo.hovered ? Qt.rgba(137/255,180/255,250/255,0.14) : Qt.rgba(255,255,255,0.05)
+            color: combo.hovered ? Theme.withAlpha(Theme.primary, 0.14) : Theme.withAlpha(Theme.text, 0.05)
             border.width: 1
-            border.color: combo.visualFocus ? Theme.primary : Qt.rgba(255,255,255,0.08)
+            border.color: combo.visualFocus ? Theme.primary : Theme.withAlpha(Theme.text, 0.08)
         }
 
         delegate: Basic.ItemDelegate {
@@ -375,7 +374,7 @@ Item {
                 Text { text: modelData.symbol; color: SettingsPalette.overlay; font.pixelSize: 10; font.family: Theme.fontFamily }
             }
             background: Rectangle {
-                color: highlighted ? Qt.rgba(137/255,180/255,250/255,0.16) : "transparent"
+                color: highlighted ? Theme.withAlpha(Theme.primary, 0.16) : "transparent"
                 radius: 6
             }
         }
@@ -396,7 +395,7 @@ Item {
                 color: SettingsPalette.background
                 radius: 10
                 border.width: 1
-                border.color: Qt.rgba(137/255,180/255,250/255,0.28)
+                border.color: Theme.withAlpha(Theme.primary, 0.28)
             }
         }
     }

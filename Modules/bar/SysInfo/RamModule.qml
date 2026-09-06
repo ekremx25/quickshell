@@ -14,7 +14,7 @@ Rectangle {
     property bool isHovered: ma.containsMouse || tipWindow.visible
     RamBackend { id: backend }
     border.width: 1
-    border.color: isHovered ? Qt.rgba(255, 255, 255, 0.1) : "transparent"
+    border.color: isHovered ? Theme.withAlpha(Theme.text, 0.1) : "transparent"
 
     RowLayout {
         id: layout

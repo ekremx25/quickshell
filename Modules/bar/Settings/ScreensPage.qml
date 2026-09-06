@@ -1,6 +1,5 @@
 import QtQuick
 import QtQuick.Layouts
-import "SettingsPalette.js" as SettingsPalette
 import Quickshell
 import "../../../Widgets"
 import "../../../Services"
@@ -71,7 +70,7 @@ Item {
             Layout.fillWidth: true
             height: screenInfoRow.height + 16
             radius: 8
-            color: Qt.rgba(137/255, 180/255, 250/255, 0.08)
+            color: Theme.withAlpha(Theme.primary, 0.08)
 
             RowLayout {
                 id: screenInfoRow
@@ -88,7 +87,7 @@ Item {
                     model: ScreenManager.getAvailableScreenNames()
                     Rectangle {
                         width: screenNameText.width + 14; height: 22; radius: 6
-                        color: Qt.rgba(255,255,255,0.08)
+                        color: Theme.withAlpha(Theme.text, 0.08)
                         Text {  id: screenNameText; anchors.centerIn: parent; text: ScreenManager.screenLabel(modelData); font.pixelSize: 10; color: SettingsPalette.subtext; font.family: Theme.fontFamily }
                     }
                 }
@@ -116,8 +115,8 @@ Item {
                         Layout.fillWidth: true
                         height: compContent.height + 24
                         radius: 10
-                        color: Qt.rgba(255,255,255,0.03)
-                        border.color: Qt.rgba(255,255,255,0.06)
+                        color: Theme.withAlpha(Theme.text, 0.03)
+                        border.color: Theme.withAlpha(Theme.text, 0.06)
                         border.width: 1
 
                         property string compId: modelData
@@ -157,7 +156,7 @@ Item {
                                 // "All" button
                                 Rectangle {
                                     width: allText.width + 18; height: 28; radius: 8
-                                    color: currentPref.indexOf("all") !== -1 ? Qt.rgba(137/255, 180/255, 250/255, 0.2) : Qt.rgba(255,255,255,0.06)
+                                    color: currentPref.indexOf("all") !== -1 ? Theme.withAlpha(Theme.primary, 0.2) : Theme.withAlpha(Theme.text, 0.06)
                                     border.color: currentPref.indexOf("all") !== -1 ? SettingsPalette.readableAccent(Theme.primary) : "transparent"
                                     border.width: 1
                                     Behavior on color { ColorAnimation { duration: 150 } }
@@ -172,7 +171,7 @@ Item {
                                 // "Disable" button
                                 Rectangle {
                                     width: disableText.width + 18; height: 28; radius: 8
-                                    color: currentPref.indexOf("none") !== -1 ? Qt.rgba(243/255, 139/255, 168/255, 0.2) : Qt.rgba(255,255,255,0.06)
+                                    color: currentPref.indexOf("none") !== -1 ? Theme.withAlpha(Theme.red, 0.2) : Theme.withAlpha(Theme.text, 0.06)
                                     border.color: currentPref.indexOf("none") !== -1 ? SettingsPalette.readableAccent(Theme.red) : "transparent"
                                     border.width: 1
                                     Behavior on color { ColorAnimation { duration: 150 } }
@@ -191,7 +190,7 @@ Item {
                                     Rectangle {
                                         property bool isSelected: currentPref.indexOf(modelData) !== -1 && currentPref.indexOf("all") === -1
                                         width: scrText.width + 18; height: 28; radius: 8
-                                        color: isSelected ? Qt.rgba(166/255, 227/255, 161/255, 0.2) : Qt.rgba(255,255,255,0.06)
+                                        color: isSelected ? Theme.withAlpha(Theme.green, 0.2) : Theme.withAlpha(Theme.text, 0.06)
                                         border.color: isSelected ? SettingsPalette.readableAccent(Theme.green) : "transparent"
                                         border.width: 1
                                         Behavior on color { ColorAnimation { duration: 150 } }

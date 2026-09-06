@@ -3,7 +3,6 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
 import "../../../Widgets"
-import "../Settings/SettingsPalette.js" as SettingsPalette
 
 PanelWindow {
     id: root
@@ -65,7 +64,7 @@ PanelWindow {
             Rectangle {
                 Layout.preferredWidth: 200
                 Layout.fillHeight: true
-                color: Qt.rgba(49/255, 50/255, 68/255, 0.4)
+                color: Theme.withAlpha(Theme.surface, 0.4)
                 radius: Theme.radius
 
                 ColumnLayout {
@@ -111,7 +110,7 @@ PanelWindow {
                             Rectangle {
                                 width: 30; height: 30; radius: 15
                                 z: 999 // Force on top
-                                color: closeMA.containsMouse ? Theme.red : Qt.rgba(255,255,255,0.1)
+                                color: closeMA.containsMouse ? Theme.red : Theme.withAlpha(Theme.text, 0.1)
                                 Behavior on color { ColorAnimation { duration: 150 } }
                                 Text {  anchors.centerIn: parent; text: "✕"; color: SettingsPalette.text; font.pixelSize: 14; font.bold: true; font.family: Theme.fontFamily }
                                 MouseArea {
@@ -125,7 +124,7 @@ PanelWindow {
                         }
                     }
 
-                    Rectangle { Layout.fillWidth: true; height: 1; color: Qt.rgba(255,255,255,0.06) }
+                    Rectangle { Layout.fillWidth: true; height: 1; color: Theme.withAlpha(Theme.text, 0.06) }
 
                     Item { height: 6 }
 
@@ -138,8 +137,8 @@ PanelWindow {
                             height: 40
                             radius: 10
                             color: {
-                                if (root.currentPage === modelData.key) return Qt.rgba(137/255, 180/255, 250/255, 0.15);
-                                if (menuMA.containsMouse) return Qt.rgba(255,255,255,0.05);
+                                if (root.currentPage === modelData.key) return Theme.withAlpha(Theme.primary, 0.15);
+                                if (menuMA.containsMouse) return Theme.withAlpha(Theme.text, 0.05);
                                 return "transparent";
                             }
 
@@ -193,7 +192,7 @@ PanelWindow {
             }
 
             // Separator
-            Rectangle { width: 1; Layout.fillHeight: true; color: Qt.rgba(255,255,255,0.06) }
+            Rectangle { width: 1; Layout.fillHeight: true; color: Theme.withAlpha(Theme.text, 0.06) }
 
             // ═══ CONTENT ═══
             Item {

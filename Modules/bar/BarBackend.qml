@@ -1,9 +1,10 @@
 import QtQuick
 import Qt.labs.platform
 import Quickshell
+import Quickshell.Io
+import "../../Widgets"
 import "BarDefaults.js" as BarDefaults
 import "../../Services" as S
-import "../../Services/core" as Core
 import "../../Services/core/Log.js" as Log
 
 Item {
@@ -48,37 +49,44 @@ Item {
         }
     }
 
+    property string configError: ""
+
     function refreshConfig() {
-        configStore.load();
+        configFile.reload();
     }
 
-    Component.onCompleted: backend.refreshConfig()
-
-    Core.JsonDataStore {
-        id: configStore
-        path: backend.configPath
-        defaultValue: backend.initialBarConfig
-        onLoadedValue: function(cfg, rawText) {
-            var content = rawText.trim();
-            if (content.length === 0) {
-                var seeded = backend.normalizeLayout(backend.initialBarConfig);
-                backend.lastConfigContent = JSON.stringify(seeded, null, 2);
-                backend.applyConfig(seeded);
-                configStore.save(seeded);
-                return;
-            }
-            if (content === backend.lastConfigContent && backend.configLoaded) return;
-            backend.lastConfigContent = content;
+    function readConfig(text) {
+        var content = text.trim();
+        if (!content) {
+            configError = "Bar configuration is empty; keeping the current layout.";
+            return;
+        }
+        if (content === lastConfigContent && configLoaded) return;
+        try {
+            var cfg = JSON.parse(content);
+            if (!cfg || typeof cfg !== "object" || Array.isArray(cfg))
+                throw new Error("Expected a configuration object");
             backend.applyConfig(cfg);
-        }
-        onFailed: function(phase, exitCode, details) {
-            if (phase === "parse") Log.warn("BarBackend", "Config parse error: " + details);
+            backend.lastConfigContent = content;
+            backend.configError = "";
+        } catch (error) {
+            backend.configError = String(error);
+            Log.warn("BarBackend", "Bar configuration could not be parsed: " + error);
         }
     }
 
-    Core.FileChangeWatcher {
+    // Read directly in Quickshell. Startup must not depend on spawning cat or
+    // an inotify process; failed reads must never overwrite saved preferences.
+    FileView {
+        id: configFile
         path: backend.configPath
-        interval: 500
-        onChanged: backend.refreshConfig()
+        watchChanges: true
+        onFileChanged: reload()
+        onLoaded: backend.readConfig(text())
+        onLoadFailed: function(error) {
+            backend.configError = "Could not read bar configuration: " + String(error);
+            Log.warn("BarBackend", backend.configError);
+        }
     }
+
 }

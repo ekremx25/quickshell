@@ -1,6 +1,5 @@
 import QtQuick
 import QtQuick.Layouts
-import "SettingsPalette.js" as SettingsPalette
 import Quickshell
 import Qt.labs.platform
 import "../../../Widgets"
@@ -81,7 +80,7 @@ Item {
                 Layout.fillWidth: true
                 height: 38
                 radius: 10
-                color: saveCustMA.containsMouse ? Qt.rgba(255,255,255,0.08) : Qt.rgba(255,255,255,0.04)
+                color: saveCustMA.containsMouse ? Theme.withAlpha(Theme.text, 0.08) : Theme.withAlpha(Theme.text, 0.04)
                 border.color: SettingsPalette.surface
                 border.width: 1
                 Behavior on color { ColorAnimation { duration: 150 } }
@@ -121,11 +120,11 @@ Item {
                         Layout.preferredHeight: 90
                         radius: 12
                         color: {
-                            if (layoutPage.activePreset === modelData.key) return Qt.rgba(137/255, 180/255, 250/255, 0.15);
-                            if (presetMA.containsMouse) return Qt.rgba(255,255,255,0.06);
-                            return Qt.rgba(255,255,255,0.03);
+                            if (layoutPage.activePreset === modelData.key) return Theme.withAlpha(Theme.primary, 0.15);
+                            if (presetMA.containsMouse) return Theme.withAlpha(Theme.text, 0.06);
+                            return Theme.withAlpha(Theme.text, 0.03);
                         }
-                        border.color: layoutPage.activePreset === modelData.key ? SettingsPalette.readableAccent(Theme.primary) : Qt.rgba(255,255,255,0.06)
+                        border.color: layoutPage.activePreset === modelData.key ? SettingsPalette.readableAccent(Theme.primary) : Theme.withAlpha(Theme.text, 0.06)
                         border.width: layoutPage.activePreset === modelData.key ? 2 : 1
                         Behavior on color { ColorAnimation { duration: 150 } }
                         Behavior on border.color { ColorAnimation { duration: 150 } }

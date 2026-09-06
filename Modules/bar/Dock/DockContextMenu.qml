@@ -21,8 +21,8 @@ Rectangle {
     width: menuContent.implicitWidth + (16 * dockScale)
     height: menuContent.implicitHeight + (12 * dockScale)
     radius: 12 * dockScale
-    color: Qt.rgba(30/255, 30/255, 46/255, 0.96)
-    border.color: Qt.rgba(49/255, 50/255, 68/255, 0.8)
+    color: Theme.withAlpha(Theme.background, 0.96)
+    border.color: Theme.withAlpha(Theme.surface, 0.8)
     border.width: 1
     z: 100
     visible: shown
@@ -35,7 +35,7 @@ Rectangle {
         width: 140 * menu.dockScale
         height: 30 * menu.dockScale
         radius: 8 * menu.dockScale
-        color: actionMouse.containsMouse ? Qt.rgba(137/255, 180/255, 250/255, 0.18) : "transparent"
+        color: actionMouse.containsMouse ? Theme.withAlpha(Theme.primary, 0.18) : "transparent"
 
         Text {
             anchors.centerIn: parent
@@ -58,7 +58,7 @@ Rectangle {
     component MenuSeparator: Rectangle {
         width: 120 * menu.dockScale
         height: 1
-        color: Qt.rgba(1, 1, 1, 0.1)
+        color: Theme.withAlpha(Theme.text, 0.1)
         anchors.horizontalCenter: parent.horizontalCenter
     }
 

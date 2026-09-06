@@ -3,7 +3,6 @@ import QtQuick.Layouts
 import QtQuick.Controls
 import Quickshell
 import Quickshell.Io
-import "SettingsPalette.js" as SettingsPalette
 import "ApiKeysProviders.js" as Providers
 import "../../../Widgets"
 import "../../../Services/core" as Core
@@ -328,8 +327,8 @@ Item {
                 Layout.fillWidth: true
                 Layout.preferredHeight: footerCol.implicitHeight + 20
                 radius: 8
-                color: Qt.rgba(255, 255, 255, 0.02)
-                border.color: Qt.rgba(255, 255, 255, 0.05)
+                color: Theme.withAlpha(Theme.text, 0.02)
+                border.color: Theme.withAlpha(Theme.text, 0.05)
                 border.width: 1
 
                 ColumnLayout {

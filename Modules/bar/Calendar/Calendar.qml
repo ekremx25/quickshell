@@ -166,7 +166,7 @@ Rectangle {
                 radius: parent.radius
                 color: "transparent"
                 border.width: 1
-                border.color: Qt.rgba(255, 255, 255, 0.06)
+                border.color: Theme.withAlpha(Theme.text, 0.06)
             }
 
             HoverHandler {
@@ -221,7 +221,7 @@ Rectangle {
 
                 }
 
-                Rectangle { Layout.fillWidth: true; height: 1; color: Qt.rgba(255,255,255,0.08) }
+                Rectangle { Layout.fillWidth: true; height: 1; color: Theme.withAlpha(Theme.text, 0.08) }
 
                 // CONTENT STACK
                 StackLayout {

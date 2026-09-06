@@ -1,7 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
-import "../Settings/SettingsPalette.js" as SettingsPalette
 import "../../../Widgets"
 import "../../../Services"
 
@@ -61,7 +60,7 @@ Rectangle {
                 width: 48
                 height: 28
                 radius: 14
-                color: page.selHdr ? Theme.primary : Qt.rgba(255, 255, 255, 0.10)
+                color: page.selHdr ? Theme.primary : Theme.withAlpha(Theme.text, 0.10)
 
                 Rectangle {
                     width: 22
@@ -114,7 +113,7 @@ Rectangle {
                 Rectangle {
                     required property int modelData
                     radius: 8
-                    color: page.selBitdepth === modelData ? page.accentSoft : Qt.rgba(255, 255, 255, 0.03)
+                    color: page.selBitdepth === modelData ? page.accentSoft : Theme.withAlpha(Theme.text, 0.03)
                     border.color: page.selBitdepth === modelData ? page.accentBorder : page.softBorder
                     border.width: 1
                     implicitWidth: 62
@@ -162,7 +161,7 @@ Rectangle {
                 Rectangle {
                     required property var modelData
                     radius: 8
-                    color: page.selVrr === modelData.value ? page.accentSoft : Qt.rgba(255, 255, 255, 0.03)
+                    color: page.selVrr === modelData.value ? page.accentSoft : Theme.withAlpha(Theme.text, 0.03)
                     border.color: page.selVrr === modelData.value ? page.accentBorder : page.softBorder
                     border.width: 1
                     implicitWidth: vrrLabel.implicitWidth + 22
@@ -217,7 +216,7 @@ Rectangle {
                     Rectangle {
                         required property var modelData
                         radius: 8
-                        color: page.selColorManagement === modelData.value ? page.accentSoft : Qt.rgba(255, 255, 255, 0.03)
+                        color: page.selColorManagement === modelData.value ? page.accentSoft : Theme.withAlpha(Theme.text, 0.03)
                         border.color: page.selColorManagement === modelData.value ? page.accentBorder : page.softBorder
                         border.width: 1
                         implicitWidth: profileText.implicitWidth + 22
@@ -265,7 +264,7 @@ Rectangle {
                 Layout.fillWidth: true
                 height: 34
                 radius: 8
-                color: Qt.rgba(255, 255, 255, 0.04)
+                color: Theme.withAlpha(Theme.text, 0.04)
                 border.color: page.selIccProfile.length > 0 ? page.accentBorder : page.softBorder
                 border.width: 1
 
@@ -290,7 +289,7 @@ Rectangle {
                 width: 74
                 height: 34
                 radius: 8
-                color: browseIccArea.containsMouse ? page.accentSoft : Qt.rgba(255, 255, 255, 0.06)
+                color: browseIccArea.containsMouse ? page.accentSoft : Theme.withAlpha(Theme.text, 0.06)
                 border.color: browseIccArea.containsMouse ? page.accentBorder : page.softBorder
                 border.width: 1
 
@@ -316,7 +315,7 @@ Rectangle {
                 width: 58
                 height: 34
                 radius: 8
-                color: clearIccArea.containsMouse ? Qt.rgba(243 / 255, 139 / 255, 168 / 255, 0.18) : Qt.rgba(255, 255, 255, 0.04)
+                color: clearIccArea.containsMouse ? Theme.withAlpha(Theme.red, 0.18) : Theme.withAlpha(Theme.text, 0.04)
                 border.color: page.softBorder
                 border.width: 1
                 visible: page.selIccProfile.length > 0
@@ -324,7 +323,7 @@ Rectangle {
                 Text {
                     anchors.centerIn: parent
                     text: "Clear"
-                    color: clearIccArea.containsMouse ? "#f38ba8" : SettingsPalette.subtext
+                    color: clearIccArea.containsMouse ? Theme.cpRed : SettingsPalette.subtext
                     font.family: Theme.fontFamily
                     font.pixelSize: 11
                     font.bold: true
@@ -369,7 +368,7 @@ Rectangle {
                         width: parent.width
                         height: 8
                         radius: 4
-                        color: Qt.rgba(255, 255, 255, 0.08)
+                        color: Theme.withAlpha(Theme.text, 0.08)
 
                         Rectangle {
                             width: parent.width * Math.max(0, Math.min(1, (page.selSdrLuminance - page.sdrLuminanceMin) / Math.max(1, page.sdrLuminanceMax - page.sdrLuminanceMin)))
@@ -436,7 +435,7 @@ Rectangle {
                         width: parent.width
                         height: 8
                         radius: 4
-                        color: Qt.rgba(255, 255, 255, 0.08)
+                        color: Theme.withAlpha(Theme.text, 0.08)
 
                         Rectangle {
                             width: parent.width * Math.max(0, Math.min(1, (page.selSdrBrightness - 0.5) / 1.5))
@@ -503,7 +502,7 @@ Rectangle {
                         width: parent.width
                         height: 8
                         radius: 4
-                        color: Qt.rgba(255, 255, 255, 0.08)
+                        color: Theme.withAlpha(Theme.text, 0.08)
 
                         Rectangle {
                             width: parent.width * Math.max(0, Math.min(1, (page.selSdrSaturation - 0.5) / 1.5))

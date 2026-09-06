@@ -4,7 +4,6 @@ import QtQuick.Controls
 import Quickshell
 import Quickshell.Io
 import "../../../Widgets"
-import "SettingsPalette.js" as SettingsPalette
 
 Item {
     id: fontsPage
@@ -54,7 +53,7 @@ Item {
         Layout.fillWidth: true
         radius: 12
         color: SettingsPalette.surface
-        border.color: Qt.rgba(255, 255, 255, 0.05)
+        border.color: Theme.withAlpha(Theme.text, 0.05)
         border.width: 1
         implicitHeight: contentColumn.implicitHeight + 28
 
@@ -152,8 +151,8 @@ Item {
         radius: 8
         color: chip.selected
             ? Qt.rgba(chip.accentColor.r, chip.accentColor.g, chip.accentColor.b, 0.14)
-            : Qt.rgba(255, 255, 255, 0.04)
-        border.color: chip.selected ? chip.accentColor : Qt.rgba(255, 255, 255, 0.06)
+            : Theme.withAlpha(Theme.text, 0.04)
+        border.color: chip.selected ? chip.accentColor : Theme.withAlpha(Theme.text, 0.06)
         border.width: 1
         implicitWidth: chipLabel.implicitWidth + 20
         implicitHeight: 32
@@ -179,7 +178,7 @@ Item {
         id: button
         property string label: ""
         property color fillColor: SettingsPalette.readableAccent(Theme.primary)
-        property color labelColor: "#1e1e2e"
+        property color labelColor: Theme.foregroundFor(button.fillColor)
         property bool enabled: true
         signal clicked()
 
@@ -464,8 +463,8 @@ Item {
                 Rectangle {
                     radius: 8
                     color: saveInProgress
-                        ? Qt.rgba(249/255, 226/255, 175/255, 0.14)
-                        : Qt.rgba(166/255, 227/255, 161/255, 0.14)
+                        ? Theme.withAlpha(Theme.yellow, 0.14)
+                        : Theme.withAlpha(Theme.green, 0.14)
                     implicitWidth: backendRow.implicitWidth + 16
                     implicitHeight: 28
 
@@ -536,8 +535,8 @@ Item {
                 Rectangle {
                     Layout.fillWidth: true
                     radius: 12
-                    color: Qt.rgba(255, 255, 255, 0.04)
-                    border.color: Qt.rgba(255, 255, 255, 0.05)
+                    color: Theme.withAlpha(Theme.text, 0.04)
+                    border.color: Theme.withAlpha(Theme.text, 0.05)
                     border.width: 1
                     implicitHeight: previewColumn.implicitHeight + 24
 
@@ -608,8 +607,8 @@ Item {
                     Layout.fillWidth: true
                     height: 40
                     radius: 8
-                    color: generalDropArea.containsMouse ? Qt.rgba(69/255, 71/255, 90/255, 0.8) : Qt.rgba(49/255, 50/255, 68/255, 0.6)
-                    border.color: openDropdown === "general" ? SettingsPalette.readableAccent(Theme.primary) : Qt.rgba(255,255,255,0.08)
+                    color: generalDropArea.containsMouse ? Theme.withAlpha(Theme.raisedSurface, 0.8) : Theme.withAlpha(Theme.surface, 0.6)
+                    border.color: openDropdown === "general" ? SettingsPalette.readableAccent(Theme.primary) : Theme.withAlpha(Theme.text, 0.08)
                     border.width: 1
                     Behavior on color { ColorAnimation { duration: 100 } }
                     Behavior on border.color { ColorAnimation { duration: 100 } }
@@ -659,9 +658,9 @@ Item {
                     Layout.fillWidth: true
                     visible: openDropdown === "general"
                     implicitHeight: Math.min(generalDropdownColumn.implicitHeight + 8, 260)
-                    color: Qt.rgba(49/255, 50/255, 68/255, 0.95)
+                    color: Theme.withAlpha(Theme.surface, 0.95)
                     radius: 10
-                    border.color: Qt.rgba(255,255,255,0.08)
+                    border.color: Theme.withAlpha(Theme.text, 0.08)
                     border.width: 1
                     clip: true
 
@@ -675,8 +674,8 @@ Item {
                             Layout.fillWidth: true
                             height: 36
                             radius: 8
-                            color: Qt.rgba(255,255,255,0.05)
-                            border.color: generalSearchInput.activeFocus ? SettingsPalette.readableAccent(Theme.primary) : Qt.rgba(255,255,255,0.08)
+                            color: Theme.withAlpha(Theme.text, 0.05)
+                            border.color: generalSearchInput.activeFocus ? SettingsPalette.readableAccent(Theme.primary) : Theme.withAlpha(Theme.text, 0.08)
                             border.width: 1
 
                             TextInput {
@@ -739,7 +738,7 @@ Item {
                                         height: 36
                                         radius: 8
                                         color: generalOptionArea.containsMouse || fontsPage.generalFontFamily === modelData
-                                            ? Qt.rgba(137/255, 180/255, 250/255, 0.14)
+                                            ? Theme.withAlpha(Theme.primary, 0.14)
                                             : "transparent"
                                         border.color: fontsPage.generalFontFamily === modelData ? SettingsPalette.readableAccent(Theme.primary) : "transparent"
                                         border.width: fontsPage.generalFontFamily === modelData ? 1 : 0
@@ -786,8 +785,8 @@ Item {
                     Layout.fillWidth: true
                     height: 40
                     radius: 8
-                    color: Qt.rgba(49/255, 50/255, 68/255, 0.6)
-                    border.color: generalInput.activeFocus ? SettingsPalette.readableAccent(Theme.primary) : Qt.rgba(255,255,255,0.08)
+                    color: Theme.withAlpha(Theme.surface, 0.6)
+                    border.color: generalInput.activeFocus ? SettingsPalette.readableAccent(Theme.primary) : Theme.withAlpha(Theme.text, 0.08)
                     border.width: 1
 
                     TextInput {
@@ -856,8 +855,8 @@ Item {
                     Layout.fillWidth: true
                     height: 40
                     radius: 8
-                    color: fixedDropArea.containsMouse ? Qt.rgba(69/255, 71/255, 90/255, 0.8) : Qt.rgba(49/255, 50/255, 68/255, 0.6)
-                    border.color: openDropdown === "fixed" ? SettingsPalette.readableAccent(Theme.primary) : Qt.rgba(255,255,255,0.08)
+                    color: fixedDropArea.containsMouse ? Theme.withAlpha(Theme.raisedSurface, 0.8) : Theme.withAlpha(Theme.surface, 0.6)
+                    border.color: openDropdown === "fixed" ? SettingsPalette.readableAccent(Theme.primary) : Theme.withAlpha(Theme.text, 0.08)
                     border.width: 1
                     Behavior on color { ColorAnimation { duration: 100 } }
                     Behavior on border.color { ColorAnimation { duration: 100 } }
@@ -907,9 +906,9 @@ Item {
                     Layout.fillWidth: true
                     visible: openDropdown === "fixed"
                     implicitHeight: Math.min(fixedDropdownColumn.implicitHeight + 8, 260)
-                    color: Qt.rgba(49/255, 50/255, 68/255, 0.95)
+                    color: Theme.withAlpha(Theme.surface, 0.95)
                     radius: 10
-                    border.color: Qt.rgba(255,255,255,0.08)
+                    border.color: Theme.withAlpha(Theme.text, 0.08)
                     border.width: 1
                     clip: true
 
@@ -923,8 +922,8 @@ Item {
                             Layout.fillWidth: true
                             height: 36
                             radius: 8
-                            color: Qt.rgba(255,255,255,0.05)
-                            border.color: fixedSearchInput.activeFocus ? SettingsPalette.readableAccent(Theme.primary) : Qt.rgba(255,255,255,0.08)
+                            color: Theme.withAlpha(Theme.text, 0.05)
+                            border.color: fixedSearchInput.activeFocus ? SettingsPalette.readableAccent(Theme.primary) : Theme.withAlpha(Theme.text, 0.08)
                             border.width: 1
 
                             TextInput {
@@ -987,7 +986,7 @@ Item {
                                         height: 36
                                         radius: 8
                                         color: fixedOptionArea.containsMouse || fontsPage.fixedFontFamily === modelData
-                                            ? Qt.rgba(203/255, 166/255, 247/255, 0.14)
+                                            ? Theme.withAlpha(Theme.mauve, 0.14)
                                             : "transparent"
                                         border.color: fontsPage.fixedFontFamily === modelData ? SettingsPalette.readableAccent(Theme.mauve) : "transparent"
                                         border.width: fontsPage.fixedFontFamily === modelData ? 1 : 0
@@ -1034,8 +1033,8 @@ Item {
                     Layout.fillWidth: true
                     height: 40
                     radius: 8
-                    color: Qt.rgba(49/255, 50/255, 68/255, 0.6)
-                    border.color: fixedInput.activeFocus ? SettingsPalette.readableAccent(Theme.primary) : Qt.rgba(255,255,255,0.08)
+                    color: Theme.withAlpha(Theme.surface, 0.6)
+                    border.color: fixedInput.activeFocus ? SettingsPalette.readableAccent(Theme.primary) : Theme.withAlpha(Theme.text, 0.08)
                     border.width: 1
 
                     TextInput {
@@ -1090,7 +1089,7 @@ Item {
 
                     ActionButton {
                         label: "Reload"
-                        fillColor: Qt.rgba(255,255,255,0.08)
+                        fillColor: Theme.withAlpha(Theme.text, 0.08)
                         labelColor: SettingsPalette.text
                         enabled: !fontsPage.saveInProgress
                         onClicked: fontsPage.loadCurrentValues()
@@ -1102,8 +1101,8 @@ Item {
                 Rectangle {
                     Layout.fillWidth: true
                     visible: fontsPage.statusMessage.length > 0
-                    color: fontsPage.statusError ? Qt.rgba(243/255, 139/255, 168/255, 0.12) : Qt.rgba(166/255, 227/255, 161/255, 0.12)
-                    border.color: fontsPage.statusError ? Qt.rgba(243/255, 139/255, 168/255, 0.24) : Qt.rgba(166/255, 227/255, 161/255, 0.24)
+                    color: fontsPage.statusError ? Theme.withAlpha(Theme.red, 0.12) : Theme.withAlpha(Theme.green, 0.12)
+                    border.color: fontsPage.statusError ? Theme.withAlpha(Theme.red, 0.24) : Theme.withAlpha(Theme.green, 0.24)
                     border.width: 1
                     radius: 10
                     implicitHeight: statusRow.implicitHeight + 16

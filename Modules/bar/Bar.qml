@@ -14,33 +14,12 @@ import "../../Services" as S
 Variants {
     id: root
     model: S.ScreenManager.getFilteredScreens("bar")
-    readonly property var initialBarConfig: BarDefaults.createBarConfig()
-    property var barLayout: ({
-        left: initialBarConfig.left.slice(),
-        center: initialBarConfig.center.slice(),
-        right: initialBarConfig.right.slice(),
-        workspaces: BarDefaults.clone(initialBarConfig.workspaces)
-    })
-    property string barPosition: "top"
-    property bool isVertical: false
-    property var workspacesConfig: BarDefaults.createWorkspacesConfig()
+    readonly property var barLayout: root.backend ? root.backend.barLayout : BarDefaults.createBarConfig()
+    readonly property string barPosition: root.backend ? root.backend.barPosition : "top"
+    readonly property bool isVertical: root.backend ? root.backend.isVertical : false
+    readonly property var workspacesConfig: root.backend ? root.backend.workspacesConfig : BarDefaults.createWorkspacesConfig()
 
-    function syncFromBackend(dataBackend) {
-        if (!dataBackend) return;
-        root.barLayout = dataBackend.barLayout || root.barLayout;
-        root.barPosition = dataBackend.barPosition || "top";
-        root.isVertical = !!dataBackend.isVertical;
-        root.workspacesConfig = dataBackend.workspacesConfig || root.workspacesConfig;
-    }
-
-    BarBackend {
-        id: backend
-        Component.onCompleted: root.syncFromBackend(backend)
-        onBarLayoutChanged: root.syncFromBackend(backend)
-        onBarPositionChanged: root.syncFromBackend(backend)
-        onIsVerticalChanged: root.syncFromBackend(backend)
-        onWorkspacesConfigChanged: root.syncFromBackend(backend)
-    }
+    property BarBackend backend: BarBackend {}
 
 
     Item {
@@ -82,14 +61,7 @@ Variants {
                 Settings {
                     id: settingsMenu
                     screen: modelData
-                    onConfigSaved: (newConfig) => {
-                        root.syncFromBackend({
-                            barLayout: newConfig,
-                            barPosition: newConfig.barPosition || root.barPosition,
-                            isVertical: (newConfig.barPosition || root.barPosition) === "left" || (newConfig.barPosition || root.barPosition) === "right",
-                            workspacesConfig: newConfig.workspaces || root.workspacesConfig
-                        });
-                    }
+                    onConfigSaved: newConfig => { if (root.backend) root.backend.applyConfig(newConfig); }
                 }
 
             ModuleCatalog {

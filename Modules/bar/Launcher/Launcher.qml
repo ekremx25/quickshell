@@ -16,8 +16,8 @@ Rectangle {
         && ColorPaletteService.matugenType === "scheme-monochrome"
     property color containerColor: monochromeMode ? Theme.ramColor : Theme.launcherColor
     property color hoverColor: Qt.lighter(containerColor, 1.1)
-    property color iconColor: monochromeMode ? "#000000" : Theme.foregroundFor(containerColor)
-    property color borderColor: "#ccd0da" // border color unused? or keep?
+    property color iconColor: Theme.foregroundFor(containerColor)
+    property color borderColor: Theme.borderSoft // border color unused? or keep?
 
     width: 34
     height: 34
@@ -37,7 +37,7 @@ Rectangle {
         anchors.centerIn: parent
         width: 0; height: 0
         radius: width / 2
-        color: Qt.rgba(1, 1, 1, 0.35)
+        color: Theme.withAlpha(Theme.text, 0.35)
         opacity: 0
 
         ParallelAnimation {

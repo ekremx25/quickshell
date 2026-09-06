@@ -1,6 +1,5 @@
 import QtQuick
 import QtQuick.Layouts
-import "../Settings/SettingsPalette.js" as SettingsPalette
 import "../../../Widgets"
 
 // Header card at the top of the Displays page.
@@ -67,8 +66,8 @@ Rectangle {
         Rectangle {
             visible: root.page.selectedOutput !== null
             radius: 9
-            color: root.page.pendingChanges() ? root.page.accentSoft : Qt.rgba(166 / 255, 227 / 255, 161 / 255, 0.16)
-            border.color: root.page.pendingChanges() ? root.page.accentBorder : Qt.rgba(166 / 255, 227 / 255, 161 / 255, 0.55)
+            color: root.page.pendingChanges() ? root.page.accentSoft : Theme.withAlpha(Theme.green, 0.16)
+            border.color: root.page.pendingChanges() ? root.page.accentBorder : Theme.withAlpha(Theme.green, 0.55)
             border.width: 1
             implicitWidth: statusText.implicitWidth + 20
             implicitHeight: 34
@@ -78,7 +77,7 @@ Rectangle {
                 id: statusText
                 anchors.centerIn: parent
                 text: root.page.pendingChanges() ? "Unsaved changes" : "Up to date"
-                color: root.page.pendingChanges() ? Theme.primary : "#a6e3a1"
+                color: root.page.pendingChanges() ? Theme.primary : Theme.cpGreen
                 font.pixelSize: 12
                 font.bold: true
             }
@@ -88,7 +87,7 @@ Rectangle {
             width: 38
             height: 38
             radius: 10
-            color: refreshArea.containsMouse ? Qt.rgba(255, 255, 255, 0.08) : Qt.rgba(255, 255, 255, 0.03)
+            color: refreshArea.containsMouse ? Theme.withAlpha(Theme.text, 0.08) : Theme.withAlpha(Theme.text, 0.03)
             border.color: root.page.softBorder
             border.width: 1
 
@@ -112,7 +111,7 @@ Rectangle {
 
         Rectangle {
             radius: 10
-            color: identifyHeaderArea.containsMouse ? Qt.rgba(255, 255, 255, 0.08) : Qt.rgba(255, 255, 255, 0.03)
+            color: identifyHeaderArea.containsMouse ? Theme.withAlpha(Theme.text, 0.08) : Theme.withAlpha(Theme.text, 0.03)
             border.color: root.page.softBorder
             border.width: 1
             implicitWidth: identifyHeaderText.implicitWidth + 20

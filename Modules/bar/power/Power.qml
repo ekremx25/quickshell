@@ -111,9 +111,9 @@ Rectangle {
             height: 350
             anchors.centerIn: parent
 
-            color: "#e61e1e2e" // Dark background (90% opacity)
+            color: Theme.withAlpha(Theme.background, 0.96) // Dark background (90% opacity)
             radius: 20
-            border.color: "#313244"
+            border.color: Theme.cpSurface0
             border.width: 1
 
             // Clicks inside this box must not bubble up to the background MouseArea.
@@ -133,7 +133,7 @@ Rectangle {
 
                     Text {
                         text: "Session"
-                        color: "#cdd6f4"
+                        color: Theme.cpText
                         font.pixelSize: 26
                         font.bold: true
                         font.family: Theme.fontFamily
@@ -141,7 +141,7 @@ Rectangle {
                     }
                     Text {
                         text: uptimeProc.uptimeText
-                        color: "#a6adc8"
+                        color: Theme.cpSubtext0
                         font.pixelSize: 14
                         font.family: Theme.fontFamily
                         Layout.alignment: Qt.AlignHCenter
@@ -169,7 +169,7 @@ Rectangle {
                             radius: 24
 
                             // Colours: lavender when selected, dark grey otherwise.
-                            color: isSelected ? "#b4befe" : "#24283b"
+                            color: isSelected ? Theme.cpLavender : Theme.panelSurface
                             Behavior on color { ColorAnimation { duration: 150 } }
 
                             ColumnLayout {
@@ -180,7 +180,7 @@ Rectangle {
                                     text: modelData.icon
                                     font.pixelSize: 36
                                     font.family: "JetBrainsMono Nerd Font"
-                                    color: isSelected ? "#1e1e2e" : "#cdd6f4"
+                                    color: isSelected ? Theme.foregroundFor(Theme.cpLavender) : Theme.cpText
                                     Layout.alignment: Qt.AlignHCenter
                                 }
                                 Text {
@@ -188,7 +188,7 @@ Rectangle {
                                     font.pixelSize: 15
                                     font.bold: true
                                     font.family: Theme.fontFamily
-                                    color: isSelected ? "#1e1e2e" : "#cdd6f4"
+                                    color: isSelected ? Theme.foregroundFor(Theme.cpLavender) : Theme.cpText
                                     Layout.alignment: Qt.AlignHCenter
                                 }
                             }
@@ -207,7 +207,7 @@ Rectangle {
                 // 3. HINT FOOTER
                 Text {
                     text: "Use arrow keys to navigate, Enter to select, Esc to cancel"
-                    color: "#6c7086"
+                    color: Theme.cpOverlay0
                     font.pixelSize: 12
                     font.family: Theme.fontFamily
                     Layout.alignment: Qt.AlignHCenter

@@ -5,7 +5,6 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
 import "../../../Widgets"
-import "../Settings/SettingsPalette.js" as SettingsPalette
 import "../../../Services/core/Log.js" as Log
 
 PanelWindow {
@@ -49,9 +48,9 @@ PanelWindow {
         width: 600
         height: 620
         anchors.centerIn: parent
-        color: "#1e1e2e"
+        color: Theme.background
         radius: 16
-        border.color: Qt.rgba(255,255,255,0.1)
+        border.color: Theme.withAlpha(Theme.text, 0.1)
         border.width: 1
 
         MouseArea { anchors.fill: parent } // Block click-through to dimmer
@@ -72,7 +71,7 @@ PanelWindow {
                 Text { font.family: Theme.fontFamily; text: "✕"; color: SettingsPalette.subtext; font.pixelSize: 16; MouseArea { anchors.fill: parent; onClicked: root.close(); cursorShape: Qt.PointingHandCursor } }
             }
 
-            Rectangle { Layout.fillWidth: true; height: 1; color: Qt.rgba(255,255,255,0.1) }
+            Rectangle { Layout.fillWidth: true; height: 1; color: Theme.withAlpha(Theme.text, 0.1) }
 
             // Type Selector
             ColumnLayout {
@@ -84,14 +83,14 @@ PanelWindow {
                         model: ["OpenVPN", "WireGuard", "IKEv2", "L2TP", "PPTP"]
                         Rectangle {
                             width: typeText.implicitWidth + 24; height: 30; radius: 15
-                            color: root.selectedVpnTypeIndex === index ? Theme.primary : Qt.rgba(255,255,255,0.05)
+                            color: root.selectedVpnTypeIndex === index ? Theme.primary : Theme.withAlpha(Theme.text, 0.05)
                             
                             Text { 
                                 font.family: Theme.fontFamily
                                 id: typeText
                                 anchors.centerIn: parent
                                 text: modelData
-                                color: root.selectedVpnTypeIndex === index ? "#1e1e2e" : SettingsPalette.text
+                                color: root.selectedVpnTypeIndex === index ? Theme.foregroundFor(Theme.primary) : SettingsPalette.text
                                 font.pixelSize: 12 
                             }
 
@@ -110,18 +109,18 @@ PanelWindow {
                 Layout.fillWidth: true; spacing: 8
                 Rectangle {
                     Layout.fillWidth: true; height: 40; radius: 8
-                    color: Qt.rgba(137/255, 180/255, 250/255, 0.15)
-                    border.color: "#89b4fa"; border.width: 1
+                    color: Theme.withAlpha(Theme.primary, 0.15)
+                    border.color: Theme.cpBlue; border.width: 1
                     
                     RowLayout {
                         anchors.fill: parent; anchors.margins: 12
                         Text { 
                             font.family: Theme.fontFamily
                             text: root.importedFilePath ? "📄 " + root.importedFilePath.split("/").pop() : (root.selectedVpnTypeIndex === 1 ? "Import .conf File" : "Import .ovpn File")
-                            color: "#89b4fa"; font.bold: true; Layout.fillWidth: true; elide: Text.ElideMiddle
+                            color: Theme.cpBlue; font.bold: true; Layout.fillWidth: true; elide: Text.ElideMiddle
                         }
-                        Text {  text: "Browse"; color: "#89b4fa"; visible: !root.importedFilePath; font.family: Theme.fontFamily }
-                        Text { font.family: Theme.fontFamily; text: "Clear"; color: "#f38ba8"; visible: root.importedFilePath !== ""; MouseArea { anchors.fill: parent; onClicked: root.importedFilePath = "" } }
+                        Text {  text: "Browse"; color: Theme.cpBlue; visible: !root.importedFilePath; font.family: Theme.fontFamily }
+                        Text { font.family: Theme.fontFamily; text: "Clear"; color: Theme.cpRed; visible: root.importedFilePath !== ""; MouseArea { anchors.fill: parent; onClicked: root.importedFilePath = "" } }
                     }
                     
                     MouseArea { 
@@ -144,7 +143,7 @@ PanelWindow {
                 // Connection Name
                 Rectangle {
                     Layout.fillWidth: true; height: 40; radius: 8
-                    color: Qt.rgba(0,0,0,0.3); border.color: vpnNameInput.activeFocus ? Theme.primary : Qt.rgba(255,255,255,0.1); border.width: 1
+                    color: Qt.rgba(0,0,0,0.3); border.color: vpnNameInput.activeFocus ? Theme.primary : Theme.withAlpha(Theme.text, 0.1); border.width: 1
                     TextInput { id: vpnNameInput; anchors.fill: parent; anchors.margins: 10; color: SettingsPalette.text; text: "My OpenVPN"; verticalAlignment: TextInput.AlignVCenter; selectByMouse: true }
                 }
 
@@ -153,14 +152,14 @@ PanelWindow {
                     Layout.fillWidth: true; spacing: 10
                     Rectangle {
                         Layout.fillWidth: true; height: 40; radius: 8
-                        color: Qt.rgba(0,0,0,0.3); border.color: vpnServerInput.activeFocus ? Theme.primary : Qt.rgba(255,255,255,0.1); border.width: 1
+                        color: Qt.rgba(0,0,0,0.3); border.color: vpnServerInput.activeFocus ? Theme.primary : Theme.withAlpha(Theme.text, 0.1); border.width: 1
                         TextInput { id: vpnServerInput; anchors.fill: parent; anchors.margins: 10; color: SettingsPalette.text; text: ""; verticalAlignment: TextInput.AlignVCenter; selectByMouse: true 
                             Text {  text: "Server Address"; visible: parent.text === "" && !parent.activeFocus; color: SettingsPalette.overlay; anchors.verticalCenter: parent.verticalCenter; leftPadding: 10; font.family: Theme.fontFamily }
                         }
                     }
                     Rectangle {
                         width: 80; height: 40; radius: 8
-                        color: Qt.rgba(0,0,0,0.3); border.color: vpnPortInput.activeFocus ? Theme.primary : Qt.rgba(255,255,255,0.1); border.width: 1
+                        color: Qt.rgba(0,0,0,0.3); border.color: vpnPortInput.activeFocus ? Theme.primary : Theme.withAlpha(Theme.text, 0.1); border.width: 1
                         TextInput { id: vpnPortInput; anchors.fill: parent; anchors.margins: 10; color: SettingsPalette.text; text: "1194"; verticalAlignment: TextInput.AlignVCenter; selectByMouse: true }
                     }
                 }
@@ -168,7 +167,7 @@ PanelWindow {
                 // Username
                 Rectangle {
                     Layout.fillWidth: true; height: 40; radius: 8
-                    color: Qt.rgba(0,0,0,0.3); border.color: vpnUserInput.activeFocus ? Theme.primary : Qt.rgba(255,255,255,0.1); border.width: 1
+                    color: Qt.rgba(0,0,0,0.3); border.color: vpnUserInput.activeFocus ? Theme.primary : Theme.withAlpha(Theme.text, 0.1); border.width: 1
                     TextInput { id: vpnUserInput; anchors.fill: parent; anchors.margins: 10; color: SettingsPalette.text; text: ""; verticalAlignment: TextInput.AlignVCenter; selectByMouse: true 
                         Text {  text: "Username (Optional)"; visible: parent.text === "" && !parent.activeFocus; color: SettingsPalette.overlay; anchors.verticalCenter: parent.verticalCenter; leftPadding: 10; font.family: Theme.fontFamily }
                     }
@@ -177,7 +176,7 @@ PanelWindow {
                 // Password
                 Rectangle {
                     Layout.fillWidth: true; height: 40; radius: 8
-                    color: Qt.rgba(0,0,0,0.3); border.color: vpnPassInput.activeFocus ? Theme.primary : Qt.rgba(255,255,255,0.1); border.width: 1
+                    color: Qt.rgba(0,0,0,0.3); border.color: vpnPassInput.activeFocus ? Theme.primary : Theme.withAlpha(Theme.text, 0.1); border.width: 1
                     TextInput { id: vpnPassInput; anchors.fill: parent; anchors.margins: 10; color: SettingsPalette.text; text: ""; echoMode: TextInput.Password; verticalAlignment: TextInput.AlignVCenter; selectByMouse: true 
                         Text {  text: "Password (Optional)"; visible: parent.text === "" && !parent.activeFocus; color: SettingsPalette.overlay; anchors.verticalCenter: parent.verticalCenter; leftPadding: 10; font.family: Theme.fontFamily }
                     }
@@ -204,7 +203,7 @@ PanelWindow {
                 horizontalAlignment: Text.AlignHCenter
                 text: root.vpnStatus
                 visible: root.vpnStatus !== ""
-                color: text.indexOf("Error") !== -1 ? "#f38ba8" : "#a6e3a1"
+                color: text.indexOf("Error") !== -1 ? Theme.cpRed : Theme.cpGreen
                 font.bold: true; wrapMode: Text.Wrap
             }
 
@@ -215,7 +214,7 @@ PanelWindow {
                 
                 Rectangle {
                     width: 80; height: 36; radius: 8
-                    color: Qt.rgba(255,255,255,0.1)
+                    color: Theme.withAlpha(Theme.text, 0.1)
                     Text {  anchors.centerIn: parent; text: "Cancel"; color: SettingsPalette.text; font.family: Theme.fontFamily }
                     MouseArea { anchors.fill: parent; onClicked: root.close(); cursorShape: Qt.PointingHandCursor }
                 }
@@ -223,7 +222,7 @@ PanelWindow {
                 Rectangle {
                     width: 80; height: 36; radius: 8
                     color: Theme.primary
-                    Text {  anchors.centerIn: parent; text: "Add"; color: "#1e1e2e"; font.bold: true; font.family: Theme.fontFamily }
+                    Text {  anchors.centerIn: parent; text: "Add"; color: Theme.foregroundFor(Theme.primary); font.bold: true; font.family: Theme.fontFamily }
                     MouseArea { 
                         anchors.fill: parent; cursorShape: Qt.PointingHandCursor 
                         onClicked: {

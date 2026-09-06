@@ -4,7 +4,6 @@ import QtQuick.Layouts
 import QtQuick.Dialogs
 import Qt.labs.platform
 import "../../../Widgets"
-import "../Settings/SettingsPalette.js" as SettingsPalette
 
 Item {
     id: sysInfoPage
@@ -95,7 +94,7 @@ Item {
                     // Avatar (clickable)
                     Rectangle {
                         width: 62; height: 62; radius: 31
-                        color: Qt.rgba(137/255, 180/255, 250/255, 0.2)
+                        color: Theme.withAlpha(Theme.primary, 0.2)
                         clip: true
 
                         Image {
@@ -162,14 +161,14 @@ Item {
                     // Distro badge
                     Rectangle {
                         width: distroRow.width + 20; height: 32; radius: 8
-                        color: Qt.rgba(166/255, 227/255, 161/255, 0.12)
+                        color: Theme.withAlpha(Theme.green, 0.12)
 
                         RowLayout {
                             id: distroRow
                             anchors.centerIn: parent
                             spacing: 6
-                            Text { text: sysInfoService.getDistroIcon(sysInfoPage.distro); font.pixelSize: 14; font.family: "JetBrainsMono Nerd Font"; color: "#a6e3a1" }
-                            Text {  text: sysInfoPage.distro || "..."; color: "#a6e3a1"; font.pixelSize: 12; font.bold: true; font.family: Theme.fontFamily }
+                            Text { text: sysInfoService.getDistroIcon(sysInfoPage.distro); font.pixelSize: 14; font.family: "JetBrainsMono Nerd Font"; color: Theme.cpGreen }
+                            Text {  text: sysInfoPage.distro || "..."; color: Theme.cpGreen; font.pixelSize: 12; font.bold: true; font.family: Theme.fontFamily }
                         }
                     }
                 }
@@ -184,10 +183,10 @@ Item {
 
                 Repeater {
                     model: [
-                        { icon: "󰌢", label: "Kernel",   value: sysInfoPage.kernel,  color: "#89b4fa" },
-                        { icon: "󰔚", label: "Uptime",   value: sysInfoPage.uptime,  color: "#a6e3a1" },
-                        { icon: "󰏖", label: "Packages", value: sysInfoPage.packages, color: "#f9e2af" },
-                        { icon: "󰆍", label: "Shell",    value: sysInfoPage.shell,   color: "#cba6f7" }
+                        { icon: "󰌢", label: "Kernel",   value: sysInfoPage.kernel,  color: Theme.cpBlue },
+                        { icon: "󰔚", label: "Uptime",   value: sysInfoPage.uptime,  color: Theme.cpGreen },
+                        { icon: "󰏖", label: "Packages", value: sysInfoPage.packages, color: Theme.cpYellow },
+                        { icon: "󰆍", label: "Shell",    value: sysInfoPage.shell,   color: Theme.cpMauve }
                     ]
 
                     Rectangle {
@@ -195,7 +194,7 @@ Item {
                         Layout.fillWidth: true
                         height: 72
                         radius: 10
-                        color: Qt.rgba(49/255, 50/255, 68/255, 0.5)
+                        color: Theme.withAlpha(Theme.surface, 0.5)
 
                         ColumnLayout {
                             anchors.fill: parent
@@ -222,7 +221,7 @@ Item {
             // ═══ PROCESSOR ═══
             SystemInfoSection {
                 iconText: "󰻠"
-                accentColor: "#89b4fa"
+                accentColor: Theme.cpBlue
                 title: "Processor"
                 rows: [
                     { label: "Model", value: sysInfoPage.cpuModel },
@@ -237,7 +236,7 @@ Item {
             Rectangle {
                 Layout.fillWidth: true
                 implicitHeight: memCol.height + 24
-                color: Qt.rgba(49/255, 50/255, 68/255, 0.4)
+                color: Theme.withAlpha(Theme.surface, 0.4)
                 radius: 12
 
                 ColumnLayout {
@@ -248,13 +247,13 @@ Item {
 
                     RowLayout {
                         spacing: 8
-                        Text { text: "󰍛"; font.pixelSize: 16; font.family: "JetBrainsMono Nerd Font"; color: "#a6e3a1" }
+                        Text { text: "󰍛"; font.pixelSize: 16; font.family: "JetBrainsMono Nerd Font"; color: Theme.cpGreen }
                         Text {  text: "Memory (RAM)"; color: SettingsPalette.text; font.bold: true; font.pixelSize: 14; font.family: Theme.fontFamily }
                         Item { Layout.fillWidth: true }
                         Text {
                             font.family: Theme.fontFamily
                             text: Math.round(sysInfoPage.memPercent * 100) + "%"
-                            color: sysInfoPage.memPercent > 0.8 ? "#f38ba8" : (sysInfoPage.memPercent > 0.5 ? "#f9e2af" : "#a6e3a1")
+                            color: sysInfoPage.memPercent > 0.8 ? Theme.cpRed : (sysInfoPage.memPercent > 0.5 ? Theme.cpYellow : Theme.cpGreen)
                             font.bold: true; font.pixelSize: 13
                         }
                     }
@@ -265,12 +264,12 @@ Item {
                         color: Qt.rgba(0,0,0,0.3)
                         Rectangle {
                             width: parent.width * sysInfoPage.memPercent; height: parent.height; radius: 4
-                            color: sysInfoPage.memPercent > 0.8 ? "#f38ba8" : (sysInfoPage.memPercent > 0.5 ? "#f9e2af" : "#a6e3a1")
+                            color: sysInfoPage.memPercent > 0.8 ? Theme.cpRed : (sysInfoPage.memPercent > 0.5 ? Theme.cpYellow : Theme.cpGreen)
                             Behavior on width { NumberAnimation { duration: 500; easing.type: Easing.OutQuad } }
                         }
                     }
 
-                    Rectangle { Layout.fillWidth: true; height: 1; color: Qt.rgba(255,255,255,0.04) }
+                    Rectangle { Layout.fillWidth: true; height: 1; color: Theme.withAlpha(Theme.text, 0.04) }
 
                     Repeater {
                         model: [
@@ -300,7 +299,7 @@ Item {
             // ═══ GPU ═══
             SystemInfoSection {
                 iconText: "󰢮"
-                accentColor: "#cba6f7"
+                accentColor: Theme.cpMauve
                 title: "Graphics Card"
                 rows: [
                     { label: "Model", value: sysInfoPage.gpuModel },
@@ -311,7 +310,7 @@ Item {
             // ═══ STORAGE ═══
             SystemInfoSection {
                 iconText: "󰋊"
-                accentColor: "#fab387"
+                accentColor: Theme.cpPeach
                 title: "Storage"
                 badgeText: sysInfoPage.diskPercent || "..."
                 rows: [
@@ -325,7 +324,7 @@ Item {
             // ═══ SYSTEM ═══
             SystemInfoSection {
                 iconText: sysInfoService.getDistroIcon(sysInfoPage.distro)
-                accentColor: "#94e2d5"
+                accentColor: Theme.cpTeal
                 title: "Environment"
                 useSurfaceColor: true
                 rows: [

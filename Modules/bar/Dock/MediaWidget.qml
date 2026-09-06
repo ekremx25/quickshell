@@ -20,9 +20,9 @@ Rectangle {
     readonly property real bgLuma: (mediaWidget.color.r * 0.299) + (mediaWidget.color.g * 0.587) + (mediaWidget.color.b * 0.114)
     readonly property real primaryLuma: (Theme.primary.r * 0.299) + (Theme.primary.g * 0.587) + (Theme.primary.b * 0.114)
     readonly property bool uiIsLight: bgLuma > 0.55
-    readonly property color adaptiveText: uiIsLight ? "#0f172a" : "#e2e8f0"
-    readonly property color adaptiveSubtext: uiIsLight ? "#475569" : "#94a3b8"
-    readonly property color adaptiveOnPrimary: primaryLuma > 0.62 ? "#0b1220" : "#f8fafc"
+    readonly property color adaptiveText: Theme.text
+    readonly property color adaptiveSubtext: Theme.subtext
+    readonly property color adaptiveOnPrimary: Theme.foregroundFor(Theme.primary)
 
     component MediaControlButton: Rectangle {
         required property string iconText
@@ -38,8 +38,8 @@ Rectangle {
         color: primaryButton
             ? Theme.primary
             : hoverAccent
-                ? (buttonMouse.containsMouse ? Qt.rgba(137/255, 180/255, 250/255, 0.2) : Qt.rgba(137/255, 180/255, 250/255, 0.08))
-                : (buttonMouse.containsMouse ? Qt.rgba(255,255,255,0.1) : "transparent")
+                ? (buttonMouse.containsMouse ? Theme.withAlpha(Theme.primary, 0.2) : Theme.withAlpha(Theme.primary, 0.08))
+                : (buttonMouse.containsMouse ? Theme.withAlpha(Theme.text, 0.1) : "transparent")
 
         Text {
             anchors.centerIn: parent
@@ -106,8 +106,8 @@ Rectangle {
     implicitWidth: mainRow.implicitWidth + (12 * dockScale)
     implicitHeight: 40 * dockScale
     radius: 12 * dockScale
-    color: Qt.rgba(30/255, 30/255, 46/255, 0.65)
-    border.color: Qt.rgba(137/255, 180/255, 250/255, 0.15)
+    color: Theme.withAlpha(Theme.background, 0.65)
+    border.color: Theme.withAlpha(Theme.primary, 0.15)
     border.width: 1
 
     Behavior on implicitWidth { NumberAnimation { duration: 300; easing.type: Easing.OutBack } }
@@ -138,7 +138,7 @@ Rectangle {
                 width: 28 * dockScale
                 height: 28 * dockScale
                 radius: 14 * dockScale
-                color: Qt.rgba(137/255, 180/255, 250/255, 0.1)
+                color: Theme.withAlpha(Theme.primary, 0.1)
 
                 Text {
                     anchors.centerIn: parent
@@ -187,7 +187,7 @@ Rectangle {
 
                 Rectangle {
                     anchors.fill: parent
-                    color: Qt.rgba(137/255, 180/255, 250/255, 0.2)
+                    color: Theme.withAlpha(Theme.primary, 0.2)
                     visible: !parent.children[0].visible
 
                     Text {

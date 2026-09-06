@@ -55,7 +55,7 @@ Item {
             height: itemRoot.panel.cfgIconSize * itemRoot.dockScale
             radius: (itemRoot.panel.cfgIconSize * 0.25) * itemRoot.dockScale
             color: itemMouse.containsMouse
-                ? Qt.rgba(137/255, 180/255, 250/255, 0.18)
+                ? Theme.withAlpha(Theme.primary, 0.18)
                 : "transparent"
 
             // While dragging, hide the source slot completely (still reserves space).
@@ -235,7 +235,7 @@ Item {
                 width: 9 * itemRoot.dockScale
                 height: 9 * itemRoot.dockScale
                 radius: 4.5 * itemRoot.dockScale
-                color: Qt.rgba(137/255, 180/255, 250/255, 0.25)
+                color: Theme.withAlpha(Theme.primary, 0.25)
                 z: -1
             }
         }
@@ -276,7 +276,7 @@ Item {
             width: 7
             height: 44
             radius: 3.5
-            color: Qt.rgba(137/255, 180/255, 250/255, 0.2)
+            color: Theme.withAlpha(Theme.primary, 0.2)
             z: -1
         }
     }

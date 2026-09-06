@@ -1,7 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
-import "SettingsPalette.js" as SettingsPalette
 import "../../../Widgets"
 
 // Panel shown for any non-local provider.
@@ -39,8 +38,8 @@ Item {
         anchors.fill: parent
         implicitHeight: detailsColumn.implicitHeight + 32
         radius: 12
-        color: Qt.rgba(255, 255, 255, 0.025)
-        border.color: Qt.rgba(255, 255, 255, 0.06)
+        color: Theme.withAlpha(Theme.text, 0.025)
+        border.color: Theme.withAlpha(Theme.text, 0.06)
         border.width: 1
 
         ColumnLayout {
@@ -112,10 +111,10 @@ Item {
                             radius: 6
                             color: isSelected
                                 ? Qt.rgba(SettingsPalette.readableAccent(Theme.primary).r, SettingsPalette.readableAccent(Theme.primary).g, SettingsPalette.readableAccent(Theme.primary).b, 0.2)
-                                : Qt.rgba(255, 255, 255, 0.04)
+                                : Theme.withAlpha(Theme.text, 0.04)
                             border.color: isSelected
                                 ? SettingsPalette.readableAccent(Theme.primary)
-                                : Qt.rgba(255, 255, 255, 0.08)
+                                : Theme.withAlpha(Theme.text, 0.08)
                             border.width: 1
 
                             Text {
@@ -143,8 +142,8 @@ Item {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 32
                     radius: 6
-                    color: Qt.rgba(255, 255, 255, 0.04)
-                    border.color: Qt.rgba(255, 255, 255, 0.1)
+                    color: Theme.withAlpha(Theme.text, 0.04)
+                    border.color: Theme.withAlpha(Theme.text, 0.1)
                     border.width: 1
 
                     TextInput {
@@ -179,9 +178,9 @@ Item {
                     Layout.preferredHeight: 32
                     radius: 6
                     color: remotePanel.selectedProviderId === "custom"
-                        ? Qt.rgba(255, 255, 255, 0.04)
-                        : Qt.rgba(255, 255, 255, 0.02)
-                    border.color: Qt.rgba(255, 255, 255, 0.08)
+                        ? Theme.withAlpha(Theme.text, 0.04)
+                        : Theme.withAlpha(Theme.text, 0.02)
+                    border.color: Theme.withAlpha(Theme.text, 0.08)
                     border.width: 1
 
                     TextInput {
@@ -218,10 +217,10 @@ Item {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 32
                     radius: 6
-                    color: Qt.rgba(255, 255, 255, 0.04)
+                    color: Theme.withAlpha(Theme.text, 0.04)
                     border.color: keyInput.activeFocus
                         ? SettingsPalette.readableAccent(Theme.primary)
-                        : Qt.rgba(255, 255, 255, 0.1)
+                        : Theme.withAlpha(Theme.text, 0.1)
                     border.width: 1
 
                     TextInput {
@@ -255,8 +254,8 @@ Item {
                     radius: 6
                     color: remotePanel.keyVisible
                         ? Qt.rgba(SettingsPalette.readableAccent(Theme.primary).r, SettingsPalette.readableAccent(Theme.primary).g, SettingsPalette.readableAccent(Theme.primary).b, 0.15)
-                        : Qt.rgba(255, 255, 255, 0.04)
-                    border.color: Qt.rgba(255, 255, 255, 0.1)
+                        : Theme.withAlpha(Theme.text, 0.04)
+                    border.color: Theme.withAlpha(Theme.text, 0.1)
                     border.width: 1
                     Text {
                         anchors.centerIn: parent
@@ -286,9 +285,9 @@ Item {
                     Layout.preferredHeight: 36
                     radius: 8
                     color: testArea.containsMouse
-                        ? Qt.rgba(255, 255, 255, 0.08)
-                        : Qt.rgba(255, 255, 255, 0.04)
-                    border.color: Qt.rgba(255, 255, 255, 0.12)
+                        ? Theme.withAlpha(Theme.text, 0.08)
+                        : Theme.withAlpha(Theme.text, 0.04)
+                    border.color: Theme.withAlpha(Theme.text, 0.12)
                     border.width: 1
                     enabled: remotePanel.testStatus !== "testing"
                     opacity: enabled ? 1 : 0.5
@@ -376,12 +375,12 @@ Item {
                 color: Qt.rgba(0, 0, 0, 0.2)
                 border.color: {
                     if (remotePanel.testStatus === "success" || remotePanel.saveStatus === "saved") {
-                        return Qt.rgba(166/255, 227/255, 161/255, 0.4);
+                        return Theme.withAlpha(Theme.green, 0.4);
                     }
                     if (remotePanel.testStatus === "error" || remotePanel.saveStatus === "error") {
-                        return Qt.rgba(243/255, 139/255, 168/255, 0.4);
+                        return Theme.withAlpha(Theme.red, 0.4);
                     }
-                    return Qt.rgba(255, 255, 255, 0.08);
+                    return Theme.withAlpha(Theme.text, 0.08);
                 }
                 border.width: 1
 

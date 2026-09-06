@@ -22,7 +22,7 @@ Rectangle {
     Behavior on color { ColorAnimation { duration: 200 } }
     
     border.width: 1
-    border.color: hovered ? Qt.rgba(255, 255, 255, 0.1) : "transparent"
+    border.color: hovered ? Theme.withAlpha(Theme.text, 0.1) : "transparent"
     Behavior on border.color { ColorAnimation { duration: 200 } }
 
     MouseArea {
