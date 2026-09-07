@@ -415,6 +415,7 @@ Item {
     }
 
     function applySettings(outputs, selectedOutputName, selRes, selHz, selScale, selPosX, selPosY, selHdr, selBitdepth, selVrr, selSdrLuminance, selSdrBrightness, selSdrSaturation, selColorManagement, selIccProfile, selSdrEotf, defaultMonitorName, selAutoScale) {
+        if (CompositorService.compositor === "unknown") return false;
         if (backend.busy || backend.hasPendingPreview) return;
 
         backend._rollbackOutputs = deepClone(outputs);
@@ -524,6 +525,7 @@ Item {
     }
 
     function refresh() {
+        if (CompositorService.compositor === "unknown") return;
         if (backend.hasPendingPreview) return;
         configStore.load();
     }
@@ -531,8 +533,7 @@ Item {
     Connections {
         target: CompositorService
         function onCompositorChanged() {
-            if (CompositorService.compositor === "mango") {
-                Log.debug("MonitorsBackend", "Mango detected, refreshing monitors");
+            if (CompositorService.compositor !== "unknown") {
                 refresh();
             }
         }
@@ -540,7 +541,7 @@ Item {
 
     Process {
         id: randrProc
-        command: CompositorService.isHyprland ? ["hyprctl", "monitors", "all", "-j"] : (CompositorService.isMango ? ["mmsg", "get", "all-monitors"] : ["niri", "msg", "-j", "outputs"])
+        command: CompositorService.isHyprland ? ["hyprctl", "monitors", "all", "-j"] : (CompositorService.isMango ? ["mmsg", "get", "all-monitors"] : CompositorService.isNiri ? ["niri", "msg", "-j", "outputs"] : [])
         property string buf: ""
         stdout: SplitParser { onRead: data => randrProc.buf += data + "\n" }
         onExited: {
@@ -588,7 +589,7 @@ Item {
         onTriggered: backend.refresh()
     }
 
-    Component.onCompleted: configStore.load()
+    Component.onCompleted: refresh()
 
     Core.JsonDataStore {
         id: configStore

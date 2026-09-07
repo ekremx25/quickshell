@@ -76,6 +76,7 @@ Item {
             }
 
             Image {
+                id: applicationIcon
                 anchors.centerIn: parent
                 width: (itemRoot.panel.cfgIconSize - 4) * itemRoot.dockScale
                 height: (itemRoot.panel.cfgIconSize - 4) * itemRoot.dockScale
@@ -90,6 +91,13 @@ Item {
                 antialiasing: true
                 opacity: itemRoot.panel.isDragging && itemRoot.panel.dragFromIndex === itemRoot.index ? 0 : 1
                 Behavior on opacity { NumberAnimation { duration: 150 } }
+                Image {
+                    anchors.fill: parent
+                    visible: applicationIcon.status === Image.Error
+                    source: visible ? "image://icon/application-x-executable" : ""
+                    sourceSize: applicationIcon.sourceSize
+                    fillMode: Image.PreserveAspectFit
+                }
             }
 
             DockTooltip {

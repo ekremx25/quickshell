@@ -5,6 +5,7 @@ import Quickshell
 import Quickshell.Wayland
 import "../../../Widgets"
 import "../System" as Sys
+import "PanelGeometry.js" as Geometry
 
 Rectangle {
     id: root
@@ -37,18 +38,30 @@ Rectangle {
         setAdvancedSize(advancedPanel.width + deltaWidth, advancedPanel.height + deltaHeight);
     }
 
+    function fitAdvanced() {
+        var rect = Geometry.fit(advancedPanel.width, advancedPanel.height,
+            advancedPanel.x, advancedPanel.y, advancedScreenWidth(), advancedScreenHeight());
+        advancedPanel.width = rect.width;
+        advancedPanel.height = rect.height;
+        advancedPanel.x = rect.x;
+        advancedPanel.y = rect.y;
+        advancedWidth = Math.round(rect.width);
+        advancedHeight = Math.round(rect.height);
+    }
+
     function setAdvancedSize(width, height) {
         advancedMaximized = false;
         var oldCenterX = advancedPanel.x + advancedPanel.width / 2;
         var oldCenterY = advancedPanel.y + advancedPanel.height / 2;
-        advancedWidth = Math.max(980, Math.min(advancedScreenWidth() - 24, Math.round(width)));
-        advancedHeight = Math.max(680, Math.min(advancedScreenHeight() - 24, Math.round(height)));
+        advancedWidth = Math.min(advancedScreenWidth() - 24, Math.max(980, Math.round(width)));
+        advancedHeight = Math.min(advancedScreenHeight() - 24, Math.max(680, Math.round(height)));
         advancedPanel.width = advancedWidth;
         advancedPanel.height = advancedHeight;
         advancedPanel.x = Math.max(12, Math.min(advancedScreenWidth() - advancedPanel.width - 12,
             oldCenterX - advancedPanel.width / 2));
         advancedPanel.y = Math.max(12, Math.min(advancedScreenHeight() - advancedPanel.height - 12,
             oldCenterY - advancedPanel.height / 2));
+        fitAdvanced();
     }
 
     function toggleAdvancedMaximized() {
@@ -73,6 +86,7 @@ Rectangle {
             advancedPanel.y = 12;
             advancedMaximized = true;
         }
+        fitAdvanced();
     }
 
     implicitWidth: 38
@@ -99,7 +113,10 @@ Rectangle {
         anchors.fill: parent
         hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
-        onClicked: displayPopup.visible = !displayPopup.visible
+        onClicked: {
+            if (backend.supported) displayPopup.visible = !displayPopup.visible;
+            else advancedPopup.visible = !advancedPopup.visible;
+        }
     }
 
     HyprmoncfgBackend { id: backend }
@@ -453,15 +470,18 @@ Rectangle {
                 Math.min(root.advancedHeight, height - 24));
             advancedPanel.x = Math.max(12, (width - advancedPanel.width) / 2);
             advancedPanel.y = Math.max(12, (height - advancedPanel.height) / 2);
+            root.fitAdvanced();
             advancedPanel.geometryInitialized = true;
             return true;
         }
 
         onWidthChanged: {
             if (visible && !advancedPanel.geometryInitialized) initializePanelGeometry();
+            else if (visible) root.fitAdvanced();
         }
         onHeightChanged: {
             if (visible && !advancedPanel.geometryInitialized) initializePanelGeometry();
+            else if (visible) root.fitAdvanced();
         }
 
         onVisibleChanged: {
@@ -515,8 +535,8 @@ Rectangle {
             border.color: root.borderColor
             clip: true
 
-            property real minW: 980
-            property real minH: 680
+            property real minW: Math.min(980, Math.max(1, advancedPopup.width - 24))
+            property real minH: Math.min(680, Math.max(1, advancedPopup.height - 24))
             property bool resizing: false
             property bool geometryInitialized: false
             property point startMousePos
@@ -589,6 +609,7 @@ Rectangle {
                 y = newY;
                 width = newW;
                 height = newH;
+                root.fitAdvanced();
             }
 
             Behavior on width { enabled: !advancedPanel.resizing; NumberAnimation { duration: 0 } }
@@ -616,7 +637,7 @@ Rectangle {
                         label: "Back"; icon: "󰁍"
                         onClicked: {
                             advancedPopup.visible = false;
-                            displayPopup.visible = true;
+                            displayPopup.visible = backend.supported;
                         }
                     }
 
@@ -638,10 +659,14 @@ Rectangle {
                             spacing: 1
                             Text {
                                 text: "Display Studio · Advanced Controls"
+                                Layout.fillWidth: true
+                                elide: Text.ElideRight
                                 color: root.textColor; font.family: Theme.fontFamily; font.pixelSize: 17; font.bold: true
                             }
                             Text {
                                 text: "Resolution · Refresh rate · Scale · Position · HDR · 10-bit · VRR · ICC"
+                                Layout.fillWidth: true
+                                elide: Text.ElideRight
                                 color: root.mutedColor; font.family: Theme.fontFamily; font.pixelSize: 10
                             }
                         }
@@ -666,6 +691,7 @@ Rectangle {
 
                     Text {
                         text: Math.round(advancedPanel.width) + " × " + Math.round(advancedPanel.height)
+                        visible: advancedPanel.width >= 850
                         color: root.mutedColor
                         font.family: Theme.monoFontFamily
                         font.pixelSize: 9
@@ -687,11 +713,12 @@ Rectangle {
                         radius: 9
                         color: Qt.rgba(Theme.green.r, Theme.green.g, Theme.green.b, 0.14)
                         border.width: 1; border.color: Theme.green
+                        visible: advancedPanel.width >= 1100
                         implicitWidth: syncLabel.implicitWidth + 20; implicitHeight: 30
                         Text {
                             id: syncLabel
                             anchors.centerIn: parent
-                            text: profileSyncDelay.running || backend.busy ? "SYNCING" : "PROFILE LINKED"
+                            text: !backend.supported ? "NATIVE DISPLAY SETTINGS" : !backend.installed ? "PROFILE MANAGER UNAVAILABLE" : profileSyncDelay.running || backend.busy ? "SYNCING" : "PROFILE MANAGER"
                             color: Theme.green; font.family: Theme.monoFontFamily; font.pixelSize: 9; font.bold: true; font.letterSpacing: 0.8
                         }
                     }
@@ -713,7 +740,7 @@ Rectangle {
                     active: false
                     sourceComponent: Component {
                         Sys.MonitorsPage {
-                            onSettingsApplied: profileSyncDelay.restart()
+                            onSettingsApplied: if (backend.supported && backend.installed) profileSyncDelay.restart()
                         }
                     }
                 }

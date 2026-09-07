@@ -529,7 +529,7 @@ Item {
 
         MonitorLayoutCanvas {
             Layout.fillWidth: true
-            Layout.preferredHeight: 260
+            Layout.preferredHeight: page.height < 600 ? 140 : 260
             page: page
         }
 

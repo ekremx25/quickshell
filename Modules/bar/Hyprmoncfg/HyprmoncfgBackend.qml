@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import "../../../Services"
 
 Item {
     id: backend
@@ -22,7 +23,9 @@ Item {
     property var profiles: []
 
     readonly property string homeDir: Quickshell.env("HOME") || ""
-    readonly property string actionScript: homeDir + "/.config/quickshell/scripts/hyprmoncfg_action.sh"
+    readonly property bool supported: CompositorService.isHyprland
+    readonly property string actionScript: CompositorService.configDir + "/scripts/hyprmoncfg_action.sh"
+    onSupportedChanged: if (supported) refresh()
 
     function cleanProfileName(value) {
         var cleaned = String(value || "").trim().replace(/[^A-Za-z0-9._-]+/g, "-");
@@ -30,6 +33,7 @@ Item {
     }
 
     function refresh() {
+        if (!supported) return;
         if (!versionProcess.running) versionProcess.running = true;
         if (!statusProcess.running) statusProcess.running = true;
         if (!monitorProcess.running) monitorProcess.running = true;
@@ -39,6 +43,10 @@ Item {
     }
 
     function runAction(action, argument) {
+        if (!supported) {
+            errorMessage = "Profile management is only available in Hyprland.";
+            return;
+        }
         if (busy) return;
         busy = true;
         message = "";
@@ -59,13 +67,14 @@ Item {
     }
 
     function syncCurrentProfile() {
+        if (!supported || !installed) return;
         var current = cleanProfileName(activeProfile);
         if (!current || current.toLowerCase() === "custom-layout") current = "linuxlifex-dual";
         runAction("save", current);
     }
 
     function applyProfile(name) {
-        if (busy || !name) return;
+        if (!supported || !installed || busy || !name) return;
         message = "Confirm the layout in the opened terminal.";
         errorMessage = "";
         editorProcess.command = ["xdg-terminal-exec", "--app-id=TUI.float", "-e", "hyprmoncfg", "apply", String(name)];
@@ -76,6 +85,7 @@ Item {
     function disableManagement() { runAction("disable", ""); }
 
     function openEditor() {
+        if (!supported || !installed) return;
         editorProcess.command = ["gtk-launch", "hyprmoncfg"];
         editorProcess.startDetached();
     }

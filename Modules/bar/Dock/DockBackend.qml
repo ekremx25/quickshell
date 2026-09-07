@@ -110,7 +110,8 @@ Item {
             }
         }
 
-        var rawIcon = pinnedApp.icon && pinnedApp.icon !== "" ? pinnedApp.icon : getIcon(pinnedApp.appId);
+        var rawIcon = AppService.pinnedIcon(pinnedApp.appId, pinnedApp.icon,
+            desktopIcons, desktopEntries, desktopCommands);
         var resolvedCmd = pinnedApp.cmd || "";
         var desktopCmd = getCmd(pinnedApp.appId);
         if (desktopCmd && desktopCmd !== pinnedApp.appId) {

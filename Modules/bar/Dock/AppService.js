@@ -163,6 +163,14 @@ function getAppName(appId) {
     return String(appId).charAt(0).toUpperCase() + String(appId).slice(1);
 }
 
+function pinnedIcon(appId, icon, desktopIcons, desktopEntries, desktopCommands) {
+    // Older pins stored the window class as an icon. Resolve those through
+    // desktop metadata, but preserve intentionally chosen icons and paths.
+    if (!icon || String(icon).toLowerCase() === String(appId || "").toLowerCase())
+        return getIcon(appId, desktopIcons, desktopEntries, desktopCommands);
+    return icon;
+}
+
 function getCmd(appId, desktopEntries, desktopCommands) {
     if (!appId) return "";
     var id = String(appId).toLowerCase();

@@ -2,6 +2,11 @@
 
 set -u
 
+if [ "$(bash "$(dirname -- "${BASH_SOURCE[0]}")/detect_compositor.sh")" != hyprland ]; then
+    echo "Hyprmoncfg profile management is only available in Hyprland." >&2
+    exit 1
+fi
+
 ACTION="${1:-}"
 ARGUMENT="${2:-}"
 

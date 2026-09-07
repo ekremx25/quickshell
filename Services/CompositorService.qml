@@ -4,6 +4,7 @@ import Quickshell
 import Quickshell.Io
 import "./core/Log.js" as Log
 import "./core/MangoIpc.js" as MangoIpc
+import "./core/CompositorDetection.js" as Detection
 
 Singleton {
     id: root
@@ -18,20 +19,19 @@ Singleton {
     readonly property string hyprlandSignature: Quickshell.env("HYPRLAND_INSTANCE_SIGNATURE") || ""
     readonly property string mangoSignature: Quickshell.env("MANGO_INSTANCE_SIGNATURE") || ""
 
-    property bool isNiri: niriSocket !== ""
-    property bool isHyprland: hyprlandSignature !== ""
-    property bool isMango: !isHyprland && !isNiri && (mangoSignature !== "" || mangoDetected)
-    property bool mangoDetected: false
-    property string compositor: isHyprland ? "hyprland" : (isNiri ? "niri" : (isMango ? "mango" : "unknown"))
+    readonly property bool isNiri: compositor === "niri"
+    readonly property bool isHyprland: compositor === "hyprland"
+    readonly property bool isMango: compositor === "mango"
+    property string compositor: Detection.fromEnvironment(
+        Quickshell.env("XDG_CURRENT_DESKTOP"), Quickshell.env("XDG_SESSION_DESKTOP"),
+        niriSocket, mangoSignature, hyprlandSignature)
 
     // Monitor info
     property var monitors: []
 
     Component.onCompleted: {
-        // Detect Mango if not Hyprland or Niri
-        if (!isHyprland && !isNiri) {
-            mangoDetectProc.running = true;
-        } else {
+        if (compositor === "unknown") compositorDetectProc.running = true;
+        else {
             applySavedMonitorsProc.running = true;
             refreshMonitors();
         }
@@ -43,18 +43,21 @@ Singleton {
         proc.running = true;
     }
 
-    // Mango detection must verify a live IPC socket. Merely having mmsg
-    // installed does not mean the current compositor is Mango.
+    // No declared session: the shared helper can verify Mango's live IPC.
+    // Conflicting hints or an explicitly different desktop remain unknown.
     Process {
-        id: mangoDetectProc
-        command: ["mmsg", "get", "version"]
+        id: compositorDetectProc
+        command: ["bash", root.configDir + "/scripts/detect_compositor.sh"]
         property string buf: ""
-        stdout: SplitParser { onRead: data => { mangoDetectProc.buf += data; } }
+        stdout: SplitParser { onRead: data => { compositorDetectProc.buf += data; } }
         onExited: exitCode => {
-            root.mangoDetected = exitCode === 0 && mangoDetectProc.buf.indexOf("\"version\"") !== -1;
-            applySavedMonitorsProc.running = true;
-            root.refreshMonitors();
-            mangoDetectProc.buf = "";
+            var detected = compositorDetectProc.buf.trim();
+            root.compositor = exitCode === 0 && ["niri", "mango", "hyprland"].indexOf(detected) >= 0 ? detected : "unknown";
+            if (root.compositor !== "unknown") {
+                applySavedMonitorsProc.running = true;
+                root.refreshMonitors();
+            }
+            compositorDetectProc.buf = "";
         }
     }
     

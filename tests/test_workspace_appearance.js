@@ -32,3 +32,8 @@ assert.equal(apps.getIcon("affinity.exe", {"affinity.exe":"/icons/Affinity.svg"}
 assert.equal(apps.getIcon("affinity.exe", {affinity:"/icons/Affinity.svg"}, {affinity:"Affinity"}, {}), "/icons/Affinity.svg");
 assert.equal(apps.getIcon("unknown.exe", {zen:"zen-browser"}, {}, {}), "application-x-executable");
 console.log("Workspace appearance, shared defaults and icon lookup tests passed");
+assert.equal(apps.pinnedIcon("zen", "zen", {zen:"zen-browser"}, {}, {}), "zen-browser");
+assert.equal(apps.pinnedIcon("affinity.exe", "affinity.exe", {"affinity.exe":"/icons/Affinity.svg"}, {}, {}), "/icons/Affinity.svg");
+assert.equal(apps.pinnedIcon("zen", "/custom/my-icon.svg", {zen:"zen-browser"}, {}, {}), "/custom/my-icon.svg");
+assert.equal(apps.pinnedIcon("zen", "custom-themed-icon", {zen:"zen-browser"}, {}, {}), "custom-themed-icon");
+assert.equal(apps.pinnedIcon("zen", "zen", {}, {}, {}), "application-x-executable");
