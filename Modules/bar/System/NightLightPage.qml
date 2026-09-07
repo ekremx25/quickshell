@@ -83,7 +83,7 @@ Item {
 
             // ── Unavailable banner ───────────────────────────────────
             Rectangle {
-                visible: !S.NightLight.available
+                visible: !S.NightLight.available || S.NightLight.errorMessage.length > 0
                 Layout.fillWidth: true
                 Layout.preferredHeight: banner.implicitHeight + 24
                 radius: 12
@@ -99,20 +99,23 @@ Item {
 
                     Text {
                         font.family: Theme.fontFamily
-                        text: "⚠  gammastep is not installed"
+                        text: "⚠  " + (S.NightLight.errorMessage || "Night light backend unavailable")
                         color: Theme.cpRed
                         font.pixelSize: 13
                         font.bold: true
                     }
                     Text {
                         font.family: Theme.fontFamily
-                        text: "Night Light uses gammastep to adjust the screen's colour temperature. Install it and reload."
+                        text: S.NightLight.available
+                            ? "The colour-temperature adjustment reported a problem. Check for another night-light application using the same displays."
+                            : "Install the night-light backend for your compositor (hyprsunset on Hyprland, gammastep on Niri/Mango), then reload."
                         color: SettingsPalette.subtext
                         font.pixelSize: 11
                         wrapMode: Text.WordWrap
                         Layout.fillWidth: true
                     }
                     Rectangle {
+                        visible: !S.NightLight.available
                         Layout.preferredWidth: cmdText.implicitWidth + 20
                         Layout.preferredHeight: 28
                         radius: 6
@@ -122,7 +125,7 @@ Item {
                         Text {
                             id: cmdText
                             anchors.centerIn: parent
-                            text: "sudo pacman -S gammastep"
+                            text: "Hyprland: hyprsunset  ·  Niri/Mango: gammastep"
                             color: SettingsPalette.text
                             font.family: Theme.fontFamily
                             font.pixelSize: 11

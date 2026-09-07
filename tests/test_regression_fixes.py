@@ -16,6 +16,7 @@ class RegressionTests(unittest.TestCase):
         config = temp / "config/quickshell"
         config.mkdir(parents=True)
         (config / "Services").symlink_to(ROOT / "Services")
+        (config / "Modules").symlink_to(ROOT / "Modules")
         (config / "scripts").symlink_to(ROOT / "scripts")
         runtime = temp / "runtime"
         runtime.mkdir(mode=0o700)
@@ -25,6 +26,9 @@ class RegressionTests(unittest.TestCase):
             file = binaries / name
             file.write_text("#!/bin/sh\nexit 0\n")
             file.chmod(0o755)
+        gamma = binaries / "gammastep"
+        gamma.write_text('#!/bin/sh\nprintf "%s\\n" "$*" >> "$HOME/gamma-calls"\nexec sleep 60\n')
+        gamma.chmod(0o755)
         entry = temp / "shell.qml"
         source = source.replace("CORE", (ROOT / "Services/core").as_uri()).replace("SETTINGS", (ROOT / "Modules/bar/Settings").as_uri())
         entry.write_text(source)
@@ -37,6 +41,39 @@ class RegressionTests(unittest.TestCase):
         output = result.stdout + result.stderr
         self.assertIn("REGRESSION_OK", output)
         self.assertNotIn("ReferenceError", output)
+        return output
+
+    @unittest.skipUnless(shutil.which("quickshell"), "Quickshell required")
+    def test_nightlight_schedule_and_owned_process(self):
+        with tempfile.TemporaryDirectory() as folder:
+            temp = Path(folder)
+            source = '''import QtQuick
+import Quickshell
+import "SERVICES" as S
+ShellRoot {
+    property bool nightEnabled: S.NightLight.enabled
+    Timer {
+        interval: 300; running: true
+        onTriggered: {
+            S.NightLight.scheduleOnHour = 19; S.NightLight.scheduleOnMinute = 0;
+            S.NightLight.scheduleOffHour = 7; S.NightLight.scheduleOffMinute = 0;
+            if (!S.NightLight.isInScheduleWindow(new Date(2026,8,7,19,0)) ||
+                !S.NightLight.isInScheduleWindow(new Date(2026,8,8,2,0)) ||
+                S.NightLight.isInScheduleWindow(new Date(2026,8,8,7,0)) ||
+                S.NightLight.isInScheduleWindow(new Date(2026,8,7,18,59))) throw new Error("Schedule boundary");
+            S.NightLight.setEnabled(true);
+        }
+    }
+    Timer { interval: 600; running: true; onTriggered: S.NightLight.setTemperature(5000) }
+    Timer { interval: 1000; running: true; onTriggered: S.NightLight.setEnabled(false) }
+    Timer { interval: 1400; running: true; onTriggered: { console.log("REGRESSION_OK"); Qt.quit(); } }
+}'''.replace("SERVICES", "config/quickshell/Services")
+            output = self.run_qml(source, temp)
+            self.assertTrue((temp / "gamma-calls").exists(), output)
+            calls = (temp / "gamma-calls").read_text().splitlines()
+            self.assertEqual(len(calls), 2, calls)
+            self.assertIn("-O 5000", calls[-1])
+            self.assertFalse(any("-x" in call for call in calls))
 
     @unittest.skipUnless(shutil.which("quickshell"), "Quickshell required")
     def test_save_acknowledges_completed_snapshot_and_multiline_read(self):

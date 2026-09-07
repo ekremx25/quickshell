@@ -19,11 +19,11 @@ import "./core/Log.js" as Log
 //   enabled=false  → `hyprctl hyprsunset identity` + kill daemon
 //
 // Apply model (gammastep):
-//   enabled=true   → `gammastep -O <K> -g 1.0`   (one-shot)
-//   enabled=false  → `gammastep -x`              (reset)
+//   One owned Wayland process holds the adjustment; stopping it releases it.
+//   Temperature changes wait for the previous process to exit before starting.
 //
 // Schedule:
-//   When scheduleEnabled, a 30s Timer flips `enabled` on/off based on the
+//   When scheduleEnabled, a 1s Timer flips `enabled` on/off based on the
 //   current local time. Windows spanning midnight are supported.
 Singleton {
     id: root
@@ -48,6 +48,8 @@ Singleton {
     property bool available: false
     property string backend: ""        // "hyprsunset" | "gammastep" | ""
     property string errorMessage: ""
+    property bool configReady: false
+    property bool gammaRestartPending: false
 
     readonly property string configPath: Core.PathService.configPath("nightlight_config.json")
 
@@ -140,8 +142,8 @@ Singleton {
     }
 
     // True when the current local time is inside [on, off), wrapping midnight.
-    function isInScheduleWindow() {
-        var now = new Date();
+    function isInScheduleWindow(date) {
+        var now = date || new Date();
         var nowMin = now.getHours() * 60 + now.getMinutes();
         var onMin = root.scheduleOnHour * 60 + root.scheduleOnMinute;
         var offMin = root.scheduleOffHour * 60 + root.scheduleOffMinute;
@@ -161,7 +163,7 @@ Singleton {
     }
 
     function _applyNow() {
-        if (!root.available) return;
+        if (!root.available || !root.configReady) return;
         if (root.backend === "hyprsunset") {
             _applyHyprsunset();
         } else if (root.backend === "gammastep") {
@@ -189,15 +191,53 @@ Singleton {
     }
 
     function _applyGammastep() {
-        if (root.enabled) {
-            Quickshell.execDetached(["gammastep", "-O", String(root.temperature), "-g", "1.0"]);
-        } else {
-            Quickshell.execDetached(["gammastep", "-x"]);
+        root.gammaRestartPending = root.enabled;
+        if (gammaProcess.running) {
+            gammaProcess.running = false;
+            gammaStopTimeout.restart();
+        } else if (root.enabled) {
+            startGamma();
         }
     }
 
+    function startGamma() {
+        if (!root.enabled || gammaProcess.running) return;
+        root.gammaRestartPending = false;
+        root.errorMessage = "";
+        gammaProcess.command = ["python3", Core.PathService.configPath("scripts/nightlight_process.py"), String(root.temperature)];
+        gammaProcess.running = true;
+    }
+
+    Process {
+        id: gammaProcess
+        stdout: SplitParser { onRead: data => {} }
+        stderr: SplitParser {
+            onRead: data => {
+                root.errorMessage = String(data);
+                Log.warn("NightLight", data);
+            }
+        }
+        onExited: function(code) {
+            gammaStopTimeout.stop();
+            if (root.gammaRestartPending && root.enabled) Qt.callLater(root.startGamma);
+            else if (root.enabled && code !== 0 && !root.errorMessage)
+                root.errorMessage = "Night light could not be applied (exit " + code + ").";
+        }
+    }
+    Timer {
+        id: gammaStopTimeout
+        interval: 3000
+        onTriggered: if (gammaProcess.running) gammaProcess.signal(9)
+    }
+    Timer {
+        interval: 30000
+        repeat: true
+        running: root.configReady && root.available && root.enabled && root.backend === "gammastep"
+        onTriggered: if (!gammaProcess.running) root.startGamma()
+    }
+
     function _reevaluate(forceApply) {
-        if (!root.available) return;
+        if (!root.available || !root.configReady) return;
 
         if (root.scheduleEnabled) {
             var shouldBeOn = isInScheduleWindow();
@@ -216,7 +256,7 @@ Singleton {
 
     Timer {
         id: scheduleTick
-        interval: 30 * 1000
+        interval: 1000
         repeat: true
         running: root.scheduleEnabled && root.available
         onTriggered: root._reevaluate(false)
@@ -292,6 +332,7 @@ Singleton {
             root.scheduleOnMinute = cfg.scheduleOnMinute;
             root.scheduleOffHour = cfg.scheduleOffHour;
             root.scheduleOffMinute = cfg.scheduleOffMinute;
+            root.configReady = true;
             if (root.available) _reevaluate(true);
         }
         onFailed: function(phase, exitCode, details) {
