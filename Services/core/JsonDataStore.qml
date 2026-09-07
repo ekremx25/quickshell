@@ -96,8 +96,8 @@ Item {
                 root.loadedValue(root.value, root.rawText);
             }
         }
-        onSaved: {
-            root.savedValue(root.value);
+        onSaved: text => {
+            root.savedValue(JSON.parse(text));
         }
         // Attach the file path to read/write errors so logs immediately reveal
         // which config file is misbehaving.

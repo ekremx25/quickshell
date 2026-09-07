@@ -4,6 +4,7 @@ import Quickshell
 import Quickshell.Io
 import "./core" as Core
 import "./core/Log.js" as Log
+import "./core/MarketCurrencies.js" as Catalog
 
 Singleton {
     id: service
@@ -44,6 +45,44 @@ Singleton {
     property string converterStatus: ""
     property var converterRateCache: ({})
     property bool currenciesLoading: false
+    property string displayCurrency: ""
+    property string bitcoinCurrency: ""
+    property string ethereumCurrency: ""
+    readonly property string bitcoinQuote: bitcoinCurrency || displayCurrency || "USD"
+    readonly property string ethereumQuote: ethereumCurrency || displayCurrency || "USD"
+    property var displayRates: ({})
+    property string displayRateStatus: ""
+    readonly property real displayRate: displayCurrency === "USD" ? 1 : Number((displayRates[displayCurrency] || {}).rate || 0)
+
+    function setDisplayCurrency(code) {
+        displayCurrency = String(code || "").toUpperCase();
+        savePreferences();
+        refreshDisplayRates();
+    }
+    function savePreferences() {
+        preferences.save({currency: displayCurrency, bitcoinCurrency: bitcoinCurrency, ethereumCurrency: ethereumCurrency});
+    }
+    function setCryptoCurrency(asset, code) {
+        var quote = String(code || "").toUpperCase();
+        if (quote && !converterCurrencies.some(function(c) { return c.code === quote; })) return;
+        if (asset === "bitcoin") bitcoinCurrency = quote;
+        else if (asset === "ethereum") ethereumCurrency = quote;
+        else return;
+        savePreferences();
+        refreshDisplayRates();
+    }
+    function displayPrice(usd, digits, code) {
+        var quote = code === undefined ? displayCurrency : code;
+        var rate = quote === "USD" ? 1 : Number((displayRates[quote] || {}).rate || 0);
+        if (!(rate > 0) || !(usd > 0)) return "--";
+        return quote + " " + Number(usd * rate).toLocaleString(Qt.locale(), "f", digits);
+    }
+    function refreshDisplayRates() {
+        if ((!displayCurrency && !bitcoinCurrency && !ethereumCurrency) || displayRatesProc.running) return;
+        displayRateStatus = "Updating reference rates…";
+        displayRatesProc.output = "";
+        displayRatesProc.running = true;
+    }
 
     function ensureRegionalCurrencies(currencies) {
         var list = Array.isArray(currencies)
@@ -68,6 +107,7 @@ Singleton {
     }
 
     function refresh() {
+        refreshDisplayRates();
         if (refreshing) return;
         refreshing = true;
         cryptoDone = false;
@@ -123,12 +163,13 @@ Singleton {
             converterTo: converterTo,
             converterRate: converterRate,
             converterDate: converterDate,
-            converterRateCache: converterRateCache
+            converterRateCache: converterRateCache,
+            displayRates: displayRates
         });
     }
 
     function ensureConverterCurrencies() {
-        if (currenciesLoading || converterCurrencies.length > 20) return;
+        if (currenciesLoading) return;
         currenciesLoading = true;
         currenciesProc.output = "";
         currenciesProc.running = true;
@@ -148,6 +189,8 @@ Singleton {
     }
 
     function requestConversion() {
+        converterRate = 0;
+        converterDate = "";
         if (converterFrom === converterTo) {
             converterRate = 1;
             converterDate = Qt.formatDate(new Date(), "yyyy-MM-dd");
@@ -233,6 +276,8 @@ Singleton {
     }
 
     Component.onCompleted: {
+        converterCurrencies = Catalog.currencies;
+        preferences.load();
         cacheStore.load();
         initialRefresh.start();
         converterInitialRefresh.start();
@@ -333,12 +378,8 @@ Singleton {
                 try {
                     var response = JSON.parse(output);
                     if (Array.isArray(response) && response.length > 0) {
-                        var latestEndDate = "";
-                        for (var i = 0; i < response.length; i++) {
-                            if (String(response[i].end_date || "") > latestEndDate) latestEndDate = String(response[i].end_date);
-                        }
                         var current = response.filter(function(entry) {
-                            return entry.iso_code && String(entry.end_date || "") === latestEndDate;
+                            return /^[A-Z]{3}$/.test(String(entry.iso_code || ""));
                         }).map(function(entry) {
                             return {
                                 code: String(entry.iso_code),
@@ -400,10 +441,52 @@ Singleton {
     }
 
     Core.JsonDataStore {
+        id: preferences
+        path: Core.PathService.configPath("markets_preferences.json")
+        defaultValue: ({currency: ""})
+        onLoadedValue: function(data) {
+            service.displayCurrency = /^[A-Z]{3}$/.test(String(data.currency || "")) ? data.currency : "";
+            service.bitcoinCurrency = /^[A-Z]{3}$/.test(String(data.bitcoinCurrency || "")) ? data.bitcoinCurrency : "";
+            service.ethereumCurrency = /^[A-Z]{3}$/.test(String(data.ethereumCurrency || "")) ? data.ethereumCurrency : "";
+            service.refreshDisplayRates();
+        }
+    }
+
+    Process {
+        id: displayRatesProc
+        property string output: ""
+        command: ["curl", "-fsS", "--connect-timeout", "8", "--max-time", "20", "https://api.frankfurter.dev/v2/rates?base=USD"]
+        stdout: SplitParser { onRead: data => displayRatesProc.output += data }
+        onExited: function(code) {
+            var success = false;
+            try {
+                if (code === 0) {
+                    var rows = JSON.parse(output);
+                    var rates = {};
+                    for (var i = 0; i < rows.length; i++) {
+                        var row = rows[i];
+                        if (row.base === "USD" && Number(row.rate) > 0)
+                            rates[row.quote] = {rate: Number(row.rate), date: String(row.date || "")};
+                    }
+                    if (Object.keys(rates).length) {
+                        service.displayRates = rates;
+                        service.saveCache();
+                        success = true;
+                    }
+                }
+            } catch (e) { Log.warn("Markets", "Reference rate parsing failed"); }
+            service.displayRateStatus = !success ? "Offline — saved reference rates, if available"
+                : service.displayRate > 0 ? "Daily reference rates; crypto conversion is approximate" : "Selected currency rate unavailable";
+            output = "";
+        }
+    }
+
+    Core.JsonDataStore {
         id: cacheStore
         path: service.cachePath
         defaultValue: ({})
         onLoadedValue: function(data) {
+            if (data.displayRates && typeof data.displayRates === "object") service.displayRates = data.displayRates;
             if (data.usdTryBuying) service.usdTryBuying = Number(data.usdTryBuying);
             if (data.usdTrySelling) service.usdTrySelling = Number(data.usdTrySelling);
             if (data.tcmbDate) service.tcmbDate = String(data.tcmbDate);
@@ -415,7 +498,7 @@ Singleton {
             if (data.ethereumChange !== undefined) service.ethereumChange = Number(data.ethereumChange);
             if (data.lastUpdatedEpoch) service.lastUpdatedEpoch = Number(data.lastUpdatedEpoch);
             if (Array.isArray(data.converterCurrencies) && data.converterCurrencies.length > 0) {
-                service.converterCurrencies = service.ensureRegionalCurrencies(data.converterCurrencies);
+                service.converterCurrencies = Catalog.currencies;
             } else {
                 service.converterCurrencies = service.ensureRegionalCurrencies(service.converterCurrencies);
             }

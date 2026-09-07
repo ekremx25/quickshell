@@ -32,7 +32,7 @@ Item {
             ColumnLayout {
                 spacing: 1
                 Text { text: "Markets"; color: SettingsPalette.text; font.pixelSize: 19; font.bold: true; font.family: Theme.fontFamily }
-                Text { text: "USD/TRY exchange rate and live cryptocurrency prices"; color: SettingsPalette.subtext; font.pixelSize: 11; font.family: Theme.fontFamily }
+                Text { text: "Global currencies and cryptocurrency prices"; color: SettingsPalette.subtext; font.pixelSize: 11; font.family: Theme.fontFamily }
             }
             Item { Layout.fillWidth: true }
             ColumnLayout {
@@ -56,6 +56,34 @@ Item {
             }
         }
 
+        RowLayout {
+            Layout.fillWidth: true
+            Text { text: "Display currency"; color: SettingsPalette.text }
+            Basic.TextField {
+                id: currencySearch
+                Layout.fillWidth: true
+                placeholderText: "Search 165 currencies: EUR, yen, rupee…"
+                color: SettingsPalette.text
+            }
+            CurrencyCombo {
+                currencies: markets.converterCurrencies.filter(function(c) {
+                    return (c.code + " " + c.name).toLowerCase().indexOf(currencySearch.text.toLowerCase()) >= 0;
+                })
+                selectedCode: markets.displayCurrency
+                onCurrencySelected: function(code) { markets.setDisplayCurrency(code); }
+            }
+            Basic.Button { text: "Original"; onClicked: markets.setDisplayCurrency("") }
+        }
+        Text {
+            Layout.fillWidth: true
+            wrapMode: Text.WordWrap
+            text: markets.displayCurrency ? markets.displayRateStatus
+                + " · " + ((markets.displayRates[markets.displayCurrency] || {}).date || (markets.displayCurrency === "USD" ? "USD base" : "No rate date"))
+                : "Original display preserved. Choose your preferred currency above."
+            color: SettingsPalette.subtext
+            font.pixelSize: 10
+        }
+
         GridLayout {
             Layout.fillWidth: true
             columns: 3
@@ -67,10 +95,10 @@ Item {
                 symbol: "$"
                 symbolColor: Theme.green
                 title: "US Dollar"
-                subtitle: "USD / TRY · TCMB"
-                mainValue: "₺" + markets.formatNumber(markets.usdTrySelling, 4)
-                secondaryValue: "Buying  ₺" + markets.formatNumber(markets.usdTryBuying, 4)
-                detailText: markets.tcmbDate.length > 0 ? "Official rate · " + markets.tcmbDate : "Official TCMB rate"
+                subtitle: markets.displayCurrency ? "USD / " + markets.displayCurrency : "USD / TRY · TCMB"
+                mainValue: markets.displayCurrency ? markets.displayPrice(1, 4) : "₺" + markets.formatNumber(markets.usdTrySelling, 4)
+                secondaryValue: markets.displayCurrency ? "Daily reference rate" : "Buying  ₺" + markets.formatNumber(markets.usdTryBuying, 4)
+                detailText: markets.displayCurrency ? ((markets.displayRates[markets.displayCurrency] || {}).date || "USD base") : markets.tcmbDate
                 changeValue: 0
                 showChange: false
             }
@@ -80,10 +108,12 @@ Item {
                 symbol: "₿"
                 symbolColor: "#f7931a"
                 title: "Bitcoin"
-                subtitle: "BTC / USD"
-                mainValue: "$" + markets.formatNumber(markets.bitcoinUsd, 0)
-                secondaryValue: "₺" + markets.formatNumber(markets.bitcoinTry, 0)
-                detailText: "24-hour market change"
+                currencyAsset: "bitcoin"
+                quoteCode: markets.bitcoinQuote
+                subtitle: "BTC / " + markets.bitcoinQuote
+                mainValue: markets.displayPrice(markets.bitcoinUsd, 2, markets.bitcoinQuote)
+                secondaryValue: markets.bitcoinQuote === "USD" ? "CoinGecko spot price" : "Approximate converted price"
+                detailText: "24-hour change in USD"
                 changeValue: markets.bitcoinChange
                 showChange: true
             }
@@ -93,10 +123,12 @@ Item {
                 symbol: "◆"
                 symbolColor: "#8c8cfa"
                 title: "Ethereum"
-                subtitle: "ETH / USD"
-                mainValue: "$" + markets.formatNumber(markets.ethereumUsd, 2)
-                secondaryValue: "₺" + markets.formatNumber(markets.ethereumTry, 0)
-                detailText: "24-hour market change"
+                currencyAsset: "ethereum"
+                quoteCode: markets.ethereumQuote
+                subtitle: "ETH / " + markets.ethereumQuote
+                mainValue: markets.displayPrice(markets.ethereumUsd, 2, markets.ethereumQuote)
+                secondaryValue: markets.ethereumQuote === "USD" ? "CoinGecko spot price" : "Approximate converted price"
+                detailText: "24-hour change in USD"
                 changeValue: markets.ethereumChange
                 showChange: true
             }
@@ -263,6 +295,8 @@ Item {
     }
 
     component MarketCard: Rectangle {
+        property string currencyAsset: ""
+        property string quoteCode: "USD"
         property string symbol: ""
         property color symbolColor: Theme.primary
         property string title: ""
@@ -273,7 +307,7 @@ Item {
         property real changeValue: 0
         property bool showChange: false
 
-        implicitHeight: 224
+        implicitHeight: 280
         radius: 18
         color: Theme.withAlpha(Theme.surface, 0.48)
         border.width: 1
@@ -312,6 +346,20 @@ Item {
             }
 
             Item { height: 4 }
+            RowLayout {
+                visible: currencyAsset !== ""
+                Layout.fillWidth: true
+                CurrencyCombo {
+                    Layout.fillWidth: true
+                    currencies: markets.converterCurrencies
+                    selectedCode: quoteCode
+                    onCurrencySelected: function(code) { markets.setCryptoCurrency(currencyAsset, code); }
+                }
+                Basic.Button {
+                    text: "Follow main"
+                    onClicked: markets.setCryptoCurrency(currencyAsset, "")
+                }
+            }
             Text { text: mainValue; color: SettingsPalette.text; font.pixelSize: 28; font.bold: true; font.family: Theme.fontFamily }
             Text { text: secondaryValue; color: symbolColor; font.pixelSize: 13; font.bold: true; font.family: Theme.fontFamily }
             Item { Layout.fillHeight: true }
@@ -330,7 +378,7 @@ Item {
         implicitHeight: 42
         model: currencies
         textRole: "code"
-        currentIndex: page.currencyIndex(selectedCode)
+        currentIndex: currencies.findIndex(function(c) { return c.code === selectedCode; })
         onActivated: function(index) {
             if (currencies[index]) currencySelected(currencies[index].code);
         }
@@ -338,7 +386,7 @@ Item {
         contentItem: Text {
             leftPadding: 12
             rightPadding: 30
-            text: combo.selectedCode + "  ·  " + markets.currencyName(combo.selectedCode)
+            text: combo.selectedCode ? combo.selectedCode + "  ·  " + markets.currencyName(combo.selectedCode) : "Choose currency"
             color: SettingsPalette.text
             font.pixelSize: 10
             font.bold: true

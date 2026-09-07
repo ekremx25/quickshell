@@ -45,8 +45,9 @@ Item {
                 var val = parseFloat(String(data).trim());
                 if (isNaN(val)) return;
                 backend.cpuPercent = val;
-                backend.cpuHistory.push(val);
-                if (backend.cpuHistory.length > backend.cpuHistMax) backend.cpuHistory.shift();
+                var history = backend.cpuHistory.slice();
+                history.push(val);
+                backend.cpuHistory = history.slice(-backend.cpuHistMax);
             }
         }
     }

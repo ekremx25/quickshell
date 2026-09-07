@@ -71,18 +71,18 @@ Item {
                             Layout.fillWidth: true
                             symbol: "$"
                             symbolColor: Theme.green
-                            title: "USD / TRY"
-                            value: "₺" + S.Markets.formatNumber(S.Markets.usdTrySelling, 4)
-                            detail: "Buy ₺" + S.Markets.formatNumber(S.Markets.usdTryBuying, 4)
+                            title: "USD / " + (S.Markets.displayCurrency || "TRY")
+                            value: S.Markets.displayCurrency ? S.Markets.displayPrice(1, 4) : "₺" + S.Markets.formatNumber(S.Markets.usdTrySelling, 4)
+                            detail: S.Markets.displayCurrency ? (S.Markets.displayRateStatus.indexOf("Offline") === 0 ? "Saved " : "Ref. ") + ((S.Markets.displayRates[S.Markets.displayCurrency] || {}).date || "--") : "Buy ₺" + S.Markets.formatNumber(S.Markets.usdTryBuying, 4)
                         }
 
                         MarketTile {
                             Layout.fillWidth: true
                             symbol: "₿"
                             symbolColor: "#f7931a"
-                            title: "BITCOIN"
-                            value: "$" + S.Markets.formatNumber(S.Markets.bitcoinUsd, 0)
-                            detail: S.Markets.changeText(S.Markets.bitcoinChange)
+                            title: "BTC / " + S.Markets.bitcoinQuote
+                            value: (S.Markets.bitcoinQuote === "USD" ? "" : "≈ ") + S.Markets.displayPrice(S.Markets.bitcoinUsd, 0, S.Markets.bitcoinQuote)
+                            detail: S.Markets.changeText(S.Markets.bitcoinChange) + " USD"
                             positive: S.Markets.bitcoinChange >= 0
                             coloredDetail: true
                         }
@@ -91,9 +91,9 @@ Item {
                             Layout.fillWidth: true
                             symbol: "◆"
                             symbolColor: "#8c8cfa"
-                            title: "ETHEREUM"
-                            value: "$" + S.Markets.formatNumber(S.Markets.ethereumUsd, 2)
-                            detail: S.Markets.changeText(S.Markets.ethereumChange)
+                            title: "ETH / " + S.Markets.ethereumQuote
+                            value: (S.Markets.ethereumQuote === "USD" ? "" : "≈ ") + S.Markets.displayPrice(S.Markets.ethereumUsd, 2, S.Markets.ethereumQuote)
+                            detail: S.Markets.changeText(S.Markets.ethereumChange) + " USD"
                             positive: S.Markets.ethereumChange >= 0
                             coloredDetail: true
                         }

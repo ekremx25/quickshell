@@ -11,23 +11,27 @@ jobs:
   validate:
     name: Validate configuration
     runs-on: ubuntu-latest
+    container: archlinux:base
 
     steps:
+      - name: Install test runtime
+        run: pacman -Syu --noconfirm --needed git base-devel python nodejs quickshell qt6-declarative ttf-dejavu dbus curl jq inotify-tools socat
+
       - name: Check out repository
         uses: actions/checkout@v5
 
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.11"
+      - name: Run all Python and isolated QML tests (no silent skips)
+        run: dbus-run-session -- python tests/run_ci.py
 
-      - name: Test port-independent monitor roles
-        run: python -m unittest discover -s tests -v
+      - name: Run JavaScript tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          for file in tests/test_*.js; do node "$file"; done
 
       - name: Compile Python helpers
         run: |
-          python -m py_compile scripts/monitor_role_manager.py
-          python -m py_compile Modules/bar/System/niri_apply.py
+          python -m compileall -q scripts Modules tests
 
       - name: Build Activity Monitor sampler
         shell: bash
@@ -35,10 +39,13 @@ jobs:
           set -euo pipefail
           make -C Modules/bar/ActivityMonitor -B
           test "$(Modules/bar/ActivityMonitor/activity-sampler --version)" = "activity-sampler 2.1.1"
-          Modules/bar/ActivityMonitor/activity-sampler --activity-resources | grep -q $'^schema\\tactivity-resources\\t1$'
+          Modules/bar/ActivityMonitor/activity-sampler --activity-resources | awk 'NR == 1 {ok = ($0 == "schema\tactivity-resources\t1")} END {exit !ok}'
 
       - name: Validate shell syntax
-        run: bash -n scripts/*.sh
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r -d '' file; do bash -n "$file"; done < <(git ls-files -z '*.sh')
 
       - name: Validate tracked JSON
         shell: bash

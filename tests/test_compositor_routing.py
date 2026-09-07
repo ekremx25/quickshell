@@ -98,7 +98,7 @@ class CompositorRoutingTests(unittest.TestCase):
         config = Path(self.env["XDG_CONFIG_HOME"]) / "quickshell"
         config.mkdir(parents=True)
         (config / "scripts").symlink_to(ROOT / "scripts", target_is_directory=True)
-        self.command("niri", "printf '{}\\n'")
+        self.command("niri", "printf '%s\\n' '{\"DP-1\":{\"make\":\"Test\",\"model\":\"Screen\",\"current_mode\":0,\"modes\":[{\"width\":2560,\"height\":1440,\"refresh_rate\":144000}],\"logical\":{\"x\":0,\"y\":0,\"scale\":1.25}}}'")
         runtime = self.path / "runtime"
         runtime.mkdir(mode=0o700)
         source = '''import QtQuick
@@ -117,6 +117,9 @@ ShellRoot {
             backend.refresh(); backend.syncCurrentProfile(); backend.openEditor();
             backend.applyProfile("test"); backend.saveProfile("test");
             backend.enableManagement(); backend.disableManagement();
+            var output = CompositorService.monitors[0];
+            if (!output || output.width !== 2560 || output.height !== 1440 || output.scale !== 1.25 || Number(output.refreshRate) !== 144)
+                throw new Error("Niri output schema regression");
             console.log("ROUTING_OK");
             Qt.quit();
         }

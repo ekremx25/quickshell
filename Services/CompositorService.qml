@@ -5,6 +5,7 @@ import Quickshell.Io
 import "./core/Log.js" as Log
 import "./core/MangoIpc.js" as MangoIpc
 import "./core/CompositorDetection.js" as Detection
+import "../Modules/bar/System/MonitorParsers.js" as MonitorParsers
 
 Singleton {
     id: root
@@ -118,20 +119,13 @@ Singleton {
         stdout: SplitParser { onRead: data => { niriMonitorProc.buf += data; } }
         onExited: {
             try {
-                var outputs = JSON.parse(niriMonitorProc.buf);
-                var list = [];
-                for (var name in outputs) {
-                    var o = outputs[name];
-                    list.push({
-                        name: name,
-                        make: o.make || "",
-                        model: o.model || "",
-                        width: o.currentMode ? o.currentMode.width : 0,
-                        height: o.currentMode ? o.currentMode.height : 0,
-                        refreshRate: o.currentMode ? (o.currentMode.refreshRate / 1000.0).toFixed(1) : "0",
-                        scale: o.scale || 1.0
-                    });
-                }
+                var raw = JSON.parse(niriMonitorProc.buf);
+                var list = MonitorParsers.parseNiriOutputs(niriMonitorProc.buf).map(function(o) {
+                    var size = o.res.split("x");
+                    return {name: o.name, make: raw[o.name].make || "", model: raw[o.name].model || "",
+                        width: Number(size[0] || 0), height: Number(size[1] || 0),
+                        refreshRate: Number(o.hz || 0).toFixed(1), scale: Number(o.scale)};
+                });
                 root.monitors = list;
             } catch(e) {
                 Log.warn("CompositorService", "Niri monitor parse error: " + e);

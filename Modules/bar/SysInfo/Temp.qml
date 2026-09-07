@@ -101,6 +101,10 @@ Rectangle {
         // ROW 2: GRAPH
         Canvas {
           id: cpuHistCanvas
+          Connections {
+            target: backend
+            function onCpuHistoryChanged() { cpuHistCanvas.requestPaint() }
+          }
           Layout.fillWidth: true
           Layout.preferredHeight: 50
           onPaint: {

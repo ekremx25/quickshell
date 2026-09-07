@@ -40,7 +40,7 @@ Scope {
                 + "&daily=weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset"
                 + "&timezone=auto&forecast_days=5"
                 + tempUnit + windUnit;
-        apiProc.command = ["curl", "-s", url];
+        apiProc.command = ["curl", "-fsS", "--connect-timeout", "8", "--max-time", "20", url];
         apiProc.running = false;
         apiProc.fullOutput = "";
         apiProc.running = true;

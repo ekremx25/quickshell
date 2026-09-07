@@ -85,9 +85,12 @@ Item {
     }
 
     // ── Test connection process ───────────────────────────────────────────
-    property int _testStartTime: 0
+    property double _testStartTime: 0
     Process {
         id: testProc
+        property string input: ""
+        stdinEnabled: true
+        onStarted: { write(input + "\n"); input = ""; }
         running: false
         property string buffer: ""
         stdout: SplitParser { onRead: data => { testProc.buffer += data; } }
@@ -137,13 +140,9 @@ Item {
             max_tokens: 5
         });
 
-        testProc.command = [
-            "curl", "-sS", "--max-time", "10",
-            endpoint,
-            "-H", "Authorization: Bearer " + page.apiKey,
-            "-H", "Content-Type: application/json",
-            "-d", payload
-        ];
+        if (testProc.running) return;
+        testProc.command = ["python3", Core.PathService.configPath("scripts/api_key_helper.py"), "test"];
+        testProc.input = JSON.stringify({endpoint: endpoint, key: page.apiKey, payload: JSON.parse(payload)});
         testProc.buffer = "";
         testProc.running = true;
     }
@@ -151,11 +150,15 @@ Item {
     // ── Save config + restart fcitx5 ──────────────────────────────────────
     Process {
         id: saveProc
+        property string input: ""
+        stdinEnabled: true
+        onStarted: { write(input + "\n"); input = ""; }
         running: false
         property string buffer: ""
         stderr: SplitParser { onRead: data => { saveProc.buffer += data; } }
         onExited: exitCode => {
             if (exitCode === 0) {
+                Quickshell.execDetached(["sh", "-c", "killall fcitx5 2>/dev/null; sleep 0.8; fcitx5 -d"]);
                 page.saveStatus = "saved";
                 page.saveMessage = "Saved and fcitx5 restarted — new key is active";
             } else {
@@ -167,6 +170,7 @@ Item {
     }
 
     function saveConfig() {
+        if (saveProc.running) return;
         const isLocal = page.selectedProviderId === "local";
 
         if (!isLocal && (!page.apiKey || page.apiKey.trim() === "")) {
@@ -189,19 +193,8 @@ Item {
                 model: page.model,
                 api_key: page.apiKey
             };
-        const payload = JSON.stringify(config, null, 2);
-
-        const script =
-            'dir="$HOME/.config/linuxcomplete"; ' +
-            'mkdir -p "$dir"; ' +
-            'tmp=$(mktemp "$dir/.XXXXXX") || exit 1; ' +
-            'printf "%s" "$1" > "$tmp" && ' +
-            'chmod 600 "$tmp" && ' +
-            'mv -- "$tmp" "$dir/api_keys.json" || { rm -f "$tmp"; exit 1; }; ' +
-            '(killall fcitx5 2>/dev/null; sleep 0.8; setsid nohup fcitx5 -d >/dev/null 2>&1 &) ' +
-            '|| true';
-
-        saveProc.command = ["sh", "-c", script, "--", payload];
+        saveProc.input = JSON.stringify(config);
+        saveProc.command = ["python3", Core.PathService.configPath("scripts/api_key_helper.py"), "save"];
         saveProc.buffer = "";
         saveProc.running = true;
     }

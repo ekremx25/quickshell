@@ -26,6 +26,8 @@ Item {
     property string path: ""
     property string readBuffer: ""
     property string pendingText: ""
+    property string writingText: ""
+    property bool _writing: false
     // Set to true when a new write() arrives while another is still running.
     property bool _writeQueued: false
     readonly property string _coreDir: (Quickshell.env("XDG_CONFIG_HOME") || (Quickshell.env("HOME") + "/.config")) + "/quickshell/Services/core"
@@ -43,11 +45,13 @@ Item {
     function write(text) {
         if (root.path.length === 0) return;
         root.pendingText = text;
-        if (writeProc.running) {
+        if (root._writing) {
             // Don't spawn a new write mid-flight; the current one will pick up
             // the most recent pendingText once it finishes.
             root._writeQueued = true;
         } else {
+            root.writingText = root.pendingText;
+            root._writing = true;
             writeProc.running = true;
         }
     }
@@ -59,7 +63,7 @@ Item {
         id: readProc
         command: root.path.length > 0 ? ["cat", "--", root.path] : []
         running: false
-        stdout: SplitParser { onRead: data => { root.readBuffer += data; } }
+        stdout: SplitParser { splitMarker: ""; onRead: data => { root.readBuffer += data; } }
         onExited: exitCode => {
             // Exit code != 0 is normal for non-existent files (first run).
             root.loaded(root.readBuffer);
@@ -75,19 +79,22 @@ Item {
         // Atomic write via helper script: content passes as argv $2,
         // never through shell interpretation. Zero sh -c in this file.
         command: root.path.length > 0
-            ? [root._coreDir + "/atomic_write.sh", root.path, root.pendingText]
+            ? [root._coreDir + "/atomic_write.sh", root.path, root.writingText]
             : []
         running: false
         onExited: exitCode => {
             if (exitCode === 0) {
-                root.saved(root.pendingText);
+                root.saved(root.writingText);
             } else {
                 root.failed("write", exitCode, "");
             }
             // If another write is queued, restart with the latest content.
             if (root._writeQueued) {
                 root._writeQueued = false;
+                root.writingText = root.pendingText;
                 writeProc.running = true;
+            } else {
+                root._writing = false;
             }
         }
     }
