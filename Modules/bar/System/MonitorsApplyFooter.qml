@@ -25,9 +25,9 @@ Rectangle {
 
             Text {
                 font.family: Theme.fontFamily
-                text: root.page.awaitingConfirmation
+                text: root.page.persistenceError ? root.page.persistenceError : root.page.awaitingConfirmation
                     ? ("Keep this layout? Reverting in " + root.page.confirmationSeconds + " seconds.")
-                    : root.page.applyInProgress
+                    : root.page.monitorOperationBusy
                         ? "Applying display configuration…"
                         : root.page.pendingChanges()
                             ? "Review your changes before applying them."
@@ -97,7 +97,7 @@ Rectangle {
                 anchors.centerIn: parent
                 text: root.page.awaitingConfirmation
                     ? ("Keep · " + root.page.confirmationSeconds + "s")
-                    : root.page.applyInProgress
+                    : root.page.monitorOperationBusy
                         ? "Applying…"
                         : root.page.pendingChanges() ? "Apply" : "Saved"
                 color: applyArea.enabled ? Theme.foregroundFor(Theme.primary) : SettingsPalette.subtext

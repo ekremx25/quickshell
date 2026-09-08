@@ -36,7 +36,8 @@ Item {
     property string _rollbackDefaultName: ""
     property var _pendingConfig: ({})
     property bool hasPendingPreview: false
-    readonly property bool busy: applyProc.running || stepDelayTimer.running || mangoReloadProc.running
+    property string persistenceError: ""
+    readonly property bool busy: applyProc.running || stepDelayTimer.running || mangoReloadProc.running || profileSyncProc.running
     readonly property string niriScriptPath: configDir + "/Modules/bar/System/niri_apply.py"
 
     // Color mode lists are canonical in HyprMonitorCommands.js; kept here for UI binding.
@@ -458,6 +459,17 @@ Item {
 
     function confirmPreview() {
         if (!backend.hasPendingPreview) return false;
+        backend.persistenceError = "";
+        if (CompositorService.isHyprland) {
+            profileSyncProc.command = ["python3", backend.configDir + "/scripts/hyprmoncfg_sync.py", JSON.stringify(backend._pendingConfig)];
+            profileSyncProc.running = true;
+            return true;
+        }
+        finishConfirmation();
+        return true;
+    }
+
+    function finishConfirmation() {
         configStore.save(deepClone(backend._pendingConfig));
         backend.hasPendingPreview = false;
         backend._pendingConfig = ({});
@@ -535,6 +547,22 @@ Item {
         function onCompositorChanged() {
             if (CompositorService.compositor !== "unknown") {
                 refresh();
+            }
+        }
+    }
+
+    Process {
+        id: profileSyncProc
+        property string errorText: ""
+        onStarted: errorText = ""
+        stderr: SplitParser { onRead: data => profileSyncProc.errorText += data + "\n" }
+        onExited: function(exitCode, exitStatus) {
+            if (exitCode === 0) {
+                backend.finishConfirmation();
+            } else {
+                backend.persistenceError = "Profile sync failed. Previous settings restored; please retry.";
+                Log.warn("MonitorsBackend", profileSyncProc.errorText);
+                backend.revertPreview();
             }
         }
     }

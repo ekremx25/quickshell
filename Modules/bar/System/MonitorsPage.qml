@@ -19,6 +19,7 @@ Item {
     }
 
     property alias outputs: backend.outputs
+    property alias persistenceError: backend.persistenceError
     property alias selectedIdx: backend.selectedIdx
     property alias selectedOutput: backend.selectedOutput
     property alias colorModeOptions: backend.colorModeOptions
