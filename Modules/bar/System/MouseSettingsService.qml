@@ -13,8 +13,8 @@ Item {
     width: 0
     height: 0
 
-    readonly property bool supported: CompositorService.isHyprland || CompositorService.isMango
-    readonly property string compositorLabel: CompositorService.isHyprland ? "Hyprland" : (CompositorService.isMango ? "Mango" : "Unsupported")
+    readonly property bool supported: CompositorService.isHyprland || CompositorService.isMango || CompositorService.isNiri
+    readonly property string compositorLabel: CompositorService.isHyprland ? "Hyprland" : (CompositorService.isMango ? "Mango" : (CompositorService.isNiri ? "Niri" : "Unsupported"))
     readonly property string homePath: StandardPaths.writableLocation(StandardPaths.HomeLocation).toString().replace("file://", "")
     readonly property string hyprGeneralConfigPath: homePath + "/.config/hypr/custom/general.conf"
     readonly property string configPath: homePath + "/.config/quickshell/mouse_config.json"

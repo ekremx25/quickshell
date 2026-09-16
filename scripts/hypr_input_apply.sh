@@ -83,6 +83,8 @@ if [ "$compositor" = "hyprland" ] || { [ "$compositor" = "auto" ] && [ -n "${HYP
     apply_hyprland
 elif [ "$compositor" = "mango" ] || { [ "$compositor" = "auto" ] && [ -n "${MANGO_INSTANCE_SIGNATURE:-}" ]; }; then
     apply_mango
+elif [ "$compositor" = "niri" ] || { [ "$compositor" = "auto" ] && [ -n "${NIRI_SOCKET:-}" ]; }; then
+    python3 "$(dirname "$0")/niri_input_apply.py" "$sensitivity" "$scroll_factor" "$accel_profile" "$cursor_theme" "$cursor_size"
 else
     exit 1
 fi

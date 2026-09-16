@@ -134,7 +134,7 @@ Item {
                             Item { Layout.fillWidth: true }
                             Text {  text: mouseService.sensitivity.toFixed(2); color: Theme.primary; font.pixelSize: 12; font.bold: true; font.family: Theme.fontFamily }
                         }
-                        Text {  text: mouseService.compositorLabel === "Mango" ? "Controls Mango pointer and trackpad speed." : "Controls Hyprland `input.sensitivity`."; color: SettingsPalette.subtext; font.pixelSize: 11; font.family: Theme.fontFamily }
+                        Text {  text: mouseService.compositorLabel === "Mango" ? "Controls Mango pointer and trackpad speed." : (mouseService.compositorLabel === "Niri" ? "Controls Niri pointer acceleration speed." : "Controls Hyprland `input.sensitivity`."); color: SettingsPalette.subtext; font.pixelSize: 11; font.family: Theme.fontFamily }
                         Slider {
                             Layout.fillWidth: true
                             from: -1.0
@@ -154,7 +154,7 @@ Item {
                             Item { Layout.fillWidth: true }
                             Text {  text: mouseService.scrollFactor.toFixed(2) + "x"; color: Theme.cpYellow; font.pixelSize: 12; font.bold: true; font.family: Theme.fontFamily }
                         }
-                        Text {  text: mouseService.compositorLabel === "Mango" ? "Controls Mango wheel and trackpad scroll speed." : "Controls Hyprland `input.scroll_factor`."; color: SettingsPalette.subtext; font.pixelSize: 11; font.family: Theme.fontFamily }
+                        Text {  text: mouseService.compositorLabel === "Mango" ? "Controls Mango wheel and trackpad scroll speed." : (mouseService.compositorLabel === "Niri" ? "Controls Niri mouse wheel scroll speed." : "Controls Hyprland `input.scroll_factor`."); color: SettingsPalette.subtext; font.pixelSize: 11; font.family: Theme.fontFamily }
                         Slider {
                             Layout.fillWidth: true
                             from: 0.25
@@ -325,7 +325,7 @@ Item {
                             Item { Layout.fillWidth: true }
                             Text {  text: mouseService.cursorSize + " px"; color: Theme.cpMauve; font.pixelSize: 12; font.bold: true; font.family: Theme.fontFamily }
                         }
-                        Text {  text: mouseService.compositorLabel === "Mango" ? "Applied through Mango cursor settings." : "Applied using `hyprctl setcursor`."; color: SettingsPalette.subtext; font.pixelSize: 11; font.family: Theme.fontFamily }
+                        Text {  text: mouseService.compositorLabel === "Mango" ? "Applied through Mango cursor settings." : (mouseService.compositorLabel === "Niri" ? "Applied through Niri cursor settings." : "Applied using `hyprctl setcursor`."); color: SettingsPalette.subtext; font.pixelSize: 11; font.family: Theme.fontFamily }
                         Slider {
                             Layout.fillWidth: true
                             from: 16

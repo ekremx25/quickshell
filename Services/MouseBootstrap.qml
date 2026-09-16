@@ -11,7 +11,7 @@ Item {
     width: 0
     height: 0
 
-    readonly property bool supported: CompositorService.isHyprland || CompositorService.isMango
+    readonly property bool supported: CompositorService.isHyprland || CompositorService.isMango || CompositorService.isNiri
     readonly property string configPath: (Quickshell.env("HOME") || "") + "/.config/quickshell/mouse_config.json"
     readonly property string applyScriptPath: (Quickshell.env("HOME") || "") + "/.config/quickshell/scripts/hypr_input_apply.sh"
 

@@ -24,7 +24,10 @@ Rectangle {
         anchors.fill: parent
         hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
-        onClicked: notepadWindow.visible = !notepadWindow.visible
+        onClicked: {
+            if (!notepadWindow.visible) notepadWindow.positionUnderIcon()
+            notepadWindow.visible = !notepadWindow.visible
+        }
     }
 
     Text {
@@ -37,27 +40,53 @@ Rectangle {
     }
     
     // --- NOTEPAD WINDOW ---
-    PopupWindow {
+    PanelWindow {
         id: notepadWindow
+        screen: root.QsWindow.window ? root.QsWindow.window.screen : null
+        anchors { top: true; left: true }
+        margins { top: 51; left: 5 }
+
+        function positionUnderIcon() {
+            const bar = root.QsWindow.window
+            if (!bar || !bar.screen) return
+            const pos = bar.contentItem.mapFromItem(root, 0, 0)
+            // Resolve the icon inside its bar, including bottom/right bars.
+            const offsetX = bar.anchors.right && !bar.anchors.left
+                ? bar.screen.width - bar.width : 0
+            const offsetY = bar.anchors.bottom && !bar.anchors.top
+                ? bar.screen.height - bar.height : 0
+            const iconX = offsetX + pos.x
+            const iconY = offsetY + pos.y
+            margins.left = Math.round(Math.max(5, Math.min(
+                iconX + root.width / 2 - implicitWidth / 2,
+                bar.screen.width - implicitWidth - 5)))
+            // Prefer below; keep the panel visible when the icon is at the bottom.
+            const below = iconY + root.height + 5
+            margins.top = Math.round(Math.max(5,
+                below + implicitHeight <= bar.screen.height - 5
+                    ? below : iconY - implicitHeight - 5))
+        }
+
+        Timer {
+            interval: 100
+            repeat: true
+            running: notepadWindow.visible
+            onTriggered: notepadWindow.positionUnderIcon()
+        }
+        exclusionMode: ExclusionMode.Ignore
+        WlrLayershell.layer: WlrLayer.Overlay
+        WlrLayershell.keyboardFocus: visible ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+        onVisibleChanged: {
+            if (visible) Qt.callLater(function() {
+                notepadWindow.positionUnderIcon()
+                textArea.forceActiveFocus()
+            })
+        }
         visible: false
         implicitWidth: 320
         implicitHeight: 400
         color: "transparent"
 
-        anchor.window: root.QsWindow.window
-        anchor.onAnchoring: {
-            if (!anchor.window) return;
-            var win = anchor.window;
-            var isVertBar = win.height > win.width;
-            var itemPos = win.contentItem.mapFromItem(root, 0, 0);
-            if (isVertBar) {
-                notepadWindow.anchor.rect.x = -notepadWindow.width - 5;
-                notepadWindow.anchor.rect.y = itemPos.y + root.height / 2 - notepadWindow.height / 2;
-            } else {
-                notepadWindow.anchor.rect.x = Math.max(5, itemPos.x);
-                notepadWindow.anchor.rect.y = win.height + 5;
-            }
-        }
 
         Rectangle {
             anchors.fill: parent
@@ -93,6 +122,8 @@ Rectangle {
 
                     TextArea {
                         id: textArea
+                        focus: true
+                        Keys.onEscapePressed: notepadWindow.visible = false
                         placeholderText: "Take a note here..."
                         color: Theme.cpText
                         font.pixelSize: 13
