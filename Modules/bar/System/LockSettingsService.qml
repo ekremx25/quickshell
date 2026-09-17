@@ -147,6 +147,7 @@ Item {
                "    after_sleep_cmd = " + monitorOnCommand + "\n" +
                "    ignore_dbus_inhibit = true\n" +
                "    ignore_systemd_inhibit = true\n" +
+               "    ignore_wayland_inhibit = " + (ignoreMediaInhibit ? "true" : "false") + "\n" +
                "}\n\n" +
                dimScreenTimeoutBlock() +
                "listener {\n" +

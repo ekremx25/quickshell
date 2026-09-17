@@ -263,7 +263,7 @@ Item {
                         Text {
                             font.family: Theme.fontFamily
                             Layout.fillWidth: true
-                            text: lockService.ignoreMediaInhibit ? "Auto lock runs even if YouTube or other apps request idle inhibit." : "Media playback can temporarily prevent auto lock."
+                            text: lockService.ignoreMediaInhibit ? "Idle timers run even if YouTube or other apps request idle inhibit." : "Media playback can temporarily pause idle timers."
                             color: SettingsPalette.subtext
                             font.pixelSize: 11
                             wrapMode: Text.Wrap
