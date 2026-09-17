@@ -310,8 +310,9 @@ Required versions:
 ### Theming
 
 - **[matugen](https://github.com/InioX/matugen)** — Material You palette from wallpapers
-  - Arch AUR: `paru -S matugen-bin` (or `yay -S matugen-bin`)
-  - Cargo: `cargo install matugen`
+  - Arch: `sudo pacman -S matugen` (or AUR: `paru -S matugen-bin`)
+  - Fedora: `sudo dnf install matugen`
+  - Any supported distribution via Cargo: `cargo install matugen`
 
 ### Optional (feature-specific)
 
