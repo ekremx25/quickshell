@@ -38,15 +38,15 @@ Item {
                 Item { Layout.fillWidth: true }
                 Rectangle {
                     radius: 8
-                    color: lockService.hyprlandActive ? Theme.withAlpha(Theme.green, 0.14) : Theme.withAlpha(Theme.yellow, 0.14)
+                    color: lockService.compositorActive ? Theme.withAlpha(Theme.green, 0.14) : Theme.withAlpha(Theme.yellow, 0.14)
                     implicitWidth: statusRow.implicitWidth + 16
                     implicitHeight: 28
                     RowLayout {
                         id: statusRow
                         anchors.centerIn: parent
                         spacing: 6
-                        Text {  text: "●"; color: lockService.hyprlandActive ? Theme.green : Theme.cpYellow; font.pixelSize: 11; font.family: Theme.fontFamily }
-                        Text {  text: lockService.hyprlandActive ? "Hyprland active" : "Saved for Hyprland"; color: SettingsPalette.text; font.pixelSize: 11; font.bold: true; font.family: Theme.fontFamily }
+                        Text {  text: "●"; color: lockService.compositorActive ? Theme.green : Theme.cpYellow; font.pixelSize: 11; font.family: Theme.fontFamily }
+                        Text {  text: lockService.compositorActive ? lockService.compositorName + " active" : "Unsupported compositor"; color: SettingsPalette.text; font.pixelSize: 11; font.bold: true; font.family: Theme.fontFamily }
                     }
                 }
             }
@@ -293,7 +293,7 @@ Item {
                     id: statusText
                     anchors.fill: parent
                     anchors.margins: 12
-                    text: lockService.statusMessage.length > 0 ? lockService.statusMessage : (lockService.hyprlandActive ? "Settings are written to hyprlock.conf and hypridle.conf, then hypridle is reloaded." : "Settings are written for the next Hyprland session.")
+                    text: lockService.statusMessage.length > 0 ? lockService.statusMessage : (lockService.compositorActive ? "Settings are written to hyprlock.conf and hypridle.conf, then applied for " + lockService.compositorName + "." : "Lock settings are unavailable for this compositor.")
                     wrapMode: Text.Wrap
                     color: SettingsPalette.subtext
                     font.pixelSize: 12

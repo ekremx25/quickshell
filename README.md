@@ -318,6 +318,7 @@ Required versions:
 
 | Package | Feature |
 |---------|---------|
+| `hypridle` + `hyprlock` | Lock, dim, monitor-off and suspend timers on Hyprland and Niri |
 | `hyprsunset` | Night Light on Hyprland (required) |
 | `gammastep` | Night Light on Niri / MangoWC (required) |
 | `kconfig` | Fonts picker (`kreadconfig6` / `kwriteconfig6` write to `kdeglobals`) |
@@ -359,6 +360,7 @@ yay -S qt6ct-kde
 
    ```kdl
    spawn-at-startup "quickshell"
+   spawn-at-startup "sh" "-c" "pgrep -x hypridle >/dev/null || exec hypridle -c $HOME/.config/hypr/lock/hypridle.conf"
    ```
    </details>
 

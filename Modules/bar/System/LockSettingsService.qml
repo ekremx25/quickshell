@@ -16,6 +16,9 @@ Item {
 
     readonly property bool supported: true
     readonly property bool hyprlandActive: CompositorService.isHyprland
+    readonly property bool niriActive: CompositorService.isNiri
+    readonly property bool compositorActive: hyprlandActive || niriActive
+    readonly property string compositorName: niriActive ? "Niri" : (hyprlandActive ? "Hyprland" : "Unsupported compositor")
     readonly property string homePath: Core.PathService.homePath
     readonly property string lockConfigPath: Core.PathService.configPath("lock_config.json")
     readonly property string hyprLockDir: Core.PathService.configHome + "/hypr/lock"
@@ -131,12 +134,17 @@ Item {
     }
 
     function hypridleText() {
+        // Keep the generated file portable between sessions. Trying Niri's
+        // live IPC first and falling back to Hyprland avoids persisting a
+        // compositor-specific command when the user switches at login.
+        var monitorOnCommand = "sh -c 'niri msg action power-on-monitors >/dev/null 2>&1 || hyprctl dispatch dpms on'"
+        var monitorOffCommand = "sh -c 'niri msg action power-off-monitors >/dev/null 2>&1 || hyprctl dispatch dpms off'"
         return "# Managed by Quickshell\n" +
                "general {\n" +
                "    lock_cmd = " + hyprlockLaunchCommand() + "\n" +
                "    unlock_cmd = killall hyprlock\n" +
                "    before_sleep_cmd = " + hyprlockLaunchCommand() + "\n" +
-               "    after_sleep_cmd = hyprctl dispatch dpms on\n" +
+               "    after_sleep_cmd = " + monitorOnCommand + "\n" +
                "    ignore_dbus_inhibit = true\n" +
                "    ignore_systemd_inhibit = true\n" +
                "}\n\n" +
@@ -148,8 +156,8 @@ Item {
                "}\n\n" +
                "listener {\n" +
                "    timeout = " + (screenOffTimeoutMinutes * 60) + "\n" +
-               "    on-timeout = hyprctl dispatch dpms off\n" +
-               "    on-resume = hyprctl dispatch dpms on\n" +
+               "    on-timeout = " + monitorOffCommand + "\n" +
+               "    on-resume = " + monitorOnCommand + "\n" +
                "}\n\n" +
                "listener {\n" +
                "    timeout = " + (suspendTimeoutMinutes * 60) + "\n" +
@@ -171,7 +179,7 @@ Item {
     }
 
     function lockNow() {
-        if (hyprlandActive) {
+        if (compositorActive) {
             Quickshell.execDetached(["/bin/bash", "-lc", hyprlockLaunchCommand()])
         } else {
             Quickshell.execDetached(["/usr/bin/loginctl", "lock-session"])
@@ -180,10 +188,12 @@ Item {
 
     function reloadIdle() {
         if (reloadProc.running) return
-        if (!hyprlandActive) {
-            statusMessage = "Saved for next Hyprland session"
+        if (!compositorActive) {
+            statusMessage = "This compositor is not supported"
+            isBusy = false
             return
         }
+        reloadProc.command = ["/usr/bin/systemctl", "--user", "restart", "hypridle.service"]
         reloadProc.running = true
     }
 
@@ -260,14 +270,7 @@ Item {
     Core.TextDataStore {
         id: hypridleStore
         path: service.hypridleConfigPath
-        onSaved: {
-            if (service.hyprlandActive) {
-                reloadProc.running = true
-            } else {
-                service.isBusy = false
-                service.statusMessage = "Saved for next Hyprland session"
-            }
-        }
+        onSaved: service.reloadIdle()
         onFailed: function(phase, exitCode, details) {
             service.isBusy = false
             service.statusMessage = "Failed to write hypridle.conf"
@@ -277,16 +280,11 @@ Item {
 
     Process {
         id: reloadProc
-        command: [
-            "/usr/bin/systemctl",
-            "--user",
-            "restart",
-            "hypridle.service"
-        ]
+        command: []
         running: false
         onExited: function(exitCode) {
             service.isBusy = false
-            service.statusMessage = exitCode === 0 ? "Applied by Quickshell" : "Saved, but live reload failed"
+            service.statusMessage = exitCode === 0 ? "Applied for " + service.compositorName : "Saved, but live reload failed"
             if (exitCode !== 0) Log.warn("LockSettingsService", "hypridle reload failed with exit code " + exitCode)
         }
     }
