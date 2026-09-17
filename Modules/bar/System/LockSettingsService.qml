@@ -194,7 +194,12 @@ Item {
             isBusy = false
             return
         }
-        reloadProc.command = ["/usr/bin/systemctl", "--user", "restart", "hypridle.service"]
+        reloadProc.command = [
+            "/bin/bash", "-lc",
+            "systemctl --user stop hypridle.service; " +
+            "pkill -x hypridle >/dev/null 2>&1 || true; " +
+            "systemctl --user start hypridle.service"
+        ]
         reloadProc.running = true
     }
 

@@ -360,7 +360,6 @@ yay -S qt6ct-kde
 
    ```kdl
    spawn-at-startup "quickshell"
-   spawn-at-startup "sh" "-c" "pgrep -x hypridle >/dev/null || exec hypridle -c $HOME/.config/hypr/lock/hypridle.conf"
    ```
    </details>
 
@@ -381,6 +380,16 @@ yay -S qt6ct-kde
    </details>
 
    Or launch manually: `quickshell`.
+
+4. **Enable the lock and idle timer service** (Hyprland and Niri)
+
+   ```bash
+   systemctl --user enable --now hypridle.service
+   ```
+
+   Start `hypridle` through this user service only. Running it a second time
+   from the compositor startup file would leave two independent timeout sets
+   active.
 
 ## Configuration
 
