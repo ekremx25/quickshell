@@ -29,6 +29,7 @@ Built on top of [outfoxxed's Quickshell framework](https://github.com/outfoxxed/
 - [Configuration](#configuration)
 - [Activity Monitor](#activity-monitor)
 - [Night Light](#night-light)
+- [Power Profiles](#power-profiles)
 - [Audio Equaliser](#audio-equaliser)
 - [Architecture](#architecture)
 - [Troubleshooting](#troubleshooting)
@@ -50,6 +51,7 @@ Built on top of [outfoxxed's Quickshell framework](https://github.com/outfoxxed/
 - **Notification Centre** — Grouped history, DND, per-app filters, customisable popup position
 - **System Tray** — Standard StatusNotifierItem protocol
 - **Clipboard Manager** — History with copy-on-click
+- **Power Profiles** — Performance, Balanced and Power Saver with automatic Arch/Fedora backend detection
 
 ### Dock
 - Animated zoom effect on hover
@@ -324,6 +326,7 @@ Required versions:
 | `grim` + `slurp` | Screenshot helpers |
 | `imagemagick` | Wallpaper Spectrum image sampling and the module colour eyedropper (`magick`) |
 | `wl-clipboard` | Copy captured screenshots to the clipboard |
+| `power-profiles-daemon` (Arch) or `tuned-ppd` + `python3-gobject` (Fedora) | Power Profile module; supported profiles are detected from the active service |
 | `hyprmoncfg` + `xdg-terminal-exec` | Optional Hyprland display-profile management in Display Studio; not required by the built-in monitor settings |
 
 ### One-liner install (Arch)
@@ -331,7 +334,7 @@ Required versions:
 ```bash
 sudo pacman -S quickshell networkmanager bluez bluez-utils pipewire \
   pipewire-pulse wireplumber libpulse jq python socat inotify-tools \
-  kconfig fontconfig \
+  kconfig fontconfig power-profiles-daemon \
   ttf-jetbrains-mono-nerd ttf-inter ttf-font-awesome
 
 # qt6ct (AUR fork with KDE integration)
@@ -398,6 +401,32 @@ All settings live in `~/.config/quickshell/` and are edited through the in-app *
 | `desktop_widgets.json` | Per-monitor-role desktop widget positions (generated locally) |
 
 All writes are **atomic** (temp file + rename). A shell crash mid-save never leaves a corrupt config.
+
+## Power Profiles
+
+The bar's **Power Profile** module is portable and contains no user-specific
+paths. It resolves the helper relative to each user's XDG configuration
+directory and automatically chooses the power service available on the host:
+
+- **Arch Linux:** uses `powerprofilesctl` from `power-profiles-daemon`.
+- **Fedora:** uses the standard Power Profiles D-Bus API exposed by `tuned-ppd`.
+
+Install and start the matching backend once:
+
+```bash
+# Arch Linux
+sudo pacman -S power-profiles-daemon
+sudo systemctl enable --now power-profiles-daemon.service
+
+# Fedora
+sudo dnf install tuned-ppd python3-gobject
+sudo systemctl enable --now tuned.service
+```
+
+The popup only displays profiles reported by the active backend, so systems
+without hardware support for Performance mode will not show an unusable
+option. Do not run `power-profiles-daemon` and `tuned-ppd` at the same time;
+both provide the same D-Bus service.
 
 ### Multi-monitor roles and notifications
 

@@ -104,7 +104,7 @@ Rectangle {
                 // Not available message
                 Text {
                     visible: !root.available
-                    text: "powerprofilesctl not found"
+                    text: "Power profile service unavailable"
                     color: Theme.overlay2
                     font.pixelSize: 12
                     font.family: Theme.fontFamily
@@ -119,7 +119,7 @@ Rectangle {
                         Layout.fillWidth: true
                         height: 42
                         radius: 10
-                        visible: root.available
+                        visible: root.available && powerProfileService.availableProfiles.indexOf(modelData) !== -1
 
                         property bool isActive: root.currentProfile === modelData
                         property var pData: root.profileInfo(modelData)
