@@ -121,7 +121,7 @@ function resolveDesktopKey(rawId, desktopEntries, desktopIcons, desktopCommands)
 function normalizeAppId(appId) {
     if (!appId) return "";
     var lower = String(appId).toLowerCase();
-    return NORMALIZED_IDS[lower] || appId;
+    return NORMALIZED_IDS[lower] || lower;
 }
 
 function resolveThemedIconName(iconName) {

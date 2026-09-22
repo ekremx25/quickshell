@@ -28,12 +28,6 @@
       "appId": "org.telegram.desktop"
     },
     {
-      "name": "Zen",
-      "icon": "zen",
-      "cmd": "env GDK_BACKEND=wayland MOZ_ENABLE_WAYLAND=1 /opt/zen-browser-bin/zen-bin",
-      "appId": "zen"
-    },
-    {
       "name": "Virt-manager",
       "icon": "virt-manager",
       "cmd": "virt-manager",
@@ -52,18 +46,6 @@
       "appId": "iriunwebcam"
     },
     {
-      "name": "Antigravity",
-      "icon": "antigravity-ide",
-      "cmd": "/usr/bin/antigravity-ide",
-      "appId": "antigravity-ide"
-    },
-    {
-      "name": "Affinity.exe",
-      "icon": "affinity.exe",
-      "cmd": "__desktop__:Affinity",
-      "appId": "affinity.exe"
-    },
-    {
       "name": "Lutris",
       "icon": "net.lutris.lutris",
       "cmd": "__desktop__:net.lutris.Lutris",
@@ -76,28 +58,28 @@
       "appId": "steam"
     },
     {
-      "name": "Codex",
-      "icon": "chatgpt",
-      "cmd": "__desktop__:chatgpt",
-      "appId": "Chatgpt"
+      "name": "Edge",
+      "icon": "microsoft-edge-dev",
+      "cmd": "microsoft-edge-dev",
+      "appId": "microsoft-edge-dev"
     },
     {
-      "name": "Edge",
-      "icon": "microsoft-edge-stable",
-      "cmd": "__desktop__:microsoft-edge",
-      "appId": "microsoft-edge-stable"
+      "name": "Open-video-downloader",
+      "icon": "open-video-downloader",
+      "cmd": "open-video-downloader",
+      "appId": "open-video-downloader"
+    },
+    {
+      "name": "ChatGPT",
+      "icon": "chatgpt",
+      "cmd": "__desktop__:chatgpt",
+      "appId": "chatgpt"
     },
     {
       "name": "OBS Studio",
       "icon": "com.obsproject.Studio",
       "cmd": "obs",
       "appId": "obs"
-    },
-    {
-      "name": "Youtube-dl-gui",
-      "icon": "youtube-dl-gui",
-      "cmd": "youtube-dl-gui",
-      "appId": "youtube-dl-gui"
     }
   ],
   "leftModules": [

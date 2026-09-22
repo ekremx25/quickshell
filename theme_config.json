@@ -1,10 +1,27 @@
 {
   "materialYou": true,
-  "wallpaperPath": "~/Pictures/Wal/CanadaDayFogo.jpg",
+  "wallpaperSource": "desktop",
+  "wallpaperPath": "~/Pictures/wallpapers/Messy-Room.jpg",
   "mode": "dark",
-  "matugenType": "scheme-tokyo-night",
+  "matugenType": "scheme-wallpaper-spectrum",
   "applyToKitty": true,
-  "applyToGtk": false,
   "liveUpdate": true,
-  "_schemaVersion": 1
+  "manualAccentColors": [
+    "",
+    "",
+    "",
+    "",
+    "",
+    ""
+  ],
+  "moduleAccentColors": {
+    "cpu": "#77eeb3",
+    "ram": "#e8e8e8",
+    "workspaces": "#ffffff",
+    "calendar": "#77b3ee",
+    "notepad": "#77b3ee",
+    "weather": "#bbf7bb",
+    "clipboard": "#b3ee77",
+    "notification": "#51a7e4"
+  }
 }
