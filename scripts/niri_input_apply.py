@@ -8,7 +8,7 @@ if not re.fullmatch(r"[A-Za-z0-9._+ -]{1,96}", theme): raise ValueError("Invalid
 p = Path.home()/".config/niri/config.kdl"
 s=p.read_text()
 # Modify only the simple mouse/cursor blocks, preserving unrelated properties.
-def update_block(s, name, values):
+def update_block(s, name, values, create=False):
  pattern = r"(?m)^(\s*"+name+r"\s*\{)([^{}]*)(\})"
  def change(m):
   body=m[2]
@@ -16,10 +16,13 @@ def update_block(s, name, values):
    body=re.sub(r"(?m)(?<![\w-])"+key+r"\s+(?:\"[^\"]*\"|[^;\s}]+)\s*;?", "", body)
   return m[1]+body.rstrip()+"\n"+"".join("  "+k+" "+v+";\n" for k,v in values.items())+" }"
  result,n=re.subn(pattern,change,s)
+ if n == 0 and create:
+  block = name + " {\n" + "".join("  "+k+" "+v+";\n" for k,v in values.items()) + "}\n"
+  return result.rstrip() + "\n\n" + block
  if n!=1: raise ValueError("Expected one simple "+name+" block; config unchanged")
  return result
 s=update_block(s,"mouse",{"accel-speed":str(speed),"scroll-factor":str(scroll),"accel-profile":json.dumps(profile)})
-s=update_block(s,"cursor",{"xcursor-theme":json.dumps(theme),"xcursor-size":str(size)})
+s=update_block(s,"cursor",{"xcursor-theme":json.dumps(theme),"xcursor-size":str(size)},create=True)
 fd,tmp=tempfile.mkstemp(prefix=".mouse-",suffix=".kdl",dir=p.parent)
 try:
  with os.fdopen(fd,"w") as f: f.write(s)
