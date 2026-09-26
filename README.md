@@ -242,27 +242,10 @@ live Mango socket instead of assuming that Mango is active merely because the
 `mmsg` executable is installed. The integration does not call Niri IPC while a
 Mango session is running.
 
-### Included integration
-
-- **Workspaces / tags** — live `all-tags` events with independent local tag
-  targets on each monitor. In role mode, the primary display can show 1–5 and
-  the secondary display 6–10 while Mango still receives the correct local tag.
-- **Dock** — live `all-clients` tracking, running indicators, focus and close
-  actions, with polling used only if the Mango event stream is unavailable.
-- **Monitor discovery** — reads connected outputs directly from
-  `mmsg get all-monitors`; `wlr-randr` is not required for detection.
-- **Per-output controls** — scale, position, HDR and VRR are written as separate
-  `monitorrule` entries. Changing one display never copies its scale to the
-  other display. A neighbouring output is updated only when its position must
-  move to prevent an overlap.
-- **Safe display changes** — configuration is validated before replacement,
-  written atomically, previewed for 10 seconds and reverted automatically unless
-  **Keep** is selected.
-- **Mouse settings** — sensitivity, scroll factor, acceleration profile, cursor
-  theme and cursor size are stored in a Quickshell-managed block in
-  `~/.config/mango/config.conf` and applied with `reload_config`.
-- **Session actions** — workspace switching, window focus/close and logout use
-  Mango dispatch commands.
+The integration covers live tags and windows, dock actions, per-output scale,
+placement, HDR/VRR, mouse settings and session actions. Display changes use a
+10-second **Keep / Revert** preview. Monitor discovery uses `mmsg` directly;
+`wlr-randr` is not required.
 
 > **Current-mode note:** Mango 0.16's monitor IPC reports the active mode and
 > logical geometry, but not the complete list of modes advertised by the
@@ -270,18 +253,9 @@ Mango session is running.
 > rate on Mango while still allowing independent scale, placement, HDR and VRR
 > control.
 
-The Mango configuration writer owns only these marked sections and preserves
-the rest of the user's configuration:
-
-```ini
-# BEGIN QUICKSHELL MANAGED MONITORS
-# monitorrule=...
-# END QUICKSHELL MANAGED MONITORS
-
-# BEGIN QUICKSHELL MANAGED MOUSE
-# mouse / trackpad / cursor settings
-# END QUICKSHELL MANAGED MOUSE
-```
+Monitor and mouse settings are written only inside the
+`QUICKSHELL MANAGED MONITORS` and `QUICKSHELL MANAGED MOUSE` blocks of
+`~/.config/mango/config.conf`; other settings are preserved.
 
 Required versions:
 
@@ -419,13 +393,9 @@ All settings live in `~/.config/quickshell/` and are edited through the in-app *
 | `weather_config.json` | Main weather location and configurable world-clock cities (generated locally) |
 | `desktop_widgets.json` | Per-monitor-role desktop widget positions (generated locally) |
 
-All writes are **atomic** (temp file + rename). A shell crash mid-save never leaves a corrupt config.
-
 ## Power Profiles
 
-The bar's **Power Profile** module is portable and contains no user-specific
-paths. It resolves the helper relative to each user's XDG configuration
-directory and automatically chooses the power service available on the host:
+The **Power Profile** module uses the available system backend:
 
 - **Arch Linux:** uses `powerprofilesctl` from `power-profiles-daemon`.
 - **Fedora:** uses the standard Power Profiles D-Bus API exposed by `tuned-ppd`.
@@ -550,17 +520,10 @@ QML tests use isolated temporary configuration and an offscreen renderer;
 they require Quickshell. Pointer-event tests also require the Qt 6
 `qmltestrunner` (Qt Quick Test). JavaScript checks require Node.js.
 
-Coverage includes escaped NetworkManager fields, silent monitor reconnects,
-queued refresh requests, Wi-Fi stdin password transport and error messages,
-four-direction dock layout, real pointer-event delivery, metadata parsing,
-and selectable outputs with stale monitor roles. Stateful fake-PipeWire tests
-exercise live EQ updates, channel retries, disappearing streams, concurrent
-recovery, rollback, and filesystem error injection. Existing palette,
-workspace and monitor-role tests remain part of the suite.
-
-These checks do not replace live testing of every compositor, display and
-audio device. The fake command tests do not change the user's real network or
-PipeWire session.
+Tests cover network reconnects and password transport, dock layout and pointer
+interaction, monitor selection, theming, and EQ live updates and rollback.
+Fake system commands keep network/audio tests isolated from the real session.
+Live compositor and hardware checks are still necessary.
 
 ### World clocks
 
@@ -674,19 +637,15 @@ reports `applied live`. Initial setup, migration from an older filter, or
 other changes requiring filter reconstruction can still restart the audio
 services and briefly interrupt playback.
 
-- State is parsed as data, never executed as shell code; state writes use an
-  atomic replacement with private permissions.
-- Apply, switch, disable and recovery share a file lock. Background recovery
-  skips a busy operation rather than modifying the graph concurrently.
-- Channel retries preserve an already connected channel. Streams that close
-  between listing and moving do not fail the whole operation; real failures
-  still return a nonzero exit code.
-- Failed apply operations attempt to restore the previous configuration and
-  audio routing. A live-update failure attempts to restore the old gains.
-- An incomplete rollback retains its backup and the transaction marker at
-  `${XDG_STATE_HOME:-$HOME/.local/state}/quickshell/eq_filter_chain.pending`.
-  While that marker exists, further apply, switch, disable and recovery
-  commands are blocked to avoid using mixed configuration.
+EQ state is read as data and written atomically with private permissions.
+Operations share a lock; recovery skips busy operations. Channel retries and
+closed-stream handling avoid unnecessary failures.
+
+Failed apply operations attempt to restore the previous configuration and
+audio state. If rollback is incomplete, the backup and
+`${XDG_STATE_HOME:-$HOME/.local/state}/quickshell/eq_filter_chain.pending`
+are retained. The marker blocks further apply, switch, disable and recovery
+commands until the configuration is repaired.
 
 **Recovery limits:** there is no automatic crash-recovery command. Do not
 blindly delete the pending marker: inspect the reported backup, restore the
@@ -702,47 +661,15 @@ The last known physical sink is stored in `~/.local/state/quickshell/eq_filter_c
 
 ## Architecture
 
-A short tour for contributors. Full source is under [`Services/`](Services/), [`Modules/`](Modules/), and [`Widgets/`](Widgets/).
+- [`Services/`](Services/) — shared state, compositor adapters and system integrations.
+- [`Modules/`](Modules/) — bar, dock and settings components.
+- [`Widgets/`](Widgets/) — shared visual components and theme.
+- [`Services/core/`](Services/core/) — persistence, parsing and file watching.
+- [`shell.qml`](shell.qml) — staged startup to keep the initial frame responsive.
 
-### Staged loading — [`shell.qml`](shell.qml)
-
-The shell boots in three phases to speed up the first visible frame:
-
-| Phase | Delay | Loads |
-|:-----:|:-----:|-------|
-| 1 | 0 ms | `ShellBootstrap` + `Bar` |
-| 2 | 300 ms | `EqBootstrap`, `MouseBootstrap` |
-| 3 | 600 ms | `Dock`, `WeatherDesktop`, `WorldClockDesktop`, `MarketsDesktop`, `ToastHost`, `VolumeOSD` |
-
-### Core persistence — [`Services/core/`](Services/core/)
-
-| File | Role |
-|------|------|
-| `JsonDataStore.qml` | Schema versioning with `migrate()` and `validate()` hooks, default fallback |
-| `TextDataStore.qml` | Atomic write (temp + rename) + write queue (no data loss on rapid saves) |
-| `FileChangeWatcher.qml` | `inotifywait` with automatic polling fallback when `inotify-tools` is missing |
-| `atomic_write.sh` | Argv-based write helper — zero shell interpretation, no injection risk |
-
-### Central module registry
-
-Bar and dock modules are declared once in [`ModuleRegistry.js`](Modules/bar/ModuleRegistry.js), while [`ModuleCatalog.qml`](Modules/bar/ModuleCatalog.qml) owns their visual factories. The registry provides stable IDs, placement capabilities, alias migrations, automatic layout normalization and a runtime catalog health check. See the [module registry contributor guide](docs/MODULE_REGISTRY.md) for the schema and extension workflow.
-
-### Central workspace model
-
-[`WorkspaceService.qml`](Services/WorkspaceService.qml) owns one compositor event stream and one normalized workspace model for every bar and dock consumer. Active workspaces are tracked per monitor, role-based numbering remains stable when HDMI/DP ports change, and old occupied workspaces stay visible during layout migration. Display mode, range size, empty/special visibility, scrolling and icon limits are persisted in `bar_config.json`.
-
-### Compositor abstraction — [`Services/CompositorService.qml`](Services/CompositorService.qml)
-
-A singleton that detects the active compositor from environment variables and exposes a uniform API (`monitors`, `focusWindow`, `powerOnMonitors`, …) so modules never need to special-case Hyprland vs. Niri vs. Mango.
-
-Mango's `all-monitors`, `all-tags` and `all-clients` payloads are normalised by
-[`MangoIpc.js`](Services/core/MangoIpc.js). This keeps Mango-specific field names
-out of workspace, dock and monitor UI components and makes the parser logic
-directly testable without a running compositor.
-
-### Staged, defensive modules
-
-Network and VPN monitor processes reconnect with bounded backoff and refresh their snapshots after starting. EQ recovery is serialised with foreground operations and respects incomplete-transaction guards. Other integrations have their own lifecycle handling; reconnect behaviour should be checked for the compositor and service in use.
+Bar and dock modules share a registry and visual catalog. See the
+[module registry guide](docs/MODULE_REGISTRY.md) and
+[contribution guide](CONTRIBUTING.md) before adding a module.
 
 ## Troubleshooting
 
@@ -803,15 +730,15 @@ systemctl enable --now bluetooth
 <details>
 <summary><b>The equaliser has no effect</b></summary>
 
-Apply a flat curve and inspect PipeWire:
+Inspect the current state without changing the EQ curve:
 
 ```bash
-~/.config/quickshell/scripts/eq_filter_chain.sh apply 0 0 0 0 0 0 0 0 0 0 auto
 ~/.config/quickshell/scripts/eq_filter_chain.sh status
-wpctl status | grep -E "effect_input.eq|filter-chain"
+wpctl status
 ```
 
-You should see `conf_exists=yes`, plus both `effect_input.eq` and `filter-chain` in `wpctl status`. If they're missing, confirm the PipeWire / WirePlumber / libpulse packages from the Core dependency list are installed.
+Check for `conf_exists=yes` and the EQ nodes. See [Audio Equaliser](#audio-equaliser)
+for setup and incomplete-transaction recovery precautions.
 </details>
 
 <details>
@@ -859,17 +786,11 @@ Inspect the current role map:
 cat ~/.config/quickshell/monitor_runtime.json
 ```
 
-To rebuild only the local physical-display mapping, keep a recoverable backup
-and restart Quickshell:
-
-```bash
-mv ~/.config/quickshell/monitor_identities.json \
-   ~/.config/quickshell/monitor_identities.json.bak
-quickshell kill
-quickshell --daemonize
-```
-
-The role manager recreates the file from the displays currently connected.
+An unmatched connected output remains selectable by its current connector
+name. Physical-role remapping is described under
+[multi-monitor roles](#multi-monitor-roles-and-notifications). Back up local
+identity files before changing mappings; restarting alone does not guarantee
+that every compositor will rebuild them.
 </details>
 
 ## Links
