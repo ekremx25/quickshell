@@ -9,7 +9,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 KEYS = ("XDG_CURRENT_DESKTOP", "XDG_SESSION_DESKTOP", "NIRI_SOCKET",
-        "MANGO_INSTANCE_SIGNATURE", "HYPRLAND_INSTANCE_SIGNATURE")
+        "MANGO_INSTANCE_SIGNATURE", "HYPRLAND_INSTANCE_SIGNATURE", "SWAYSOCK")
 
 
 class CompositorRoutingTests(unittest.TestCase):
@@ -66,6 +66,34 @@ class CompositorRoutingTests(unittest.TestCase):
                     js = source + "\nconsole.log(fromEnvironment(..." + json.dumps(args) + "));"
                     actual = subprocess.check_output(["node", "-e", js], text=True).strip()
                     self.assertEqual(actual, expected)
+
+    def test_workspace_snapshot_routes_without_stale_hints(self):
+        for name in ("niri", "hyprctl", "mmsg"):
+            self.command(name, 'echo "' + name + ' $*" >> "$ROUTING_LOG"; printf \'[]\\n\'')
+        cases = [
+            ({"XDG_CURRENT_DESKTOP": "niri", "HYPRLAND_INSTANCE_SIGNATURE": "old"}, "niri", "<<<OUTPUTS>>>"),
+            ({"XDG_CURRENT_DESKTOP": "Mango", "NIRI_SOCKET": "old"}, "mmsg", "<<<MANGO_TAGS>>>"),
+            ({"XDG_CURRENT_DESKTOP": "Hyprland", "NIRI_SOCKET": "old"}, "hyprctl", "<<<MONITORS>>>"),
+            ({"XDG_CURRENT_DESKTOP": "KDE", "HYPRLAND_INSTANCE_SIGNATURE": "old"}, None, None),
+            ({"NIRI_SOCKET": "niri", "HYPRLAND_INSTANCE_SIGNATURE": "old"}, None, None),
+            ({"NIRI_SOCKET": "niri"}, "niri", "<<<OUTPUTS>>>"),
+            ({"XDG_CURRENT_DESKTOP": "sway", "SWAYSOCK": "sway", "HYPRLAND_INSTANCE_SIGNATURE": "old"}, None, None),
+        ]
+        for values, command, marker in cases:
+            with self.subTest(values=values):
+                self.log.write_text("")
+                result = self.run_script("workspace_snapshot.sh", env=dict(self.env, **values))
+                calls = self.log.read_text().splitlines()
+                if command is None:
+                    self.assertEqual(result.returncode, 1, result.stderr)
+                    self.assertEqual(result.stdout, "<<<END>>>\n")
+                    self.assertEqual(calls, [])
+                else:
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    self.assertTrue(result.stdout.startswith(marker + "\n"), result.stdout)
+                    self.assertTrue(result.stdout.endswith("<<<END>>>\n"), result.stdout)
+                    self.assertEqual(len(calls), 2 if command == "mmsg" else 3)
+                    self.assertTrue(all(call.startswith(command + " ") for call in calls), calls)
 
     def test_mango_live_fallback_not_installed_binary(self):
         self.assertEqual(self.run_script("detect_compositor.sh").stdout.strip(), "unknown")
