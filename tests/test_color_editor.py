@@ -40,9 +40,20 @@ ShellRoot {
         interval: 600; running: true
         onTriggered: {
             try {
+                const defaults = BarDefaults.createWorkspacesConfig();
+                const propertyNames = {format: "selectedFormat", style: "selectedStyle", transparent: "isTransparent"};
+                // Start away from every default so a missing reset assignment cannot pass.
+                for (const key of Object.keys(defaults)) {
+                    const property = propertyNames[key] || key;
+                    const value = defaults[key];
+                    workspaces[property] = typeof value === "boolean" ? !value
+                        : typeof value === "number" ? value + 1 : "test-non-default";
+                }
                 workspaces.resetWorkspaceSettings();
-                check(workspaces.selectedStyle === "circle" && workspaces.workspaceCount === 4 && workspaces.maxIcons === 3, "reset uses current defaults");
-                check(workspaces.showSpecial && workspaces.showApps && workspaces.isTransparent === BarDefaults.createWorkspacesConfig().transparent, "default workspace toggles");
+                for (const key of Object.keys(defaults)) {
+                    const property = propertyNames[key] || key;
+                    check(workspaces[property] === defaults[key], "reset uses current default for " + key);
+                }
                 check(editor.readyColors.length === 72, "preset count");
                 const colors = {};
                 for (const sample of editor.readyColors) {
