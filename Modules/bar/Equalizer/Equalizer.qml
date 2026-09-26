@@ -23,28 +23,28 @@ Rectangle {
     property bool hasMedia: currentPlayer !== null
     property bool isPlaying: currentPlayer ? currentPlayer.isPlaying : false
 
-    EqualizerBackend { id: backend }
+    EqualizerBackend { id: equalizerBackend }
 
     readonly property var defaultSink: Pipewire.defaultAudioSink
     readonly property var defaultSource: Pipewire.defaultAudioSource
-    property alias eqFrequencies: backend.eqFrequencies
-    property alias eqBands: backend.eqBands
-    property alias selectedPreset: backend.selectedPreset
-    property alias applyStatus: backend.applyStatus
-    property alias sinkDisplayName: backend.sinkDisplayName
-    property alias sourceDisplayName: backend.sourceDisplayName
-    property alias sinkVolumePercent: backend.sinkVolumePercent
-    property alias sourceVolumePercent: backend.sourceVolumePercent
-    property alias sinkMuted: backend.sinkMuted
-    property alias sourceMuted: backend.sourceMuted
-    property alias currentSinkName: backend.currentSinkName
-    property alias currentSourceName: backend.currentSourceName
-    property alias availableSinks: backend.availableSinks
-    property alias hasPendingEqChanges: backend.hasPendingEqChanges
-    readonly property alias presetNames: backend.presetNames
+    property alias eqFrequencies: equalizerBackend.eqFrequencies
+    property alias eqBands: equalizerBackend.eqBands
+    property alias selectedPreset: equalizerBackend.selectedPreset
+    property alias applyStatus: equalizerBackend.applyStatus
+    property alias sinkDisplayName: equalizerBackend.sinkDisplayName
+    property alias sourceDisplayName: equalizerBackend.sourceDisplayName
+    property alias sinkVolumePercent: equalizerBackend.sinkVolumePercent
+    property alias sourceVolumePercent: equalizerBackend.sourceVolumePercent
+    property alias sinkMuted: equalizerBackend.sinkMuted
+    property alias sourceMuted: equalizerBackend.sourceMuted
+    property alias currentSinkName: equalizerBackend.currentSinkName
+    property alias currentSourceName: equalizerBackend.currentSourceName
+    property alias availableSinks: equalizerBackend.availableSinks
+    property alias hasPendingEqChanges: equalizerBackend.hasPendingEqChanges
+    readonly property alias presetNames: equalizerBackend.presetNames
     readonly property bool eqIsBypassed: root.applyStatus === "Disabled" || root.applyStatus === "Disabling..."
     readonly property string eqModeLabel: root.eqIsBypassed ? "Bypassed" : (root.selectedPreset === "Custom" ? "Custom curve" : "Preset mode")
-    readonly property string eqStateLabel: backend.isBusy ? "Applying" : (root.eqIsBypassed ? "Bypassed" : (root.hasPendingEqChanges ? "Pending" : "Live"))
+    readonly property string eqStateLabel: equalizerBackend.isBusy ? "Applying" : (root.eqIsBypassed ? "Bypassed" : (root.hasPendingEqChanges ? "Pending" : "Live"))
     readonly property real bgLuma: (Theme.background.r * 0.299) + (Theme.background.g * 0.587) + (Theme.background.b * 0.114)
     readonly property color eqAccent: Theme.equalizerColor
     // Keep the compact bar button in the same visual family as the adjacent
@@ -81,8 +81,8 @@ Rectangle {
     readonly property color waveFillColor: Theme.withAlpha(root.eqAccent, 0.08)
     property real wavePhase: 0
     PwObjectTracker { objects: [ root.defaultSink, root.defaultSource ] }
-    onDefaultSinkChanged: backend.scheduleRefresh(80)
-    onDefaultSourceChanged: backend.scheduleRefresh(80)
+    onDefaultSinkChanged: equalizerBackend.scheduleRefresh(80)
+    onDefaultSourceChanged: equalizerBackend.scheduleRefresh(80)
 
     Instantiator {
         id: playerTracker
@@ -119,17 +119,17 @@ Rectangle {
         root.currentPlayer = active;
     }
 
-    function applyPreset(name) { backend.applyPreset(name); }
-    function setBandFromY(idx, y, h) { backend.setBandFromY(idx, y, h); }
-    function applyToPipeWire() { backend.applyToPipeWire(); }
-    function disablePipeWireEq() { backend.disablePipeWireEq(); }
-    function applyPendingBands() { backend.applyPendingBands(); }
-    function loadEqStateFromFile() { backend.loadEqStateFromFile(); }
-    function setSinkVolumePercent(percent) { backend.setSinkVolumePercent(percent); }
-    function setSourceVolumePercent(percent) { backend.setSourceVolumePercent(percent); }
-    function toggleSinkMute() { backend.toggleSinkMute(); }
-    function toggleSourceMute() { backend.toggleSourceMute(); }
-    function selectOutputSink(sinkName) { backend.selectOutputSink(sinkName); }
+    function applyPreset(name) { equalizerBackend.applyPreset(name); }
+    function setBandFromY(idx, y, h) { equalizerBackend.setBandFromY(idx, y, h); }
+    function applyToPipeWire() { equalizerBackend.applyToPipeWire(); }
+    function disablePipeWireEq() { equalizerBackend.disablePipeWireEq(); }
+    function applyPendingBands() { equalizerBackend.applyPendingBands(); }
+    function loadEqStateFromFile() { equalizerBackend.loadEqStateFromFile(); }
+    function setSinkVolumePercent(percent) { equalizerBackend.setSinkVolumePercent(percent); }
+    function setSourceVolumePercent(percent) { equalizerBackend.setSourceVolumePercent(percent); }
+    function toggleSinkMute() { equalizerBackend.toggleSinkMute(); }
+    function toggleSourceMute() { equalizerBackend.toggleSourceMute(); }
+    function selectOutputSink(sinkName) { equalizerBackend.selectOutputSink(sinkName); }
 
     // MetaChip and PresetChip component definitions moved to EqControlsCard.qml
 
@@ -197,7 +197,7 @@ Rectangle {
                 openAnim.stop()
                 closeAnim.stop()
                 openAnim.start()
-                backend.scheduleRefresh(0)
+                equalizerBackend.scheduleRefresh(0)
                 root.loadEqStateFromFile()
             }
         }
@@ -417,7 +417,7 @@ Rectangle {
                 EqControlsCard {
                     Layout.fillWidth: true
                     eq: root
-                    backend: backend
+                    backend: equalizerBackend
                 }
 
                 EqAudioDevices {
@@ -451,7 +451,7 @@ Rectangle {
                             Item { Layout.fillWidth: true }
                             Text {
                                 font.family: Theme.fontFamily
-                                text: backend.isBusy ? "Applying..." : ""
+                                text: equalizerBackend.isBusy ? "Applying..." : ""
                                 color: root.dimText
                                 font.pixelSize: 10
                             }
@@ -510,7 +510,7 @@ Rectangle {
 
                                 MouseArea {
                                     anchors.fill: parent
-                                    enabled: !backend.isBusy
+                                    enabled: !equalizerBackend.isBusy
                                     cursorShape: Qt.PointingHandCursor
                                     onClicked: root.selectOutputSink(modelData.name)
                                 }

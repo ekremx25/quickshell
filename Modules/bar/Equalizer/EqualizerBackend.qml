@@ -189,7 +189,9 @@ Item {
             }
             backend.scheduleRefresh(120);
             delayedRefreshTimer.restart();
-            routeRecoveryTimer.restart();
+            // Live coefficient updates must not trigger a disconnect/relink cycle.
+            if (code === 0 && eqProc.out.indexOf("applied live file=") !== -1) routeRecoveryTimer.stop();
+            else routeRecoveryTimer.restart();
             Volume.pulseOsd();
             eqProc.out = "";
             eqProc.requestedAction = "";
