@@ -30,7 +30,9 @@ Built on top of [outfoxxed's Quickshell framework](https://github.com/outfoxxed/
 - [Activity Monitor](#activity-monitor)
 - [Night Light](#night-light)
 - [Power Profiles](#power-profiles)
+- [Network & Wi-Fi](#network--wi-fi)
 - [Audio Equaliser](#audio-equaliser)
+- [Regression Checks](#regression-checks)
 - [Architecture](#architecture)
 - [Troubleshooting](#troubleshooting)
 - [Links](#links)
@@ -58,7 +60,10 @@ Built on top of [outfoxxed's Quickshell framework](https://github.com/outfoxxed/
 - Drag-and-drop pinning and reordering
 - Live running indicators (dot or line, configurable)
 - Per-monitor visibility
-- Auto-hide with intelligent window-overlap detection
+- Four positions: top, bottom, left and right, with direction-aware separators and drag targets
+- Intelligent auto-hide based on occupied active workspaces on the dock's own monitor (not geometric window-overlap detection)
+- Edge reveal with hover tracking that keeps application icons clickable
+- Direction-aware tooltip and context-menu popup surfaces with screen-boundary adjustment
 - Left/right module slots (Weather, Volume, Tray, Power, Media, Notepad, …)
 
 ### Settings Dashboard
@@ -296,6 +301,8 @@ Required versions:
 | `bluez` + `bluez-utils` | Bluetooth |
 | `pipewire` + `pipewire-pulse` + `wireplumber` + `libpulse` | Audio control and EQ filter-chain |
 | `jq` | JSON processing in helper scripts |
+| `util-linux` | `flock` serialises EQ operations |
+| `glib2` | `gdbus` monitors NetworkManager VPN changes |
 | `python` 3.10+ | Port-independent monitor role manager and helper scripts |
 | `socat` or `ncat` | Hyprland event stream, monitor hot-plug and live dock updates |
 
@@ -335,7 +342,7 @@ Required versions:
 
 ```bash
 sudo pacman -S quickshell networkmanager bluez bluez-utils pipewire \
-  pipewire-pulse wireplumber libpulse jq python socat inotify-tools \
+  pipewire-pulse wireplumber libpulse jq python socat inotify-tools util-linux glib2 \
   kconfig fontconfig power-profiles-daemon \
   ttf-jetbrains-mono-nerd ttf-inter ttf-font-awesome
 
@@ -454,6 +461,7 @@ shown:
 
 - **Main / Secondary / Third** follows the selected physical display even when
   its port changes.
+- If a role mapping is missing or stale, every unmatched connected display remains selectable by its current connector name (for example, `DP-1`). Connector selections do not automatically migrate to a different port.
 - **All** creates one component instance on every connected display.
 - **Disable** prevents that component from being created.
 - **Toast** controls transient notification cards that appear on screen.
@@ -531,15 +539,28 @@ compositor configuration; installing this repository does not add a keybind.
 Run from the repository root:
 
 ```bash
-PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -p 'test_*.py' -v
-for test_file in tests/test_*.js; do node "$test_file" || break; done
+# CI runner fails on test failures and skipped tests.
+PYTHONDONTWRITEBYTECODE=1 python3 tests/run_ci.py
+
+# Separate JavaScript checks; preserve failures instead of hiding them with break.
+bash -c 'for test_file in tests/test_*.js; do node "$test_file" || exit "$?"; done'
 ```
 
 QML tests use isolated temporary configuration and an offscreen renderer;
-they require Quickshell. JavaScript checks require Node.js. These checks
-cover palette updates, module colour persistence, workspace appearance,
-compositor adapters, and monitor-role logic; they do not replace live testing
-of every compositor and display setup.
+they require Quickshell. Pointer-event tests also require the Qt 6
+`qmltestrunner` (Qt Quick Test). JavaScript checks require Node.js.
+
+Coverage includes escaped NetworkManager fields, silent monitor reconnects,
+queued refresh requests, Wi-Fi stdin password transport and error messages,
+four-direction dock layout, real pointer-event delivery, metadata parsing,
+and selectable outputs with stale monitor roles. Stateful fake-PipeWire tests
+exercise live EQ updates, channel retries, disappearing streams, concurrent
+recovery, rollback, and filesystem error injection. Existing palette,
+workspace and monitor-role tests remain part of the suite.
+
+These checks do not replace live testing of every compositor, display and
+audio device. The fake command tests do not change the user's real network or
+PipeWire session.
 
 ### World clocks
 
@@ -600,9 +621,31 @@ sudo pacman -S gammastep
 - Enable the **Schedule** card and set on/off times — e.g. `19:00 → 07:00` (midnight-wrap supported)
 - Enable **Apply on startup** to restore the saved temperature at shell boot
 
+## Network & Wi-Fi
+
+Open **Settings → Hardware → Network** to manage Ethernet and Wi-Fi.
+Available networks show a percentage and a four-level signal indicator.
+Expand a secured network to enter a masked password, then use **Connect** or
+Enter. Leave the password blank to try saved credentials; open networks do
+not require a password field. Connection failures and timeouts appear in the
+expanded network row.
+
+Passwords are passed to the connection helper and `nmcli --ask` through
+stdin, not command-line arguments or Quickshell configuration files. The
+field clears after submission or when the row closes. Raw `nmcli` error
+output is not returned to the UI, because it may contain sensitive data.
+NetworkManager's own credential-storage policy is unchanged.
+
+Network and VPN services share an escape-aware `nmcli` parser. Active
+Ethernet/Wi-Fi detection scans past VPN and other unsupported connection
+types. Monitor processes reconnect with bounded backoff, take a fresh
+snapshot even after a silent reconnect, and coalesce refresh requests that
+arrive while a query is running. VPN details and elapsed connection times
+are tracked by UUID.
+
 ## Audio Equaliser
 
-Native 10-band parametric EQ built on a PipeWire filter-chain. The UI writes `eq/parametric-eq.txt` and a helper script creates:
+Native 10-band parametric EQ built on a PipeWire filter-chain. The UI invokes a helper that persists `eq/parametric-eq.txt` and creates:
 
 - `effect_input.eq` — virtual EQ sink (applications play into this)
 - `effect_output.eq` — processed stream, manually linked to the selected physical sink
@@ -621,6 +664,35 @@ Native 10-band parametric EQ built on a PipeWire filter-chain. The UI writes `eq
 ```
 
 Expected healthy output: `conf_exists=yes`, plus `effect_input.eq` and `filter-chain` visible in `wpctl status`.
+
+### Live updates and recovery
+
+On an existing compatible EQ filter with the same output target, preset and
+band changes update the running filter's controls without restarting
+PipeWire, relinking channels or moving application streams. The helper
+reports `applied live`. Initial setup, migration from an older filter, or
+other changes requiring filter reconstruction can still restart the audio
+services and briefly interrupt playback.
+
+- State is parsed as data, never executed as shell code; state writes use an
+  atomic replacement with private permissions.
+- Apply, switch, disable and recovery share a file lock. Background recovery
+  skips a busy operation rather than modifying the graph concurrently.
+- Channel retries preserve an already connected channel. Streams that close
+  between listing and moving do not fail the whole operation; real failures
+  still return a nonzero exit code.
+- Failed apply operations attempt to restore the previous configuration and
+  audio routing. A live-update failure attempts to restore the old gains.
+- An incomplete rollback retains its backup and the transaction marker at
+  `${XDG_STATE_HOME:-$HOME/.local/state}/quickshell/eq_filter_chain.pending`.
+  While that marker exists, further apply, switch, disable and recovery
+  commands are blocked to avoid using mixed configuration.
+
+**Recovery limits:** there is no automatic crash-recovery command. Do not
+blindly delete the pending marker: inspect the reported backup, restore the
+intended configuration and verify the audio state before clearing it.
+Rollback is not a guarantee against power loss or `SIGKILL`, and it does not
+preserve every application's custom per-stream output assignment.
 
 ### Device switching
 
@@ -670,7 +742,7 @@ directly testable without a running compositor.
 
 ### Staged, defensive modules
 
-Every long-running integration (notification server, volume subscription, Niri event stream, Hyprland socket, Mango tag events, PipeWire EQ) ships with retry logic and auto-reconnect after compositor restarts or IPC drops.
+Network and VPN monitor processes reconnect with bounded backoff and refresh their snapshots after starting. EQ recovery is serialised with foreground operations and respects incomplete-transaction guards. Other integrations have their own lifecycle handling; reconnect behaviour should be checked for the compositor and service in use.
 
 ## Troubleshooting
 
@@ -683,6 +755,30 @@ Install JetBrainsMono Nerd Font and refresh the font cache:
 sudo pacman -S ttf-jetbrains-mono-nerd
 fc-cache -fv
 ```
+</details>
+
+<details>
+<summary><b>Dock application icons do not match the selected theme</b></summary>
+
+Application icons use the Qt icon theme, separately from Nerd Font glyphs.
+If your session uses qt6ct, install its Qt 6 platform-theme plugin, choose an
+icon theme in qt6ct, and make sure Quickshell starts with
+`QT_QPA_PLATFORMTHEME=qt6ct`.
+
+When using a custom systemd user service, compositor environment settings
+are not automatically inherited. Import the variables from the compositor
+session **before** starting your service, including the theme selection:
+
+```bash
+systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE NIRI_SOCKET QT_QPA_PLATFORMTHEME
+```
+
+The Niri socket variable is only relevant to Niri. Set the theme variable in
+your session first; importing an unset variable does not configure Qt.
+An already running Quickshell must be restarted to pick up the new process
+environment. This repository does not install a `quickshell.service` unit;
+use either the direct startup examples above or your own service, not both.
+
 </details>
 
 <details>
