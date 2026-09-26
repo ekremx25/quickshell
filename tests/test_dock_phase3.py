@@ -58,6 +58,7 @@ class DockPhase3Tests(unittest.TestCase):
             if fixture_files:
                 for name, content in fixture_files.items(): (temp / name).write_text(content)
                 imports += 'import "." as Local\n'
+            imports += 'import "' + (DOCK / 'AppService.js').as_uri() + '" as AppService\n'
             helper = ROOT / "Services/core/DesktopMetadata.js"
             if helper.exists():
                 imports += 'import "' + helper.as_uri() + '" as DesktopMetadata\n'
@@ -73,6 +74,20 @@ class DockPhase3Tests(unittest.TestCase):
             self.assertIn("DOCK_PASS", output)
             self.assertNotIn("DOCK_FAIL", output)
             self.assertNotIn("ReferenceError", output)
+
+    def test_dolphin_tooltip_name(self):
+        self.run_qml("""
+            Component.onCompleted: {
+                try {
+                    for (var name of ["dolphin", "org.kde.dolphin", "Org.Kde.Dolphin"])
+                        check(AppService.getAppName(name) === "Dolphin", "Dolphin label: " + name);
+                    check(AppService.getAppName("nautilus") === "Dosyalar", "Nautilus unchanged");
+                    check(AppService.getAppName("firefox") === "Firefox", "Firefox unchanged");
+                    console.log("DOCK_PASS");
+                } catch(e) { console.error("DOCK_FAIL " + e); }
+                Qt.callLater(Qt.quit);
+            }
+        """)
 
     def test_metadata_consumers(self):
         for path in (DOCK / "DockDataService.qml", ROOT / "Services/WorkspaceService.qml"):
