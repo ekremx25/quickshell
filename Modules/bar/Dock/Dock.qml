@@ -45,12 +45,13 @@ Variants {
         // Hide the dock when auto-hidden
         property bool shouldHide: {
             if (!dockWindow.dockConfigData) return false;
-            if (dockWindow.dockConfigData.autoHide) return hasOverlappingWindow;
-            if (dockWindow.cfgIntelligentHide) return hasOverlappingWindow;
+            if (dockWindow.dockContainsMouse || dockWindow.contextMenuVisible || dockWindow.isDragging) return false;
+            if (dockWindow.dockConfigData.autoHide || dockWindow.cfgIntelligentHide) return hasOverlappingWindow;
             return false;
         }
-        property real hideOffset: shouldHide ? -(dockThickness + 10) * dockScale : cfgBottomMargin * dockScale
-        property real dockThickness: (cfgIconSize + 8)
+        // Keep a two-pixel input strip at the screen edge so a hidden dock can reveal itself.
+        property real hideOffset: shouldHide ? -Math.max(0, dockThickness * dockScale - 2) : (hideTrackingEnabled ? 0 : cfgBottomMargin * dockScale)
+        property real dockThickness: (isHorizontal ? dockContent.implicitHeight : dockContent.implicitWidth) / dockScale
 
         margins {
             bottom: cfgPosition === "bottom" ? hideOffset : 0
@@ -60,32 +61,34 @@ Variants {
         }
 
         color: "transparent"
+        mask: Region { item: dockContent }
         // When alignment is not center, use full screen width so dockContent can align left/right
-        property real dockContentWidth: dockContent.implicitWidth + (cfgPadding * 2 * dockScale)
+        property real dockContentWidth: dockContent.implicitWidth
         implicitWidth:  isHorizontal ? (cfgAlignment === "center" ? dockContentWidth : screen.width) : (dockThickness * dockScale)
-        implicitHeight: isHorizontal ? (dockThickness * dockScale) : (dockContent.implicitHeight + (cfgPadding * 2 * dockScale))
+        implicitHeight: isHorizontal ? (dockThickness * dockScale) : (cfgAlignment === "center" ? dockContent.implicitHeight : screen.height)
         exclusiveZone: dockThickness * dockScale
         // Auto hide logic integration
         WlrLayershell.exclusiveZone: (dockWindow.dockConfigData && (dockWindow.dockConfigData.autoHide || dockWindow.cfgIntelligentHide)) ? -1 : (dockThickness * dockScale)
 
         property bool hasOverlappingWindow: false
+        property bool hideTrackingEnabled: !!dockConfigData && (dockConfigData.autoHide || cfgIntelligentHide)
+        onHideTrackingEnabledChanged: if (!hideTrackingEnabled) hasOverlappingWindow = false
 
         Timer {
             id: hideCheckTimer
-            interval: 500; running: dockWindow.dockConfigData && dockWindow.dockConfigData.autoHide; repeat: true
+            interval: 500; running: dockWindow.hideTrackingEnabled; repeat: true
             onTriggered: {
-                if (!dockWindow.dockConfigData.autoHide) { dockWindow.hasOverlappingWindow = false; return; }
+                if (!dockWindow.hideTrackingEnabled) { dockWindow.hasOverlappingWindow = false; return; }
 
-                try {
-                    // Heuristic: hide the dock if any window is present on this monitor
-                    // unless the mouse is currently over the dock.
-                    var activeWindowsCount = dockWindow.runningWindows.length;
-                    dockWindow.hasOverlappingWindow = (activeWindowsCount > 0) && !dockContainsMouse;
-                } catch(e) {}
+                var monitor = S.WorkspaceService.state.byMonitor[dockWindow.screen.name];
+                var workspaces = monitor && monitor.workspaces ? monitor.workspaces : [];
+                dockWindow.hasOverlappingWindow = workspaces.some(function(workspace) {
+                    return workspace.is_active && workspace.winCount > 0;
+                });
             }
         }
 
-        property bool dockContainsMouse: globalMouse.containsMouse || dockRowMouseArea.containsMouse
+        property bool dockContainsMouse: dockHover.hovered
 
         DockBackend {
             id: dockBackend
@@ -237,6 +240,8 @@ Variants {
             }
             y: {
                 if (!dockWindow.isHorizontal) {
+                    if (dockWindow.cfgAlignment === "left") return 8;
+                    if (dockWindow.cfgAlignment === "right") return parent.height - height - 8;
                     return (parent.height - height) / 2;
                 }
                 if (dockWindow.cfgPosition === "top") return 0;
@@ -246,9 +251,10 @@ Variants {
 
             opacity: 0
             scale: 0.82
+            property real entryOffset: 60
             transform: Translate {
-                id: dockSlide
-                y: dockWindow.cfgPosition === "top" ? -60 : 60
+                x: dockWindow.isHorizontal ? 0 : (dockWindow.cfgPosition === "left" ? -dockContent.entryOffset : dockContent.entryOffset)
+                y: dockWindow.isHorizontal ? (dockWindow.cfgPosition === "top" ? -dockContent.entryOffset : dockContent.entryOffset) : 0
             }
 
             Component.onCompleted: Qt.callLater(function() { dockEnterAnim.start() })
@@ -257,11 +263,11 @@ Variants {
                 id: dockEnterAnim
                 NumberAnimation { target: dockContent; property: "opacity"; from: 0; to: 1; duration: 600; easing.type: Easing.OutCubic }
                 NumberAnimation { target: dockContent; property: "scale";   from: 0.82; to: 1; duration: 540; easing.type: Easing.OutBack }
-                NumberAnimation { target: dockSlide;   property: "y";       to: 0;          duration: 540; easing.type: Easing.OutBack }
+                NumberAnimation { target: dockContent; property: "entryOffset"; to: 0;          duration: 540; easing.type: Easing.OutBack }
             }
 
-            implicitWidth: dockRow.implicitWidth + (dockWindow.cfgPadding * 2 * dockScale)
-            implicitHeight: (dockWindow.cfgIconSize + 8) * dockScale
+            implicitWidth: dockRow.implicitWidth + (dockWindow.isHorizontal ? dockWindow.cfgPadding * 2 : 8) * dockScale
+            implicitHeight: dockRow.implicitHeight + (dockWindow.isHorizontal ? 0 : dockWindow.cfgPadding * 2) * dockScale
             radius: 14 * dockScale
             color: (dockWindow.dockConfigData && dockWindow.dockConfigData.showBackground === false) ? "transparent" : Qt.rgba(30/255, 30/255, 46/255, dockWindow.cfgTransparency)
             border.color: (dockWindow.dockConfigData && dockWindow.dockConfigData.showBackground === false) ? "transparent" : (dockWindow.cfgShowBorder ? Theme.withAlpha(Theme.surface, 0.8) : "transparent")
@@ -279,15 +285,16 @@ Variants {
                 z: -1
             }
 
-            MouseArea {
-                id: dockRowMouseArea
-                anchors.fill: parent
-                hoverEnabled: true
-                z: -2
+            // Observe child controls too, without competing for their clicks.
+            HoverHandler {
+                id: dockHover
             }
 
-            Row {
+            Grid {
                 id: dockRow
+                columns: dockWindow.isHorizontal ? Math.max(1, children.length) : 1
+                horizontalItemAlignment: Grid.AlignHCenter
+                verticalItemAlignment: Grid.AlignVCenter
                 anchors.centerIn: parent
                 spacing: dockWindow.cfgItemSpacing * dockScale
 
@@ -302,6 +309,7 @@ Variants {
                 }
 
                 DockSeparator {
+                    horizontal: dockWindow.isHorizontal
                     visible: dockWindow.leftModules.length > 0
                     dockScale: dockWindow.dockScale
                     iconSize: dockWindow.cfgIconSize
@@ -325,6 +333,7 @@ Variants {
                 }
 
                 DockSeparator {
+                    horizontal: dockWindow.isHorizontal
                     visible: dockWindow.rightModules.length > 0
                     dockScale: dockWindow.dockScale
                     iconSize: dockWindow.cfgIconSize

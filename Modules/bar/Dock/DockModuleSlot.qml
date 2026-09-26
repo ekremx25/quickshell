@@ -12,7 +12,7 @@ Item {
     required property real iconSize
 
     width: loader.item ? loader.item.implicitWidth : iconSize * dockScale
-    height: (iconSize + 8) * dockScale
+    height: Math.max((iconSize + 8) * dockScale, loader.item ? loader.item.implicitHeight : 0)
 
     Loader {
         id: loader

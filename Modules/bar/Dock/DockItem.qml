@@ -21,7 +21,7 @@ Item {
     width: modelData.isModule
         ? (moduleLoader.item ? moduleLoader.item.implicitWidth : panel.cfgIconSize * dockScale)
         : panel.cfgIconSize * dockScale
-    height: (panel.cfgIconSize + 8) * dockScale
+    height: Math.max((panel.cfgIconSize + 8) * dockScale, moduleLoader.item ? moduleLoader.item.implicitHeight : 0)
 
     Loader {
         id: moduleLoader
@@ -40,12 +40,11 @@ Item {
         // Thin separator between the last pinned app and the first running app.
         Rectangle {
             visible: itemRoot.panel.shouldShowPinnedSeparator(itemRoot.index)
-            width: 1 * itemRoot.dockScale
-            height: itemRoot.panel.cfgIconSize * 0.6 * itemRoot.dockScale
+            width: (itemRoot.panel.isHorizontal ? 1 : itemRoot.panel.cfgIconSize * 0.6) * itemRoot.dockScale
+            height: (itemRoot.panel.isHorizontal ? itemRoot.panel.cfgIconSize * 0.6 : 1) * itemRoot.dockScale
             color: Qt.rgba(147/255, 153/255, 178/255, 0.35)
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.left: parent.left
-            anchors.leftMargin: -3
+            x: itemRoot.panel.isHorizontal ? -3 : (parent.width - width) / 2
+            y: itemRoot.panel.isHorizontal ? (parent.height - height) / 2 : -3
         }
 
         Rectangle {
@@ -101,6 +100,8 @@ Item {
             }
 
             DockTooltip {
+                anchorItem: dockItem
+                dockPosition: itemRoot.panel.cfgPosition
                 label: itemRoot.modelData.name
                 dockScale: itemRoot.dockScale
                 shown: itemMouse.containsMouse
@@ -151,22 +152,20 @@ Item {
                     }
 
                     if (dragStarted) {
-                        var globalPos = mapToItem(itemRoot.row, mouse.x, mouse.y);
-                        var itemWidth = 32 * itemRoot.dockScale;
-                        var spacing = 2 * itemRoot.dockScale;
-                        // Locate the x offset of the repeater's first item inside the row
-                        // so drop index math stays correct when modules shift the row.
-                        var firstItem = itemRoot.repeater.itemAt(0);
-                        var offsetX = firstItem ? firstItem.mapToItem(itemRoot.row, 0, 0).x : 0;
-                        var adjustedX = globalPos.x - offsetX;
-                        var targetIdx = Math.floor(adjustedX / (itemWidth + spacing));
-
-                        if (targetIdx < 0) targetIdx = 0;
-                        if (targetIdx >= itemRoot.panel.dockItems.length) {
-                            targetIdx = itemRoot.panel.dockItems.length - 1;
+                        var pointer = mapToItem(itemRoot.row, mouse.x, mouse.y);
+                        var horizontal = itemRoot.panel.isHorizontal;
+                        var coordinate = horizontal ? pointer.x : pointer.y;
+                        var nearest = -1;
+                        var distance = Infinity;
+                        for (var i = 0; i < itemRoot.panel.dockItems.length; i++) {
+                            var slot = itemRoot.repeater.itemAt(i);
+                            if (!slot) continue;
+                            var origin = slot.mapToItem(itemRoot.row, 0, 0);
+                            var center = horizontal ? origin.x + slot.width / 2 : origin.y + slot.height / 2;
+                            var delta = Math.abs(coordinate - center);
+                            if (delta < distance) { distance = delta; nearest = i; }
                         }
-
-                        itemRoot.panel.dragOverIndex = targetIdx;
+                        itemRoot.panel.dragOverIndex = nearest;
                     }
                 }
 
@@ -249,6 +248,8 @@ Item {
         }
 
         DockContextMenu {
+            anchorItem: dockItem
+            dockPosition: itemRoot.panel.cfgPosition
             modelData: itemRoot.modelData
             dockScale: itemRoot.dockScale
             shown: itemRoot.panel.contextMenuVisible
@@ -265,24 +266,21 @@ Item {
             && itemRoot.panel.dragOverIndex === itemRoot.index
             && itemRoot.panel.dragFromIndex !== itemRoot.index
 
-        width: 2 * itemRoot.dockScale
-        height: 32 * itemRoot.dockScale
+        property bool horizontal: itemRoot.panel.isHorizontal
+        property bool afterSource: itemRoot.panel.dragOverIndex > itemRoot.panel.dragFromIndex
+        width: horizontal ? 2 * itemRoot.dockScale : itemRoot.width
+        height: horizontal ? itemRoot.height : 2 * itemRoot.dockScale
         radius: 1 * itemRoot.dockScale
         color: Theme.primary
-        anchors.verticalCenter: parent.verticalCenter
-
-        // Stick to the right when dragging right, left otherwise.
-        anchors.left: (itemRoot.panel.dragOverIndex > itemRoot.panel.dragFromIndex) ? undefined : parent.left
-        anchors.right: (itemRoot.panel.dragOverIndex > itemRoot.panel.dragFromIndex) ? parent.right : undefined
-        anchors.leftMargin: (itemRoot.panel.dragOverIndex > itemRoot.panel.dragFromIndex) ? 0 : -4
-        anchors.rightMargin: (itemRoot.panel.dragOverIndex > itemRoot.panel.dragFromIndex) ? -4 : 0
+        x: horizontal ? (afterSource ? parent.width + 2 : -4) : (parent.width - width) / 2
+        y: horizontal ? (parent.height - height) / 2 : (afterSource ? parent.height + 2 : -4)
 
         z: 50
 
         Rectangle {
             anchors.centerIn: parent
-            width: 7
-            height: 44
+            width: parent.width + 5 * itemRoot.dockScale
+            height: parent.height + 5 * itemRoot.dockScale
             radius: 3.5
             color: Theme.withAlpha(Theme.primary, 0.2)
             z: -1

@@ -3,29 +3,26 @@ import "../../../Widgets"
 
 // Right-click menu for a dock item.
 // Pin/unpin, close window, open dock settings.
-Rectangle {
+DockPopup {
     id: menu
 
     required property var modelData
     required property real dockScale
-    required property bool shown
     required property var backend
     required property var settingsPopup
 
     signal closeRequested()
 
-    anchors.horizontalCenter: parent.horizontalCenter
-    anchors.bottom: parent.top
-    anchors.bottomMargin: 14
+    implicitWidth: menuContent.implicitWidth + 16 * dockScale
+    implicitHeight: menuContent.implicitHeight + 12 * dockScale
 
-    width: menuContent.implicitWidth + (16 * dockScale)
-    height: menuContent.implicitHeight + (12 * dockScale)
-    radius: 12 * dockScale
-    color: Theme.withAlpha(Theme.background, 0.96)
-    border.color: Theme.withAlpha(Theme.surface, 0.8)
-    border.width: 1
-    z: 100
-    visible: shown
+    Rectangle {
+        anchors.fill: parent
+        radius: 12 * menu.dockScale
+        color: Theme.withAlpha(Theme.background, 0.96)
+        border.color: Theme.withAlpha(Theme.surface, 0.8)
+        border.width: 1
+    }
 
     component MenuAction: Rectangle {
         required property string label
@@ -94,6 +91,12 @@ Rectangle {
         }
 
         MenuSeparator {}
+
+        MenuAction {
+            label: "  Dismiss"
+            labelColor: Theme.text
+            activate: function() { menu.closeRequested(); }
+        }
 
         MenuAction {
             label: "  Dock Settings"

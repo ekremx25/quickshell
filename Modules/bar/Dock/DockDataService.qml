@@ -1,4 +1,5 @@
 import QtQuick
+import "../../../Services/core/DesktopMetadata.js" as DesktopMetadata
 import Quickshell.Io
 import "../../../Services" as S
 import "../../../Services/core" as Core
@@ -32,36 +33,7 @@ Item {
     property int windowRefreshInterval: 2500
 
     function parseDesktopMetadata(raw) {
-        var parts = [];
-        var depth = 0;
-        var startIdx = -1;
-
-        for (var ci = 0; ci < raw.length; ci++) {
-            if (raw[ci] === "{") {
-                if (depth === 0) startIdx = ci;
-                depth++;
-            } else if (raw[ci] === "}") {
-                depth--;
-                if (depth === 0 && startIdx >= 0) {
-                    parts.push(raw.substring(startIdx, ci + 1));
-                    startIdx = -1;
-                }
-            }
-        }
-
-        if (parts.length === 0) {
-            return {
-                icons: JSON.parse(raw),
-                commands: {},
-                entries: {}
-            };
-        }
-
-        return {
-            icons: JSON.parse(parts[0]),
-            commands: parts.length > 1 ? JSON.parse(parts[1]) : {},
-            entries: parts.length > 2 ? JSON.parse(parts[2]) : {}
-        };
+        return DesktopMetadata.parse(raw);
     }
 
     function cloneDockConfig() {

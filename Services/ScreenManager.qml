@@ -55,18 +55,25 @@ Singleton {
     function getAvailableScreenNames() {
         var roles = ["primary", "secondary", "tertiary"];
         var names = [];
+        var covered = [];
         for (var i = 0; i < roles.length; i++) {
             var connector = root.runtimeRoleMap[roles[i]];
-            if (!connector) continue;
+            if (!connector || covered.indexOf(connector) !== -1) continue;
             for (var j = 0; j < Quickshell.screens.length; j++) {
                 if (Quickshell.screens[j].name === connector) {
                     names.push(roles[i]);
+                    covered.push(connector);
                     break;
                 }
             }
         }
-        if (names.length === 0) {
-            for (var k = 0; k < Quickshell.screens.length; k++) names.push(Quickshell.screens[k].name);
+        // A partial/stale role map must not hide other connected outputs.
+        for (var k = 0; k < Quickshell.screens.length; k++) {
+            var name = Quickshell.screens[k].name;
+            if (covered.indexOf(name) === -1) {
+                names.push(name);
+                covered.push(name);
+            }
         }
         return names;
     }

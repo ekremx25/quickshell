@@ -1,5 +1,6 @@
 pragma Singleton
 import QtQuick
+import "./core/DesktopMetadata.js" as DesktopMetadata
 import Quickshell
 import Quickshell.Io
 import "./core" as Core
@@ -107,26 +108,7 @@ Singleton {
     }
 
     function parseDesktopMetadata(raw) {
-        var parts = []
-        var depth = 0
-        var startIndex = -1
-        for (var index = 0; index < raw.length; ++index) {
-            if (raw[index] === "{") {
-                if (depth === 0) startIndex = index
-                depth++
-            } else if (raw[index] === "}") {
-                depth--
-                if (depth === 0 && startIndex >= 0) {
-                    parts.push(raw.substring(startIndex, index + 1))
-                    startIndex = -1
-                }
-            }
-        }
-        return {
-            icons: parts.length > 0 ? JSON.parse(parts[0]) : {},
-            commands: parts.length > 1 ? JSON.parse(parts[1]) : {},
-            entries: parts.length > 2 ? JSON.parse(parts[2]) : {}
-        }
+        return DesktopMetadata.parse(raw);
     }
 
     function iconSourceFor(appId) {
