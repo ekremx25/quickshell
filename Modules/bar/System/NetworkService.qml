@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell.Io
 import "../../../Services/core/Log.js" as Log
+import "../../../Services/core/NmcliTerseParser.js" as NmcliTerseParser
 
 Item {
     id: service
@@ -28,6 +29,9 @@ Item {
 
     property var wifiList: []
     property string connectingSsid: ""
+    property string wifiStatusSsid: ""
+    property string wifiStatus: ""
+    property bool wifiError: false
 
     property string applyStatus: ""
     property bool applyError: false
@@ -99,10 +103,16 @@ Item {
         }
     }
 
-    function connectToWifi(ssid) {
+    function connectToWifi(ssid, password) {
         if (!ssid || connectingSsid !== "") return;
+        wifiStatusSsid = ssid;
+        wifiStatus = "Connecting...";
+        wifiError = false;
+        connectProc.input = JSON.stringify({ ssid: ssid, password: password || "" });
+        connectProc.output = "";
         connectingSsid = ssid;
-        runProcess(connectProc, ["nmcli", "device", "wifi", "connect", ssid]);
+        connectTimeout.restart();
+        connectProc.running = true;
     }
 
     function applyMtu() {
@@ -121,9 +131,9 @@ Item {
     }
 
     function parseDeviceStatus(text) {
-        var lines = text.split("\n");
-        for (var i = 0; i < lines.length; i++) {
-            var parts = lines[i].split(":");
+        var records = NmcliTerseParser.parseLines(text);
+        for (var i = 0; i < records.length; i++) {
+            var parts = records[i];
             if (parts.length >= 4 && parts[2] === "connected") {
                 ifaceName = parts[0];
                 connName = parts[3];
@@ -144,32 +154,54 @@ Item {
     }
 
     function parseConnectionDetails(text) {
-        var lines = text.split("\n");
-        for (var i = 0; i < lines.length; i++) {
-            var parts = lines[i].split(":");
+        var records = NmcliTerseParser.parseLines(text);
+        for (var i = 0; i < records.length; i++) {
+            var parts = records[i];
             if (parts[0] === "ipv4.method") ipv4Method = parts[1] || "auto";
             if (parts[0] === "ipv6.method") ipv6Method = parts[1] || "auto";
             if (parts[0] === "802-3-ethernet.mtu") mtuValue = (parts[1] && parts[1] !== "" && parts[1] !== "0") ? parts[1] : "1500";
         }
     }
 
+    function signalBarLevel(bars, signal) {
+        var visual = String(bars || "");
+        var level = 0;
+        for (var i = 0; i < visual.length; i++) {
+            if (visual[i] !== "_" && visual[i].trim() !== "") level++;
+        }
+        if (level > 0) return Math.min(4, level);
+
+        var strength = Math.max(0, Math.min(100, Number(signal) || 0));
+        if (strength >= 80) return 4;
+        if (strength > 55) return 3;
+        if (strength >= 30) return 2;
+        return strength > 0 ? 1 : 0;
+    }
+
     function parseWifiList(text) {
-        var lines = text.split("\n");
+        var records = NmcliTerseParser.parseLines(text);
         var list = [];
         var seen = {};
 
-        for (var i = 0; i < lines.length; i++) {
-            var match = lines[i].match(/^(.*):(\\d+):(.*):(.*):(yes|no)$/);
-            if (!match) continue;
-            var ssid = match[1].replace(/\\:/g, ":");
-            var signal = parseInt(match[2]);
-            var security = match[3];
-            var bars = match[4];
-            var activeNetwork = match[5] === "yes";
+        for (var i = 0; i < records.length; i++) {
+            var fields = records[i];
+            if (fields.length < 5 || (fields[4] !== "yes" && fields[4] !== "no")) continue;
+            var ssid = fields[0];
+            var signal = parseInt(fields[1]);
+            var security = fields[2];
+            var bars = fields[3];
+            var activeNetwork = fields[4] === "yes";
 
-            if (!ssid || seen[ssid]) continue;
+            if (!ssid || !isFinite(signal) || seen[ssid]) continue;
             seen[ssid] = true;
-            list.push({ ssid: ssid, signal: signal, security: security, bars: bars, active: activeNetwork });
+            list.push({
+                ssid: ssid,
+                signal: signal,
+                security: security,
+                bars: bars,
+                barLevel: signalBarLevel(bars, signal),
+                active: activeNetwork
+            });
         }
 
         list.sort(function(a, b) {
@@ -284,10 +316,37 @@ Item {
 
     Process {
         id: connectProc
-        command: []
-        onExited: {
-            connectingSsid = "";
-            refreshAll();
+        command: ["python3", decodeURIComponent(String(Qt.resolvedUrl("../../../scripts/wifi_connect.py")).replace("file://", ""))]
+        property string input: ""
+        property string output: ""
+        stdinEnabled: true
+        onStarted: { write(input + "\n"); input = ""; }
+        stdout: SplitParser { onRead: data => { connectProc.output += data; } }
+        onExited: code => {
+            connectTimeout.stop();
+            input = "";
+            service.wifiError = true;
+            service.wifiStatus = "Could not complete the connection request.";
+            try {
+                var result = JSON.parse(output);
+                service.wifiError = code !== 0 || result.ok !== true;
+                service.wifiStatus = result.message;
+            } catch (error) {}
+            output = "";
+            service.connectingSsid = "";
+            if (!service.wifiError) service.refreshAll();
+        }
+    }
+
+    Timer {
+        id: connectTimeout
+        interval: 45000
+        onTriggered: {
+            connectProc.input = "";
+            connectProc.running = false;
+            service.wifiError = true;
+            service.wifiStatus = "Connection timed out or helper could not start. Try again.";
+            service.connectingSsid = "";
         }
     }
 

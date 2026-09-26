@@ -4,6 +4,7 @@ import Quickshell
 import Quickshell.Io
 import "./core/Log.js" as Log
 import "./core/VpnIdentifierLogic.js" as VpnIdentifierLogic
+import "./core/NmcliTerseParser.js" as NmcliTerseParser
 
 Singleton {
     id: root
@@ -27,17 +28,29 @@ Singleton {
 
     property var connectionDetails: ({})
 
+    property bool _destroying: false
+    property bool _monitorStartedOnce: false
+    property int monitorRetryDelay: 1000
+    readonly property int monitorRetryMaxDelay: 30000
+
     signal connectionInfoUpdated()
 
     Component.onCompleted: initialize()
 
     Component.onDestruction: {
+        _destroying = true;
+        monitorReconnectTimer.stop();
+        monitorStableTimer.stop();
         nmMonitor.running = false;
     }
 
     function initialize() {
-        nmMonitor.running = true;
+        startMonitor();
         refreshAll();
+    }
+
+    function startMonitor() {
+        if (!_destroying && !nmMonitor.running) nmMonitor.running = true;
     }
 
     function refreshAll() {
@@ -46,9 +59,7 @@ Singleton {
     }
 
     function runVpnCommand(proc, command) {
-        // NetworkManager may emit several DBus events for one state change.
-        // The in-flight query already observes the latest state, so do not kill
-        // and restart it for every duplicate refresh event.
+        // Mutating VPN commands are never restarted while in flight.
         if (proc.running) return;
         proc.stdoutBuf = "";
         proc.stderrBuf = "";
@@ -68,10 +79,10 @@ Singleton {
     }
 
     function parseProfiles(text) {
-        var lines = text.trim().length ? text.trim().split('\n') : [];
+        var records = NmcliTerseParser.parseLines(text);
         var out = [];
-        for (var i = 0; i < lines.length; i++) {
-            var parts = lines[i].split(':');
+        for (var i = 0; i < records.length; i++) {
+            var parts = records[i];
             if (parts.length >= 3 && (parts[2] === "vpn" || parts[2] === "wireguard")) {
                 var autoconnect = parts.length >= 4 ? (parts[3] === "yes") : false;
                 out.push({ name: parts[0], uuid: parts[1], type: parts[2], autoconnect: autoconnect });
@@ -81,12 +92,12 @@ Singleton {
     }
 
     function parseActiveConnections(text) {
-        var lines = text.trim().length ? text.trim().split('\n') : [];
+        var records = NmcliTerseParser.parseLines(text);
         var act = [];
         var now = Date.now();
-        for (var i = 0; i < lines.length; i++) {
-            var parts = lines[i].split(':');
-            if (parts.length >= 5 && (parts[2] === "vpn" || parts[2] === "wireguard")) {
+        for (var i = 0; i < records.length; i++) {
+            var parts = records[i];
+            if (parts.length >= 5 && parts[1] && (parts[2] === "vpn" || parts[2] === "wireguard")) {
                 var uuid = parts[1];
                 var existing = null;
                 for (var j = 0; j < root.activeConnections.length; j++) {
@@ -105,27 +116,75 @@ Singleton {
         return act;
     }
 
-    // Watch for NetworkManager changes via dbus
+    function detailsByUuid(connections) {
+        var details = {};
+        for (var i = 0; i < connections.length; i++) {
+            var connection = connections[i];
+            if (!connection || !connection.uuid) continue;
+            details[connection.uuid] = {
+                name: connection.name || "",
+                uuid: connection.uuid,
+                device: connection.device || "",
+                state: connection.state || "",
+                timestamp: connection.timestamp || Date.now()
+            };
+        }
+        return details;
+    }
+
+    // Watch for NetworkManager changes via DBus and reconnect after daemon or bus restarts.
     Process {
         id: nmMonitor
         command: ["gdbus", "monitor", "--system", "--dest", "org.freedesktop.NetworkManager"]
+        onStarted: {
+            if (root._monitorStartedOnce) root.refreshAll();
+            root._monitorStartedOnce = true;
+        }
         running: false
         stdout: SplitParser {
             splitMarker: "\n"
             onRead: line => {
+                root.monitorRetryDelay = 1000;
                 if (line.indexOf("ActiveConnection") !== -1 || line.indexOf("PropertiesChanged") !== -1 || line.indexOf("StateChanged") !== -1) {
                     refreshAll();
                 }
             }
         }
+        onRunningChanged: {
+            if (running) monitorStableTimer.restart();
+            else monitorStableTimer.stop();
+        }
+        onExited: {
+            if (root._destroying) return;
+            monitorReconnectTimer.interval = root.monitorRetryDelay;
+            monitorReconnectTimer.restart();
+            root.monitorRetryDelay = Math.min(root.monitorRetryMaxDelay, root.monitorRetryDelay * 2);
+        }
+    }
+
+    Timer {
+        id: monitorReconnectTimer
+        repeat: false
+        onTriggered: root.startMonitor()
+    }
+
+    Timer {
+        id: monitorStableTimer
+        interval: 5000
+        repeat: false
+        onTriggered: root.monitorRetryDelay = 1000
     }
 
     function listProfiles() {
+        if (_destroying) return;
+        if (getProfiles.running || getProfiles.applyingRefresh) { getProfiles.refreshPending = true; return; }
         runVpnCommand(getProfiles, getProfiles.command);
     }
 
     Process {
         id: getProfiles
+        property bool refreshPending: false
+        property bool applyingRefresh: false
         command: ["nmcli", "-t", "-f", "NAME,UUID,TYPE,AUTOCONNECT", "connection", "show"]
         running: false
         property string stdoutBuf: ""
@@ -133,6 +192,7 @@ Singleton {
         stdout: SplitParser { onRead: data => { getProfiles.stdoutBuf += data + "\n"; } }
         stderr: SplitParser { onRead: data => { getProfiles.stderrBuf += data + "\n"; } }
         onExited: (exitCode) => {
+            getProfiles.applyingRefresh = true;
             if (exitCode === 0) {
                 root.available = true;
                 root.profiles = root.parseProfiles(getProfiles.stdoutBuf);
@@ -142,10 +202,17 @@ Singleton {
             }
             getProfiles.stdoutBuf = "";
             getProfiles.stderrBuf = "";
+            getProfiles.applyingRefresh = false;
+            if (getProfiles.refreshPending) {
+                getProfiles.refreshPending = false;
+                root.listProfiles();
+            }
         }
     }
 
     function refreshActive() {
+        if (_destroying) return;
+        if (getActive.running || getActive.applyingRefresh) { getActive.refreshPending = true; return; }
         runVpnCommand(getActive, getActive.command);
     }
 
@@ -171,6 +238,8 @@ Singleton {
 
     Process {
         id: getActive
+        property bool refreshPending: false
+        property bool applyingRefresh: false
         command: ["nmcli", "-t", "-f", "NAME,UUID,TYPE,DEVICE,STATE", "connection", "show", "--active"]
         running: false
         property string stdoutBuf: ""
@@ -178,16 +247,24 @@ Singleton {
         stdout: SplitParser { onRead: data => { getActive.stdoutBuf += data + "\n"; } }
         stderr: SplitParser { onRead: data => { getActive.stderrBuf += data + "\n"; } }
         onExited: (exitCode) => {
+            getActive.applyingRefresh = true;
             if (exitCode === 0) {
                 var act = root.parseActiveConnections(getActive.stdoutBuf);
                 root.activeConnections = act;
                 root.activeUuids = act.map(function(a) { return a.uuid; }).filter(function(u) { return !!u; });
                 root.activeNames = act.map(function(a) { return a.name; }).filter(function(n) { return !!n; });
+                root.connectionDetails = root.detailsByUuid(act);
+                root.connectionInfoUpdated();
             } else {
                 Log.warn("VpnService", root.processMessage(getActive) || "Failed to read active VPN connections");
             }
             getActive.stdoutBuf = "";
             getActive.stderrBuf = "";
+            getActive.applyingRefresh = false;
+            if (getActive.refreshPending) {
+                getActive.refreshPending = false;
+                root.refreshActive();
+            }
         }
     }
 

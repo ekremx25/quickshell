@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell
 import "../../../Widgets"
@@ -380,18 +381,18 @@ Item {
                     required property var modelData
                     required property int index
                     Layout.fillWidth: true
-                    height: wifiExpanded ? 96 : 48
+                    implicitHeight: wifiExpanded ? wifiActions.y + wifiActions.implicitHeight + 12 : 48
                     color: modelData.active ? Theme.withAlpha(Theme.primary, 0.15)
                          : (wifiHoverMa.containsMouse || wifiExpanded ? Theme.withAlpha(Theme.text, 0.05) : "transparent")
                     radius: 8; clip: true
 
                     property bool wifiExpanded: false
-                    Behavior on height { NumberAnimation { duration: 200; easing.type: Easing.OutQuad } }
+                    onWifiExpandedChanged: if (!wifiExpanded) wifiPassword.clear()
 
                     RowLayout {
                         id: wifiHeader
                         anchors.left: parent.left; anchors.right: parent.right; anchors.top: parent.top
-                        height: 48; anchors.margins: 12; spacing: 12
+                        height: 48; anchors.leftMargin: 12; anchors.rightMargin: 12; spacing: 12
 
                         Text {
                             text: "󰖩"; font.pixelSize: 16; font.family: "JetBrainsMono Nerd Font"
@@ -411,7 +412,31 @@ Item {
                             }
                         }
                         Item { Layout.fillWidth: true }
-                        Text { text: modelData.bars; color: modelData.active ? Theme.primary : SettingsPalette.subtext; font.family: "DejaVu Sans" }
+                        Item {
+                            Layout.preferredWidth: 26
+                            Layout.preferredHeight: 18
+                            Layout.alignment: Qt.AlignVCenter
+
+                            Row {
+                                anchors.right: parent.right
+                                anchors.bottom: parent.bottom
+                                spacing: 2
+
+                                Repeater {
+                                    model: 4
+                                    Rectangle {
+                                        required property int index
+                                        width: 4
+                                        height: 4 + index * 3
+                                        y: parent.height - height
+                                        radius: 1
+                                        color: index < wifiDelegate.modelData.barLevel
+                                            ? (wifiDelegate.modelData.active ? Theme.primary : SettingsPalette.subtext)
+                                            : Theme.withAlpha(SettingsPalette.subtext, 0.18)
+                                    }
+                                }
+                            }
+                        }
                     }
 
                     MouseArea {
@@ -421,15 +446,64 @@ Item {
                         onClicked: { if (!modelData.active) wifiDelegate.wifiExpanded = !wifiDelegate.wifiExpanded; }
                     }
 
-                    RowLayout {
-                        anchors.left: parent.left; anchors.right: parent.right
-                        anchors.top: wifiHeader.bottom; anchors.topMargin: 4
-                        anchors.leftMargin: 12; anchors.rightMargin: 12
-                        height: 36; spacing: 8; visible: wifiDelegate.wifiExpanded
+                    ColumnLayout {
+                        id: wifiActions
+                        anchors.left: parent.left
+                        anchors.top: wifiHeader.bottom; anchors.topMargin: 8
+                        anchors.leftMargin: 16
+                        width: Math.max(0, Math.min(480, parent.width - 32))
+                        spacing: 12; visible: wifiDelegate.wifiExpanded
 
-                        Item { Layout.fillWidth: true }
+                        Text {
+                            Layout.fillWidth: true
+                            text: "Wi-Fi password"
+                            visible: wifiPassword.visible
+                            color: SettingsPalette.text
+                            font.family: Theme.fontFamily
+                            font.pixelSize: 12; font.bold: true
+                        }
+
+                        TextField {
+                            id: wifiPassword
+                            Layout.fillWidth: true
+                            visible: wifiDelegate.modelData.security !== "" && wifiDelegate.modelData.security !== "--"
+                            enabled: networkPage.connectingSsid === ""
+                            echoMode: TextInput.Password
+                            inputMethodHints: Qt.ImhSensitiveData | Qt.ImhNoPredictiveText | Qt.ImhHiddenText
+                            implicitHeight: 40
+                            leftPadding: 12; rightPadding: 12
+                            topPadding: 10; bottomPadding: 10
+                            font.pixelSize: 13
+                            placeholderText: "Enter password"
+                            Accessible.name: "Wi-Fi password"
+                            color: SettingsPalette.text
+                            placeholderTextColor: SettingsPalette.subtext
+                            font.family: Theme.fontFamily
+                            background: Rectangle { radius: 6; color: SettingsPalette.surface; border.color: wifiPassword.activeFocus ? Theme.primary : SettingsPalette.subtext }
+                            onVisibleChanged: if (!visible) clear()
+                            onAccepted: if (networkPage.connectingSsid === "") wifiConnMA.clicked(null)
+                        }
+                        Text {
+                            Layout.fillWidth: true
+                            visible: wifiPassword.visible
+                            text: "Leave blank to use the saved password."
+                            color: SettingsPalette.subtext
+                            font.family: Theme.fontFamily
+                            font.pixelSize: 11
+                            wrapMode: Text.Wrap
+                        }
+                        Text {
+                            Layout.fillWidth: true
+                            visible: networkService.wifiStatusSsid === wifiDelegate.modelData.ssid && networkService.wifiStatus !== ""
+                            text: visible ? networkService.wifiStatus : ""
+                            wrapMode: Text.Wrap
+                            color: networkService.wifiError ? Theme.cpRed : SettingsPalette.subtext
+                            font.family: Theme.fontFamily
+                            font.pixelSize: 12
+                        }
                         Rectangle {
-                            width: 120; height: 36; radius: 6
+                            Layout.alignment: Qt.AlignRight
+                            implicitWidth: 120; implicitHeight: 36; radius: 6
                             color: networkPage.connectingSsid === modelData.ssid ? SettingsPalette.surface
                                  : wifiConnMA.containsMouse ? Qt.darker(Theme.primary, 1.1) : Theme.primary
 
@@ -444,8 +518,8 @@ Item {
                                 id: wifiConnMA; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
                                 enabled: networkPage.connectingSsid === ""
                                 onClicked: {
-                                    networkPage.connectingSsid = modelData.ssid;
-                                    networkService.connectToWifi(modelData.ssid);
+                                    networkService.connectToWifi(modelData.ssid, wifiPassword.text);
+                                    wifiPassword.clear();
                                 }
                             }
                         }

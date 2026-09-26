@@ -1,77 +1,134 @@
 pragma Singleton
+import QtQuick
 import Quickshell
 import Quickshell.Io
+import "./core/NmcliTerseParser.js" as NmcliTerseParser
 
 Singleton {
     id: root
 
-    // --- 属性 ---
-    // 只要有连接类型，就视为已连接
-    property bool connected: activeConnectionType != ""
+    property bool connected: activeConnectionType !== ""
     property string activeConnection: "Disconnected"
     property string activeConnectionType: ""
-    // 【已删除】 activeConnectionIcon 属性
 
-    // --- 刷新函数 ---
+    property bool _destroying: false
+    property bool _monitorStartedOnce: false
+    property bool _applyingRefresh: false
+    property bool _refreshPending: false
+    property int monitorRetryDelay: 1000
+    readonly property int monitorRetryMaxDelay: 30000
+
+    Component.onCompleted: {
+        refresh();
+        startMonitor();
+    }
+
+    Component.onDestruction: {
+        _destroying = true;
+        monitorReconnectTimer.stop();
+        monitorStableTimer.stop();
+        nmMonitorProcess.running = false;
+    }
+
     function refresh() {
+        if (_destroying) return;
+        if (refreshProcess.running || _applyingRefresh) { _refreshPending = true; return; }
         refreshProcess.running = true;
     }
 
-    // --- 1. 获取状态的进程 ---
+    function getConnectionType(nmcliType) {
+        var value = String(nmcliType || "");
+        if (value.indexOf("ethernet") !== -1) return "ETHERNET";
+        if (value.indexOf("wireless") !== -1 || value === "wifi") return "WIFI";
+        return "";
+    }
+
+    function selectActiveConnection(text) {
+        var records = NmcliTerseParser.parseLines(text);
+        for (var i = 0; i < records.length; i++) {
+            var fields = records[i];
+            if (fields.length < 2) continue;
+            var type = getConnectionType(fields[1]);
+            if (type !== "") return { name: fields[0], type: type };
+        }
+        return null;
+    }
+
+    function applyActiveConnection(connection) {
+        if (!connection) {
+            activeConnectionType = "";
+            activeConnection = "Disconnected";
+            return;
+        }
+        activeConnectionType = connection.type;
+        activeConnection = connection.name;
+    }
+
+    function startMonitor() {
+        if (!_destroying && !nmMonitorProcess.running) nmMonitorProcess.running = true;
+    }
+
     Process {
         id: refreshProcess
         command: ["nmcli", "-t", "-f", "NAME,TYPE", "con", "show", "--active"]
-        
-        stdout: StdioCollector {
-            onStreamFinished: () => {
-                // 如果输出为空，说明断网
-                if (this.text.trim() === "") {
-                    root.activeConnectionType = ""
-                    root.activeConnection = "Disconnected"
-                    return
-                }
-                
-                // 解析第一行
-                const interfaces = this.text.split("\n");
-                const activeInterface = interfaces[0];
-                const fields = activeInterface.split(":");
-                
-                if (fields.length < 2) return; 
-
-                // 获取类型
-                const connectionType = refreshProcess.getConnectionType(fields[1]);
-                root.activeConnectionType = connectionType;
-                
-                // 获取名称
-                root.activeConnection = connectionType != "" ? fields[0] : "Disconnected";
-                
-                // 【已删除】 设置 activeConnectionIcon 的代码
-            }
-        }
-
-        // 辅助函数：只保留判断类型
-        function getConnectionType(nmcliOutput) {
-            if (nmcliOutput.includes("ethernet")) {
-                return "ETHERNET";
-            } else if (nmcliOutput.includes("wireless")) {
-                return "WIFI";
-            }
-            return "";
-        }
-        
-        // 【已删除】 getConnectionIcon 函数
-    }
-
-    // --- 2. 监听进程 ---
-    // 这个进程 running: true，一旦网络变化（或启动时），
-    // 它的输出会触发 root.refresh()，所以不需要额外的启动代码
-    Process {
-        running: true
-        command: ["nmcli", "monitor"]
+        property string stdoutBuffer: ""
         stdout: SplitParser {
-            onRead: root.refresh()
+            splitMarker: ""
+            onRead: data => { refreshProcess.stdoutBuffer += data; }
+        }
+        onRunningChanged: {
+            if (running) stdoutBuffer = "";
+        }
+        onExited: exitCode => {
+            root._applyingRefresh = true;
+            if (exitCode === 0) root.applyActiveConnection(root.selectActiveConnection(stdoutBuffer));
+            stdoutBuffer = "";
+            root._applyingRefresh = false;
+            if (root._refreshPending) {
+                root._refreshPending = false;
+                root.refresh();
+            }
         }
     }
-    
-    // 【已删除】 Component.onCompleted (这是导致报错的元凶)
+
+    Process {
+        id: nmMonitorProcess
+        running: false
+        command: ["nmcli", "monitor"]
+        onStarted: {
+            // Startup already takes a snapshot; a later monitor may be silent.
+            if (root._monitorStartedOnce) root.refresh();
+            root._monitorStartedOnce = true;
+        }
+        stdout: SplitParser {
+            onRead: data => {
+                if (String(data || "").trim() === "") return;
+                root.monitorRetryDelay = 1000;
+                root.refresh();
+            }
+        }
+        onRunningChanged: {
+            if (running) monitorStableTimer.restart();
+            else monitorStableTimer.stop();
+        }
+        onExited: {
+            if (root._destroying) return;
+            monitorReconnectTimer.interval = root.monitorRetryDelay;
+            monitorReconnectTimer.restart();
+            root.monitorRetryDelay = Math.min(root.monitorRetryMaxDelay, root.monitorRetryDelay * 2);
+        }
+    }
+
+    Timer {
+        id: monitorReconnectTimer
+        repeat: false
+        onTriggered: root.startMonitor()
+    }
+
+    Timer {
+        id: monitorStableTimer
+        interval: 5000
+        repeat: false
+        onTriggered: root.monitorRetryDelay = 1000
+    }
 }
