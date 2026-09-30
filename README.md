@@ -27,6 +27,7 @@ Built on top of [outfoxxed's Quickshell framework](https://github.com/outfoxxed/
 - [Dependencies](#dependencies)
 - [Installation](#installation)
 - [Configuration](#configuration)
+- [Workspace Overview](#workspace-overview)
 - [Activity Monitor](#activity-monitor)
 - [Night Light](#night-light)
 - [Power Profiles](#power-profiles)
@@ -65,6 +66,12 @@ Built on top of [outfoxxed's Quickshell framework](https://github.com/outfoxxed/
 - Edge reveal with hover tracking that keeps application icons clickable
 - Direction-aware tooltip and context-menu popup surfaces with screen-boundary adjustment
 - Left/right module slots (Weather, Volume, Tray, Power, Media, Notepad, …)
+
+### Workspace Overview
+- Hyprland workspace overview with live window previews and icon/title fallback
+- All connected monitors, their workspace assignments and per-monitor application counts in one view
+- Click to focus/switch; drag windows between regular or special workspaces and across monitors
+- Transactional cross-monitor moves with hot-plug verification and rollback
 
 ### Settings Dashboard
 - Drag-and-drop bar module arrangement
@@ -226,6 +233,41 @@ Click any of these on the bar to reveal an inline popover.
 </table>
 
 </details>
+
+## Workspace Overview
+
+The Workspace Overview is currently **Hyprland-only**. It displays configured
+regular workspaces from every connected monitor, special workspaces, live
+window contents and the monitor that owns each workspace. If Wayland window
+capture is unavailable, the card falls back to the application icon and title.
+
+Open or close it through Quickshell IPC:
+
+```bash
+qs ipc call workspace-overview toggle
+```
+
+Bind that command to your preferred compositor shortcut; `SUPER+TAB` is the
+recommended binding. The overview does not replace the compositor's normal
+`ALT+TAB` window cycle.
+
+Click a workspace to switch, click a window to focus it, or drag a window to a
+regular/special workspace. Cross-monitor drops snapshot the source state,
+validate that the destination is connected, enabled and not mirrored, then
+verify the final window/workspace placement. A failed or interrupted hot-plug
+move attempts to restore the source workspace and monitor. Exact restoration
+cannot be guaranteed after process termination (`SIGKILL`) or if the source
+monitor also disappears; incomplete rollback is reported as an error.
+
+Runtime state can be inspected without opening the overlay:
+
+```bash
+qs ipc call workspace-overview status
+```
+
+The status includes the focused output, connected monitor count, and per-monitor
+workspace/application counts. `jq` is required for transactional cross-monitor
+moves and is included in the core dependency list below.
 
 ## Supported Compositors
 
@@ -662,7 +704,7 @@ The last known physical sink is stored in `~/.local/state/quickshell/eq_filter_c
 ## Architecture
 
 - [`Services/`](Services/) — shared state, compositor adapters and system integrations.
-- [`Modules/`](Modules/) — bar, dock and settings components.
+- [`Modules/`](Modules/) — bar, dock, settings and the Hyprland Workspace Overview.
 - [`Widgets/`](Widgets/) — shared visual components and theme.
 - [`Services/core/`](Services/core/) — persistence, parsing and file watching.
 - [`shell.qml`](shell.qml) — staged startup to keep the initial frame responsive.

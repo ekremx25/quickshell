@@ -74,7 +74,7 @@ function workspaceSort(left, right) {
 }
 
 function buildHyprlandState(monitors, workspaces, clients) {
-    var state = { monitorOrder: [], byMonitor: {}, global: [] };
+    var state = { monitorOrder: [], byMonitor: {}, global: [], focusedMonitor: "" };
     var monitorList = Array.isArray(monitors) ? monitors : [];
     var workspaceList = Array.isArray(workspaces) ? workspaces : [];
     var clientList = Array.isArray(clients) ? clients : [];
@@ -84,6 +84,7 @@ function buildHyprlandState(monitors, workspaces, clients) {
         var monitorName = String(monitor.name || "");
         if (monitorName.length === 0) continue;
         state.monitorOrder.push(monitorName);
+        if (monitor.focused === true) state.focusedMonitor = monitorName;
         state.byMonitor[monitorName] = {
             activeId: monitor.activeWorkspace ? monitor.activeWorkspace.id : null,
             specialId: monitor.specialWorkspace ? monitor.specialWorkspace.id : null,

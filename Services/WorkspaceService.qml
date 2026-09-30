@@ -23,11 +23,15 @@ Singleton {
     property var desktopIcons: ({})
     property var desktopCommands: ({})
     property var desktopEntries: ({})
+    property bool overviewActionBusy: false
+    property string overviewActionError: ""
+    signal overviewActionFinished(string kind, bool success)
 
     readonly property string snapshotScript: Core.PathService.configPath("scripts/workspace_snapshot.sh")
     readonly property string workspaceScript: Core.PathService.configPath("scripts/hypr_workspace_apply.sh")
     readonly property string niriWorkspaceScript: Core.PathService.configPath("scripts/niri_workspace_apply.sh")
     readonly property string desktopIconScript: Core.PathService.configPath("scripts/desktop_icons.sh")
+    readonly property string overviewActionScript: Core.PathService.configPath("scripts/hypr_overview_action.sh")
 
     Component.onCompleted: requestRefresh()
 
@@ -163,6 +167,34 @@ Singleton {
         return list
     }
 
+    function focusedMonitorName() {
+        return String(root.state.focusedMonitor || root.state.monitorOrder[0] || "")
+    }
+
+    function overviewWorkspacesForMonitor(monitorName, config) {
+        var list = root.workspacesForMonitor(monitorName, config)
+        for (var i = 0; i < list.length; ++i) {
+            var windows = Array.isArray(list[i].windows) ? list[i].windows : []
+            for (var j = 0; j < windows.length; ++j) {
+                windows[j].appName = AppService.getAppName(windows[j].app_id || "")
+                windows[j].iconSource = root.iconSourceFor(windows[j].app_id || "")
+            }
+        }
+        return list
+    }
+
+    function runOverviewAction(kind, windowId, target, monitorName) {
+        if (!CompositorService.isHyprland || root.overviewActionBusy) return false
+        var command = [root.overviewActionScript, kind, String(windowId || "")]
+        if (kind === "move" || kind === "workspace") command.push(String(target || ""))
+        if (kind === "move") command.push(String(monitorName || ""))
+        root.overviewActionBusy = true
+        root.overviewActionError = ""
+        overviewActionProc.command = command
+        overviewActionProc.running = true
+        return true
+    }
+
     function nextWorkspaceIndex(workspaces, currentIndex, direction, config) {
         var normalized = WorkspaceLogic.normalizeConfig(config)
         return WorkspaceLogic.nextWorkspaceIndex(
@@ -213,6 +245,24 @@ Singleton {
             return
         }
         queueAction(command)
+    }
+
+    Process {
+        id: overviewActionProc
+        command: []
+        running: false
+        property string kind: command.length > 1 ? String(command[1]) : ""
+        property string stderrBuffer: ""
+        stderr: SplitParser { onRead: data => overviewActionProc.stderrBuffer += data + "\n" }
+        onExited: exitCode => {
+            var actionKind = overviewActionProc.kind
+            root.overviewActionBusy = false
+            root.overviewActionError = exitCode === 0 ? "" : "Could not complete the workspace action."
+            if (exitCode !== 0) Log.warn("WorkspaceService", overviewActionProc.stderrBuffer.trim() || root.overviewActionError)
+            overviewActionProc.stderrBuffer = ""
+            root.overviewActionFinished(actionKind, exitCode === 0)
+            refreshDelay.restart()
+        }
     }
 
     Process {

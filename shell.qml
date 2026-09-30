@@ -11,6 +11,7 @@ import "./Modules/bar/System"
 import "./Modules/bar/Dock"
 import "./Modules/bar/Tray"
 import "./Modules/OSD"
+import "./Modules/overview"
 
 // Staged loading strategy:
 //
@@ -38,6 +39,7 @@ ShellRoot {
     }
 
     Bar {}
+    WorkspaceOverview {}
 
     // ── Stage 2: background services (after 300ms) ───────────────────
     Loader { id: eqLoader;    active: false; source: "Services/EqBootstrap.qml"    }
