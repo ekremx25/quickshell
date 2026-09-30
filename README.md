@@ -117,6 +117,13 @@ Built on top of [outfoxxed's Quickshell framework](https://github.com/outfoxxed/
 
 <table>
   <tr>
+    <td align="center" valign="middle" colspan="2">
+      <img src="docs/screenshots/workspace-overview.png" alt="Workspace Overview with live windows grouped by monitor" />
+      <br>
+      <sub><b>Workspace Overview</b> — live window previews, per-monitor workspace groups and cross-monitor drag-and-drop</sub>
+    </td>
+  </tr>
+  <tr>
     <td align="center" valign="middle" width="50%">
       <img src="docs/screenshots/settings-bar.png" alt="Bar Settings (drag-drop layout)" />
       <sub><b>Bar Settings</b> — drag-drop module layout, four positions, per-screen visibility</sub>
@@ -247,9 +254,26 @@ Open or close it through Quickshell IPC:
 qs ipc call workspace-overview toggle
 ```
 
-Bind that command to your preferred compositor shortcut; `SUPER+TAB` is the
-recommended binding. The overview does not replace the compositor's normal
-`ALT+TAB` window cycle.
+`SUPER+TAB` is **not installed automatically** when this repository is cloned:
+the repository owns the Quickshell configuration, not the user's Hyprland
+keybindings. Quickshell must be running, and the user must add one of the
+following bindings to their own Hyprland configuration.
+
+Standard `hyprland.conf` syntax:
+
+```ini
+bind = SUPER, TAB, exec, qs ipc call workspace-overview toggle
+```
+
+Hyprland Lua configuration-provider syntax:
+
+```lua
+hl.bind("SUPER + TAB", hl.dsp.exec_cmd("qs ipc call workspace-overview toggle"))
+```
+
+Reload the Hyprland configuration after adding the binding. If `SUPER+TAB` is
+already assigned, remove/replace the conflicting binding or choose another key.
+The overview does not replace the compositor's normal `ALT+TAB` window cycle.
 
 Click a workspace to switch, click a window to focus it, or drag a window to a
 regular/special workspace. Cross-monitor drops snapshot the source state,
