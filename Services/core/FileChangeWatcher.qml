@@ -4,17 +4,17 @@ import Quickshell.Io
 
 // Watches a file for changes.
 //
-// ── INOTIFY MODE (when inotify-tools is installed) ─────────────────
-//   Uses inotifywait to watch the directory; emits on close_write or
-//   moved_to events. Zero CPU cost — no timer, no polling. Atomic mv
-//   writes (from TextDataStore) are caught correctly.
+// ── SHARED INOTIFY MODE (default when inotify-tools is installed) ───────────
+//   Delegates to InotifyDispatcher singleton which runs ONE inotifywait process
+//   per watched directory, shared across all FileChangeWatcher instances.
+//   Fixes "Too many open files" that occurred when each watcher had its own
+//   long-lived inotifywait process.
 //
-// ── POLLING MODE (falls back automatically if inotify-tools missing) ─
-//   Compares the (mtime, size, inode) triple via stat. On the first
-//   tick a baseline is recorded so no spurious "changed" is emitted.
+// ── POLLING MODE (fallback when inotify-tools is not installed) ─────────────
+//   Compares the (mtime, size, inode) triple via stat every `interval` ms.
+//   On the first tick a baseline is recorded to avoid a spurious "changed".
 //
 // To install inotify-tools (Arch): sudo pacman -S inotify-tools
-// After install any config reload picks it up automatically.
 Item {
     id: root
 
@@ -24,92 +24,87 @@ Item {
 
     property string path: ""
     property bool active: true
-    // interval is only used in the polling fallback mode
-    property int interval: 1000
+    property int interval: 1000  // only used in polling fallback mode
 
     signal changed()
 
-    // Set to true if inotifywait is not available (exit 127) — polling takes over
+    // ── Internal ──────────────────────────────────────────────────────────────
+    property int _token: -1
     property bool _pollingMode: false
-    property string _lastToken: ""
+    property string _lastStatToken: ""
     property bool _initialized: false
     readonly property string _coreDir: (Quickshell.env("XDG_CONFIG_HOME") || (Quickshell.env("HOME") + "/.config")) + "/quickshell/Services/core"
 
-    // Process.command is not restarted automatically while a Process is
-    // running. Explicitly re-arm the watcher when callers switch to a new
-    // file (for example when the active wallpaper path changes).
-    onPathChanged: {
-        root._lastToken = "";
-        root._initialized = false;
-        if (watchProc.running) watchProc.running = false;
-        if (root.active && root.path.length > 0 && !root._pollingMode) {
-            inotifyRestartTimer.restart();
-        }
-    }
-
-    // Returns the directory portion of `path`
     function _dir() {
         var idx = path.lastIndexOf("/");
         return idx > 0 ? path.substring(0, idx) : ".";
     }
 
-    // Returns the filename portion of `path`
     function _file() {
         var idx = path.lastIndexOf("/");
         return idx >= 0 ? path.substring(idx + 1) : path;
     }
 
-    // ----------------------------------------------------------------
-    // inotifywait-based watcher (event-driven)
-    // ----------------------------------------------------------------
-    Process {
-        id: watchProc
-        running: root.active && root.path.length > 0 && !root._pollingMode
-        // Watch the directory; moved_to also catches atomic mv writes.
-        command: root.path.length > 0
-            ? ["inotifywait", "-m", "-q", "-e", "close_write,moved_to", "--format", "%f", root._dir()]
-            : []
+    function _subscribe() {
+        if (!active || path.length === 0 || _pollingMode || _token !== -1) return;
+        _token = InotifyDispatcher.subscribe(_dir(), _file(), function() {
+            root.changed();
+        });
+    }
 
-        stdout: SplitParser {
-            onRead: data => {
-                // Only signal if the file we actually care about changed.
-                if (data.trim() === root._file()) {
-                    root.changed();
-                }
-            }
-        }
+    function _unsubscribe() {
+        if (_token === -1) return;
+        InotifyDispatcher.unsubscribe(_token);
+        _token = -1;
+    }
 
-        onExited: exitCode => {
-            if (!root.active) return;
-            if (exitCode === 127) {
-                // inotifywait is not installed → switch to polling mode
+    // ── Lifecycle ─────────────────────────────────────────────────────────────
+
+    Component.onCompleted: {
+        // Listen for dispatcher-level fallback notifications
+        InotifyDispatcher.pollingFallbackRequired.connect(function(dir) {
+            if (root.path.length > 0 && root._dir() === dir) {
+                root._token = -1; // token is now invalid
                 root._pollingMode = true;
-                return;
             }
-            // Transient failure (directory recreated, compositor restart, etc.)
-            // Retry after 1 second.
-            inotifyRestartTimer.restart();
+        });
+
+        if (active && path.length > 0)
+            _subscribe();
+    }
+
+    Component.onDestruction: {
+        _unsubscribe();
+    }
+
+    onPathChanged: {
+        _unsubscribe();
+        _lastStatToken = "";
+        _initialized = false;
+        if (active && path.length > 0) {
+            if (_pollingMode) {
+                // already in polling mode, timer will pick it up automatically
+            } else {
+                _subscribe();
+            }
         }
     }
 
-    Timer {
-        id: inotifyRestartTimer
-        interval: 1000
-        repeat: false
-        onTriggered: {
-            if (root.active && root.path.length > 0 && !root._pollingMode) {
-                watchProc.running = true;
-            }
+    onActiveChanged: {
+        if (active) {
+            if (path.length > 0 && !_pollingMode)
+                _subscribe();
+        } else {
+            _unsubscribe();
         }
     }
 
-    // ----------------------------------------------------------------
-    // Polling fallback (used when inotify-tools is not installed)
-    // ----------------------------------------------------------------
+    // ── Polling fallback ──────────────────────────────────────────────────────
+
     Timer {
         id: pollTimer
         interval: root.interval
-        running: root.active && root._pollingMode
+        running: root.active && root._pollingMode && root.path.length > 0
         repeat: true
         triggeredOnStart: true
         onTriggered: {
@@ -130,14 +125,13 @@ Item {
             var token = statProc.output.trim();
             statProc.output = "";
             if (token.length === 0) return;
-            // Seed the baseline on the first tick; don't emit a spurious "changed".
             if (!root._initialized) {
-                root._lastToken = token;
+                root._lastStatToken = token;
                 root._initialized = true;
                 return;
             }
-            if (token !== root._lastToken) {
-                root._lastToken = token;
+            if (token !== root._lastStatToken) {
+                root._lastStatToken = token;
                 root.changed();
             }
         }
