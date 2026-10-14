@@ -11,9 +11,23 @@
 [![Platform: Wayland](https://img.shields.io/badge/platform-Wayland-green.svg)]()
 [![Built with: Quickshell](https://img.shields.io/badge/built%20with-Quickshell-7F60F6.svg)](https://github.com/outfoxxed/quickshell)
 
-https://github.com/user-attachments/assets/c32273fd-03a5-41d9-ab4e-100727b9591d
-
 </div>
+
+## Quick Install — Hyprland
+
+Run in your Hyprland session to open the interactive setup wizard:
+
+```bash
+bash <(curl -qfsSL https://raw.githubusercontent.com/ekremx25/quickshell/main/install.sh)
+```
+
+Automatically detects monitors, asks for screen preferences, and backs up an
+existing installation. **No GitHub account or password is required.**
+
+**Preview without making changes:** append `--dry-run` to the command above.
+Read the [full installation guide](#installation) for dependencies and safety details.
+
+https://github.com/user-attachments/assets/c32273fd-03a5-41d9-ab4e-100727b9591d
 
 ---
 
