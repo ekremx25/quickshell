@@ -26,16 +26,9 @@ Variants {
         id: screenItem
         required property var modelData
 
-        property bool showWorkspaces: {
-            var prefs = S.ScreenManager.screenPreferences["workspaces"];
-            if (!prefs || !Array.isArray(prefs) || prefs.length === 0 || prefs.indexOf("all") !== -1) {
-                return true;
-            }
-            if (prefs.indexOf("none") !== -1 || prefs[0] === "none") {
-                return false;
-            }
-            return prefs.indexOf(modelData.name) !== -1;
-        }
+        property bool showWorkspaces: S.ScreenManager.getFilteredScreens("workspaces").some(function(screen) {
+            return screen.name === modelData.name;
+        })
 
         PanelWindow {
             id: barWindow
@@ -49,7 +42,7 @@ Variants {
                 bottom: root.barPosition !== "top"
             }
             color: "transparent"
-            property real barSize: 46
+            property real barSize: 48
 
             // In horizontal mode set height; in vertical mode set width.
             implicitHeight: root.isVertical ? -1 : barSize
@@ -76,8 +69,9 @@ Variants {
                 id: barContent
                 anchors.fill: parent
                 color: "transparent"
+                border.width: 0
                 opacity: 0
-                transform: Translate { id: barSlide; y: root.barPosition === "bottom" ? 52 : -52 }
+                transform: Translate { id: barSlide; y: root.isVertical ? 0 : (root.barPosition === "bottom" ? 8 : -8) }
 
                 Component.onCompleted: Qt.callLater(function() { barEnterAnim.start() })
 
@@ -85,11 +79,11 @@ Variants {
                     id: barEnterAnim
                     NumberAnimation {
                         target: barContent; property: "opacity"
-                        from: 0; to: 1; duration: 1100; easing.type: Easing.OutCubic
+                        from: 0; to: 1; duration: Theme.animMedium; easing.type: Easing.OutCubic
                     }
                     NumberAnimation {
                         target: barSlide; property: "y"
-                        to: 0; duration: 950; easing.type: Easing.OutBack
+                        to: 0; duration: Theme.animMedium; easing.type: Easing.OutCubic
                     }
                 }
 
@@ -98,7 +92,7 @@ Variants {
                 RowLayout {
                     visible: !root.isVertical
                     anchors { left: parent.left; leftMargin: 12; verticalCenter: parent.verticalCenter }
-                    spacing: 14
+                    spacing: 8
                     Repeater {
                         model: root.barLayout.left
                         Loader {
@@ -107,14 +101,12 @@ Variants {
                             active: !root.isVertical && ((modelData === "Workspaces") ? screenItem.showWorkspaces : true)
                             sourceComponent: moduleCatalog.componentFor(modelData)
                             opacity: 0
-                            scale: 0.7
                             Timer {
-                                interval: 350 + leftLoader.itemIndex * 100
+                                interval: leftLoader.itemIndex * 25
                                 running: true
-                                onTriggered: { leftLoader.opacity = 1; leftLoader.scale = 1 }
+                                onTriggered: { leftLoader.opacity = 1 }
                             }
-                            Behavior on opacity { NumberAnimation { duration: 450; easing.type: Easing.OutCubic } }
-                            Behavior on scale   { NumberAnimation { duration: 500; easing.type: Easing.OutBack } }
+                            Behavior on opacity { NumberAnimation { duration: Theme.animNormal; easing.type: Easing.OutCubic } }
                         }
                     }
                 }
@@ -123,6 +115,7 @@ Variants {
                 RowLayout {
                     visible: !root.isVertical
                     anchors.centerIn: parent
+                    spacing: 8
                     Repeater {
                         model: root.barLayout.center
                         Loader {
@@ -131,14 +124,12 @@ Variants {
                             active: !root.isVertical && ((modelData === "Workspaces") ? screenItem.showWorkspaces : true)
                             sourceComponent: moduleCatalog.componentFor(modelData)
                             opacity: 0
-                            scale: 0.7
                             Timer {
-                                interval: 500 + centerLoader.itemIndex * 100
+                                interval: centerLoader.itemIndex * 25
                                 running: true
-                                onTriggered: { centerLoader.opacity = 1; centerLoader.scale = 1 }
+                                onTriggered: { centerLoader.opacity = 1 }
                             }
-                            Behavior on opacity { NumberAnimation { duration: 450; easing.type: Easing.OutCubic } }
-                            Behavior on scale   { NumberAnimation { duration: 500; easing.type: Easing.OutBack } }
+                            Behavior on opacity { NumberAnimation { duration: Theme.animNormal; easing.type: Easing.OutCubic } }
                         }
                     }
                 }
@@ -147,7 +138,7 @@ Variants {
                 RowLayout {
                     visible: !root.isVertical
                     anchors { right: parent.right; rightMargin: 12; verticalCenter: parent.verticalCenter }
-                    spacing: 14
+                    spacing: 8
                     Repeater {
                         model: root.barLayout.right
                         Loader {
@@ -156,14 +147,12 @@ Variants {
                             active: !root.isVertical && ((modelData === "Workspaces") ? screenItem.showWorkspaces : true)
                             sourceComponent: moduleCatalog.componentFor(modelData)
                             opacity: 0
-                            scale: 0.7
                             Timer {
-                                interval: 650 + rightLoader.itemIndex * 100
+                                interval: rightLoader.itemIndex * 25
                                 running: true
-                                onTriggered: { rightLoader.opacity = 1; rightLoader.scale = 1 }
+                                onTriggered: { rightLoader.opacity = 1 }
                             }
-                            Behavior on opacity { NumberAnimation { duration: 450; easing.type: Easing.OutCubic } }
-                            Behavior on scale   { NumberAnimation { duration: 500; easing.type: Easing.OutBack } }
+                            Behavior on opacity { NumberAnimation { duration: Theme.animNormal; easing.type: Easing.OutCubic } }
                         }
                     }
                 }

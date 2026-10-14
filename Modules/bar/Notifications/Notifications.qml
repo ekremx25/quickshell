@@ -8,6 +8,7 @@ import "../../../Widgets"
 // This component is the button in the bar
 Rectangle {
     id: root
+    property var screenData: null
 
     // APPEARANCE
     implicitWidth: layout.implicitWidth + 24
@@ -168,6 +169,7 @@ Rectangle {
             }
             
             onLoaded: {
+                item.screen = Qt.binding(() => root.screenData)
                 item.visible = Qt.binding(() => notifPopup.visible)
             }
         }
@@ -185,6 +187,7 @@ Rectangle {
     
     DurationPopup {
         id: durPopup
+        screen: root.screenData
         visible: false
     }
 

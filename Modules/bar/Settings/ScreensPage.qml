@@ -7,7 +7,7 @@ import "../../../Services"
 Item {
     id: screensPage
 
-    readonly property var componentIds: ["bar", "dock", "workspaces", "notifications", "weather", "worldclock", "markets", "toast", "osd", "appdrawer"]
+    readonly property var componentIds: ["bar", "dock", "workspaces", "notifications", "weather", "worldclock", "markets", "toast", "osd"]
     readonly property var componentIcons: ({
         "bar": "󰒍",
         "dock": "⚓",
@@ -17,13 +17,11 @@ Item {
         "worldclock": "󱑂",
         "markets": "󰄪",
         "toast": "󱅫",
-        "osd": "󰕾",
-        "appdrawer": "󰀻"
+        "osd": "󰕾"
     })
     readonly property var componentLabels: ({
         "worldclock": "World Clocks",
         "markets": "Markets",
-        "appdrawer": "App Drawer",
         "osd": "OSD"
     })
 

@@ -19,9 +19,9 @@ Item {
     required property var settingsPopup
 
     width: modelData.isModule
-        ? (moduleLoader.item ? moduleLoader.item.implicitWidth : panel.cfgIconSize * dockScale)
+        ? (moduleLoader.item ? Math.max(moduleLoader.item.implicitWidth, moduleLoader.item.width) : panel.cfgIconSize * dockScale)
         : panel.cfgIconSize * dockScale
-    height: Math.max((panel.cfgIconSize + 8) * dockScale, moduleLoader.item ? moduleLoader.item.implicitHeight : 0)
+    height: Math.max((panel.cfgIconSize + 8) * dockScale, moduleLoader.item ? Math.max(moduleLoader.item.implicitHeight, moduleLoader.item.height) : 0)
 
     Loader {
         id: moduleLoader

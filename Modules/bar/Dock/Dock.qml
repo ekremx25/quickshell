@@ -156,7 +156,12 @@ Variants {
 
         // Visual construction and placement metadata are centralized in the
         // ModuleCatalog/ModuleRegistry pair.
-        readonly property var moduleMap: moduleCatalog.componentMap
+        readonly property var moduleMap: {
+            var components = {};
+            for (var name in moduleCatalog.componentMap)
+                components[name] = moduleCatalog.componentFor(name);
+            return components;
+        }
 
         Settings {
             id: settingsMenu
@@ -269,8 +274,8 @@ Variants {
             implicitWidth: dockRow.implicitWidth + (dockWindow.isHorizontal ? dockWindow.cfgPadding * 2 : 8) * dockScale
             implicitHeight: dockRow.implicitHeight + (dockWindow.isHorizontal ? 0 : dockWindow.cfgPadding * 2) * dockScale
             radius: 14 * dockScale
-            color: (dockWindow.dockConfigData && dockWindow.dockConfigData.showBackground === false) ? "transparent" : Qt.rgba(30/255, 30/255, 46/255, dockWindow.cfgTransparency)
-            border.color: (dockWindow.dockConfigData && dockWindow.dockConfigData.showBackground === false) ? "transparent" : (dockWindow.cfgShowBorder ? Theme.withAlpha(Theme.surface, 0.8) : "transparent")
+            color: (dockWindow.dockConfigData && dockWindow.dockConfigData.showBackground === false) ? "transparent" : Theme.withAlpha(Theme.panelSurface, dockWindow.cfgTransparency)
+            border.color: (dockWindow.dockConfigData && dockWindow.dockConfigData.showBackground === false) ? "transparent" : (dockWindow.cfgShowBorder ? Theme.borderStrong : "transparent")
             border.width: (dockWindow.dockConfigData && dockWindow.dockConfigData.showBackground === false) ? 0 : (dockWindow.cfgShowBorder ? 1 : 0)
 
             // Subtle glow outside the border

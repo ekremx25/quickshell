@@ -319,7 +319,7 @@ Item {
                         Layout.fillWidth: true
                         from: 0.5; to: 2.5; stepSize: 0.1
                         value: root.cfg_dockScale
-                        onValueChanged: { root.cfg_dockScale = Math.round(value * 10) / 10; save() }
+                        onMoved: { root.cfg_dockScale = Math.round(value * 10) / 10; save() }
                         background: Rectangle {
                             x: parent.leftPadding; y: parent.topPadding + parent.availableHeight / 2 - height / 2
                             implicitWidth: 200; implicitHeight: 4; width: parent.availableWidth; height: implicitHeight; radius: 2; color: colorTrack
@@ -355,7 +355,7 @@ Item {
                         Layout.fillWidth: true
                         from: 16; to: 64; stepSize: 2
                         value: root.cfg_iconSize
-                        onValueChanged: { root.cfg_iconSize = Math.round(value); save() }
+                        onMoved: { root.cfg_iconSize = Math.round(value); save() }
                         background: Rectangle {
                             x: parent.leftPadding; y: parent.topPadding + parent.availableHeight / 2 - height / 2
                             implicitWidth: 200; implicitHeight: 4; width: parent.availableWidth; height: implicitHeight; radius: 2; color: colorTrack
@@ -419,7 +419,7 @@ Item {
                         Layout.fillWidth: true
                         from: 0.0; to: 1.0; stepSize: 0.05
                         value: root.cfg_dockTransparency
-                        onValueChanged: { root.cfg_dockTransparency = Math.round(value * 20) / 20; save() }
+                        onMoved: { root.cfg_dockTransparency = Math.round(value * 20) / 20; save() }
                         background: Rectangle {
                             x: parent.leftPadding; y: parent.topPadding + parent.availableHeight / 2 - height / 2
                             implicitWidth: 200; implicitHeight: 4; width: parent.availableWidth; height: implicitHeight; radius: 2; color: colorTrack
@@ -482,7 +482,7 @@ Item {
                         Layout.fillWidth: true
                         from: 0; to: 40; stepSize: 1
                         value: root.cfg_dockPadding
-                        onValueChanged: { root.cfg_dockPadding = Math.round(value); save() }
+                        onMoved: { root.cfg_dockPadding = Math.round(value); save() }
                         background: Rectangle {
                             x: parent.leftPadding; y: parent.topPadding + parent.availableHeight / 2 - height / 2
                             implicitWidth: 200; implicitHeight: 4; width: parent.availableWidth; height: implicitHeight; radius: 2; color: colorTrack
@@ -518,7 +518,7 @@ Item {
                         Layout.fillWidth: true
                         from: 0; to: 16; stepSize: 1
                         value: root.cfg_itemSpacing
-                        onValueChanged: { root.cfg_itemSpacing = Math.round(value); save() }
+                        onMoved: { root.cfg_itemSpacing = Math.round(value); save() }
                         background: Rectangle {
                             x: parent.leftPadding; y: parent.topPadding + parent.availableHeight / 2 - height / 2
                             implicitWidth: 200; implicitHeight: 4; width: parent.availableWidth; height: implicitHeight; radius: 2; color: colorTrack
@@ -554,7 +554,7 @@ Item {
                         Layout.fillWidth: true
                         from: 0; to: 40; stepSize: 1
                         value: root.cfg_bottomMargin
-                        onValueChanged: { root.cfg_bottomMargin = Math.round(value); save() }
+                        onMoved: { root.cfg_bottomMargin = Math.round(value); save() }
                         background: Rectangle {
                             x: parent.leftPadding; y: parent.topPadding + parent.availableHeight / 2 - height / 2
                             implicitWidth: 200; implicitHeight: 4; width: parent.availableWidth; height: implicitHeight; radius: 2; color: colorTrack

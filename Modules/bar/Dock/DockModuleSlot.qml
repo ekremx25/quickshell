@@ -11,8 +11,8 @@ Item {
     required property real dockScale
     required property real iconSize
 
-    width: loader.item ? loader.item.implicitWidth : iconSize * dockScale
-    height: Math.max((iconSize + 8) * dockScale, loader.item ? loader.item.implicitHeight : 0)
+    width: loader.item ? Math.max(loader.item.implicitWidth, loader.item.width) : iconSize * dockScale
+    height: Math.max((iconSize + 8) * dockScale, loader.item ? Math.max(loader.item.implicitHeight, loader.item.height) : 0)
 
     Loader {
         id: loader

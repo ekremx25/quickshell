@@ -98,7 +98,8 @@ Singleton {
         path: root.configPath
         defaultValue: ({})
         onLoadedValue: function(value) {
-            root.screenPreferences = value || {};
+            // Signal values can contain QML sequences rather than JavaScript arrays.
+            root.screenPreferences = JSON.parse(JSON.stringify(value || {}));
         }
         onFailed: function(phase, exitCode, details) {
             if (phase === "parse") Log.warn("ScreenManager", "Config parse error: " + details);

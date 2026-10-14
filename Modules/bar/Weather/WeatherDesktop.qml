@@ -17,21 +17,24 @@ WeatherDataScope {
             required property var modelData
             screen: modelData
 
-            anchors { right: true; top: true }
+            anchors { left: true; right: true; top: true; bottom: true }
             color: "transparent"
-            implicitWidth: 320
-            implicitHeight: 1000
             exclusiveZone: 0
             WlrLayershell.layer: WlrLayer.Bottom
             WlrLayershell.namespace: "weather-desktop"
 
-            // Theme { id: theme }
+            mask: Region { item: weatherFrame }
+
+            readonly property string screenKey: S.ScreenManager.roleForScreenName(modelData.name)
+            readonly property point savedPosition: S.DesktopWidgetPositions.position(
+                "weather", screenKey, Math.max(0, width - 304), 70)
 
             Rectangle {
-                anchors.fill: parent
-                anchors.margins: 16
-                anchors.topMargin: 70
-                anchors.bottomMargin: 40
+                id: weatherFrame
+                x: Math.max(0, Math.min(weatherPanel.width - width, weatherPanel.savedPosition.x))
+                y: Math.max(0, Math.min(weatherPanel.height - height, weatherPanel.savedPosition.y))
+                width: Math.min(288, weatherPanel.width)
+                height: Math.min(760, weatherPanel.height)
                 color: Qt.rgba(Theme.background.r, Theme.background.g, Theme.background.b, 0.75)
                 radius: 20
                 border.color: Qt.rgba(Theme.surface.r, Theme.surface.g, Theme.surface.b, 0.6)
@@ -261,6 +264,20 @@ WeatherDataScope {
                     }
 
                     Item { Layout.fillHeight: true }
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    z: 20
+                    hoverEnabled: true
+                    cursorShape: pressed ? Qt.ClosedHandCursor : Qt.OpenHandCursor
+                    drag.target: weatherFrame
+                    drag.axis: Drag.XAndYAxis
+                    drag.minimumX: 0
+                    drag.maximumX: Math.max(0, weatherPanel.width - weatherFrame.width)
+                    drag.minimumY: 0
+                    drag.maximumY: Math.max(0, weatherPanel.height - weatherFrame.height)
+                    onReleased: S.DesktopWidgetPositions.setPosition(
+                        "weather", weatherPanel.screenKey, weatherFrame.x, weatherFrame.y)
                 }
             }
 
