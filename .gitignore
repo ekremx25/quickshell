@@ -40,3 +40,6 @@ screen_config.json
 desktop_widgets.json
 markets_preferences.json
 eq/parametric-eq.txt
+
+# Installer-generated local monitor management policy
+monitor_setup.json

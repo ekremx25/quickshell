@@ -392,6 +392,86 @@ yay -S qt6ct-kde
 
 ## Installation
 
+### Interactive Hyprland setup (recommended)
+
+Use a separate checkout, **not** your running `~/.config/quickshell` directory:
+
+```bash
+git clone https://github.com/ekremx25/quickshell.git quickshell-source
+cd quickshell-source
+bash install.sh --dry-run
+bash install.sh
+```
+
+The wizard reads `hyprctl monitors -j`, confirms the detected count, asks which
+outputs are Main/Secondary/Third, and asks where each component should appear.
+It preserves current resolution, refresh rate, scale and coordinates; it does
+not invoke monitor-setting commands or start the shell. Hyprland Lua autostart
+is offered separately after installation and requires explicit consent. Newly installed monitor profiles use observation-only mode so the
+existing startup/hotplug hooks do not rearrange your displays later.
+
+- **Dry-run:** interactive plan only; no destination writes, backups or package installs.
+- **Packages:** on Arch/CachyOS, `pacman -Q` checks each required package. Only
+  missing packages are offered for installation, behind a separate confirmation,
+  using `pacman -S --needed`. No full system upgrade is performed. Other distros
+  use the dependency list above; no guessed package-manager commands are run.
+- **Backups:** an existing installation is renamed to a unique sibling
+  `quickshell.backup-DATE-TIME-ID` only after the replacement has been staged.
+  Failed activation restores the old directory. Existing unrelated settings are
+  retained; selected monitor roles and screen preferences are updated.
+- **Safety:** a running destination, overlapping source/destination or symlinked
+  configuration is rejected. No shell is killed; no autostart entry is added without explicit consent.
+- **Privacy:** root-level author JSON and the profile avatar are not copied into
+  a fresh installation. Existing user JSON is retained, except generated monitor
+  files and the selected screen preferences. Legacy unknown preference keys survive.
+- **Hyprland autostart:** after installation, the wizard optionally backs up an
+  existing `hyprland.lua` and adds the current Lua startup event below. Legacy
+  `.conf` files are refused, not migrated. Declining or reaching EOF leaves
+  Hyprland untouched. Existing Quickshell Lua launch entries are left unchanged.
+  This does not start Quickshell immediately or reload the compositor.
+
+  ```lua
+  hl.on("hyprland.start", function()
+      hl.exec_cmd("quickshell")
+  end)
+  ```
+
+  Reference: [official Hyprland autostart documentation](https://wiki.hypr.land/configuring/core/autostart/), checked 2026-10-14.
+
+- **Offline metadata:** `bash install.sh --monitors-json /path/to/monitors.json --dry-run`
+  accepts a saved `hyprctl monitors -j` snapshot. It still requires valid monitor
+  data and interactive answers; EOF cancels instead of accepting an install.
+
+Python 3.10+ and Bash are required for the wizard; Git is also required for its
+remote bootstrap. Run without `sudo`; the optional package step requests it
+when necessary. The target is `$XDG_CONFIG_HOME/quickshell` (default
+`~/.config/quickshell`). Start manually with the printed guarded launcher after
+checking dependencies. To restore a backup, stop the shell, move the current
+configuration aside, and rename the printed backup directory to `quickshell`.
+Backups are never pruned automatically.
+
+For a published version containing this installer, the process-substitution
+entrypoint is also supported (review downloaded code before executing it):
+
+```bash
+bash <(curl -qfsSL https://raw.githubusercontent.com/ekremx25/quickshell/main/install.sh) --dry-run
+```
+
+This downloads a temporary checkout and removes that checkout afterward.
+The bootstrap uses public HTTPS with Git terminal/askpass prompts and credential
+helpers disabled. User Git URL rewrites are ignored for this download only.
+It never asks for a GitHub username, password or token: if the public download
+fails, it exits with an error instead of prompting for authentication. Optional
+package installation may still request your **local sudo password**, not a GitHub
+password. Existing Git settings are not modified.
+`QUICKSHELL_INSTALL_REF` selects a published branch/tag for that checkout;
+local checkout invocation is preferable when reproducibility or offline use matters.
+The first three screen selections use stable roles; additional outputs use
+connector names in component preferences. Duplicate/absent display identities
+fall back to connector/capability matching rather than overwriting one identity.
+
+### Manual installation
+
 1. **Clone the repository**
 
    ```bash

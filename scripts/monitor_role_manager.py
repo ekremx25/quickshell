@@ -486,6 +486,41 @@ def verify_plan(plan: list[dict], live_outputs: list[dict]) -> None:
         raise RuntimeError("; ".join(failures))
 
 
+def observed_roles(outputs: list[dict], config: dict) -> dict:
+    """Follow known displays without changing modes, geometry or explicit roles."""
+    live = {item["name"]: item for item in outputs}
+    roles = {}
+    used = set()
+    for connector, profile in config.items():
+        if not isinstance(profile, dict):
+            continue
+        role = profile.get("role")
+        if not isinstance(role, str) or not role:
+            continue
+        identity = profile.get("identity")
+        matches = [item["name"] for item in outputs if identity and monitor_identity(item) == identity]
+        name = matches[0] if len(matches) == 1 else connector
+        if name not in live or name in used or not role or role in roles:
+            continue
+        if identity and monitor_identity(live[name]) != identity:
+            continue
+        roles[role] = name
+        used.add(name)
+    for item in outputs:
+        name = item["name"]
+        if name in used:
+            continue
+        role = next((candidate for candidate in ROLE_NAMES if candidate not in roles), None)
+        if role is None:
+            index = 4
+            while f"display-{index}" in roles:
+                index += 1
+            role = f"display-{index}"
+        roles[role] = name
+        used.add(name)
+    return roles
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--dry-run", action="store_true")
@@ -510,6 +545,17 @@ def main() -> int:
             else:
                 outputs = run_json(["hyprctl", "monitors", "all", "-j"])
             outputs = [output for output in outputs if not output.get("disabled")]
+            setup_path = root / "monitor_setup.json"
+            setup = json.loads(setup_path.read_text(encoding="utf-8")) if setup_path.exists() else {}
+            if not isinstance(setup, dict):
+                raise ValueError("monitor_setup.json must contain an object")
+            if setup.get("manageDisplays") is False:
+                roles = observed_roles(outputs, config)
+                if args.dry_run:
+                    print(json.dumps({"roles": roles, "config": config}, indent=2))
+                else:
+                    atomic_json_write(runtime_path, roles)
+                return 0
             role_profiles = json.loads(role_profile_path.read_text(encoding="utf-8")) if role_profile_path.exists() else {}
             identity_roles = json.loads(identity_path.read_text(encoding="utf-8")) if identity_path.exists() else {}
 
