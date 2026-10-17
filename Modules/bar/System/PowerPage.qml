@@ -9,7 +9,7 @@ Item {
     id: powerPage
 
     function logoutCommand() {
-        if (S.CompositorService.isHyprland) return ["hyprctl", "dispatch", "exit"];
+        if (S.CompositorService.isHyprland) return ["bash", S.CompositorService.configDir + "/scripts/hypr_exit.sh"];
         if (S.CompositorService.isNiri) return ["niri", "msg", "action", "quit"];
         if (S.CompositorService.isMango) return ["mmsg", "dispatch", "quit"];
         const sessionId = Quickshell.env("XDG_SESSION_ID") || "";
