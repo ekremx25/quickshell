@@ -8,7 +8,7 @@ function createWorkspacesConfig() {
         "style": "circle",
         "transparent": false,
         "displayMode": "role",
-        "workspaceCount": 4,
+        "workspaceCount": 5,
         "showEmpty": true,
         "showSpecial": true,
         "showApps": true,
@@ -16,8 +16,8 @@ function createWorkspacesConfig() {
         "scrollEnabled": true,
         "wrapAround": true,
         "reverseScroll": false,
-        "iconSize": 20,
-        "maxIcons": 3
+        "iconSize": 18,
+        "maxIcons": 4
     };
 }
 

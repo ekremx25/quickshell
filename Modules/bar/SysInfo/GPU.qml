@@ -3,11 +3,12 @@ import QtQuick.Layouts
 import Quickshell
 import "."
 import "../../../Widgets"
+import "../../../Services" as S
 
 Rectangle {
   id: root
   property bool isHovered: ma.containsMouse || tipWindow.visible
-  GpuBackend { id: backend }
+  readonly property var backend: S.GpuStats
 
   implicitWidth: layout.implicitWidth + 24
   implicitHeight: 30

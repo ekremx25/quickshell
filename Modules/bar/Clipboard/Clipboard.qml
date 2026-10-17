@@ -4,6 +4,7 @@ import Quickshell
 import Quickshell.Wayland
 import "."
 import "../../../Widgets"
+import "../../../Services" as S
 
 Rectangle {
     id: root
@@ -20,11 +21,12 @@ Rectangle {
     
     Behavior on opacity { NumberAnimation { duration: 180 } }
     
-    ClipboardBackend { id: backend }
-    property alias hasActive: backend.hasActive
-    property alias currentClip: backend.currentClip
-    property alias maxHistory: backend.maxHistory
-    property alias clipboardModel: backend.historyModel
+    // One shared history for every bar/dock instance instead of one per screen.
+    readonly property var backend: S.ClipboardHistory
+    readonly property bool hasActive: backend.hasActive
+    readonly property string currentClip: backend.currentClip
+    readonly property int maxHistory: backend.maxHistory
+    readonly property var clipboardModel: backend.historyModel
 
     function copyToClipboard(text) {
         backend.copyToClipboard(text);

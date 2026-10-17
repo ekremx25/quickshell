@@ -21,8 +21,8 @@ import "./Modules/overview"
 //  Stage 2 (300ms)     : EqBootstrap + MouseBootstrap
 //    → Equalizer and mouse services start in the background.
 //
-//  Stage 3 (600ms)     : Dock + WeatherDesktop + ToastHost + OSD
-//    → Visual extensions load after the first frame.
+//  Stage 3 (next tick) : Dock + desktop widgets + ToastHost + OSD
+//    → Visual extensions load right after the first frame.
 //
 // This approach spreads the startup cost to speed up the first visible frame.
 ShellRoot {
@@ -45,7 +45,7 @@ ShellRoot {
     Loader { id: eqLoader;    active: false; source: "Services/EqBootstrap.qml"    }
     Loader { id: mouseLoader; active: false; source: "Services/MouseBootstrap.qml" }
 
-    // ── Stage 3: visual components (after 600ms) ─────────────────────
+    // ── Stage 3: visual components (next event-loop tick) ────────────
     Loader { id: dockLoader;    active: false; sourceComponent: dockComp    }
     Loader { id: weatherLoader; active: false; sourceComponent: weatherComp }
     Loader { id: worldClockLoader; active: false; sourceComponent: worldClockComp }

@@ -146,7 +146,7 @@ var _modules = [
         color: "#fab387",
         placements: ["bar", "dock"],
         settingsPage: "bar",
-        services: ["ClipboardBackend"],
+        services: ["ClipboardHistory"],
         contexts: []
     },
     {
@@ -230,7 +230,7 @@ var _modules = [
         color: "#f9e2af",
         placements: ["bar", "dock"],
         settingsPage: "sysinfo",
-        services: ["TempBackend", "GpuBackend", "DiskService"],
+        services: ["CpuStats", "CpuCoreStats", "GpuStats", "DiskService"],
         contexts: []
     },
     {
@@ -244,7 +244,7 @@ var _modules = [
         color: "#a6e3a1",
         placements: ["bar", "dock"],
         settingsPage: "sysinfo",
-        services: ["RamBackend"],
+        services: ["RamStats"],
         contexts: []
     },
     {

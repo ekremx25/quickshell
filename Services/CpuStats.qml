@@ -1,7 +1,10 @@
+pragma Singleton
+
 import QtQuick
+import Quickshell
 import Quickshell.Io
 
-Item {
+Singleton {
     id: backend
 
     property real cpuPercent: 0

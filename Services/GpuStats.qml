@@ -1,7 +1,10 @@
+pragma Singleton
+
 import QtQuick
+import Quickshell
 import Quickshell.Io
 
-Item {
+Singleton {
     id: backend
 
     property int gpuPercent: 0
@@ -28,7 +31,9 @@ Item {
             "total=$(cat \"$card/mem_info_vram_total\" 2>/dev/null || echo 1); " +
             "usedGB=$(awk -v u=$used 'BEGIN {printf \"%.1f\", u/1073741824}'); " +
             "totalGB=$(awk -v t=$total 'BEGIN {printf \"%.1f\", t/1073741824}'); " +
-            "model=$(cat \"$card/../*/product_name\" 2>/dev/null || lspci | grep -i vga | sed 's/.*: //' | head -n1); " +
+            // The model never changes: resolve it once ($1 = 1), then skip lspci on every sample.
+            "model=''; if [ \"$1\" = 1 ]; then model=$(cat \"$card/product_name\" 2>/dev/null | head -n1); " +
+            "[ -z \"$model\" ] && model=$(lspci 2>/dev/null | grep -iE 'vga|3d controller' | sed 's/.*: //' | head -n1); fi; " +
             "sclk=$(cat \"$card/pp_dpm_sclk\" 2>/dev/null | grep '\\*' | awk '{print $2}'); " +
             "mclk=$(cat \"$card/pp_dpm_mclk\" 2>/dev/null | grep '\\*' | awk '{print $2}'); " +
             "if [ -z \"$sclk\" ]; then sclk='-'; fi; " +
@@ -36,7 +41,8 @@ Item {
             "powerFile=$(find \"$card/hwmon\" -name \"power1_average\" 2>/dev/null | head -n1); " +
             "if [ -n \"$powerFile\" ]; then power=$(awk '{printf \"%.0f\", $1/1000000}' \"$powerFile\"); else power='-'; fi; " +
             "drv=$(basename $(readlink \"$card/driver\") 2>/dev/null || echo '-'); " +
-            "echo \"$usage|$temp|$usedGB|$totalGB|$model|$sclk|$mclk|$power|$drv\""
+            "echo \"$usage|$temp|$usedGB|$totalGB|$model|$sclk|$mclk|$power|$drv\"",
+            "--", backend.gpuModel === "Loading..." ? "1" : "0"
         ]
         running: true
         stdout: SplitParser {
@@ -49,7 +55,8 @@ Item {
                 backend.vramUsed = parts[2];
                 backend.vramTotal = parts[3];
                 if (parts.length >= 9) {
-                    backend.gpuModel = parts[4] || "-";
+                    if (parts[4]) backend.gpuModel = parts[4];
+                    else if (backend.gpuModel === "Loading...") backend.gpuModel = "-";
                     backend.gpuClock = parts[5] || "-";
                     backend.gpuMemClock = parts[6] || "-";
                     backend.gpuPower = parts[7] || "-";

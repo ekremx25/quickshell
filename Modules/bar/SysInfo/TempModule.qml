@@ -1,8 +1,8 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
-import Quickshell.Io
 import "../../../Widgets"
+import "../../../Services" as S
 
 Rectangle {
     id: root
@@ -26,7 +26,8 @@ Rectangle {
 
         Text {
             id: tempText
-            text: "--°C"
+            // Shares the CPU temperature sampled by CpuStats instead of polling hwmon separately.
+            text: S.CpuStats.cpuTempC === "-" ? "--°C" : "+" + S.CpuStats.cpuTempC + "°C"
             font.bold: true
             font.family: Theme.fontFamily
             color: Theme.foregroundFor(root.color)
@@ -39,42 +40,5 @@ Rectangle {
             font.pixelSize: 16
             color: Theme.foregroundFor(root.color)
         }
-    }
-
-    // --- MOST ROBUST METHOD: Find and Read the Hardware File ---
-    Process {
-        id: tempProc
-        // This command does the following:
-        // 1. Walks through the hwmon folders.
-        // 2. Searches for the "k10temp" name (your CPU).
-        // 3. Reads the temperature file (temp1_input) from the folder it finds.
-        // 4. Much lighter than running the "sensors" command.
-        command: ["sh", "-c", "for h in /sys/class/hwmon/hwmon*; do grep -q k10temp $h/name && cat $h/temp1_input && exit; done"]
-    }
-
-    // --- DATA READING ---
-    Connections {
-        // Only connect while the process is running (Critical to avoid errors!)
-        target: tempProc.running ? tempProc.stdout : null
-
-        function onRead(data) {
-            var rawVal = data.toString().trim()
-
-            // Check if the incoming data is a number (e.g. 46125 arrives)
-            if (rawVal !== "" && !isNaN(rawVal)) {
-                // Divide by 1000 and convert to degrees: 46125 -> 46.1
-                var temp = (parseInt(rawVal) / 1000).toFixed(1)
-                tempText.text = "+" + temp + "°C"
-            }
-        }
-    }
-
-    // --- TIMER (2 Seconds) ---
-    Timer {
-        interval: 2000
-        running: true
-        repeat: true
-        triggeredOnStart: true
-        onTriggered: tempProc.running = true
     }
 }

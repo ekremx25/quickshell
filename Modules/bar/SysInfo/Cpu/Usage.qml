@@ -4,10 +4,11 @@ import QtQuick.Controls
 import Quickshell
 import "."
 import "../../../../Widgets"
+import "../../../../Services" as S
 
 Rectangle {
     id: root
-    UsageBackend { id: backend }
+    readonly property var backend: S.CpuCoreStats
     width: layout.implicitWidth + 16
     height: 30
     color: Theme.cpBlue // Blue

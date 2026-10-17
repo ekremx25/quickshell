@@ -117,7 +117,7 @@ Built on top of [outfoxxed's Quickshell framework](https://github.com/outfoxxed/
 - Persists through shell restart; auto-applies on startup
 
 ### Extras
-- **OSD** for volume and brightness
+- **OSD** for volume
 - **App Drawer** launcher with fuzzy search
 - **Wallpaper Picker** with Material You palette extraction ([matugen](https://github.com/InioX/matugen))
 - **Lock Screen** — wallpaper, dim/lock/suspend timeouts, media inhibit

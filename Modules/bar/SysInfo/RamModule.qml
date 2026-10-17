@@ -3,6 +3,7 @@ import QtQuick.Layouts
 import Quickshell
 import "."
 import "../../../Widgets"
+import "../../../Services" as S
 
 Rectangle {
     id: root
@@ -12,7 +13,7 @@ Rectangle {
     color: Theme.ramColor
     Behavior on color { ColorAnimation { duration: Theme.animMedium } }
     property bool isHovered: ma.containsMouse || tipWindow.visible
-    RamBackend { id: backend }
+    readonly property var backend: S.RamStats
     border.width: 1
     border.color: isHovered ? Theme.withAlpha(Theme.text, 0.1) : "transparent"
 
