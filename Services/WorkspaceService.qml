@@ -216,6 +216,8 @@ Singleton {
             command = monitorName
                 ? ["mmsg", "dispatch", "viewcrossmon," + String(target) + "," + String(monitorName)]
                 : ["mmsg", "dispatch", "view," + String(target)]
+        } else if (Quickshell.env("SWAYSOCK")) {
+            command = ["swaymsg", "focus output " + String(monitorName) + "; workspace number " + String(target)]
         } else {
             return
         }
@@ -241,6 +243,8 @@ Singleton {
             command = ["niri", "msg", "action", "focus-window", "--id", String(windowId)]
         } else if (CompositorService.isMango) {
             command = ["mmsg", "dispatch", "focusid", "client," + String(windowId)]
+        } else if (Quickshell.env("SWAYSOCK")) {
+            command = ["swaymsg", "[con_id=" + String(windowId) + "]", "focus"]
         } else {
             return
         }
@@ -399,7 +403,7 @@ Singleton {
     Timer {
         interval: 1000
         repeat: true
-        running: root.eventFallback || (CompositorService.isMango && root.mangoClientEventFallback)
+        running: root.eventFallback || (CompositorService.isMango && root.mangoClientEventFallback) || !!Quickshell.env("SWAYSOCK")
         onTriggered: root.requestRefresh()
     }
 }

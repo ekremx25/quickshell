@@ -59,7 +59,7 @@ function normalizeWorkspacesConfig(config) {
 
 function createBarConfig() {
     return {
-        left: ["Launcher","RamModule","SysInfoGroup","CurrencyConverter"],
+        left: ["CurrencyConverter","RamModule","SysInfoGroup"],
         center: ["Workspaces","Notifications","Notepad","ActivityMonitor"],
         right: ["Equalizer","Volume","Clipboard","Hyprmoncfg","PowerGroup"],
         inactive: ["NightLight"],

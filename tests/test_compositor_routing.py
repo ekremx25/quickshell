@@ -70,6 +70,7 @@ class CompositorRoutingTests(unittest.TestCase):
     def test_workspace_snapshot_routes_without_stale_hints(self):
         for name in ("niri", "hyprctl", "mmsg"):
             self.command(name, 'echo "' + name + ' $*" >> "$ROUTING_LOG"; printf \'[]\\n\'')
+        self.command("swaymsg", 'echo "swaymsg $*" >> "$ROUTING_LOG"; if [[ "$*" == *get_tree* ]]; then echo \'{}\'; else echo \'[]\'; fi')
         cases = [
             ({"XDG_CURRENT_DESKTOP": "niri", "HYPRLAND_INSTANCE_SIGNATURE": "old"}, "niri", "<<<OUTPUTS>>>"),
             ({"XDG_CURRENT_DESKTOP": "Mango", "NIRI_SOCKET": "old"}, "mmsg", "<<<MANGO_TAGS>>>"),
@@ -77,7 +78,7 @@ class CompositorRoutingTests(unittest.TestCase):
             ({"XDG_CURRENT_DESKTOP": "KDE", "HYPRLAND_INSTANCE_SIGNATURE": "old"}, None, None),
             ({"NIRI_SOCKET": "niri", "HYPRLAND_INSTANCE_SIGNATURE": "old"}, None, None),
             ({"NIRI_SOCKET": "niri"}, "niri", "<<<OUTPUTS>>>"),
-            ({"XDG_CURRENT_DESKTOP": "sway", "SWAYSOCK": "sway", "HYPRLAND_INSTANCE_SIGNATURE": "old"}, None, None),
+            ({"XDG_CURRENT_DESKTOP": "sway", "SWAYSOCK": "sway", "HYPRLAND_INSTANCE_SIGNATURE": "old"}, "swaymsg", "<<<MONITORS>>>"),
         ]
         for values, command, marker in cases:
             with self.subTest(values=values):

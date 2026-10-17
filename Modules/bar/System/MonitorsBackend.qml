@@ -569,7 +569,7 @@ Item {
 
     Process {
         id: randrProc
-        command: CompositorService.isHyprland ? ["hyprctl", "monitors", "all", "-j"] : (CompositorService.isMango ? ["mmsg", "get", "all-monitors"] : CompositorService.isNiri ? ["niri", "msg", "-j", "outputs"] : [])
+        command: CompositorService.isHyprland ? ["hyprctl", "monitors", "-j"] : (CompositorService.isMango ? ["mmsg", "get", "all-monitors"] : CompositorService.isNiri ? ["niri", "msg", "-j", "outputs"] : [])
         property string buf: ""
         stdout: SplitParser { onRead: data => randrProc.buf += data + "\n" }
         onExited: {

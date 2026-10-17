@@ -1,89 +1,99 @@
 {
-  "showDock": true,
   "autoHide": false,
-  "intelligentAutoHide": false,
-  "showBackground": true,
-  "dockTransparency": 0,
-  "showBorder": true,
-  "dockScale": 1.2,
-  "iconSize": 32,
-  "dockPadding": 10,
-  "itemSpacing": 4,
-  "bottomMargin": 5,
-  "indicatorStyle": "circle",
-  "showLauncher": true,
-  "dockPosition": "bottom",
+  "bottomMargin": 10,
   "dockAlignment": "center",
+  "dockPadding": 8,
+  "dockPosition": "bottom",
+  "dockScale": 1.1,
+  "dockTransparency": 0,
+  "iconSize": 32,
+  "indicatorStyle": "circle",
+  "intelligentAutoHide": false,
+  "itemSpacing": 6,
+  "leftModules": [
+    "Launcher",
+    "Weather"
+  ],
+  "moduleSchemaVersion": 3,
   "pinned": [
     {
-      "name": "Files",
-      "icon": "org.kde.dolphin",
+      "appId": "dolphin",
       "cmd": "dolphin",
-      "appId": "dolphin"
+      "icon": "org.kde.dolphin",
+      "name": "Files"
     },
     {
-      "name": "Telegram",
-      "icon": "org.telegram.desktop",
+      "appId": "org.telegram.desktop",
       "cmd": "Telegram",
-      "appId": "org.telegram.desktop"
+      "icon": "org.telegram.desktop",
+      "name": "Telegram"
     },
     {
-      "name": "Virt-manager",
-      "icon": "virt-manager",
+      "appId": "virt-manager",
       "cmd": "virt-manager",
-      "appId": "virt-manager"
+      "icon": "virt-manager",
+      "name": "Virt-manager"
     },
     {
-      "name": "Discord",
-      "icon": "discord",
+      "appId": "discord",
       "cmd": "discord",
-      "appId": "discord"
+      "icon": "discord",
+      "name": "Discord"
     },
     {
-      "name": "Iriunwebcam",
-      "icon": "iriunwebcam",
+      "appId": "iriunwebcam",
       "cmd": "iriunwebcam",
-      "appId": "iriunwebcam"
+      "icon": "iriunwebcam",
+      "name": "Iriunwebcam"
     },
     {
-      "name": "Lutris",
-      "icon": "net.lutris.lutris",
-      "cmd": "__desktop__:net.lutris.Lutris",
-      "appId": "net.lutris.Lutris"
-    },
-    {
-      "name": "Steam",
-      "icon": "steam",
-      "cmd": "__desktop__:steam",
-      "appId": "steam"
-    },
-    {
-      "name": "Edge",
-      "icon": "microsoft-edge-dev",
+      "appId": "microsoft-edge-dev",
       "cmd": "microsoft-edge-dev",
-      "appId": "microsoft-edge-dev"
+      "icon": "microsoft-edge-dev",
+      "name": "Edge"
     },
     {
-      "name": "Open-video-downloader",
-      "icon": "open-video-downloader",
+      "appId": "open-video-downloader",
       "cmd": "open-video-downloader",
-      "appId": "open-video-downloader"
+      "icon": "open-video-downloader",
+      "name": "Open-video-downloader"
     },
     {
-      "name": "ChatGPT",
-      "icon": "chatgpt",
+      "appId": "microsoft-edge-stable",
+      "cmd": "__desktop__:microsoft-edge",
+      "icon": "microsoft-edge-stable",
+      "name": "Edge"
+    },
+    {
+      "appId": "looking-glass-client",
+      "cmd": "__desktop__:looking-glass-client",
+      "icon": "looking-glass-client",
+      "name": "Looking-glass-client"
+    },
+    {
+      "name": "Com.anthropic.claude",
+      "icon": "com.anthropic.claude",
+      "cmd": "__desktop__:com.anthropic.Claude",
+      "appId": "com.anthropic.claude"
+    },
+    {
+      "appId": "firefox",
+      "cmd": "__desktop__:firefox",
+      "icon": "firefox",
+      "name": "Firefox"
+    },
+    {
+      "appId": "chatgpt",
       "cmd": "__desktop__:chatgpt",
-      "appId": "chatgpt"
+      "icon": "chatgpt",
+      "name": "ChatGPT"
     },
     {
-      "name": "OBS Studio",
-      "icon": "com.obsproject.Studio",
+      "appId": "obs",
       "cmd": "obs",
-      "appId": "obs"
+      "icon": "com.obsproject.Studio",
+      "name": "OBS Studio"
     }
-  ],
-  "leftModules": [
-    "Weather"
   ],
   "rightModules": [
     "Power",
@@ -91,5 +101,8 @@
     "Tray",
     "Calendar"
   ],
-  "moduleSchemaVersion": 3
+  "showBackground": true,
+  "showBorder": true,
+  "showDock": true,
+  "showLauncher": true
 }
