@@ -3,6 +3,7 @@ import Qt.labs.platform
 import Quickshell
 import Quickshell.Io
 import "../../../Services" as S
+import "../../../Services/core" as Core
 import "AppService.js" as AppService
 import "../../../Services/core/Log.js" as Log
 
@@ -13,6 +14,8 @@ Item {
     height: 0
 
     property bool is4K: false
+    // Handles both Lua (Hyprland 0.56+) and classic hyprctl dispatchers.
+    readonly property string hyprWindowAction: Core.PathService.configPath("scripts/hypr_window_action.sh")
     property bool suspendHotReload: false
 
     property alias dockConfigData: dockData.dockConfigData
@@ -280,7 +283,7 @@ Item {
     function focusWindow(windowId) {
         var command;
         if (S.CompositorService.isHyprland)
-            command = ["hyprctl", "dispatch", "focuswindow", "address:" + windowId];
+            command = ["bash", hyprWindowAction, "focus", String(windowId)];
         else if (S.CompositorService.isNiri)
             command = ["niri", "msg", "action", "focus-window", "--id", "" + windowId];
         else if (S.CompositorService.isMango)
@@ -293,7 +296,7 @@ Item {
     function closeWindow(windowId) {
         var command;
         if (S.CompositorService.isHyprland)
-            command = ["hyprctl", "dispatch", "closewindow", "address:" + windowId];
+            command = ["bash", hyprWindowAction, "close", String(windowId)];
         else if (S.CompositorService.isNiri)
             command = ["niri", "msg", "action", "close-window", "--id", "" + windowId];
         else if (S.CompositorService.isMango)

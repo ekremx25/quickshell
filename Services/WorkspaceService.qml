@@ -238,7 +238,7 @@ Singleton {
         if (!windowId) return
         var command
         if (CompositorService.isHyprland) {
-            command = ["hyprctl", "dispatch", "focuswindow", "address:" + String(windowId)]
+            command = ["bash", Core.PathService.configPath("scripts/hypr_window_action.sh"), "focus", String(windowId)]
         } else if (CompositorService.isNiri) {
             command = ["niri", "msg", "action", "focus-window", "--id", String(windowId)]
         } else if (CompositorService.isMango) {
