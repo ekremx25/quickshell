@@ -82,6 +82,29 @@ Rectangle {
             return map[numStr] || numStr;
         }
 
+        if (fmt === "urartu") {
+            // Urartian used Assyrian cuneiform: units 1-9, tens as 𒌋 (U).
+            var units = ["", "𒁹", "𒈫", "𒐈", "𒐉", "𒐊", "𒐋", "𒐌", "𒐍", "𒐎"];
+            var u = parseInt(numStr);
+            if (isNaN(u) || u < 1 || u > 20) return numStr;
+            return "𒌋".repeat(Math.floor(u / 10)) + units[u % 10];
+        }
+
+        if (fmt === "gokturk") {
+            // Old Turkic has no numerals; the Orkhon inscriptions spell numbers out.
+            var words = {
+                "1": "𐰋𐰃𐰼", "2": "𐰀𐰚𐰃", "3": "𐰇𐰲", "4": "𐱅𐰇𐰼𐱅", "5": "𐰋𐰃𐱁",
+                "6": "𐰞𐱃𐰃", "7": "𐰘𐰃𐱅𐰃", "8": "𐰾𐰚𐰔", "9": "𐱃𐰸𐰔", "10": "𐰆𐰣"
+            };
+            return words[numStr] || numStr;
+        }
+
+        if (fmt === "arabic-indic") {
+            var digits = "٠١٢٣٤٥٦٧٨٩";
+            if (!/^[0-9]+$/.test(numStr)) return numStr;
+            return numStr.replace(/[0-9]/g, function(d) { return digits[d]; });
+        }
+
         // Arabic (Default fallback)
         return numStr;
     }

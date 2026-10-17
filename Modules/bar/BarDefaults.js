@@ -4,7 +4,7 @@
 
 function createWorkspacesConfig() {
     return {
-        "format": "roman",
+        "format": "gokturk",
         "style": "circle",
         "transparent": false,
         "displayMode": "role",
@@ -40,7 +40,7 @@ function normalizeWorkspacesConfig(config) {
     var source = config && typeof config === "object" ? config : {};
 
     return {
-        format: _choice(source.format, ["chinese", "roman", "arabic"], defaults.format),
+        format: _choice(source.format, ["chinese", "roman", "arabic", "urartu", "gokturk", "arabic-indic"], defaults.format),
         style: _choice(source.style, ["square", "circle", "outline", "underline", "overline", "pipe", "dot"], defaults.style),
         transparent: _boolean(source.transparent, defaults.transparent),
         displayMode: _choice(source.displayMode, ["role", "occupied", "global"], defaults.displayMode),

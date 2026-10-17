@@ -175,15 +175,20 @@ Item {
         Item { height: 10 }
 
         // Cards (Options)
-        RowLayout {
+        GridLayout {
             Layout.fillWidth: true
-            spacing: 16
+            columns: 3
+            rowSpacing: 16
+            columnSpacing: 16
 
             Repeater {
                 model: ListModel {
                     ListElement { name: "Chinese"; value: "chinese"; preview: "一  二  三" }
-                        ListElement { name: "Roman"; value: "roman"; preview: "I  II  III" }
-                        ListElement { name: "Numbers"; value: "arabic"; preview: "1  2  3" }
+                    ListElement { name: "Roman"; value: "roman"; preview: "I  II  III" }
+                    ListElement { name: "Numbers"; value: "arabic"; preview: "1  2  3" }
+                    ListElement { name: "Urartian"; value: "urartu"; preview: "𒁹  𒈫  𒐈" }
+                    ListElement { name: "Göktürk"; value: "gokturk"; preview: "𐰋𐰃𐰼  𐰀𐰚𐰃  𐰇𐰲" }
+                    ListElement { name: "Arabic"; value: "arabic-indic"; preview: "١  ٢  ٣" }
                 }
 
                 delegate: Rectangle {

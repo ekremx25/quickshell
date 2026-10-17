@@ -161,7 +161,7 @@ Item {
             + "    var defaults = createWorkspacesConfig();\n"
             + "    var source = config && typeof config === \"object\" ? config : {};\n\n"
             + "    return {\n"
-            + "        format: _choice(source.format, [\"chinese\", \"roman\", \"arabic\"], defaults.format),\n"
+            + "        format: _choice(source.format, [\"chinese\", \"roman\", \"arabic\", \"urartu\", \"gokturk\", \"arabic-indic\"], defaults.format),\n"
             + "        style: _choice(source.style, [\"square\", \"circle\", \"outline\", \"underline\", \"overline\", \"pipe\", \"dot\"], defaults.style),\n"
             + "        transparent: _boolean(source.transparent, defaults.transparent),\n"
             + "        displayMode: _choice(source.displayMode, [\"role\", \"occupied\", \"global\"], defaults.displayMode),\n"
