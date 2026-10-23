@@ -107,6 +107,34 @@ Every effect is optional and configured in **Settings → Effects**; one **Anima
 - **Volume OSD** — Rippling liquid fill
 - Shader layers run only while an animation plays, and `cava` only while music is playing
 
+#### Window open/close animations (Hyprland, optional)
+Springy window opening and shrink-and-fade closing are set in **Hyprland's own configuration**, not in Quickshell: Quickshell cannot animate other applications' windows. The installer only adds a Quickshell autostart entry and does **not** add these animation lines, so add them yourself if you want this feel.
+
+Lua config (Hyprland 0.56+, e.g. `~/.config/hypr/hyprland.lua`):
+
+```lua
+hl.curve("overshot", { type = "bezier", points = { { 0.05, 0.9 }, { 0.1, 1.05 } } })
+hl.curve("closeEase", { type = "bezier", points = { { 0.4, 0 }, { 0.6, 1 } } })
+hl.animation({ leaf = "windowsIn", enabled = true, speed = 4, bezier = "overshot", style = "popin 80%" })
+hl.animation({ leaf = "windowsOut", enabled = true, speed = 3, bezier = "closeEase", style = "popin 70%" })
+hl.animation({ leaf = "fadeOut", enabled = true, speed = 3, bezier = "closeEase" })
+```
+
+Classic `hyprland.conf`:
+
+```ini
+animations {
+    enabled = true
+    bezier = overshot, 0.05, 0.9, 0.1, 1.05
+    bezier = closeEase, 0.4, 0, 0.6, 1
+    animation = windowsIn, 1, 4, overshot, popin 80%
+    animation = windowsOut, 1, 3, closeEase, popin 70%
+    animation = fadeOut, 1, 3, closeEase
+}
+```
+
+Reload Hyprland afterwards (`hyprctl reload`). Settings → Effects → Animation Speed does not affect these; adjust the `speed` values above instead.
+
 ### Fonts
 - System-wide font picker for general and monospace families (writes to `kdeglobals` and `qt6ct.conf`)
 - Live preview tiles with the current selection rendered in situ
