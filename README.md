@@ -56,7 +56,7 @@ Built on top of [outfoxxed's Quickshell framework](https://github.com/outfoxxed/
 ## Features
 
 ### Top Bar
-- **Workspaces** — Per-monitor role ranges, occupied/global modes, app grouping, scrolling and Roman / Chinese / decimal labels
+- **Workspaces** — Per-monitor role ranges, occupied/global modes, app grouping, scrolling and Roman / Chinese / Urartian cuneiform / Göktürk / Arabic-Indic / decimal labels
 - **System Info** — CPU, RAM, temperature, disk usage, groupable
 - **Activity Monitor** — On-demand CPU, memory, GPU, network, storage and process details; tested on Hyprland and MangoWC
 - **Audio** — Volume control, mute, 10-band parametric equaliser
@@ -94,6 +94,18 @@ Built on top of [outfoxxed's Quickshell framework](https://github.com/outfoxxed/
 - Workspace ranges by monitor role (primary 1–5, secondary 6–10, …), independent of HDMI/DP port names
 - Seven built-in layout presets (macOS, Windows 11, GNOME, KDE, Unity, ZorinOS, Custom)
 - Material You theme editor with live wallpaper colour extraction
+
+### Visual Effects
+Every effect is optional and configured in **Settings → Effects**; one **Animation Speed** slider (0.25×–3×, with Relaxed / Normal / Snappy / Instant presets) scales them all.
+
+- **Liquid Glass** — Frosted glass for the dock, bar module groups, dock menus, notifications, the weather popup and the volume OSD, built from the current wallpaper with edge refraction, a chromatic rim, a specular highlight and an optional light sweep. Wayland clients cannot read the windows behind them, so the glass shows the wallpaper (set with `awww`), not the window underneath
+- **Popup opening styles** — Liquid Ring (a rippling circle from the module you clicked), Genie, 3D Flip, Jelly, Spring, Fade or Off, applied to every module popup including the EQ, calendar and Activity Monitor
+- **Open on Hover** — Small module popups open when the pointer rests on the module and close when it leaves, like the calendar; the notepad stays open once you start typing
+- **Dock** — App launch animation (Bounce, Pulse, Wiggle or Off), a smoke-puff "poof" when an icon is removed, and a compact music visualizer next to the track title (needs `cava`)
+- **Bar** — Flowing active-workspace indicator that stretches towards the new workspace
+- **Notifications** — Spring, Elastic or Classic entrance
+- **Volume OSD** — Rippling liquid fill
+- Shader layers run only while an animation plays, and `cava` only while music is playing
 
 ### Fonts
 - System-wide font picker for general and monospace families (writes to `kdeglobals` and `qt6ct.conf`)
@@ -165,6 +177,13 @@ Built on top of [outfoxxed's Quickshell framework](https://github.com/outfoxxed/
     <td align="center" valign="middle">
       <img src="docs/screenshots/settings-apikeys.png" alt="API Keys for SmartComplete AI providers" />
       <sub><b>API Keys</b> — local-only or any of 7 cloud providers for SmartComplete</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" valign="middle" colspan="2">
+      <img src="docs/screenshots/settings-effects.png" alt="Effects settings: animation speed, popup styles, liquid glass, dock and notification effects" />
+      <br>
+      <sub><b>Effects</b> — animation speed, popup opening styles, open on hover, Liquid Glass, dock, notification and OSD effects</sub>
     </td>
   </tr>
   <tr>
@@ -390,6 +409,8 @@ Required versions:
 | `imagemagick` | Wallpaper Spectrum image sampling and the module colour eyedropper (`magick`) |
 | `wl-clipboard` | Copy captured screenshots to the clipboard |
 | `power-profiles-daemon` (Arch) or `tuned-ppd` + `python3-gobject` (Fedora) | Power Profile module; supported profiles are detected from the active service |
+| `awww` | Liquid Glass effect (reads the current wallpaper and its crop mode) |
+| `cava` | Music visualizer in the dock media widget |
 | `hyprmoncfg` + `xdg-terminal-exec` | Optional Hyprland display-profile management in Display Studio; not required by the built-in monitor settings |
 
 ### One-liner install (Arch)

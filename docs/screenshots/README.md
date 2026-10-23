@@ -10,6 +10,7 @@ Images used by the project README. Each one is downscaled to **1280 px wide**
 | `workspace-overview.png` | Workspace Overview — live previews, monitor groups and drag-drop |
 | `settings-bar.png` | Bar Settings — drag-drop module layout |
 | `settings-dock.png` | Dock Settings — auto-hide, indicators, scale |
+| `settings-effects.png` | Effects — animation speed, popup styles, Liquid Glass, dock and notification effects |
 | `settings-monitors.png` | Monitor management — HDR / VRR / scale / colour |
 | `settings-nightlight.png` | Night Light — temperature slider + schedule |
 | `settings-materialyou.png` | Material You — wallpaper-derived palette |
