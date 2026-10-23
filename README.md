@@ -101,7 +101,7 @@ Every effect is optional and configured in **Settings → Effects**; one **Anima
 - **Liquid Glass** — Frosted glass for the dock, bar module groups, dock menus, notifications, the weather popup and the volume OSD, built from the current wallpaper with edge refraction, a chromatic rim, a specular highlight and an optional light sweep. Wayland clients cannot read the windows behind them, so the glass shows the wallpaper (set with `awww`), not the window underneath
 - **Popup opening styles** — Liquid Ring (a rippling circle from the module you clicked), Genie, 3D Flip, Jelly, Spring, Fade or Off, applied to every module popup including the EQ, calendar and Activity Monitor
 - **Open on Hover** — Small module popups open when the pointer rests on the module and close when it leaves, like the calendar; the notepad stays open once you start typing
-- **Dock** — App launch animation (Bounce, Pulse, Wiggle or Off), a smoke-puff "poof" when an icon is removed, and a compact music visualizer next to the track title. **The visualizer requires `cava`** (`sudo pacman -S cava` on Arch); without it the visualizer simply stays hidden
+- **Dock** — App launch animation (Bounce, Pulse, Wiggle or Off), a smoke-puff "poof" when an icon is removed, and a compact music visualizer next to the track title. **The visualizer requires `cava`**, which the installer sets up (manual installs: `sudo pacman -S cava`); without it the visualizer simply stays hidden
 - **Bar** — Flowing active-workspace indicator that stretches towards the new workspace
 - **Notifications** — Spring, Elastic or Classic entrance
 - **Volume OSD** — Rippling liquid fill
@@ -447,13 +447,10 @@ Required versions:
 sudo pacman -S quickshell networkmanager bluez bluez-utils pipewire \
   pipewire-pulse wireplumber libpulse jq python socat inotify-tools util-linux glib2 \
   kconfig fontconfig power-profiles-daemon \
-  ttf-jetbrains-mono-nerd ttf-inter ttf-font-awesome
+  ttf-jetbrains-mono-nerd ttf-inter ttf-font-awesome awww cava
 
 # qt6ct (AUR fork with KDE integration)
 yay -S qt6ct-kde
-
-# Optional: music visualizer in the dock (Settings → Effects → Music Visualizer)
-sudo pacman -S cava
 ```
 
 ## Installation

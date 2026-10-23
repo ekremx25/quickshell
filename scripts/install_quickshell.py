@@ -22,7 +22,7 @@ from monitor_role_manager import atomic_json_write, monitor_identity
 
 PAYLOAD = ("shell.qml", "Modules", "Services", "Widgets", "Components", "assets", "scripts", "eq", "presets", "LICENSE", "README.md", "install.sh")
 COMPONENTS = {"bar": "all", "dock": "1", "workspaces": "all", "notifications": "all", "weather": "none", "worldclock": "none", "markets": "none", "toast": "all", "osd": "1"}
-PACKAGES = ("quickshell", "networkmanager", "bluez", "bluez-utils", "pipewire", "pipewire-pulse", "wireplumber", "libpulse", "jq", "python", "socat", "inotify-tools", "util-linux", "glib2", "fontconfig", "ttf-jetbrains-mono-nerd", "ttf-inter", "ttf-font-awesome")
+PACKAGES = ("quickshell", "networkmanager", "bluez", "bluez-utils", "pipewire", "pipewire-pulse", "wireplumber", "libpulse", "jq", "python", "socat", "inotify-tools", "util-linux", "glib2", "fontconfig", "ttf-jetbrains-mono-nerd", "ttf-inter", "ttf-font-awesome", "awww", "cava")
 EXCLUDED = {"__pycache__", "profile_avatar.jpg", "custom.json", "parametric-eq.txt", "api_keys.json"}
 
 
