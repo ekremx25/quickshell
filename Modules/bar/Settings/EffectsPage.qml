@@ -207,6 +207,25 @@ Item {
                 key: "visualizer"; title: "Music Visualizer"
                 description: "Small equalizer next to the track title while music plays (needs cava)."
             }
+            // cava is an optional package; say so where the switch lives.
+            Rectangle {
+                Layout.fillWidth: true
+                visible: S.CavaService.checked && !S.CavaService.available
+                implicitHeight: cavaHint.implicitHeight + 20
+                radius: 10
+                color: Theme.withAlpha(Theme.yellow, 0.12)
+                border.color: Theme.withAlpha(Theme.yellow, 0.45)
+                border.width: 1
+                Text {
+                    id: cavaHint
+                    anchors { left: parent.left; right: parent.right; verticalCenter: parent.verticalCenter; margins: 12 }
+                    text: "cava is not installed, so the visualizer stays hidden. Install it with: sudo pacman -S cava"
+                    color: root.colorText
+                    font.pixelSize: 12
+                    font.family: Theme.fontFamily
+                    wrapMode: Text.WordWrap
+                }
+            }
 
             // ═══ NOTIFICATIONS ═══
             SectionTitle { text: "NOTIFICATIONS" }

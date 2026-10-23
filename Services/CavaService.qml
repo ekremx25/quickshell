@@ -15,6 +15,7 @@ Singleton {
     property var values: []          // 0..1 per bar, auto-gained
     property real peak: 0.04
     property bool available: false
+    property bool checked: false     // true once the first `command -v cava` finished
     property int consumers: 0
     readonly property bool active: available && consumers > 0
 
@@ -32,7 +33,10 @@ Singleton {
         id: checkProc
         running: true
         command: ["sh", "-c", "command -v cava >/dev/null"]
-        onExited: code => root.available = code === 0
+        onExited: code => {
+            root.available = code === 0;
+            root.checked = true;
+        }
     }
 
     // Someone wants a spectrum but cava is missing: look again now and then,
