@@ -17,3 +17,5 @@ singleton GpuStats GpuStats.qml
 singleton RamStats RamStats.qml
 singleton CpuCoreStats CpuCoreStats.qml
 singleton ClipboardHistory ClipboardHistory.qml
+singleton CavaService CavaService.qml
+singleton EffectSettings EffectSettings.qml
