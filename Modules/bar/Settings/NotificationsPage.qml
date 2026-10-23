@@ -165,14 +165,12 @@ Item {
                         currentIndex: popupPositionIndex(notifService.popupPosition)
                         onActivated: notifService.popupPosition = popupPositionValue(currentIndex)
 
-                        contentItem: TextInput {
+                        // Plain Text: a TextInput here swallowed clicks, so the list never opened.
+                        contentItem: Text {
                             leftPadding: 12
                             rightPadding: 32
                             text: positionCombo.displayText
-                            readOnly: true
-                            selectByMouse: false
-                            activeFocusOnTab: false
-                            clip: true
+                            elide: Text.ElideRight
                             color: root.colorText
                             font.family: Theme.fontFamily
                             font.pixelSize: 12
