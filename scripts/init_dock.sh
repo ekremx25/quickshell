@@ -139,7 +139,7 @@ jq -n \
     --argjson autoHide       false \
     '{
         pinned:         $pinned,
-        leftModules:    ["Weather"],
+        leftModules:    ["Launcher", "Weather"],
         rightModules:   ["Power", "Media", "Tray"],
         showDock:       $showDock,
         showBackground: $showBackground,
