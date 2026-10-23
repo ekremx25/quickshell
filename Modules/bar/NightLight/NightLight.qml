@@ -58,7 +58,7 @@ Rectangle {
                 S.NightLight.setEnabled(!S.NightLight.enabled);
                 return;
             }
-            popover.visible = !popover.visible;
+            hoverOpen.handleClick();
         }
 
         onWheel: (wheel) => {
@@ -74,4 +74,6 @@ Rectangle {
     NightLightPopover {
         id: popover
     }
+
+    HoverOpen { id: hoverOpen; popup: popover }
 }

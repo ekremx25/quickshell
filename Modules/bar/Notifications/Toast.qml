@@ -5,6 +5,7 @@ import Quickshell
 import Quickshell.Wayland
 import "../../../Widgets"
 import "../../../Services" as S
+import "../Dock" as DockParts
 
 PanelWindow {
     id: root
@@ -47,7 +48,10 @@ PanelWindow {
         mainRect.scale   = 0.82;
         slideX.x = slideStartX;
         slideY.y = slideStartY * 0.4;
-        enterAnim.restart();
+        var style = S.EffectSettings.toastStyle;
+        if (style === "elastic") elasticEnterAnim.restart();
+        else if (style === "classic") plainEnterAnim.restart();
+        else enterAnim.restart();
     }
 
     // --- EXIT ---
@@ -56,12 +60,34 @@ PanelWindow {
         exitAnim.restart();
     }
 
+    // Entrance styles from Settings → Effects, all scaled by the animation speed.
+    readonly property real springScale: Math.max(0.25, S.EffectSettings.speed) * Math.max(0.25, S.EffectSettings.speed)
+
+    // Spring: overshoots and settles like a physical card.
     ParallelAnimation {
         id: enterAnim
-        NumberAnimation { target: mainRect;  property: "opacity"; from: 0;    to: 1;    duration: 380; easing.type: Easing.OutCubic }
-        NumberAnimation { target: mainRect;  property: "scale";   from: 0.82; to: 1.0;  duration: 420; easing.type: Easing.OutBack }
-        NumberAnimation { target: slideX;    property: "x";       to: 0;                duration: 400; easing.type: Easing.OutBack }
-        NumberAnimation { target: slideY;    property: "y";       to: 0;                duration: 380; easing.type: Easing.OutCubic }
+        NumberAnimation { target: mainRect;  property: "opacity"; from: 0;    to: 1;    duration: S.EffectSettings.ms(320); easing.type: Easing.OutCubic }
+        SpringAnimation { target: mainRect;  property: "scale";   from: 0.82; to: 1.0;  spring: 4.0 * root.springScale; damping: 0.28; epsilon: 0.002 }
+        SpringAnimation { target: slideX;    property: "x";       to: 0;                spring: 3.2 * root.springScale; damping: 0.24; epsilon: 0.25 }
+        SpringAnimation { target: slideY;    property: "y";       to: 0;                spring: 3.2 * root.springScale; damping: 0.30; epsilon: 0.25 }
+    }
+
+    // Elastic: snaps in and rings a few times like a rubber band.
+    ParallelAnimation {
+        id: elasticEnterAnim
+        NumberAnimation { target: mainRect;  property: "opacity"; from: 0;    to: 1;    duration: S.EffectSettings.ms(260); easing.type: Easing.OutCubic }
+        NumberAnimation { target: mainRect;  property: "scale";   from: 0.7;  to: 1.0;  duration: S.EffectSettings.ms(900); easing.type: Easing.OutElastic; easing.amplitude: 1.0; easing.period: 0.45 }
+        NumberAnimation { target: slideX;    property: "x";       to: 0;                duration: S.EffectSettings.ms(900); easing.type: Easing.OutElastic; easing.amplitude: 1.0; easing.period: 0.5 }
+        NumberAnimation { target: slideY;    property: "y";       to: 0;                duration: S.EffectSettings.ms(600); easing.type: Easing.OutCubic }
+    }
+
+    // Classic: the original eased slide.
+    ParallelAnimation {
+        id: plainEnterAnim
+        NumberAnimation { target: mainRect;  property: "opacity"; from: 0;    to: 1;    duration: S.EffectSettings.ms(380); easing.type: Easing.OutCubic }
+        NumberAnimation { target: mainRect;  property: "scale";   from: 0.82; to: 1.0;  duration: S.EffectSettings.ms(420); easing.type: Easing.OutBack }
+        NumberAnimation { target: slideX;    property: "x";       to: 0;                duration: S.EffectSettings.ms(400); easing.type: Easing.OutBack }
+        NumberAnimation { target: slideY;    property: "y";       to: 0;                duration: S.EffectSettings.ms(380); easing.type: Easing.OutCubic }
     }
 
     ParallelAnimation {
@@ -101,9 +127,9 @@ PanelWindow {
         id: mainRect
         width: 320
         height: Math.min(content.implicitHeight + 24, 200)
-        color: Theme.background
+        color: S.EffectSettings.liquidGlass ? "transparent" : Theme.background
         radius: Theme.radius
-        border.width: 1
+        border.width: S.EffectSettings.liquidGlass ? 0 : 1
         border.color: Theme.surface
         opacity: 0
         scale: 0.82
@@ -112,6 +138,31 @@ PanelWindow {
             Translate { id: slideX; x: root.slideStartX },
             Translate { id: slideY; y: 0 }
         ]
+
+        // Frosted glass background. ExclusionMode.Ignore means the window sits
+        // exactly at its anchors + margins, so the screen position is known.
+        Loader {
+            anchors.fill: parent
+            z: -1
+            active: S.EffectSettings.liquidGlass && root.visible
+            sourceComponent: DockParts.LiquidGlass {
+                readonly property bool anchoredLeft: root.notifService.popupPosition === 2 || root.notifService.popupPosition === 6
+                readonly property bool anchoredRight: root.notifService.popupPosition === 1 || root.notifService.popupPosition === 5
+                screen: root.screen
+                screenX: (anchoredLeft ? 20 : anchoredRight ? root.screen.width - 20 - root.width
+                          : (root.screen.width - root.width) / 2) + slideX.x
+                screenY: (root.isBottom ? root.screen.height - 60 - root.height : 60) + slideY.y
+                radius: mainRect.radius
+                refraction: 12
+                edgeWidth: 12
+                blurRadius: 14
+                tint: Theme.background
+                tintStrength: 0.45
+                hovered: toastHover.hovered && S.EffectSettings.glassDroplet
+                pointerX: toastHover.point.position.x
+                pointerY: toastHover.point.position.y
+            }
+        }
 
         // Hover: stop the timer
         HoverHandler {

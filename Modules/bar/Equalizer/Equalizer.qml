@@ -3,10 +3,12 @@ import QtQuick.Layouts
 import QtQuick.Window
 import QtQml
 import Quickshell
+import Quickshell.Wayland
 import Quickshell.Services.Pipewire
 import Quickshell.Services.Mpris
 import "."
 import "../../../Widgets"
+import "../../../Services" as S
 
 Rectangle {
     id: root
@@ -165,41 +167,56 @@ Rectangle {
     MouseArea {
         anchors.fill: parent
         cursorShape: Qt.PointingHandCursor
-        onClicked: {
-            if (!popupWindow.visible) {
-                popupWindow.visible = true
-            } else if (!closeAnim.running) {
-                openAnim.stop()
-                closeAnim.start()
-            }
+        onClicked: hoverOpen.handleClick()
+    }
+
+    // Hover opens the EQ; only the card (not the dimmed overlay) keeps it open,
+    // and closing plays the EQ's own fade-out.
+    HoverOpen {
+        id: hoverOpen
+        popup: popupWindow
+        popupHoverItem: panel
+        closer: function() {
+            if (closeAnim.running) return
+            openAnim.stop()
+            closeAnim.start()
         }
     }
 
-    Window {
+    // Full-screen overlay as a layer surface: unlike a Qt.Popup window it needs
+    // no click to open, so hover-to-open works.
+    PanelWindow {
         id: popupWindow
         visible: false
         property real overlayAlpha: 0.0
-        property real panelTopOffset: 0
-        width: Screen.width
-        height: Screen.height
-        x: 0
-        y: 0
+        screen: root.QsWindow.window ? root.QsWindow.window.screen : null
+        anchors { top: true; bottom: true; left: true; right: true }
+        exclusionMode: ExclusionMode.Ignore
+        WlrLayershell.layer: WlrLayer.Overlay
+        WlrLayershell.namespace: "quickshell-equalizer"
+        WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
         color: Qt.rgba(0, 0, 0, overlayAlpha)
-        flags: Qt.Popup | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
         onVisibleChanged: {
             if (visible) {
-                panel.opacity = 0
-                panel.scale = 0.985
-                contentColumn.opacity = 0
-                contentColumn.y = 10
+                // The card itself opens with the style from Settings → Effects.
+                panel.opacity = 1
+                panel.scale = 1
                 popupWindow.overlayAlpha = 0.0
-                popupWindow.panelTopOffset = -120
                 openAnim.stop()
                 closeAnim.stop()
                 openAnim.start()
+                panelEntrance.play()
                 equalizerBackend.scheduleRefresh(0)
                 root.loadEqStateFromFile()
             }
+        }
+
+        PopupEntrance {
+            id: panelEntrance
+            hostWindow: popupWindow
+            targetItem: panel
+            originItem: root
+            autoPlay: false
         }
 
         Rectangle {
@@ -207,13 +224,10 @@ Rectangle {
             width: 430
             height: Math.min(contentColumn.implicitHeight + 32, Screen.height - 72)
             radius: 24
-            opacity: 0
-            scale: 1.0
             transformOrigin: Item.TopRight
-            transform: Translate { y: popupWindow.panelTopOffset }
             color: root.glassPanel
             border.width: 1
-            border.color: Qt.rgba(115/255, 235/255, 255/255, 0.55)
+            border.color: Theme.withAlpha(Theme.primary, 0.55)
             anchors.top: parent.top
             anchors.right: parent.right
             anchors.topMargin: 52
@@ -224,9 +238,10 @@ Rectangle {
                 anchors.margins: 1
                 radius: parent.radius - 1
                 gradient: Gradient {
-                    GradientStop { position: 0.0; color: Qt.rgba(133/255, 224/255, 255/255, 0.12) }
-                    GradientStop { position: 0.35; color: Qt.rgba(82/255, 146/255, 173/255, 0.10) }
-                    GradientStop { position: 1.0; color: Qt.rgba(37/255, 61/255, 85/255, 0.08) }
+                    // Theme-tinted sheen instead of a fixed cyan gradient.
+                    GradientStop { position: 0.0; color: Theme.withAlpha(Theme.primary, 0.12) }
+                    GradientStop { position: 0.35; color: Theme.withAlpha(Theme.primary, 0.07) }
+                    GradientStop { position: 1.0; color: Theme.withAlpha(Theme.background, 0.08) }
                 }
             }
 
@@ -248,8 +263,6 @@ Rectangle {
                     id: contentColumn
                     width: panelFlick.width
                     spacing: 12
-                    opacity: 0
-                    y: 10
 
                     RowLayout {
                         Layout.fillWidth: true
@@ -373,7 +386,7 @@ Rectangle {
                                         font.family: Theme.fontFamily
                                         Layout.fillWidth: true
                                         text: root.sinkDisplayName
-                                        color: Qt.rgba(216/255, 225/255, 238/255, 0.72)
+                                        color: Theme.subtext
                                         font.pixelSize: 10
                                         elide: Text.ElideRight
                                     }
@@ -525,20 +538,7 @@ Rectangle {
         ParallelAnimation {
             id: openAnim
             running: false
-            NumberAnimation { target: popupWindow; property: "overlayAlpha"; from: 0.0; to: 0.38; duration: 180; easing.type: Easing.OutCubic }
-            NumberAnimation { target: panel; property: "opacity"; from: 0; to: 1; duration: 170; easing.type: Easing.OutCubic }
-            NumberAnimation { target: panel; property: "scale"; from: 0.985; to: 1; duration: 220; easing.type: Easing.OutBack }
-            SequentialAnimation {
-                NumberAnimation { target: popupWindow; property: "panelTopOffset"; from: -120; to: 12; duration: 230; easing.type: Easing.OutCubic }
-                NumberAnimation { target: popupWindow; property: "panelTopOffset"; from: 12; to: 0; duration: 110; easing.type: Easing.OutCubic }
-            }
-            SequentialAnimation {
-                PauseAnimation { duration: 70 }
-                ParallelAnimation {
-                    NumberAnimation { target: contentColumn; property: "opacity"; from: 0; to: 1; duration: 180; easing.type: Easing.OutCubic }
-                    NumberAnimation { target: contentColumn; property: "y"; from: 10; to: 0; duration: 220; easing.type: Easing.OutCubic }
-                }
-            }
+            NumberAnimation { target: popupWindow; property: "overlayAlpha"; from: 0.0; to: 0.38; duration: S.EffectSettings.ms(180); easing.type: Easing.OutCubic }
         }
 
         ParallelAnimation {
@@ -547,9 +547,6 @@ Rectangle {
             NumberAnimation { target: popupWindow; property: "overlayAlpha"; from: popupWindow.overlayAlpha; to: 0.0; duration: 120; easing.type: Easing.InCubic }
             NumberAnimation { target: panel; property: "opacity"; from: panel.opacity; to: 0; duration: 130; easing.type: Easing.InCubic }
             NumberAnimation { target: panel; property: "scale"; from: panel.scale; to: 0.985; duration: 120; easing.type: Easing.InCubic }
-            NumberAnimation { target: popupWindow; property: "panelTopOffset"; from: popupWindow.panelTopOffset; to: -120; duration: 130; easing.type: Easing.InCubic }
-            NumberAnimation { target: contentColumn; property: "opacity"; from: contentColumn.opacity; to: 0; duration: 90; easing.type: Easing.InCubic }
-            NumberAnimation { target: contentColumn; property: "y"; from: contentColumn.y; to: 8; duration: 90; easing.type: Easing.InCubic }
             onFinished: popupWindow.visible = false
         }
 

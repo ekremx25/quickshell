@@ -10,6 +10,7 @@ import "BarDefaults.js" as BarDefaults
 import "./Settings"
 import "../../Widgets"
 import "../../Services" as S
+import "Dock" as DockParts
 
 Variants {
     id: root
@@ -88,8 +89,42 @@ Variants {
                 }
 
                 // === HORIZONTAL MODE (top/bottom) ===
+                // Liquid glass islands behind each module group (horizontal bars only).
+                Repeater {
+                    model: [barLeftRow, barCenterRow, barRightRow]
+                    delegate: Loader {
+                        id: island
+                        required property Item modelData
+                        required property int index
+                        readonly property real padX: 6
+                        readonly property real padY: 4
+                        active: S.EffectSettings.liquidGlass && !root.isVertical && modelData.width > 0
+                        x: modelData.x - padX
+                        y: modelData.y - padY
+                        width: modelData.width + padX * 2
+                        height: modelData.height + padY * 2
+                        z: -1
+                        sourceComponent: DockParts.LiquidGlass {
+                            screen: barWindow.screen
+                            screenX: island.x
+                            screenY: (root.barPosition === "bottom" ? barWindow.screen.height - barWindow.barSize : 0) + island.y
+                            radius: height / 2
+                            tint: Theme.primary
+                            refraction: 12
+                            edgeWidth: 12
+                            hovered: islandHover.hovered && S.EffectSettings.glassDroplet
+                            pointerX: islandHover.point.position.x
+                            pointerY: islandHover.point.position.y
+                            shimmerEnabled: S.EffectSettings.glassShimmer
+                            shimmerDelay: island.index * 1500
+                            HoverHandler { id: islandHover }
+                        }
+                    }
+                }
+
                 // --- LEFT ---
                 RowLayout {
+                    id: barLeftRow
                     visible: !root.isVertical
                     anchors { left: parent.left; leftMargin: 12; verticalCenter: parent.verticalCenter }
                     spacing: 8
@@ -113,6 +148,7 @@ Variants {
 
                 // --- CENTER ---
                 RowLayout {
+                    id: barCenterRow
                     visible: !root.isVertical
                     anchors.centerIn: parent
                     spacing: 8
@@ -136,6 +172,7 @@ Variants {
 
                 // --- RIGHT ---
                 RowLayout {
+                    id: barRightRow
                     visible: !root.isVertical
                     anchors { right: parent.right; rightMargin: 12; verticalCenter: parent.verticalCenter }
                     spacing: 8

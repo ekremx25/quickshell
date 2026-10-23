@@ -8,6 +8,7 @@ import "../../../Widgets"
 import "../../../Services/core/Log.js" as Log
 
 PanelWindow {
+    PopupEntrance {}  // liquid ring open animation
     id: root
     
     // Make window cover the whole screen
@@ -143,7 +144,7 @@ PanelWindow {
                 // Connection Name
                 Rectangle {
                     Layout.fillWidth: true; height: 40; radius: 8
-                    color: Qt.rgba(0,0,0,0.3); border.color: vpnNameInput.activeFocus ? Theme.primary : Theme.withAlpha(Theme.text, 0.1); border.width: 1
+                    color: Theme.withAlpha(Theme.background, 0.5); border.color: vpnNameInput.activeFocus ? Theme.primary : Theme.withAlpha(Theme.text, 0.1); border.width: 1
                     TextInput { id: vpnNameInput; anchors.fill: parent; anchors.margins: 10; color: SettingsPalette.text; text: "My OpenVPN"; verticalAlignment: TextInput.AlignVCenter; selectByMouse: true }
                 }
 
@@ -152,14 +153,14 @@ PanelWindow {
                     Layout.fillWidth: true; spacing: 10
                     Rectangle {
                         Layout.fillWidth: true; height: 40; radius: 8
-                        color: Qt.rgba(0,0,0,0.3); border.color: vpnServerInput.activeFocus ? Theme.primary : Theme.withAlpha(Theme.text, 0.1); border.width: 1
+                        color: Theme.withAlpha(Theme.background, 0.5); border.color: vpnServerInput.activeFocus ? Theme.primary : Theme.withAlpha(Theme.text, 0.1); border.width: 1
                         TextInput { id: vpnServerInput; anchors.fill: parent; anchors.margins: 10; color: SettingsPalette.text; text: ""; verticalAlignment: TextInput.AlignVCenter; selectByMouse: true 
                             Text {  text: "Server Address"; visible: parent.text === "" && !parent.activeFocus; color: SettingsPalette.overlay; anchors.verticalCenter: parent.verticalCenter; leftPadding: 10; font.family: Theme.fontFamily }
                         }
                     }
                     Rectangle {
                         width: 80; height: 40; radius: 8
-                        color: Qt.rgba(0,0,0,0.3); border.color: vpnPortInput.activeFocus ? Theme.primary : Theme.withAlpha(Theme.text, 0.1); border.width: 1
+                        color: Theme.withAlpha(Theme.background, 0.5); border.color: vpnPortInput.activeFocus ? Theme.primary : Theme.withAlpha(Theme.text, 0.1); border.width: 1
                         TextInput { id: vpnPortInput; anchors.fill: parent; anchors.margins: 10; color: SettingsPalette.text; text: "1194"; verticalAlignment: TextInput.AlignVCenter; selectByMouse: true }
                     }
                 }
@@ -167,7 +168,7 @@ PanelWindow {
                 // Username
                 Rectangle {
                     Layout.fillWidth: true; height: 40; radius: 8
-                    color: Qt.rgba(0,0,0,0.3); border.color: vpnUserInput.activeFocus ? Theme.primary : Theme.withAlpha(Theme.text, 0.1); border.width: 1
+                    color: Theme.withAlpha(Theme.background, 0.5); border.color: vpnUserInput.activeFocus ? Theme.primary : Theme.withAlpha(Theme.text, 0.1); border.width: 1
                     TextInput { id: vpnUserInput; anchors.fill: parent; anchors.margins: 10; color: SettingsPalette.text; text: ""; verticalAlignment: TextInput.AlignVCenter; selectByMouse: true 
                         Text {  text: "Username (Optional)"; visible: parent.text === "" && !parent.activeFocus; color: SettingsPalette.overlay; anchors.verticalCenter: parent.verticalCenter; leftPadding: 10; font.family: Theme.fontFamily }
                     }
@@ -176,7 +177,7 @@ PanelWindow {
                 // Password
                 Rectangle {
                     Layout.fillWidth: true; height: 40; radius: 8
-                    color: Qt.rgba(0,0,0,0.3); border.color: vpnPassInput.activeFocus ? Theme.primary : Theme.withAlpha(Theme.text, 0.1); border.width: 1
+                    color: Theme.withAlpha(Theme.background, 0.5); border.color: vpnPassInput.activeFocus ? Theme.primary : Theme.withAlpha(Theme.text, 0.1); border.width: 1
                     TextInput { id: vpnPassInput; anchors.fill: parent; anchors.margins: 10; color: SettingsPalette.text; text: ""; echoMode: TextInput.Password; verticalAlignment: TextInput.AlignVCenter; selectByMouse: true 
                         Text {  text: "Password (Optional)"; visible: parent.text === "" && !parent.activeFocus; color: SettingsPalette.overlay; anchors.verticalCenter: parent.verticalCenter; leftPadding: 10; font.family: Theme.fontFamily }
                     }

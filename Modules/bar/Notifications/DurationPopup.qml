@@ -6,6 +6,7 @@ import "../../../Services" as S
 import "../../../Widgets"
 
 PanelWindow {
+    PopupEntrance {}  // liquid ring open animation
     id: root
     
     // Positioned relative to the bar cursor or fixed?

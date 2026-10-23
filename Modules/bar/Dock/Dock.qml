@@ -41,6 +41,18 @@ Variants {
         property bool cfgIntelligentHide: (dockWindow.dockConfigData && dockWindow.dockConfigData.intelligentAutoHide === true)
         property string cfgIndicator:  (dockWindow.dockConfigData && dockWindow.dockConfigData.indicatorStyle) ? dockWindow.dockConfigData.indicatorStyle : "circle"
         property string cfgAlignment:  (dockWindow.dockConfigData && dockWindow.dockConfigData.dockAlignment) ? dockWindow.dockConfigData.dockAlignment : "center"
+        property bool cfgLiquidGlass:  S.EffectSettings.liquidGlass
+            && !(dockWindow.dockConfigData && dockWindow.dockConfigData.showBackground === false)
+
+        // Top-left of this layer surface on its screen (layer shells do not report it).
+        readonly property real windowScreenX: {
+            if (isHorizontal) return cfgAlignment === "center" ? (screen.width - implicitWidth) / 2 : 0;
+            return cfgPosition === "left" ? hideOffset : screen.width - hideOffset - implicitWidth;
+        }
+        readonly property real windowScreenY: {
+            if (!isHorizontal) return cfgAlignment === "center" ? (screen.height - implicitHeight) / 2 : 0;
+            return cfgPosition === "top" ? hideOffset : screen.height - hideOffset - implicitHeight;
+        }
 
         // Hide the dock when auto-hidden
         property bool shouldHide: {
@@ -64,8 +76,11 @@ Variants {
         mask: Region { item: dockContent }
         // When alignment is not center, use full screen width so dockContent can align left/right
         property real dockContentWidth: dockContent.implicitWidth
-        implicitWidth:  isHorizontal ? (cfgAlignment === "center" ? dockContentWidth : screen.width) : (dockThickness * dockScale)
-        implicitHeight: isHorizontal ? (dockThickness * dockScale) : (cfgAlignment === "center" ? dockContent.implicitHeight : screen.height)
+        // Transparent headroom on the screen-facing side so launch bounces are not
+        // clipped. Input is masked to dockContent and exclusiveZone is unchanged.
+        readonly property real bounceRoom: 22 * dockScale
+        implicitWidth:  isHorizontal ? (cfgAlignment === "center" ? dockContentWidth : screen.width) : (dockThickness * dockScale + bounceRoom)
+        implicitHeight: isHorizontal ? (dockThickness * dockScale + bounceRoom) : (cfgAlignment === "center" ? dockContent.implicitHeight : screen.height)
         exclusiveZone: dockThickness * dockScale
         // Auto hide logic integration
         WlrLayershell.exclusiveZone: (dockWindow.dockConfigData && (dockWindow.dockConfigData.autoHide || dockWindow.cfgIntelligentHide)) ? -1 : (dockThickness * dockScale)
@@ -223,6 +238,19 @@ Variants {
             }
         }
 
+        // Plays a poof centred on (x, y) in window coordinates.
+        Component { id: poofComponent; DockPoof {} }
+        function spawnPoof(x, y, iconSource) {
+            if (!S.EffectSettings.dockPoof) return;
+            var size = cfgIconSize * dockScale;
+            var item = poofComponent.createObject(dockWindow.contentItem, {
+                iconSource: iconSource, iconSize: size, z: 100
+            });
+            if (!item) return;
+            item.x = x - item.width / 2;
+            item.y = y - item.height / 2;
+        }
+
         // ── Global hover / click-outside area ──
         MouseArea {
             id: globalMouse
@@ -241,7 +269,8 @@ Variants {
                     if (dockWindow.cfgAlignment === "right") return parent.width - width - 8;
                     return (parent.width - width) / 2; // center
                 }
-                return 0;
+                // Right-edge docks keep the bounce headroom on their left.
+                return dockWindow.cfgPosition === "right" ? parent.width - width : 0;
             }
             y: {
                 if (!dockWindow.isHorizontal) {
@@ -274,13 +303,31 @@ Variants {
             implicitWidth: dockRow.implicitWidth + (dockWindow.isHorizontal ? dockWindow.cfgPadding * 2 : 8) * dockScale
             implicitHeight: dockRow.implicitHeight + (dockWindow.isHorizontal ? 0 : dockWindow.cfgPadding * 2) * dockScale
             radius: 14 * dockScale
-            color: (dockWindow.dockConfigData && dockWindow.dockConfigData.showBackground === false) ? "transparent" : Theme.withAlpha(Theme.panelSurface, dockWindow.cfgTransparency)
-            border.color: (dockWindow.dockConfigData && dockWindow.dockConfigData.showBackground === false) ? "transparent" : (dockWindow.cfgShowBorder ? Theme.borderStrong : "transparent")
-            border.width: (dockWindow.dockConfigData && dockWindow.dockConfigData.showBackground === false) ? 0 : (dockWindow.cfgShowBorder ? 1 : 0)
+            color: (dockWindow.cfgLiquidGlass || (dockWindow.dockConfigData && dockWindow.dockConfigData.showBackground === false)) ? "transparent" : Theme.withAlpha(Theme.panelSurface, dockWindow.cfgTransparency)
+            border.color: (dockWindow.cfgLiquidGlass || (dockWindow.dockConfigData && dockWindow.dockConfigData.showBackground === false)) ? "transparent" : (dockWindow.cfgShowBorder ? Theme.borderStrong : "transparent")
+            border.width: (dockWindow.cfgLiquidGlass || (dockWindow.dockConfigData && dockWindow.dockConfigData.showBackground === false)) ? 0 : (dockWindow.cfgShowBorder ? 1 : 0)
+
+            // Refracting wallpaper backdrop; replaces the flat background when enabled.
+            Loader {
+                anchors.fill: parent
+                z: -1
+                active: dockWindow.cfgLiquidGlass
+                sourceComponent: LiquidGlass {
+                    screen: dockWindow.screen
+                    screenX: dockWindow.windowScreenX + dockContent.x
+                    screenY: dockWindow.windowScreenY + dockContent.y
+                    radius: dockContent.radius
+                    tint: Theme.primary
+                    hovered: dockHover.hovered && S.EffectSettings.glassDroplet
+                    pointerX: dockHover.point.position.x
+                    pointerY: dockHover.point.position.y
+                    shimmerEnabled: S.EffectSettings.glassShimmer
+                }
+            }
 
             // Subtle glow outside the border
             Rectangle {
-                visible: dockWindow.dockConfigData && dockWindow.dockConfigData.showBackground !== false && dockWindow.cfgShowBorder
+                visible: dockWindow.dockConfigData && dockWindow.dockConfigData.showBackground !== false && dockWindow.cfgShowBorder && !dockWindow.cfgLiquidGlass
                 anchors.fill: parent
                 anchors.margins: -1
                 radius: parent.radius + 1

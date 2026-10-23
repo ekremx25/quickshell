@@ -56,14 +56,17 @@ Rectangle {
         }
     }
     
+    HoverOpen { id: hoverOpen; popup: popup }
+
     MouseArea {
         anchors.fill: parent
         cursorShape: Qt.PointingHandCursor
-        onClicked: popup.visible = !popup.visible
+        onClicked: hoverOpen.handleClick()
     }
     
     // ── POPUP ──
     PopupWindow {
+        PopupEntrance { originItem: root }  // liquid ring open animation
         id: popup
         visible: false
         

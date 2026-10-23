@@ -10,12 +10,13 @@ DockPopup {
 
     implicitWidth: Math.min(tooltipText.implicitWidth + 18 * dockScale, 360 * dockScale)
     implicitHeight: tooltipText.implicitHeight + 10 * dockScale
+    glassRadius: 9 * dockScale
 
     Rectangle {
         anchors.fill: parent
         radius: 9 * tooltip.dockScale
-        color: Theme.withAlpha(Theme.background, 0.96)
-        border.color: Theme.withAlpha(Theme.surface, 0.8)
+        color: tooltip.glass ? "transparent" : Theme.withAlpha(Theme.background, 0.96)
+        border.color: tooltip.glass ? "transparent" : Theme.withAlpha(Theme.surface, 0.8)
         border.width: 1
     }
 

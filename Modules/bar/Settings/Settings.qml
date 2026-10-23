@@ -8,6 +8,7 @@ import "../../../Widgets"
 import "../System" as Sys
 
 PanelWindow {
+    PopupEntrance {}  // liquid ring open animation
     id: settingsWindow
     SettingsBackend {
         id: settingsBackend
@@ -65,6 +66,7 @@ PanelWindow {
             items: [
                 { key: "bar",        icon: "󰒍", label: "Bar Settings" },
                 { key: "dock",       icon: "⚓", label: "Dock Settings" },
+                { key: "effects",    icon: "󰁨", label: "Effects" },
                 { key: "layout",     icon: "󰕰", label: "Layout Presets" },
                 { key: "hyprland",   icon: "󰖲", label: "Hyprland" },
                 { key: "fonts",      icon: "󰛖", label: "Fonts" },
@@ -532,6 +534,19 @@ PanelWindow {
                                 anchors.fill: parent
                                 visible: settingsWindow.currentPage === "dock"
                                 settingsPopup: settingsWindow
+                            }
+                        }
+                        onLoaded: settingsWindow.scheduleApplyUiFont()
+                    }
+
+                    // ── EFFECTS PAGE ──
+                    Loader {
+                        anchors.fill: parent
+                        active: settingsWindow.visible && settingsWindow.currentPage === "effects"
+                        sourceComponent: Component {
+                            EffectsPage {
+                                anchors.fill: parent
+                                visible: settingsWindow.currentPage === "effects"
                             }
                         }
                         onLoaded: settingsWindow.scheduleApplyUiFont()

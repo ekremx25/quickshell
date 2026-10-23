@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Services.Pipewire
+import "../../../Widgets"
 
 Scope {
     id: root
@@ -33,6 +34,7 @@ Scope {
         active: root.shouldShowOsd
 
         PanelWindow {
+            PopupEntrance {}  // liquid ring open animation
             // Since the panel's screen is unset, it will be picked by the compositor
             // when the window is created. Most compositors pick the current active monitor.
 
@@ -50,7 +52,7 @@ Scope {
             Rectangle {
                 anchors.fill: parent
                 radius: height / 2
-                color: "#80000000"
+                color: Theme.withAlpha(Theme.background, 0.82)
 
                 RowLayout {
                     anchors {
@@ -83,7 +85,7 @@ Scope {
 
                         implicitHeight: 10
                         radius: 20
-                        color: "#50ffffff"
+                        color: Theme.withAlpha(Theme.text, 0.25)
 
                         Rectangle {
                             anchors {

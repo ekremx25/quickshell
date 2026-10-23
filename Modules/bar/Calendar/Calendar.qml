@@ -108,12 +108,11 @@ Rectangle {
     PopupWindow {
         id: calWindow
         visible: false
-        property real panelOpacity: 0.0
-        property real panelYOffset: -18
-        property real panelScale: 0.97
-        Behavior on panelOpacity { NumberAnimation { duration: 170; easing.type: Easing.OutCubic } }
-        Behavior on panelYOffset { NumberAnimation { duration: 220; easing.type: Easing.OutBack } }
-        Behavior on panelScale { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
+        // Opening animation comes from Settings → Effects.
+        PopupEntrance { originItem: dateRoot }
+        property real panelOpacity: 1.0
+        property real panelYOffset: 0
+        property real panelScale: 1.0
         implicitWidth: 400
         implicitHeight: 560
         color: "transparent"
@@ -329,18 +328,6 @@ Rectangle {
             if (visible) {
                 backend.toToday()
                 repositionCalendar()
-                calWindow.panelOpacity = 0.0
-                calWindow.panelYOffset = -22
-                calWindow.panelScale = 0.965
-                Qt.callLater(function() {
-                    calWindow.panelOpacity = 1.0
-                    calWindow.panelYOffset = 0
-                    calWindow.panelScale = 1.0
-                })
-            } else {
-                calWindow.panelOpacity = 0.0
-                calWindow.panelYOffset = -14
-                calWindow.panelScale = 0.985
             }
         }
 

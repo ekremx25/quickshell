@@ -149,6 +149,58 @@ Rectangle {
         }
     }
 
+    // --- LIQUID ACTIVE INDICATOR ---
+    // One blob marks the active workspace. On a switch its leading edge moves
+    // fast and its trailing edge slow, so it stretches toward the new workspace
+    // and then pulls together there like a drop of liquid.
+    readonly property bool liquidIndicator: EffectSettings.liquidWorkspace
+        && Appearance.resolve(workspaceRoot.style, workspaceRoot.isTransparent, true).fill
+    readonly property int activeIndex: {
+        for (var i = 0; i < workspaceRoot.activeWorkspaces.length; i++)
+            if (workspaceRoot.activeWorkspaces[i].is_active) return i;
+        return -1;
+    }
+
+    Rectangle {
+        id: liquidBlob
+        property Item target: null
+        property bool movingRight: true
+        property real leftEdge: 0
+        property real rightEdge: 0
+        property bool animate: false
+        Behavior on leftEdge { enabled: liquidBlob.animate; NumberAnimation { duration: EffectSettings.ms(liquidBlob.movingRight ? 420 : 190); easing.type: Easing.OutCubic } }
+        Behavior on rightEdge { enabled: liquidBlob.animate; NumberAnimation { duration: EffectSettings.ms(liquidBlob.movingRight ? 190 : 420); easing.type: Easing.OutCubic } }
+
+        visible: workspaceRoot.liquidIndicator && target !== null
+        x: wsRow.x + leftEdge
+        y: wsRow.y + (target ? target.y : 0)
+        width: Math.max(0, rightEdge - leftEdge)
+        height: target ? target.height : 0
+        radius: target ? target.radius : 0
+        color: workspaceRoot.activeColor
+        Behavior on color { ColorAnimation { duration: 190 } }
+
+        function sync() {
+            var next = workspaceRoot.activeIndex >= 0 ? wsRepeater.itemAt(workspaceRoot.activeIndex) : null;
+            if (!next) { target = null; animate = false; return; }
+            // Jump into place on first show; flow on every later change.
+            if (target === null) animate = false;
+            else if (next !== target) movingRight = next.x >= leftEdge;
+            target = next;
+            leftEdge = next.x;
+            rightEdge = next.x + next.width;
+            if (!animate) Qt.callLater(function() { liquidBlob.animate = true; });
+        }
+
+        Connections {
+            target: liquidBlob.target
+            function onXChanged() { liquidBlob.sync() }
+            function onWidthChanged() { liquidBlob.sync() }
+        }
+    }
+    onActiveIndexChanged: Qt.callLater(liquidBlob.sync)
+    Component.onCompleted: Qt.callLater(liquidBlob.sync)
+
     // --- VISUAL LAYOUT (Professional Glassmorphism Design) ---
     Row {
         id: wsRow
@@ -156,13 +208,15 @@ Rectangle {
         spacing: 4
 
         Repeater {
+            id: wsRepeater
             model: workspaceRoot.activeWorkspaces
+            onItemAdded: Qt.callLater(liquidBlob.sync)
             delegate: Rectangle {
                 id: wsBox
                 objectName: "workspaceColorTile"
                 readonly property color contentColor: !appearance.fill
                     ? (isActive ? workspaceRoot.activeColor : Theme.text)
-                    : Theme.foregroundFor(color)
+                    : Theme.foregroundFor(isActive ? workspaceRoot.activeColor : color)
                 property var wsData: modelData
                 property bool isActive: wsData.is_active
                 property int winCount: wsData.winCount
@@ -195,7 +249,8 @@ Rectangle {
                 // --- GLASSMORPHISM BACKGROUND ---
                 color: {
                     if (!appearance.fill) return "transparent"
-                    if (isActive) return activeColor
+                    // The liquid blob paints the active background.
+                    if (isActive) return workspaceRoot.liquidIndicator ? "transparent" : activeColor
                     return isHovered ? workspaceRoot.hoverColor : workspaceRoot.inactiveColor
                 }
 

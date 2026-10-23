@@ -8,6 +8,7 @@ import "../../../Services" as S
 
 // Popup window showing the list of notifications
 PanelWindow {
+    PopupEntrance {}  // liquid ring open animation
     id: root
     NotificationPopupBackend { id: backend }
 

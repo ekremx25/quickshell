@@ -5,6 +5,7 @@ import Quickshell.Wayland
 import "../../../Widgets"
 
 PanelWindow {
+    PopupEntrance {}  // liquid ring open animation
     id: root
 
     // Make window cover the whole screen

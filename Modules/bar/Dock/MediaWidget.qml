@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell.Services.Mpris
 import "../../../Widgets"
+import "../../../Services" as S
 
 Rectangle {
     id: mediaWidget
@@ -112,6 +113,17 @@ Rectangle {
 
     Behavior on implicitWidth { NumberAnimation { duration: 300; easing.type: Easing.OutBack } }
 
+    // --- Music visualizer: cava runs only while playing ---
+    property bool visualizerHeld: false
+    readonly property bool wantsVisualizer: isPlaying && S.EffectSettings.visualizer
+    function syncVisualizer() {
+        if (wantsVisualizer && !visualizerHeld) { S.CavaService.acquire(); visualizerHeld = true; }
+        else if (!wantsVisualizer && visualizerHeld) { S.CavaService.release(); visualizerHeld = false; }
+    }
+    onWantsVisualizerChanged: syncVisualizer()
+    Component.onCompleted: syncVisualizer()
+    Component.onDestruction: if (visualizerHeld) S.CavaService.release()
+
     RowLayout {
         id: mainRow
         anchors.centerIn: parent
@@ -196,6 +208,34 @@ Rectangle {
                         font.family: Theme.fontFamily
                         font.pixelSize: 16 * dockScale
                         color: Theme.primary
+                    }
+                }
+            }
+
+            // Compact equalizer: 24 cava bands folded into 6 bars.
+            Row {
+                id: miniEq
+                readonly property int barCount: 6
+                visible: mediaWidget.expanded && S.CavaService.active && mediaWidget.wantsVisualizer
+                Layout.preferredHeight: 18 * dockScale
+                Layout.alignment: Qt.AlignVCenter
+                spacing: 2 * dockScale
+
+                Repeater {
+                    model: miniEq.barCount
+                    Rectangle {
+                        required property int index
+                        readonly property real level: {
+                            var v = S.CavaService.values, per = S.CavaService.bars / miniEq.barCount, sum = 0;
+                            for (var i = index * per; i < (index + 1) * per; i++) sum += v[i] || 0;
+                            return sum / per;
+                        }
+                        width: 3 * dockScale
+                        height: Math.max(3 * dockScale, miniEq.height * Math.min(1, level))
+                        y: miniEq.height - height
+                        radius: width / 2
+                        color: Theme.primary
+                        Behavior on height { NumberAnimation { duration: 70; easing.type: Easing.OutQuad } }
                     }
                 }
             }

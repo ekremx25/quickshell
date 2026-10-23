@@ -246,8 +246,10 @@ Rectangle {
         anchors.fill: parent
         hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
-        onClicked: activityPopup.visible = !activityPopup.visible
+        onClicked: hoverOpen.handleClick()
     }
+
+    HoverOpen { id: hoverOpen; popup: activityPopup }
 
     ActivityController {
         id: activity
@@ -271,10 +273,11 @@ Rectangle {
         implicitWidth: root.expanded ? 1040 : 650
         implicitHeight: root.expanded ? 720 : 560
 
+        // Opening animation comes from Settings → Effects.
+        PopupEntrance { originItem: root }
+
         onVisibleChanged: {
-            if (visible) {
-                Qt.callLater(function() { openTransition.restart(); });
-            } else {
+            if (!visible) {
                 detailTransition.stop();
                 sweepTransition.stop();
                 root.transitionRunning = false;
@@ -304,27 +307,6 @@ Rectangle {
                     itemPos.x + root.width / 2 - activityPopup.width / 2,
                     win.width - activityPopup.width - 6));
                 activityPopup.anchor.rect.y = opensUp ? -activityPopup.height - 6 : win.height + 6;
-            }
-        }
-
-        ParallelAnimation {
-            id: openTransition
-            NumberAnimation {
-                target: panelSurface
-                property: "opacity"
-                from: 0
-                to: 1
-                duration: 210
-                easing.type: Easing.OutCubic
-            }
-            NumberAnimation {
-                target: panelSurface
-                property: "scale"
-                from: 0.965
-                to: 1
-                duration: 240
-                easing.type: Easing.OutBack
-                easing.overshoot: 0.65
             }
         }
 

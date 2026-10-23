@@ -8,6 +8,7 @@ import "../../../Services" as S
 // Dropdown popover with on/off toggle + temperature slider.
 // Anchored relative to its parent bar item.
 PopupWindow {
+    PopupEntrance { originItem: popover.parent }  // liquid ring open animation
     id: popover
     visible: false
     implicitWidth: 280

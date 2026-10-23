@@ -3,6 +3,7 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
 import "../../../Widgets"
+import "../../../Services" as S
 
 Rectangle {
     id: root
@@ -46,14 +47,26 @@ Rectangle {
     MouseArea {
         anchors.fill: parent
         cursorShape: Qt.PointingHandCursor
-        onClicked: {
-            profilePopup.visible = !profilePopup.visible
-            if (profilePopup.visible) powerProfileService.refresh()
-        }
+        onClicked: hoverOpen.handleClick()
+    }
+
+    // Lets a parent group stay expanded while the popup is showing, and take over
+    // hover-to-open (its own hover area sits above this chip).
+    readonly property bool popupOpen: profilePopup.visible
+    property alias popupWindow: profilePopup
+    property bool ownHover: true
+    function refreshProfiles() { powerProfileService.refresh() }
+
+    HoverOpen {
+        id: hoverOpen
+        hoverMode: root.ownHover && S.EffectSettings.hoverOpen
+        popup: profilePopup
+        onOpened: powerProfileService.refresh()
     }
 
     // --- POPUP ---
     PopupWindow {
+        PopupEntrance { originItem: root }  // liquid ring open animation
         id: profilePopup
         visible: false
         implicitWidth: 260

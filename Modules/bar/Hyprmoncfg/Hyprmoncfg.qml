@@ -114,10 +114,13 @@ Rectangle {
         hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
         onClicked: {
-            if (backend.supported) displayPopup.visible = !displayPopup.visible;
+            if (backend.supported) hoverOpen.handleClick();
             else advancedPopup.visible = !advancedPopup.visible;
         }
     }
+
+    // Hover only opens the compact popup; the full-screen editor stays click-only.
+    HoverOpen { id: hoverOpen; popup: backend.supported ? displayPopup : null }
 
     HyprmoncfgBackend { id: backend }
 
@@ -184,15 +187,11 @@ Rectangle {
         implicitWidth: 680
         implicitHeight: 600
 
+        // Opening animation comes from Settings → Effects.
+        PopupEntrance { originItem: root }
+
         onVisibleChanged: {
-            if (visible) {
-                panel.opacity = 0;
-                panel.scale = 0.96;
-                openAnimation.restart();
-                backend.refresh();
-            } else {
-                openAnimation.stop();
-            }
+            if (visible) backend.refresh();
         }
 
         anchor.window: root.QsWindow.window
@@ -217,17 +216,6 @@ Rectangle {
             color: root.panelColor
             border.width: 1
             border.color: root.borderColor
-            opacity: 0
-            scale: 0.96
-
-            SequentialAnimation {
-                id: openAnimation
-                PauseAnimation { duration: 20 }
-                ParallelAnimation {
-                    NumberAnimation { target: panel; property: "opacity"; to: 1; duration: 190; easing.type: Easing.OutCubic }
-                    NumberAnimation { target: panel; property: "scale"; to: 1; duration: 240; easing.type: Easing.OutBack }
-                }
-            }
 
             ColumnLayout {
                 anchors.fill: parent
@@ -457,6 +445,13 @@ Rectangle {
         id: advancedPopup
         visible: false
         color: "transparent"
+
+        // Only the centred card animates; the dimmed backdrop just appears.
+        PopupEntrance {
+            id: advancedEntrance
+            targetItem: advancedPanel
+            autoPlay: false
+        }
         anchors { top: true; bottom: true; left: true; right: true }
         WlrLayershell.layer: WlrLayer.Top
         WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
@@ -488,15 +483,15 @@ Rectangle {
             if (visible) {
                 advancedPanel.geometryInitialized = false;
                 Qt.callLater(advancedPopup.initializePanelGeometry);
-                advancedPanel.opacity = 0;
-                advancedPanel.scale = 0.97;
-                advancedOpen.restart();
+                advancedPanel.opacity = 1;
+                advancedPanel.scale = 1;
+                // Play once the panel has its size and position.
+                Qt.callLater(function() { advancedEntrance.play(); });
                 monitorSettingsLoader.active = true;
                 Qt.callLater(function() {
                     if (monitorSettingsLoader.item) monitorSettingsLoader.item.refresh();
                 });
             } else {
-                advancedOpen.stop();
                 if (monitorSettingsLoader.item) monitorSettingsLoader.item.cancelPendingPreview();
             }
         }
@@ -615,14 +610,6 @@ Rectangle {
             Behavior on width { enabled: !advancedPanel.resizing; NumberAnimation { duration: 0 } }
             Behavior on height { enabled: !advancedPanel.resizing; NumberAnimation { duration: 0 } }
 
-            SequentialAnimation {
-                id: advancedOpen
-                PauseAnimation { duration: 16 }
-                ParallelAnimation {
-                    NumberAnimation { target: advancedPanel; property: "opacity"; to: 1; duration: 190; easing.type: Easing.OutCubic }
-                    NumberAnimation { target: advancedPanel; property: "scale"; to: 1; duration: 230; easing.type: Easing.OutBack }
-                }
-            }
 
             ColumnLayout {
                 anchors.fill: parent

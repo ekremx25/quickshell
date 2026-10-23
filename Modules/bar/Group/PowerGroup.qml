@@ -27,7 +27,9 @@ Rectangle {
     border.color: hovered ? Theme.withAlpha(Theme.text, 0.1) : "transparent"
     Behavior on border.color { ColorAnimation { duration: 200 } }
 
-    property bool hovered: mouseArea.containsMouse
+    // Stay expanded while the power-profile popup is open: opening it makes
+    // Wayland report a pointer leave here even though the pointer did not move.
+    property bool hovered: mouseArea.containsMouse || profile.popupOpen
     
     // Timer to delay collapse (prevent jitter when moving between icons)
     Timer {
@@ -51,6 +53,7 @@ Rectangle {
         // 2. PowerProfile (Expand on Hover)
         PowerProfile {
             id: profile
+            ownHover: false
             
             // Interaction logic
             visible: opacity > 0
@@ -74,5 +77,12 @@ Rectangle {
         propagateComposedEvents: true // Passthrough clicks
         
         onPressed: (mouse) => mouse.accepted = false // Allow children to handle clicks
+    }
+
+    // Hovering the group opens the power-profile popup (declared last so it sits
+    // above the group's hover area).
+    HoverOpen {
+        popup: profile.popupWindow
+        onOpened: profile.refreshProfiles()
     }
 }

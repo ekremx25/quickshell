@@ -25,9 +25,18 @@ Rectangle {
         hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
         onClicked: {
-            if (!notepadWindow.visible) notepadWindow.positionUnderIcon()
-            notepadWindow.visible = !notepadWindow.visible
+            notepadWindow.openedByClick = true
+            hoverOpen.handleClick()
         }
+    }
+
+    // Hover peeks at the notepad; once you type it stays open until you click
+    // the icon again or press Escape.
+    HoverOpen {
+        id: hoverOpen
+        popup: notepadWindow
+        keepOpen: notepadWindow.edited
+        onAboutToOpen: notepadWindow.positionUnderIcon()
     }
 
     Text {
@@ -41,6 +50,7 @@ Rectangle {
     
     // --- NOTEPAD WINDOW ---
     PanelWindow {
+        PopupEntrance {}  // liquid ring open animation
         id: notepadWindow
         screen: root.QsWindow.window ? root.QsWindow.window.screen : null
         anchors { top: true; left: true }
@@ -75,8 +85,16 @@ Rectangle {
         }
         exclusionMode: ExclusionMode.Ignore
         WlrLayershell.layer: WlrLayer.Overlay
-        WlrLayershell.keyboardFocus: visible ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+        WlrLayershell.keyboardFocus: !visible ? WlrKeyboardFocus.None
+            : (openedByClick || edited ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.OnDemand)
+        // Set once the user types while the notepad is open.
+        property bool edited: false
+        // A hover peek must not steal the keyboard from the app you are typing in;
+        // clicking the icon (or into the notepad) still gives it focus.
+        property bool openedByClick: false
+
         onVisibleChanged: {
+            if (!visible) { edited = false; openedByClick = false }
             if (visible) Qt.callLater(function() {
                 notepadWindow.positionUnderIcon()
                 textArea.forceActiveFocus()
@@ -124,6 +142,7 @@ Rectangle {
                         id: textArea
                         focus: true
                         Keys.onEscapePressed: notepadWindow.visible = false
+                        Keys.onPressed: notepadWindow.edited = true
                         placeholderText: "Take a note here..."
                         color: Theme.cpText
                         font.pixelSize: 13
@@ -132,7 +151,7 @@ Rectangle {
                         selectByMouse: true
                         
                         background: Rectangle {
-                            color: Qt.rgba(0,0,0,0.2)
+                            color: Theme.withAlpha(Theme.background, 0.45)
                             radius: 8
                             border.color: parent.activeFocus ? Theme.cpYellow : Theme.withAlpha(Theme.text, 0.1)
                             border.width: 1

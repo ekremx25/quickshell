@@ -13,14 +13,22 @@ DockPopup {
 
     signal closeRequested()
 
+    // Poof only when the icon actually leaves the dock.
+    function poofAnchor() {
+        if (!menu.panel || !menu.anchorItem) return;
+        var c = menu.anchorItem.mapToItem(null, menu.anchorItem.width / 2, menu.anchorItem.height / 2);
+        menu.panel.spawnPoof(c.x, c.y, menu.anchorItem.iconSource);
+    }
+
     implicitWidth: menuContent.implicitWidth + 16 * dockScale
     implicitHeight: menuContent.implicitHeight + 12 * dockScale
+    glassRadius: 12 * dockScale
 
     Rectangle {
         anchors.fill: parent
         radius: 12 * menu.dockScale
-        color: Theme.withAlpha(Theme.background, 0.96)
-        border.color: Theme.withAlpha(Theme.surface, 0.8)
+        color: menu.glass ? "transparent" : Theme.withAlpha(Theme.background, 0.96)
+        border.color: menu.glass ? "transparent" : Theme.withAlpha(Theme.surface, 0.8)
         border.width: 1
     }
 
@@ -69,6 +77,7 @@ DockPopup {
             labelColor: menu.modelData.isPinned ? Theme.red : Theme.primary
             activate: function() {
                 if (menu.modelData.isPinned) {
+                    if (!menu.modelData.isRunning) menu.poofAnchor();
                     menu.backend.unpinApp(menu.modelData.appId);
                 } else {
                     menu.backend.pinApp(menu.modelData.appId);
@@ -84,6 +93,7 @@ DockPopup {
             labelColor: Theme.text
             activate: function() {
                 if (menu.modelData.isRunning && menu.modelData.windowId) {
+                    if (!menu.modelData.isPinned) menu.poofAnchor();
                     menu.backend.closeWindow(menu.modelData.windowId);
                 }
                 menu.closeRequested();

@@ -1,5 +1,6 @@
 import QtQuick
 import "../../../Widgets"
+import "../../../Services" as S
 
 // Single dock slot.
 // If modelData.isModule, renders the module component from panel.moduleMap.
@@ -11,6 +12,24 @@ Item {
     required property int index
     required property real dockScale
     required property var panel
+
+    // Frosted glass for this item's tooltip and context menu (see DockPopup).
+    Component {
+        id: popupGlass
+        LiquidGlass {
+            readonly property var host: parent ? parent.popupHost : null
+            screen: itemRoot.panel.screen
+            screenX: host ? host.glassScreenX : 0
+            screenY: host ? host.glassScreenY : 0
+            radius: host ? host.glassRadius : 12
+            refraction: 10
+            edgeWidth: 10
+            blurRadius: 14
+            // Darker frost keeps menu text readable over busy wallpapers.
+            tint: Theme.background
+            tintStrength: 0.45
+        }
+    }
     required property var backend
     required property var repeater
     required property var row
@@ -67,12 +86,80 @@ Item {
                 NumberAnimation { duration: 200; easing.type: Easing.OutBack }
             }
 
-            transform: Scale {
-                origin.x: dockItem.width / 2
-                origin.y: dockItem.height
-                xScale: dockItem.hoverScale
-                yScale: dockItem.hoverScale
+            readonly property url iconSource: applicationIcon.source
+
+            // Launch animation while an app starts (style + speed from Settings → Effects):
+            // bounce = macOS hop, pulse = heartbeat scale, wiggle = side-to-side tilt.
+            property real bounce: 0          // 0 = resting, 1 = top of the hop
+            property real pulse: 1           // extra scale for "pulse"
+            property real wiggle: 0          // tilt in degrees for "wiggle"
+            readonly property real bounceHeight: 16 * itemRoot.dockScale
+            property int launchCyclesLeft: 0
+
+            // Keep animating until the app's window shows up (or we give up).
+            function launchCycleDone(anim) {
+                launchCyclesLeft -= 1;
+                if (launchCyclesLeft <= 0 || itemRoot.modelData.isRunning) anim.stop();
             }
+
+            SequentialAnimation {
+                id: bounceAnim
+                loops: Animation.Infinite
+                NumberAnimation { target: dockItem; property: "bounce"; to: 1; duration: S.EffectSettings.ms(230); easing.type: Easing.OutQuad }
+                NumberAnimation { target: dockItem; property: "bounce"; to: 0; duration: S.EffectSettings.ms(230); easing.type: Easing.InQuad }
+                ScriptAction { script: dockItem.launchCycleDone(bounceAnim) }
+            }
+
+            SequentialAnimation {
+                id: pulseAnim
+                loops: Animation.Infinite
+                NumberAnimation { target: dockItem; property: "pulse"; to: 1.18; duration: S.EffectSettings.ms(150); easing.type: Easing.OutQuad }
+                NumberAnimation { target: dockItem; property: "pulse"; to: 0.94; duration: S.EffectSettings.ms(150); easing.type: Easing.InOutQuad }
+                NumberAnimation { target: dockItem; property: "pulse"; to: 1.0; duration: S.EffectSettings.ms(160); easing.type: Easing.OutQuad }
+                ScriptAction { script: dockItem.launchCycleDone(pulseAnim) }
+            }
+
+            SequentialAnimation {
+                id: wiggleAnim
+                loops: Animation.Infinite
+                NumberAnimation { target: dockItem; property: "wiggle"; to: 12; duration: S.EffectSettings.ms(90); easing.type: Easing.OutSine }
+                NumberAnimation { target: dockItem; property: "wiggle"; to: -12; duration: S.EffectSettings.ms(180); easing.type: Easing.InOutSine }
+                NumberAnimation { target: dockItem; property: "wiggle"; to: 6; duration: S.EffectSettings.ms(120); easing.type: Easing.InOutSine }
+                NumberAnimation { target: dockItem; property: "wiggle"; to: 0; duration: S.EffectSettings.ms(90); easing.type: Easing.OutSine }
+                ScriptAction { script: dockItem.launchCycleDone(wiggleAnim) }
+            }
+
+            function startBounce() {
+                var style = S.EffectSettings.launchStyle;
+                if (style === "none") return;
+                bounceAnim.stop(); pulseAnim.stop(); wiggleAnim.stop();
+                bounce = 0; pulse = 1; wiggle = 0;
+                launchCyclesLeft = 4;
+                if (style === "pulse") pulseAnim.restart();
+                else if (style === "wiggle") wiggleAnim.restart();
+                else bounceAnim.restart();
+            }
+
+            transform: [
+                Scale {
+                    origin.x: dockItem.width / 2
+                    origin.y: dockItem.height
+                    xScale: dockItem.hoverScale * dockItem.pulse
+                    yScale: dockItem.hoverScale * dockItem.pulse
+                },
+                Rotation {
+                    origin.x: dockItem.width / 2
+                    origin.y: dockItem.height / 2
+                    angle: dockItem.wiggle
+                },
+                // Hop away from the screen edge the dock sits on.
+                Translate {
+                    readonly property real hop: dockItem.bounce * dockItem.bounceHeight
+                    readonly property string edge: itemRoot.panel.cfgPosition
+                    x: edge === "left" ? hop : edge === "right" ? -hop : 0
+                    y: edge === "top" ? hop : (edge === "left" || edge === "right") ? 0 : -hop
+                }
+            ]
 
             Image {
                 id: applicationIcon
@@ -101,6 +188,8 @@ Item {
 
             DockTooltip {
                 anchorItem: dockItem
+                panel: itemRoot.panel
+                glassComponent: S.EffectSettings.liquidGlass ? popupGlass : null
                 dockPosition: itemRoot.panel.cfgPosition
                 label: itemRoot.modelData.name
                 dockScale: itemRoot.dockScale
@@ -218,6 +307,7 @@ Item {
                         itemRoot.backend.focusWindow(itemRoot.modelData.windowId);
                     } else {
                         itemRoot.backend.launchApp(itemRoot.modelData.cmd);
+                        dockItem.startBounce();
                     }
                 }
             }
@@ -249,6 +339,8 @@ Item {
 
         DockContextMenu {
             anchorItem: dockItem
+            panel: itemRoot.panel
+            glassComponent: S.EffectSettings.liquidGlass ? popupGlass : null
             dockPosition: itemRoot.panel.cfgPosition
             modelData: itemRoot.modelData
             dockScale: itemRoot.dockScale

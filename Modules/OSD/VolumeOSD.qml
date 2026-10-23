@@ -4,6 +4,7 @@ import Quickshell
 import Quickshell.Wayland
 import "../../Widgets"
 import "../../Services"
+import "../bar/Dock" as DockParts
 
 PanelWindow {
     id: root
@@ -96,12 +97,30 @@ PanelWindow {
         opacity: 0
         Behavior on opacity { NumberAnimation { duration: 150 } }
 
+        // Frosted glass card. The window ignores exclusive zones and is anchored
+        // bottom-centre, so its screen position follows from size and margin.
+        Loader {
+            anchors.fill: parent
+            active: EffectSettings.liquidGlass && root.visible
+            sourceComponent: DockParts.LiquidGlass {
+                screen: root.screen
+                screenX: (root.screen.width - root.width) / 2 + contentItem.x
+                screenY: root.screen.height - 350 - root.height + contentItem.y
+                radius: Theme.radius * 2
+                refraction: 14
+                edgeWidth: 14
+                blurRadius: 14
+                tint: Theme.background
+                tintStrength: 0.4
+            }
+        }
+
         // Main OSD Card UI
         Rectangle {
             anchors.fill: parent
-            color: Theme.background
+            color: EffectSettings.liquidGlass ? "transparent" : Theme.background
             border.color: Theme.surface
-            border.width: 1
+            border.width: EffectSettings.liquidGlass ? 0 : 1
             radius: Theme.radius * 2
             clip: true
             
@@ -127,24 +146,62 @@ PanelWindow {
                 // Progress Bar Container
                 Rectangle {
                     Layout.fillWidth: true
-                    height: 16
-                    radius: 8
-                    color: Theme.withAlpha(Theme.text, 0.05)
-                    
-                    // Track
-                    Rectangle {
-                        anchors {
-                            left: parent.left
-                            top: parent.top
-                            bottom: parent.bottom
+                    height: 18
+                    radius: 9
+                    color: Theme.withAlpha(Theme.text, 0.07)
+
+                    // Liquid fill: the leading edge ripples like water while the OSD is shown.
+                    Canvas {
+                        id: liquidFill
+                        anchors.fill: parent
+                        property real level: root.clampedDisplayVolume / 150
+                        property real phase: 0
+                        property color fillColor: Volume.sinkMuted ? Theme.red : Theme.primary
+                        Behavior on level { SpringAnimation { spring: 4.5; damping: 0.32; epsilon: 0.001 } }
+                        Behavior on fillColor { ColorAnimation { duration: 150 } }
+                        onLevelChanged: requestPaint()
+                        onPhaseChanged: requestPaint()
+                        onFillColorChanged: requestPaint()
+
+                        NumberAnimation on phase {
+                            from: 0; to: Math.PI * 2; duration: EffectSettings.ms(1400)
+                            loops: Animation.Infinite
+                            running: root.visible && EffectSettings.osdWave
                         }
-                        width: parent.width * (root.clampedDisplayVolume / 150)
-                        radius: 8
-                        color: Volume.sinkMuted ? Theme.red : Theme.primary
-                        
-                        // Smoothly animate visual changes in width
-                        Behavior on width { NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
-                        Behavior on color { ColorAnimation { duration: 150 } }
+
+                        onPaint: {
+                            var ctx = getContext("2d");
+                            var w = width, h = height, r = h / 2;
+                            ctx.reset();
+                            ctx.save();
+                            ctx.beginPath();
+                            ctx.roundedRect(0, 0, w, h, r, r);
+                            ctx.clip();
+
+                            var edge = Math.max(0, Math.min(1, level)) * w;
+                            if (edge > 0.5) {
+                                var amp = EffectSettings.osdWave && edge < w - 1 ? 3 : 0;
+                                ctx.beginPath();
+                                ctx.moveTo(0, 0);
+                                for (var y = 0; y <= h; y += 1) {
+                                    var t = y / h * Math.PI * 2;
+                                    ctx.lineTo(edge + amp * Math.sin(t + phase) + amp * 0.5 * Math.sin(2 * t - phase * 1.5), y);
+                                }
+                                ctx.lineTo(0, h);
+                                ctx.closePath();
+                                ctx.fillStyle = fillColor;
+                                ctx.fill();
+
+                                // Glossy highlight on the upper half of the liquid.
+                                var gloss = ctx.createLinearGradient(0, 0, 0, h);
+                                gloss.addColorStop(0, Qt.rgba(1, 1, 1, 0.35));
+                                gloss.addColorStop(0.5, Qt.rgba(1, 1, 1, 0.05));
+                                gloss.addColorStop(1, Qt.rgba(1, 1, 1, 0));
+                                ctx.fillStyle = gloss;
+                                ctx.fill();
+                            }
+                            ctx.restore();
+                        }
                     }
                 }
                 

@@ -72,16 +72,20 @@ Rectangle {
         anchors.fill: parent
         hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
-        onClicked: {
-            converterPopup.visible = !converterPopup.visible;
-            if (converterPopup.visible) {
-                S.Markets.ensureConverterCurrencies();
-                S.Markets.requestConversion();
-            }
+        onClicked: hoverOpen.handleClick()
+    }
+
+    HoverOpen {
+        id: hoverOpen
+        popup: converterPopup
+        onOpened: {
+            S.Markets.ensureConverterCurrencies();
+            S.Markets.requestConversion();
         }
     }
 
     PopupWindow {
+        PopupEntrance { originItem: root }  // liquid ring open animation
         id: converterPopup
         visible: false
         // PopupWindow does not request keyboard focus by default. Without it,
