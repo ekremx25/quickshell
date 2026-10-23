@@ -62,15 +62,18 @@ Item {
         stdout: StdioCollector { onStreamFinished: glass.parseQuery(text) }
     }
 
-    // Cache format: <header>|crop:center|<filter>|/path/to/image
+    // Cache format: NUL-separated <namespace>, crop:center, <filter>, /path/to/image
     FileView {
         path: glass.awwwVersion ? glass.cacheHome + "/awww/" + glass.awwwVersion + "/" + glass.screen.name : ""
         watchChanges: true
         onFileChanged: reload()
         onLoaded: {
-            var content = text();
-            var start = content.lastIndexOf("|/");
-            if (start !== -1) glass.wallpaperPath = content.substring(start + 1).trim();
+            var fields = text().split("\0");
+            for (var i = fields.length - 1; i >= 0; i--) {
+                if (fields[i].charAt(0) !== "/") continue;
+                glass.wallpaperPath = fields[i].trim();
+                break;
+            }
         }
     }
 
