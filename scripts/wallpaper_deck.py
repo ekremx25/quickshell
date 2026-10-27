@@ -44,16 +44,20 @@ def local_wallpapers(directory: str) -> None:
 
     items = []
     try:
-        candidates = sorted(root.iterdir(), key=lambda item: item.stat().st_mtime, reverse=True)
+        entries = list(root.iterdir())
     except OSError as exc:
         fail(f"Cannot read wallpaper directory: {exc}")
-    for path in candidates:
+    # Stat each entry on its own so one broken symlink cannot empty the list.
+    candidates = []
+    for path in entries:
         try:
             if path.name.startswith(".") or not path.is_file() or path.suffix.lower() not in IMAGE_EXTENSIONS:
                 continue
-            stat = path.stat()
+            candidates.append((path, path.stat()))
         except OSError:
             continue
+    candidates.sort(key=lambda entry: entry[1].st_mtime, reverse=True)
+    for path, stat in candidates:
         items.append({
             "id": "local:" + str(path),
             "source": "local",

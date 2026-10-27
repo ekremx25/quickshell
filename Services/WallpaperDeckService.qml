@@ -247,8 +247,8 @@ Singleton {
             var result = root.parseOutput(applyProc.buffer, "Apply wallpaper");
             applyProc.buffer = "";
             if (exitCode === 0 && result) {
-                if (!ColorPaletteService.enabled) ColorPaletteService.setEnabled(true);
-                ColorPaletteService.selectWallpaper(result.path);
+                // Follow the user's Material You choice; never switch it on from here.
+                if (ColorPaletteService.enabled) ColorPaletteService.selectWallpaper(result.path);
                 root.statusMessage = "Applied with " + result.backend;
                 root.wallpaperApplied(result.path);
             }
@@ -278,3 +278,4 @@ Singleton {
 
     Component.onCompleted: settingsStore.load()
 }
+

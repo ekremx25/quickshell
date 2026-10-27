@@ -6,7 +6,7 @@ import os
 import subprocess
 from collections import Counter
 from pathlib import Path
-from monitor_role_manager import monitor_identity, monitor_argument, atomic_json_write
+from monitor_role_manager import ROLE_NAMES, monitor_identity, monitor_argument, atomic_json_write
 
 
 def resolve_outputs(saved, live):
@@ -28,9 +28,34 @@ def resolve_outputs(saved, live):
     return {old: current for old, current in mapping.items() if claims[current['name']] == 1}
 
 
-def matches_live(old, current, target):
-    """True when the live output already has the saved mode, geometry and mirror."""
+def role_rank(profile):
+    role = profile.get('role')
+    return ROLE_NAMES.index(role) if role in ROLE_NAMES else len(ROLE_NAMES)
+
+
+def ordered_profiles(config):
+    """Settings-page profiles, named roles first, so a stale extra profile never wins."""
+    profiles = [p for p in config.values() if isinstance(p, dict) and p.get('role')]
+    return sorted(profiles, key=role_rank)
+
+
+def sdr_settings(old, config):
+    """SDR tuning from the settings page profile for this display, else the snapshot."""
+    profile = next((p for p in ordered_profiles(config) if p.get('identity') == monitor_identity(old)), {})
+    return dict(sdrBrightness=profile.get('sdrBrightness', old.get('sdrBrightness', 1)),
+                sdrSaturation=profile.get('sdrSaturation', old.get('sdrSaturation', 1)),
+                sdrLuminance=profile.get('sdrLuminance', old.get('sdrMaxLuminance', 80)),
+                sdrEotf=profile.get('sdrEotf', 'default'))
+
+
+def matches_live(old, current, target, sdr):
+    """True when the live output already has the wanted mode, geometry, SDR tuning and mirror."""
     mirror = str(target['id']) if target else 'none'
+    hdr = str(old.get('colorManagementPreset', '')).startswith('hdr')
+    if hdr and not (abs(current.get('sdrMaxLuminance', 0) - sdr['sdrLuminance']) < 1
+                    and abs(current.get('sdrBrightness', 0) - sdr['sdrBrightness']) < 0.05
+                    and abs(current.get('sdrSaturation', 0) - sdr['sdrSaturation']) < 0.05):
+        return False
     return (current['width'] == old['width'] and current['height'] == old['height']
             and round(current['refreshRate']) == round(old['refreshRate'])
             and current['x'] == old['x'] and current['y'] == old['y']
@@ -45,7 +70,7 @@ def restored_roles(saved, live, config):
     mapping = resolve_outputs(saved, live)
     saved_by_name = {m['name']: m for m in saved}
     roles = {}
-    for connector, profile in config.items():
+    for connector, profile in sorted(config.items(), key=lambda item: role_rank(item[1]) if isinstance(item[1], dict) else 99):
         if not isinstance(profile, dict) or not profile.get('role'):
             continue
         identity = profile.get('identity')
@@ -53,12 +78,13 @@ def restored_roles(saved, live, config):
                       if str(saved_by_name[old_name].get('mirrorOf', 'none')) == 'none'
                       and str(current.get('mirrorOf', 'none')) == 'none'
                       and (monitor_identity(current) == identity if identity else old_name == connector)]
-        if len(candidates) == 1:
+        # One display gets one role; a stale duplicate profile must not alias it.
+        if len(candidates) == 1 and candidates[0]['name'] not in roles.values():
             roles[profile['role']] = candidates[0]['name']
     return roles
 
 
-def plan_restore(saved, live):
+def plan_restore(saved, live, config=None):
     mapping = resolve_outputs(saved, live)
     ids = {str(m['id']): m['name'] for m in saved}
     commands = []
@@ -71,15 +97,15 @@ def plan_restore(saved, live):
         target = mapping.get(target_old) if target_old else None
         if target_old and target is None:
             continue  # Never turn an unresolved mirror into an extended desktop.
-        if matches_live(old, current, target):
+        sdr = sdr_settings(old, config or {})
+        if matches_live(old, current, target, sdr):
             continue
         item = dict(name=current['name'], res=f"{old['width']}x{old['height']}",
                     hz=old['refreshRate'], posX=old['x'], posY=old['y'], scale=old['scale'],
                     hdr=str(old.get('colorManagementPreset', '')).startswith('hdr'),
                     bitdepth=10 if '2101010' in old.get('currentFormat', '') else 8,
                     vrr=int(bool(old.get('vrr'))), colorManagement=old.get('colorManagementPreset', 'srgb'),
-                    sdrBrightness=old.get('sdrBrightness', 1), sdrSaturation=old.get('sdrSaturation', 1),
-                    sdrLuminance=old.get('sdrMaxLuminance', 80), sdrEotf='default')
+                    **sdr)
         arg = monitor_argument(item)
         arg += f",transform,{old.get('transform', 0)},sdr_min_luminance,{old.get('sdrMinLuminance', 0.2)}"
         if target:
@@ -95,14 +121,14 @@ def main():
     root = Path(os.environ.get('XDG_CONFIG_HOME', Path.home() / '.config')) / 'quickshell'
     saved = json.loads((root / 'monitor_port_snapshot.json').read_text())
     live = json.loads(subprocess.check_output(['hyprctl', 'monitors', 'all', '-j'], text=True))
-    commands = plan_restore(saved, live)
+    config_path = root / 'monitor_config.json'
+    config = json.loads(config_path.read_text()) if config_path.exists() else {}
+    commands = plan_restore(saved, live, config)
     if args.dry_run:
         print(json.dumps(commands, indent=2))
         return
     for command in commands:
         subprocess.run([str(root / 'scripts/hypr_monitor_apply.sh'), 'monitor', command], check=True)
-    config_path = root / 'monitor_config.json'
-    config = json.loads(config_path.read_text()) if config_path.exists() else {}
     atomic_json_write(root / 'monitor_runtime.json', restored_roles(saved, live, config))
 
 
