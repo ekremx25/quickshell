@@ -33,7 +33,9 @@ class MonitorPortRestoreTests(unittest.TestCase):
                 root.mkdir()
                 (root / 'monitor_port_snapshot.json').write_text(json.dumps(saved))
                 (root / 'monitor_config.json').write_text(json.dumps(config))
-                live = [dict(saved[0], name='DP-1' if moved else 'DP-3'), saved[1]]
+                # A real reconnect gets a new id and loses the mirror and position.
+                live = [dict(saved[0], name='DP-1', id=3, x=0) if moved else saved[0],
+                        dict(saved[1], mirrorOf='none') if moved else saved[1]]
                 with patch.dict(os.environ, {'XDG_CONFIG_HOME': directory}), \
                      patch.object(sys, 'argv', ['restore']), \
                      patch.object(monitor_port_restore.subprocess, 'check_output', return_value=json.dumps(live)), \
@@ -50,7 +52,7 @@ class MonitorPortRestoreTests(unittest.TestCase):
 
     def test_dp_move_preserves_hdr_geometry_and_updates_mirror(self):
         saved = displays()
-        live = [dict(saved[0], name='DP-1', x=0, y=180), saved[1]]
+        live = [dict(saved[0], name='DP-1', id=3, x=0, y=180), saved[1]]
         commands = plan_restore(saved, live)
         self.assertEqual(len(commands), 2)
         self.assertIn('DP-1,1920x1080@165.00,2560x0,1.000000', commands[0])
@@ -63,8 +65,19 @@ class MonitorPortRestoreTests(unittest.TestCase):
 
     def test_absent_source_does_not_self_mirror(self):
         saved = displays()
-        with self.assertRaisesRegex(ValueError, 'Ambiguous'):
-            plan_restore(saved, [saved[1]])
+        self.assertEqual(plan_restore(saved, [saved[1]]), [])
+
+    def test_partial_hotplug_still_restores_unambiguous_outputs(self):
+        saved = displays() + [dict(displays()[0], id=0, name='DP-2', make='Asus', serial='9', x=0)]
+        live = [dict(saved[1], name='HDMI-A-1'), dict(saved[2], name='DP-3', id=5, x=1920)]
+        commands = plan_restore(saved, live)
+        self.assertEqual(len(commands), 1)
+        self.assertTrue(commands[0].startswith('DP-3,1920x1080@165.00,0x0,'))
+
+    def test_swapped_ports_already_correct_is_noop(self):
+        saved = displays()
+        live = [dict(saved[0], name='DP-2'), saved[1]]
+        self.assertEqual(plan_restore(saved, live), [])
 
     def test_ambiguous_identity_is_not_assigned(self):
         saved = displays()[:1]

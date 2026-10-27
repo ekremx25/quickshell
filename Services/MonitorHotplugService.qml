@@ -27,7 +27,9 @@ Item {
         stdout: SplitParser {
             onRead: data => {
                 var line = String(data || "").trim();
-                if (line.indexOf("monitoradded") === 0 || line.indexOf("monitorremoved") === 0) {
+                // A config reload re-applies port-based rules, so restore after it too.
+                if (line.indexOf("monitoradded") === 0 || line.indexOf("monitorremoved") === 0
+                        || line.indexOf("configreloaded") === 0) {
                     root.scheduleApply();
                 }
             }

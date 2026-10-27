@@ -152,6 +152,8 @@ PanelWindow {
             anchors.fill: parent
             source: root.selectedItem ? root.selectedItem.preview : ""
             fillMode: Image.PreserveAspectCrop
+            // Blurred anyway; decoding 4K originals here costs ~33 MB per image.
+            sourceSize.width: 960
             asynchronous: true
             cache: false
             opacity: status === Image.Ready ? 0.32 : 0
@@ -340,6 +342,8 @@ PanelWindow {
                                 anchors.fill: parent
                                 source: cardSlot.modelData.preview
                                 fillMode: Image.PreserveAspectCrop
+                                // Decode at card size (with HiDPI headroom), not the full wallpaper.
+                                sourceSize.height: 640
                                 asynchronous: true
                                 cache: cardSlot.modelData.source === "local"
                             }

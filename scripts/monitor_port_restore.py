@@ -4,6 +4,7 @@ import argparse
 import json
 import os
 import subprocess
+from collections import Counter
 from pathlib import Path
 from monitor_role_manager import monitor_identity, monitor_argument, atomic_json_write
 
@@ -21,10 +22,23 @@ def resolve_outputs(saved, live):
         choices = exact or same_kind or candidates
         if len(choices) == 1:
             mapping[old['name']] = choices[0]
-    names = [m['name'] for m in mapping.values()]
-    if len(names) != len(set(names)):
-        raise ValueError('Ambiguous monitor identity; refusing to change outputs')
-    return mapping
+    # Mid-hotplug only one cable of a dual-connected display may be up, so two
+    # saved outputs claim the same connector. Leave those untouched, keep the rest.
+    claims = Counter(m['name'] for m in mapping.values())
+    return {old: current for old, current in mapping.items() if claims[current['name']] == 1}
+
+
+def matches_live(old, current, target):
+    """True when the live output already has the saved mode, geometry and mirror."""
+    mirror = str(target['id']) if target else 'none'
+    return (current['width'] == old['width'] and current['height'] == old['height']
+            and round(current['refreshRate']) == round(old['refreshRate'])
+            and current['x'] == old['x'] and current['y'] == old['y']
+            and abs(current['scale'] - old['scale']) < 0.01
+            and current.get('transform', 0) == old.get('transform', 0)
+            and current.get('colorManagementPreset') == old.get('colorManagementPreset')
+            and ('2101010' in current.get('currentFormat', '')) == ('2101010' in old.get('currentFormat', ''))
+            and str(current.get('mirrorOf', 'none')) == mirror)
 
 
 def restored_roles(saved, live, config):
@@ -57,7 +71,7 @@ def plan_restore(saved, live):
         target = mapping.get(target_old) if target_old else None
         if target_old and target is None:
             continue  # Never turn an unresolved mirror into an extended desktop.
-        if current['name'] == old['name'] and (not target or target['name'] == target_old):
+        if matches_live(old, current, target):
             continue
         item = dict(name=current['name'], res=f"{old['width']}x{old['height']}",
                     hz=old['refreshRate'], posX=old['x'], posY=old['y'], scale=old['scale'],
