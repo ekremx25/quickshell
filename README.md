@@ -594,6 +594,7 @@ All settings live in `~/.config/quickshell/` and are edited through the in-app *
 | `monitor_role_profiles.json` | Port-independent settings for Main / Secondary / Third (generated locally) |
 | `monitor_runtime.json` | Current role → connector mapping (generated locally) |
 | `theme_config.json` | Material You settings, wallpaper path |
+| `wallpaper_deck.json` | Local wallpaper directory and favorites (generated locally, ignored by Git) |
 | `lock_config.json` | Lock screen wallpaper and timeouts |
 | `notification_config.json` | DND, popup position, animation speed, filters |
 | `mouse_config.json` | Sensitivity, scroll factor, cursor theme |
@@ -676,6 +677,23 @@ outputs do not get independent roles; ambiguous identities are not guessed.
 An active `hyprmoncfgd` retains ownership instead. Refresh the snapshot after
 intentional display-setting changes; move it out of the config directory to
 return to the previous behavior. This machine-specific file is ignored by Git.
+
+### Wallpaper Deck and Wallhaven
+
+Open the floating, two-row gallery from the **Walls** bar/dock module, from
+**Settings → Material You → Open Wallpaper Deck**, or with
+`qs ipc call wallpaperDeck open`. The module is available in Bar Settings and
+opens on hover. Press **Esc** to close the panel; arrow keys select cards.
+
+Browse local images (default `~/Pictures/wallpapers`), keep favorites, or search
+Wallhaven's SFW catalog. Scrolling near the end automatically loads the next
+page; **More** remains available for explicit paging and retries. Wallhaven
+cards include API-provided color swatches; local cards use theme-color fallbacks.
+Applying an image uses an installed `awww`, `swww` or `waypaper` backend and then
+updates Material You through the existing palette service. Downloads have a
+50 MB limit. Favorite state stays local in `wallpaper_deck.json`; downloaded
+images stay in the configured wallpaper directory and are not bundled here.
+Customize the **Walls** accent in **Material You → Make it personal**.
 
 ### Wallpaper Spectrum theming
 

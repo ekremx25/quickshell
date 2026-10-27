@@ -18,6 +18,7 @@ import "./Notifications"
 import "./Clipboard"
 import "./Equalizer"
 import "./NightLight"
+import "./WallpaperDeck"
 import "./Group"
 import "./Dock"
 
@@ -63,7 +64,8 @@ Item {
         "SysInfoGroup": sysInfoGroupComp,
         "RamModule": ramModuleComp,
         "Media": mediaComp,
-        "CurrencyConverter": currencyConverterComp
+        "CurrencyConverter": currencyConverterComp,
+        "WallpaperDeck": wallpaperDeckComp
     })
 
     function componentFor(name) {
@@ -122,6 +124,7 @@ Item {
     Component { id: sysInfoGroupComp; SysInfoGroup {} }
     Component { id: ramModuleComp; RamModule {} }
     Component { id: currencyConverterComp; CurrencyConverter {} }
+    Component { id: wallpaperDeckComp; WallpaperDeckButton {} }
 
     Component {
         id: workspacesComp

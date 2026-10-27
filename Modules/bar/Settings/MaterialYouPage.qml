@@ -247,6 +247,7 @@ Item {
                         }
                         Flow {
                             Layout.fillWidth: true; spacing: 8
+                            ColorEditorButton { text: "Open Wallpaper Deck"; prominent: true; onClicked: WallpaperDeckService.open() }
                             ColorEditorButton { text: "Browse image"; enabled: !page.fixedPalette && ColorPaletteService.available; onClicked: fileDialog.open() }
                             ColorEditorButton { text: "Use desktop"; enabled: !page.fixedPalette && ColorPaletteService.available; onClicked: ColorPaletteService.useDesktopWallpaper() }
                             ColorEditorButton {

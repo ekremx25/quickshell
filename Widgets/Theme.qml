@@ -222,6 +222,7 @@ QtObject {
     property color notepadColor: activeTheme.notepad || activeTheme.calendar
     property color calendarColor: activeTheme.calendar
     property color weatherColor: activeTheme.weather
+    property color wallsColor: activeTheme.walls || activeTheme.weather
     property color mediaColor: activeTheme.media
     property color equalizerColor: activeTheme.equalizer || activeTheme.launcher || activeTheme.media
     property color currencyColor: activeTheme.currency || activeTheme.ram || activeTheme.launcher

@@ -12,6 +12,7 @@ import "./Modules/bar/Dock"
 import "./Modules/bar/Tray"
 import "./Modules/OSD"
 import "./Modules/overview"
+import "./Modules/wallpaper"
 
 // Staged loading strategy:
 //
@@ -40,6 +41,7 @@ ShellRoot {
 
     Bar {}
     WorkspaceOverview {}
+    WallpaperDeck {}
 
     // ── Stage 2: background services (after 300ms) ───────────────────
     Loader { id: eqLoader;    active: false; source: "Services/EqBootstrap.qml"    }

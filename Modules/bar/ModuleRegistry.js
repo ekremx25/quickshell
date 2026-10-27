@@ -4,7 +4,7 @@
 // and placement policy. Visual construction deliberately lives in
 // ModuleCatalog.qml so metadata consumers never instantiate heavy QML objects.
 
-var SCHEMA_VERSION = 3;
+var SCHEMA_VERSION = 4;
 var _allowedPlacements = ["bar", "dock"];
 var _allowedCategories = ["core", "productivity", "system", "connectivity", "media"];
 
@@ -274,6 +274,20 @@ var _modules = [
         allowCrossPlacementDuplicate: true,
         settingsPage: "markets",
         services: ["Markets"],
+        contexts: []
+    },
+    {
+        id: "wallpaper-deck",
+        name: "WallpaperDeck",
+        component: "WallpaperDeckButton",
+        icon: "󰸉",
+        label: "Wallpaper Deck",
+        description: "Local wallpapers, favorites and Wallhaven search.",
+        category: "productivity",
+        color: "#94e2d5",
+        placements: ["bar", "dock"],
+        settingsPage: "materialyou",
+        services: ["WallpaperDeckService", "ColorPaletteService"],
         contexts: []
     }
 ];

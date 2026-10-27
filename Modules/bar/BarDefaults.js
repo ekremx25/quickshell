@@ -59,14 +59,14 @@ function normalizeWorkspacesConfig(config) {
 
 function createBarConfig() {
     return {
-        left: ["CurrencyConverter","RamModule","SysInfoGroup"],
+        left: ["CurrencyConverter","RamModule","SysInfoGroup","WallpaperDeck"],
         center: ["Workspaces","Notifications","Notepad","ActivityMonitor"],
         right: ["Equalizer","Volume","Clipboard","Hyprmoncfg","PowerGroup"],
         inactive: ["NightLight"],
         workspaces: createWorkspacesConfig(),
         theme: "",
         barPosition: "top",
-        moduleSchemaVersion: 3
+        moduleSchemaVersion: 4
     };
 }
 

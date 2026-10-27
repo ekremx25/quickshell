@@ -119,6 +119,7 @@ Singleton {
         {key:"calendar", label:"Calendar", icon:""},
         {key:"notepad", label:"Notepad", icon:""},
         {key:"weather", label:"Weather", icon:"󰖐"},
+        {key:"walls", label:"Walls", icon:"󰸉"},
         {key:"media", label:"Media", icon:""},
         {key:"equalizer", label:"Equalizer", icon:"󰺢"},
         {key:"currency", label:"Currency", icon:""},
@@ -136,7 +137,7 @@ Singleton {
     function normalizedModuleColors(values, legacy) {
         var result = {};
         var groups = [["launcher","temp","clock","nightLight","cpu","ram","battery","system"],
-            ["calendar","notepad","workspaces","notification"], ["weather","gpu","tray","display","bluetooth"],
+            ["calendar","notepad","workspaces","notification"], ["weather","walls","gpu","tray","display","bluetooth"],
             ["media","disk","equalizer","powerProfile"], ["currency","power"], ["clipboard"]];
         if (!values || typeof values !== "object" || values instanceof Array) {
             var previous = normalizedAccents(legacy);
