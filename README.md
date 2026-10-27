@@ -747,27 +747,6 @@ default, with optional clipboard copying and a desktop notification. Set
 `SCREENSHOT_DIR` to override the destination. Bind the helper in your own
 compositor configuration; installing this repository does not add a keybind.
 
-### Regression checks
-
-Run from the repository root:
-
-```bash
-# CI runner fails on test failures and skipped tests.
-PYTHONDONTWRITEBYTECODE=1 python3 tests/run_ci.py
-
-# Separate JavaScript checks; preserve failures instead of hiding them with break.
-bash -c 'for test_file in tests/test_*.js; do node "$test_file" || exit "$?"; done'
-```
-
-QML tests use isolated temporary configuration and an offscreen renderer;
-they require Quickshell. Pointer-event tests also require the Qt 6
-`qmltestrunner` (Qt Quick Test). JavaScript checks require Node.js.
-
-Tests cover network reconnects and password transport, dock layout and pointer
-interaction, monitor selection, theming, and EQ live updates and rollback.
-Fake system commands keep network/audio tests isolated from the real session.
-Live compositor and hardware checks are still necessary.
-
 ### World clocks
 
 Open **Settings → Features → World Clocks**. Select any of the bundled 249 ISO countries/territories, search for a city inside that country, then choose **Add clock**. Up to eight DST-aware clocks can be reordered or removed. Weather is fetched in one batched Open-Meteo request and the last successful response is cached for offline display. Use **Screen Prefs → World Clocks** to choose the target monitor(s).

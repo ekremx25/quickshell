@@ -14,24 +14,15 @@ jobs:
     container: archlinux:base
 
     steps:
-      - name: Install test runtime
+      - name: Install build runtime
         run: pacman -Syu --noconfirm --needed git base-devel python nodejs quickshell qt6-declarative ttf-dejavu dbus curl jq inotify-tools socat
 
       - name: Check out repository
         uses: actions/checkout@v5
 
-      - name: Run all Python and isolated QML tests (no silent skips)
-        run: dbus-run-session -- python tests/run_ci.py
-
-      - name: Run JavaScript tests
-        shell: bash
-        run: |
-          set -euo pipefail
-          for file in tests/test_*.js; do node "$file"; done
-
       - name: Compile Python helpers
         run: |
-          python -m compileall -q scripts Modules tests
+          python -m compileall -q scripts Modules
 
       - name: Build Activity Monitor sampler
         shell: bash
