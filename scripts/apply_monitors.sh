@@ -17,6 +17,12 @@ if [ "$COMPOSITOR" = hyprland ] && systemctl --user is-active --quiet hyprmoncfg
     exit 0
 fi
 
+# Opt-in snapshot restores connector changes without recomputing geometry.
+if [ "$COMPOSITOR" = hyprland ] && [ -f "$CONFIG_HOME/quickshell/monitor_port_snapshot.json" ] && \
+   [ "$(jq -r '.manageDisplays' "$CONFIG_HOME/quickshell/monitor_setup.json" 2>/dev/null)" = false ]; then
+    exec python3 "$CONFIG_HOME/quickshell/scripts/monitor_port_restore.py"
+fi
+
 # Hyprland uses the port-independent role manager. The legacy code below is
 # retained for Niri and Mango until they expose equivalent hot-plug metadata.
 if [ "$COMPOSITOR" = hyprland ]; then

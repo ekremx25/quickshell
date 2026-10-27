@@ -661,6 +661,22 @@ identical displays that both report the same or no serial cannot be physically
 distinguished by any Wayland shell; in that rare case reconnect both displays,
 choose the desired roles once, and keep the generated identity file local.
 
+### Preserve a custom Hyprland layout across port changes
+
+When `monitor_setup.json` contains `"manageDisplays": false`, an optional local
+`monitor_port_snapshot.json` enables identity-based connector restoration without
+recalculating positions. Capture the desired live layout with
+`hyprctl monitors all -j > ~/.config/quickshell/monitor_port_snapshot.json`.
+Keep an existing snapshot backed up before replacing it. Monitor profiles in
+`monitor_config.json` provide the Main/Secondary roles.
+
+The hotplug handler restores the saved HDR, scale and geometry, retargets mirrors,
+and updates the shared role map used by the dock and workspace widgets. Mirrored
+outputs do not get independent roles; ambiguous identities are not guessed.
+An active `hyprmoncfgd` retains ownership instead. Refresh the snapshot after
+intentional display-setting changes; move it out of the config directory to
+return to the previous behavior. This machine-specific file is ignored by Git.
+
 ### Wallpaper Spectrum theming
 
 Open **Settings → Appearance → Material You**, enable Material You and select

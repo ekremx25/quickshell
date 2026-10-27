@@ -31,13 +31,13 @@ monitor_eval() {
         local key="${parts[$i]}"
         local val="${parts[$((i + 1))]:-}"
         case "$key" in
-            bitdepth|vrr|max_luminance|max_avg_luminance|sdr_max_luminance|supports_hdr|supports_wide_color)
+            bitdepth|vrr|transform|max_luminance|max_avg_luminance|sdr_max_luminance|supports_hdr|supports_wide_color)
                 expr="$expr, $key = $val"
                 ;;
             min_luminance|sdr_min_luminance|sdrbrightness|sdrsaturation)
                 expr="$expr, $key = $val"
                 ;;
-            cm|icc|sdr_eotf)
+            cm|icc|sdr_eotf|mirror)
                 expr="$expr, $key = \"$(lua_quote "$val")\""
                 ;;
         esac

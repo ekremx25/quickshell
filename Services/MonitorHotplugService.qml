@@ -18,6 +18,8 @@ Item {
         applyDebounce.restart();
     }
 
+    Component.onCompleted: if (CompositorService.isHyprland) root.scheduleApply()
+
     Process {
         id: eventProc
         command: [root.eventScript]

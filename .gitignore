@@ -34,6 +34,7 @@ monitor_config.pre-roles-backup.json
 monitor_identities.json
 monitor_role_profiles.json
 monitor_runtime.json
+monitor_port_snapshot.json
 weather_config.json
 countdown.json
 screen_config.json
