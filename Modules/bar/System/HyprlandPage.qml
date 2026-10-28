@@ -179,7 +179,7 @@ Item {
                         Layout.fillWidth: true
                         spacing: 4
                         Text { text: "Shadow"; color: SettingsPalette.text; font.pixelSize: 13; font.bold: true }
-                        Text { text: "Blur stays disabled. Shadow is optional."; color: SettingsPalette.subtext; font.pixelSize: 11 }
+                        Text { text: "Shadow is optional. Window blur lives in Settings → Effects."; color: SettingsPalette.subtext; font.pixelSize: 11 }
                     }
                     ToggleSwitch {
                         checked: page.shadowEnabled

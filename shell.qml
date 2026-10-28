@@ -39,6 +39,11 @@ ShellRoot {
         source: "Services/MonitorHotplugService.qml"
     }
 
+    Loader {
+        active: true
+        source: "Services/HyprEffectsService.qml"
+    }
+
     Bar {}
     WorkspaceOverview {}
     WallpaperDeck {}

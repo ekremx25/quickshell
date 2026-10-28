@@ -56,12 +56,11 @@ if [ -f "$hypr_general" ]; then
         s/inactive_border\s*=\s*"rgba\([0-9A-Fa-f]+\)",/inactive_border = "'"$inactive"'",/;
         s/rounding\s*=\s*\d+,/rounding = '"$rounding"',/;
         s/(shadow\s*=\s*\{\s*enabled\s*=\s*)(true|false)/${1}'"$shadow_enabled"'/s;
-        s/(blur\s*=\s*\{\s*enabled\s*=\s*)(true|false)/${1}false/s;
     ' "$hypr_general"
 fi
 
 if [ "$(provider)" = "lua" ]; then
-    hyprctl eval "hl.config({ general = { gaps_in = $gaps_in, gaps_out = $gaps_out, border_size = $border_size, col = { active_border = { colors = { \"$(lua_quote "$active_a")\", \"$(lua_quote "$active_b")\" }, angle = 45 }, inactive_border = \"$(lua_quote "$inactive")\" } }, decoration = { rounding = $rounding, shadow = { enabled = $shadow_enabled }, blur = { enabled = false } } })"
+    hyprctl eval "hl.config({ general = { gaps_in = $gaps_in, gaps_out = $gaps_out, border_size = $border_size, col = { active_border = { colors = { \"$(lua_quote "$active_a")\", \"$(lua_quote "$active_b")\" }, angle = 45 }, inactive_border = \"$(lua_quote "$inactive")\" } }, decoration = { rounding = $rounding, shadow = { enabled = $shadow_enabled } } })"
 else
     hyprctl keyword general:gaps_in "$gaps_in"
     hyprctl keyword general:gaps_out "$gaps_out"
@@ -70,5 +69,4 @@ else
     hyprctl keyword general:col.inactive_border "$inactive"
     hyprctl keyword decoration:rounding "$rounding"
     hyprctl keyword decoration:shadow:enabled "$shadow_enabled"
-    hyprctl keyword decoration:blur:enabled false
 fi

@@ -14,6 +14,7 @@ Rectangle {
     property real to: 1
     property real stepSize: 1
     property string unit: ""
+    property int decimals: 0
     property bool available: true
 
     readonly property color accent: SettingsPalette.readableAccent(Theme.primary)
@@ -34,7 +35,7 @@ Rectangle {
             Layout.fillWidth: true
             EffectCardTitle { title: card.title; description: card.description }
             Text {
-                text: Math.round(S.EffectSettings[card.key]) + card.unit
+                text: Number(S.EffectSettings[card.key]).toFixed(card.decimals) + card.unit
                 font.pixelSize: 16; font.bold: true; color: card.accent; font.family: Theme.fontFamily
             }
         }

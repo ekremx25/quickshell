@@ -24,12 +24,29 @@ Singleton {
         hoverOpen: false,         // module popups open when the pointer rests on the module
         toastStyle: "spring",     // spring | elastic | classic
         osdWave: true,            // rippling volume OSD fill
-        visualizer: true          // cava equalizer next to the track title
+        visualizer: true,         // cava equalizer next to the track title
+        // Hyprland window effects (0.57+), applied by HyprEffectsService.
+        hyprBlur: false,          // blur behind transparent windows
+        hyprBlurStyle: "kawase",  // one of hyprBlurStyles
+        hyprBlurSize: 9,          // blur radius (1 – 30)
+        hyprBlurPasses: 3,        // blur passes (1 – 6)
+        hyprWobble: false,        // wobbly windows while moving or resizing
+        hyprWobbleIntensity: 0.2, // 0.05 – 1
+        hyprWobbleStiffness: 200, // 50 – 600
+        hyprWobbleDamping: 12,    // 2 – 40
+        hyprWobbleScope: "all"    // all | primary (only the primary-role monitor wobbles)
     })
 
     readonly property var popupStyles: ["liquidRing", "genie", "flip", "jelly", "spring", "fade", "none"]
     readonly property var launchStyles: ["bounce", "pulse", "wiggle", "none"]
     readonly property var toastStyles: ["spring", "elastic", "classic"]
+    readonly property var hyprBlurStyles: ["kawase", "frost", "acrylic", "prism", "haze", "aurora",
+                                           "ripple", "water", "drops", "heat_shimmer", "fluid_jar"]
+    readonly property var hyprWobbleScopes: ["all", "primary"]
+    readonly property var numericRanges: ({
+        hyprBlurSize: [1, 30, 1], hyprBlurPasses: [1, 6, 1],
+        hyprWobbleIntensity: [0.05, 1, 0.05], hyprWobbleStiffness: [50, 600, 10], hyprWobbleDamping: [2, 40, 1]
+    })
 
     property real speed: defaults.speed
     property bool liquidGlass: defaults.liquidGlass
@@ -44,6 +61,20 @@ Singleton {
     property string toastStyle: defaults.toastStyle
     property bool osdWave: defaults.osdWave
     property bool visualizer: defaults.visualizer
+    property bool hyprBlur: defaults.hyprBlur
+    property string hyprBlurStyle: defaults.hyprBlurStyle
+    property real hyprBlurSize: defaults.hyprBlurSize
+    property real hyprBlurPasses: defaults.hyprBlurPasses
+    property bool hyprWobble: defaults.hyprWobble
+    property real hyprWobbleIntensity: defaults.hyprWobbleIntensity
+    property real hyprWobbleStiffness: defaults.hyprWobbleStiffness
+    property real hyprWobbleDamping: defaults.hyprWobbleDamping
+    property string hyprWobbleScope: defaults.hyprWobbleScope
+
+    property bool loaded: false
+
+    // Emitted after a Hyprland window-effect key is loaded or changed.
+    signal hyprEffectsChanged()
 
     // Base duration (ms at 1×) scaled by the speed setting.
     function ms(base) {
@@ -63,6 +94,15 @@ Singleton {
         if (key === "popupStyle") return root.popupStyles.indexOf(value) !== -1 ? value : fallback;
         if (key === "launchStyle") return root.launchStyles.indexOf(value) !== -1 ? value : fallback;
         if (key === "toastStyle") return root.toastStyles.indexOf(value) !== -1 ? value : fallback;
+        if (key === "hyprBlurStyle") return root.hyprBlurStyles.indexOf(value) !== -1 ? value : fallback;
+        if (key === "hyprWobbleScope") return root.hyprWobbleScopes.indexOf(value) !== -1 ? value : fallback;
+        if (key in root.numericRanges) {
+            var range = root.numericRanges[key];
+            var v = Number(value);
+            if (!isFinite(v)) return fallback;
+            v = Math.round(v / range[2]) * range[2];
+            return Math.max(range[0], Math.min(range[1], Math.round(v * 100) / 100));
+        }
         return typeof value === "boolean" ? value : fallback;
     }
 
@@ -70,6 +110,7 @@ Singleton {
         if (!(key in root.defaults)) return;
         root[key] = normalize(key, value);
         save();
+        if (key.indexOf("hypr") === 0) root.hyprEffectsChanged();
     }
 
     function save() {
@@ -89,6 +130,8 @@ Singleton {
             if (cfg.toastStyle === undefined && cfg.springToasts === false) cfg.toastStyle = "classic";
             for (var key in root.defaults)
                 root[key] = cfg[key] !== undefined ? root.normalize(key, cfg[key]) : root.defaults[key];
+            root.loaded = true;
+            root.hyprEffectsChanged();
             // First run: carry over the glass switch that used to live in the dock config.
             if (String(rawText || "").trim() === "") legacyDockConfig.reload();
         }

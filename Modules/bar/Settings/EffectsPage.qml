@@ -143,6 +143,84 @@ Item {
                 }
             }
 
+            // ═══ WINDOWS (Hyprland 0.57+) ═══
+            // Applied to Hyprland by HyprEffectsService.
+            ColumnLayout {
+                Layout.fillWidth: true
+                visible: S.CompositorService.isHyprland
+                spacing: 12
+
+                SectionTitle { text: "WINDOWS" }
+                EffectToggleCard {
+                    key: "hyprBlur"; title: "Window Blur"
+                    description: "Blurs what is behind transparent windows, such as Kitty. Opaque windows look the same."
+                }
+                EffectStylePicker {
+                    key: "hyprBlurStyle"; title: "Blur Style"
+                    description: "Animated styles keep the GPU busy while visible."
+                    opacity: S.EffectSettings.hyprBlur ? 1 : 0.45
+                    enabled: S.EffectSettings.hyprBlur
+                    options: [
+                        { value: "kawase", label: "Classic", hint: "The original smooth, fast blur." },
+                        { value: "frost", label: "Frost", hint: "Grainy frosted glass." },
+                        { value: "acrylic", label: "Acrylic", hint: "A curved acrylic lens with a tinted edge." },
+                        { value: "prism", label: "Prism", hint: "Light splits into colours at the edges." },
+                        { value: "haze", label: "Haze", hint: "A pearly sheen that shifts colour." },
+                        { value: "aurora", label: "Aurora", hint: "Animated northern lights in your theme colours." },
+                        { value: "ripple", label: "Ripple", hint: "Clicks send ripples through the glass." },
+                        { value: "water", label: "Water", hint: "The pointer stirs the glass like water. Animated." },
+                        { value: "drops", label: "Drops", hint: "Rain running down the glass. Animated." },
+                        { value: "heat_shimmer", label: "Heat Shimmer", hint: "Wavy air like over hot asphalt. Animated." },
+                        { value: "fluid_jar", label: "Fluid Jar", hint: "Coloured liquid sloshing inside the window. Heaviest on the GPU." }
+                    ]
+                }
+                EffectSliderCard {
+                    key: "hyprBlurSize"; title: "Blur Strength"
+                    description: "How far each pixel is spread."
+                    from: 1; to: 30; stepSize: 1
+                    available: S.EffectSettings.hyprBlur
+                }
+                EffectSliderCard {
+                    key: "hyprBlurPasses"; title: "Blur Passes"
+                    description: "More passes look smoother but cost more GPU time."
+                    from: 1; to: 6; stepSize: 1
+                    available: S.EffectSettings.hyprBlur
+                }
+
+                EffectToggleCard {
+                    key: "hyprWobble"; title: "Wobbly Windows"
+                    description: "Windows wobble like jelly while you move or resize them. Off by default. With two monitors, Hyprland 0.57 can leave a trail when a window crosses screens."
+                }
+                EffectStylePicker {
+                    key: "hyprWobbleScope"; title: "Wobble On"
+                    description: "Which monitors wobble. The main monitor follows the primary display role."
+                    opacity: S.EffectSettings.hyprWobble ? 1 : 0.45
+                    enabled: S.EffectSettings.hyprWobble
+                    options: [
+                        { value: "all", label: "All Monitors", hint: "Windows wobble on every monitor." },
+                        { value: "primary", label: "Main Monitor Only", hint: "Only the main monitor wobbles; others stay still. Fewer trails when crossing screens, but a window can still wobble while it is being dragged off the main monitor." }
+                    ]
+                }
+                EffectSliderCard {
+                    key: "hyprWobbleIntensity"; title: "Wobble Amount"
+                    description: "How far the window bends."
+                    from: 0.05; to: 1; stepSize: 0.05; decimals: 2
+                    available: S.EffectSettings.hyprWobble
+                }
+                EffectSliderCard {
+                    key: "hyprWobbleStiffness"; title: "Stiffness"
+                    description: "Higher is firmer and faster; lower is softer and floppier."
+                    from: 50; to: 600; stepSize: 10
+                    available: S.EffectSettings.hyprWobble
+                }
+                EffectSliderCard {
+                    key: "hyprWobbleDamping"; title: "Settling"
+                    description: "Higher stops the wobble sooner."
+                    from: 2; to: 40; stepSize: 1
+                    available: S.EffectSettings.hyprWobble
+                }
+            }
+
             // ═══ POPUPS ═══
             SectionTitle { text: "POPUPS" }
             EffectStylePicker {
