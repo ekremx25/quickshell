@@ -38,12 +38,11 @@ Rectangle {
         }
     }
 
+    // Hover only highlights: the deck takes keyboard focus, so opening it on
+    // a pass-over would steal typing from the focused window.
     HoverHandler {
         id: wallHover
         cursorShape: Qt.PointingHandCursor
-        onHoveredChanged: {
-            if (hovered) S.WallpaperDeckService.open();
-        }
     }
 
     TapHandler {
