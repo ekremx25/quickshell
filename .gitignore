@@ -35,6 +35,7 @@ monitor_identities.json
 monitor_role_profiles.json
 monitor_runtime.json
 monitor_port_snapshot.json
+vpn_bypass.json
 weather_config.json
 wallpaper_deck.json
 countdown.json

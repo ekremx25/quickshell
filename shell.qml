@@ -81,6 +81,9 @@ ShellRoot {
         onTriggered: {
             eqLoader.active    = true;
             mouseLoader.active = true;
+            // Touching the singleton creates it, so VPN-bypass addresses stay
+            // current in the background; it loads its own status on creation.
+            VpnBypassService.loaded;
         }
     }
 

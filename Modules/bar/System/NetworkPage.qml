@@ -3,6 +3,7 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell
 import "../../../Widgets"
+import "../../../Services" as S
 
 Item {
     id: networkPage
@@ -352,7 +353,516 @@ Item {
 
 
 
-            // ═══════════ 7. WIFI LIST ═══════════
+            // ═══════════ 7. VPN ═══════════
+            Rectangle {
+                id: vpnCard
+                Layout.fillWidth: true
+                height: vpnCol.height + 28
+                color: SettingsPalette.surface
+                radius: 12
+                border.color: S.VpnService.connected ? Theme.withAlpha(Theme.green, 0.25) : Theme.withAlpha(Theme.text, 0.04)
+                border.width: 1
+
+                // UUID whose "Remove" was clicked once and now waits for confirmation.
+                property string confirmDeleteUuid: ""
+                Timer { id: confirmDeleteTimer; interval: 4000; onTriggered: vpnCard.confirmDeleteUuid = "" }
+
+                ColumnLayout {
+                    id: vpnCol
+                    anchors.left: parent.left; anchors.right: parent.right
+                    anchors.top: parent.top; anchors.margins: 14
+                    spacing: 10
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 8
+                        Text { text: "󰦝"; font.pixelSize: 18; font.family: "JetBrainsMono Nerd Font"; color: Theme.cpGreen }
+                        Text { text: "VPN"; font.bold: true; font.pixelSize: 16; color: SettingsPalette.text; font.family: Theme.fontFamily }
+
+                        // Connection status pill
+                        Rectangle {
+                            implicitWidth: vpnStatusRow.implicitWidth + 16; height: 24; radius: 12
+                            color: S.VpnService.connected ? Theme.withAlpha(Theme.green, 0.15) : Theme.withAlpha(Theme.text, 0.05)
+                            RowLayout {
+                                id: vpnStatusRow
+                                anchors.centerIn: parent
+                                spacing: 6
+                                Rectangle { width: 7; height: 7; radius: 4; color: S.VpnService.connected ? SettingsPalette.readableAccent(Theme.green) : SettingsPalette.overlay2 }
+                                Text {
+                                    text: S.VpnService.connected
+                                        ? (S.VpnService.activeNames.length > 1 ? S.VpnService.activeNames.length + " connected" : S.VpnService.activeName)
+                                        : "Not connected"
+                                    font.pixelSize: 11; font.family: Theme.fontFamily
+                                    color: S.VpnService.connected ? SettingsPalette.readableAccent(Theme.green) : SettingsPalette.subtext
+                                }
+                            }
+                        }
+
+                        Item { Layout.fillWidth: true }
+
+                        Rectangle {
+                            width: addVpnLabel.implicitWidth + 24; height: 32; radius: 8
+                            color: addVpnMA.containsMouse ? Qt.lighter(Theme.primary, 1.15) : Theme.primary
+                            Behavior on color { ColorAnimation { duration: 100 } }
+                            Text { id: addVpnLabel; anchors.centerIn: parent; text: "+ Add VPN"; color: Theme.foregroundFor(Theme.primary); font.pixelSize: 12; font.bold: true; font.family: Theme.fontFamily }
+                            MouseArea {
+                                id: addVpnMA; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
+                                onClicked: addVpnPopup.open()
+                            }
+                        }
+                    }
+
+                    // Error banner (dismissable)
+                    Rectangle {
+                        visible: S.VpnService.errorMessage.length > 0
+                        Layout.fillWidth: true
+                        implicitHeight: vpnErrorRow.implicitHeight + 16
+                        radius: 8
+                        color: Theme.withAlpha(Theme.red, 0.12)
+                        border.color: Theme.withAlpha(Theme.red, 0.35); border.width: 1
+                        RowLayout {
+                            id: vpnErrorRow
+                            anchors.left: parent.left; anchors.right: parent.right
+                            anchors.verticalCenter: parent.verticalCenter
+                            anchors.leftMargin: 10; anchors.rightMargin: 10
+                            spacing: 8
+                            Text {
+                                Layout.fillWidth: true
+                                text: "⚠ " + S.VpnService.errorMessage
+                                wrapMode: Text.WordWrap
+                                color: SettingsPalette.readableAccent(Theme.red); font.pixelSize: 12; font.family: Theme.fontFamily
+                            }
+                            Text {
+                                text: "✕"; color: SettingsPalette.readableAccent(Theme.red); font.pixelSize: 13
+                                MouseArea { anchors.fill: parent; anchors.margins: -6; cursorShape: Qt.PointingHandCursor; onClicked: S.VpnService.clearError() }
+                            }
+                        }
+                    }
+
+                    Text {
+                        visible: S.VpnService.profiles.length === 0
+                        Layout.fillWidth: true
+                        text: "No VPN yet. Use “+ Add VPN” to import the WireGuard (.conf) or OpenVPN (.ovpn) file from your VPN provider."
+                        color: SettingsPalette.subtext; font.pixelSize: 12; font.family: Theme.fontFamily
+                        wrapMode: Text.WordWrap
+                    }
+
+                    Repeater {
+                        model: S.VpnService.profiles
+
+                        Rectangle {
+                            id: vpnRow
+                            required property var modelData
+                            readonly property string uuid: modelData.uuid
+                            readonly property string vpnState: S.VpnService.stateOf(uuid)
+                            readonly property bool active: vpnState === "activated"
+                            readonly property bool transitioning: vpnState === "activating" || vpnState === "deactivating"
+                            readonly property bool rowBusy: S.VpnService.busyUuid === uuid || S.VpnService.busyUuid === "*" || transitioning
+                            readonly property bool confirming: vpnCard.confirmDeleteUuid === uuid
+                            property string duration: ""
+
+                            function refreshDuration() {
+                                duration = active ? S.VpnService.getConnectionDuration(uuid) : "";
+                            }
+                            onActiveChanged: refreshDuration()
+                            Component.onCompleted: refreshDuration()
+                            Connections {
+                                target: S.VpnService
+                                enabled: vpnRow.active
+                                function onConnectionInfoUpdated() { vpnRow.refreshDuration(); }
+                            }
+
+                            Layout.fillWidth: true
+                            height: 58; radius: 10
+                            color: active ? Theme.withAlpha(Theme.green, 0.08) : Theme.withAlpha(Theme.text, 0.03)
+                            border.color: active ? Theme.withAlpha(Theme.green, 0.3) : (transitioning ? Theme.withAlpha(Theme.yellow, 0.35) : "transparent")
+                            border.width: 1
+
+                            RowLayout {
+                                anchors.fill: parent; anchors.leftMargin: 12; anchors.rightMargin: 10
+                                spacing: 10
+                                Text {
+                                    text: vpnRow.modelData.type === "wireguard" ? "󰖂" : "󰦝"
+                                    font.pixelSize: 18; font.family: "JetBrainsMono Nerd Font"
+                                    color: vpnRow.active ? SettingsPalette.readableAccent(Theme.green) : SettingsPalette.subtext
+                                }
+                                ColumnLayout {
+                                    Layout.fillWidth: true
+                                    spacing: 2
+                                    Text {
+                                        Layout.fillWidth: true
+                                        text: vpnRow.modelData.name
+                                        elide: Text.ElideRight
+                                        color: SettingsPalette.text; font.pixelSize: 13; font.bold: vpnRow.active; font.family: Theme.fontFamily
+                                    }
+                                    Text {
+                                        Layout.fillWidth: true
+                                        elide: Text.ElideRight
+                                        text: {
+                                            var kind = vpnRow.modelData.type === "wireguard" ? "WireGuard" : "OpenVPN";
+                                            if (vpnRow.vpnState === "activating") return kind + " • Connecting…";
+                                            if (vpnRow.vpnState === "deactivating") return kind + " • Disconnecting…";
+                                            if (vpnRow.active) return kind + " • Connected" + (vpnRow.duration ? " for " + vpnRow.duration : "");
+                                            return kind;
+                                        }
+                                        color: vpnRow.active ? SettingsPalette.readableAccent(Theme.green) : SettingsPalette.subtext
+                                        font.pixelSize: 11; font.family: Theme.fontFamily
+                                    }
+                                }
+
+                                // Autoconnect switch
+                                RowLayout {
+                                    spacing: 6
+                                    Text { text: "Auto"; color: SettingsPalette.subtext; font.pixelSize: 11; font.family: Theme.fontFamily }
+                                    Rectangle {
+                                        width: 34; height: 18; radius: 9
+                                        color: vpnRow.modelData.autoconnect ? SettingsPalette.readableAccent(Theme.primary) : Theme.withAlpha(Theme.text, 0.12)
+                                        opacity: S.VpnService.isBusy ? 0.5 : 1
+                                        Rectangle {
+                                            width: 14; height: 14; radius: 7
+                                            anchors.verticalCenter: parent.verticalCenter
+                                            x: vpnRow.modelData.autoconnect ? parent.width - width - 2 : 2
+                                            color: vpnRow.modelData.autoconnect ? SettingsPalette.foregroundFor(SettingsPalette.readableAccent(Theme.primary)) : SettingsPalette.text
+                                            Behavior on x { NumberAnimation { duration: 120 } }
+                                        }
+                                        MouseArea {
+                                            anchors.fill: parent; cursorShape: Qt.PointingHandCursor
+                                            onClicked: if (!S.VpnService.isBusy) S.VpnService.setAutoconnect(vpnRow.uuid, !vpnRow.modelData.autoconnect)
+                                        }
+                                    }
+                                }
+
+                                // Connect / Disconnect
+                                Rectangle {
+                                    width: 100; height: 30; radius: 8
+                                    color: vpnRow.rowBusy || (S.VpnService.isBusy && !vpnRow.rowBusy) ? Theme.withAlpha(Theme.text, 0.06)
+                                         : vpnRow.active ? (vpnToggleMA.containsMouse ? Theme.withAlpha(Theme.red, 0.3) : Theme.withAlpha(Theme.red, 0.2))
+                                         : (vpnToggleMA.containsMouse ? Theme.withAlpha(Theme.green, 0.3) : Theme.withAlpha(Theme.green, 0.18))
+                                    Behavior on color { ColorAnimation { duration: 100 } }
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: vpnRow.vpnState === "activating" ? "Connecting…"
+                                            : vpnRow.vpnState === "deactivating" ? "Stopping…"
+                                            : vpnRow.rowBusy ? "Please wait…"
+                                            : (vpnRow.active ? "Disconnect" : "Connect")
+                                        color: vpnRow.rowBusy ? SettingsPalette.subtext : (vpnRow.active ? Theme.cpRed : SettingsPalette.readableAccent(Theme.green))
+                                        font.pixelSize: 12; font.bold: true; font.family: Theme.fontFamily
+                                    }
+                                    MouseArea {
+                                        id: vpnToggleMA; anchors.fill: parent; hoverEnabled: true
+                                        cursorShape: S.VpnService.isBusy ? Qt.BusyCursor : Qt.PointingHandCursor
+                                        onClicked: {
+                                            if (S.VpnService.isBusy) return;
+                                            // A stuck "activating" profile can still be stopped.
+                                            if (vpnRow.active || vpnRow.vpnState === "activating") S.VpnService.disconnect(vpnRow.uuid);
+                                            else S.VpnService.connect(vpnRow.uuid);
+                                        }
+                                    }
+                                }
+
+                                // Remove (two-step)
+                                Rectangle {
+                                    width: vpnRow.confirming ? 76 : 30; height: 30; radius: 8
+                                    color: vpnRow.confirming ? Theme.withAlpha(Theme.red, 0.3)
+                                         : (removeMA.containsMouse ? Theme.withAlpha(Theme.red, 0.15) : "transparent")
+                                    Behavior on width { NumberAnimation { duration: 120 } }
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: vpnRow.confirming ? "Confirm" : "󰆴"
+                                        font.family: vpnRow.confirming ? Theme.fontFamily : "JetBrainsMono Nerd Font"
+                                        font.pixelSize: vpnRow.confirming ? 12 : 15; font.bold: vpnRow.confirming
+                                        color: removeMA.containsMouse || vpnRow.confirming ? Theme.cpRed : SettingsPalette.subtext
+                                    }
+                                    MouseArea {
+                                        id: removeMA; anchors.fill: parent; hoverEnabled: true
+                                        cursorShape: S.VpnService.isBusy ? Qt.BusyCursor : Qt.PointingHandCursor
+                                        onClicked: {
+                                            if (S.VpnService.isBusy) return;
+                                            if (vpnRow.confirming) {
+                                                vpnCard.confirmDeleteUuid = "";
+                                                S.VpnService.deleteConnection(vpnRow.uuid);
+                                            } else {
+                                                vpnCard.confirmDeleteUuid = vpnRow.uuid;
+                                                confirmDeleteTimer.restart();
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    Rectangle {
+                        visible: S.VpnService.activeUuids.length > 1
+                        Layout.alignment: Qt.AlignRight
+                        width: 130; height: 30; radius: 8
+                        color: discAllMA.containsMouse ? Theme.withAlpha(Theme.red, 0.3) : Theme.withAlpha(Theme.red, 0.2)
+                        Text { anchors.centerIn: parent; text: "Disconnect All"; color: Theme.cpRed; font.pixelSize: 12; font.bold: true; font.family: Theme.fontFamily }
+                        MouseArea {
+                            id: discAllMA; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
+                            onClicked: if (!S.VpnService.isBusy) S.VpnService.disconnectAllActive()
+                        }
+                    }
+                }
+            }
+
+            // ═══════════ 7b. SITES WITHOUT VPN ═══════════
+            Rectangle {
+                id: bypassCard
+                Layout.fillWidth: true
+                height: bypassCol.height + 28
+                color: SettingsPalette.surface
+                radius: 12
+                border.color: Theme.withAlpha(Theme.text, 0.04)
+                border.width: 1
+
+                property bool showLegacy: false
+
+                function submit() {
+                    var text = bypassInput.text.trim();
+                    if (!text.length || S.VpnBypassService.busy) return;
+                    S.VpnBypassService.addSite(text);
+                    bypassInput.text = "";
+                }
+
+                Component.onCompleted: S.VpnBypassService.status()
+
+                ColumnLayout {
+                    id: bypassCol
+                    anchors.left: parent.left; anchors.right: parent.right
+                    anchors.top: parent.top; anchors.margins: 14
+                    spacing: 10
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 8
+                        Text { text: "󰖟"; font.pixelSize: 18; font.family: "JetBrainsMono Nerd Font"; color: Theme.cpBlue }
+                        Text { text: "Sites Without VPN"; font.bold: true; font.pixelSize: 16; color: SettingsPalette.text; font.family: Theme.fontFamily }
+                        Rectangle {
+                            visible: S.VpnBypassService.sites.length > 0
+                            implicitWidth: bypassCount.implicitWidth + 14; height: 22; radius: 11
+                            color: Theme.withAlpha(Theme.text, 0.06)
+                            Text { id: bypassCount; anchors.centerIn: parent; text: S.VpnBypassService.sites.length; color: SettingsPalette.subtext; font.pixelSize: 11; font.family: Theme.fontFamily }
+                        }
+                        Item { Layout.fillWidth: true }
+                        Rectangle {
+                            visible: S.VpnBypassService.sites.length > 0
+                            width: refreshBypassLabel.implicitWidth + 20; height: 28; radius: 8
+                            color: refreshBypassMA.containsMouse ? Theme.withAlpha(Theme.text, 0.1) : Theme.withAlpha(Theme.text, 0.05)
+                            Text {
+                                id: refreshBypassLabel
+                                anchors.centerIn: parent
+                                text: S.VpnBypassService.busy ? "Working…" : "󰑐 Refresh"
+                                color: SettingsPalette.text; font.pixelSize: 12; font.family: Theme.fontFamily
+                            }
+                            MouseArea {
+                                id: refreshBypassMA; anchors.fill: parent; hoverEnabled: true
+                                cursorShape: S.VpnBypassService.busy ? Qt.BusyCursor : Qt.PointingHandCursor
+                                onClicked: if (!S.VpnBypassService.busy) S.VpnBypassService.refresh()
+                            }
+                        }
+                    }
+
+                    Text {
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                        text: S.VpnBypassService.vpnActive
+                              ? "These sites open over your normal connection instead of the VPN."
+                              : "No VPN is connected now, so every site uses your normal connection. The list applies whenever a VPN is on."
+                        color: SettingsPalette.subtext; font.pixelSize: 12; font.family: Theme.fontFamily
+                    }
+
+                    // Add a site
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 8
+                        Rectangle {
+                            Layout.fillWidth: true
+                            height: 36; radius: 8
+                            color: Theme.withAlpha(Theme.text, 0.04)
+                            border.width: 1
+                            border.color: bypassInput.activeFocus ? SettingsPalette.readableAccent(Theme.primary) : Theme.withAlpha(Theme.text, 0.12)
+                            TextInput {
+                                id: bypassInput
+                                anchors.fill: parent; anchors.leftMargin: 12; anchors.rightMargin: 12
+                                verticalAlignment: TextInput.AlignVCenter
+                                color: SettingsPalette.text; font.pixelSize: 13; font.family: Theme.fontFamily
+                                selectByMouse: true; clip: true
+                                enabled: !S.VpnBypassService.busy
+                                Keys.onReturnPressed: bypassCard.submit()
+                                Keys.onEnterPressed: bypassCard.submit()
+                            }
+                            Text {
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left; anchors.leftMargin: 12
+                                visible: bypassInput.text.length === 0 && !bypassInput.activeFocus
+                                text: "Add a site, e.g. example.com or a link"
+                                color: SettingsPalette.overlay; font.pixelSize: 13; font.family: Theme.fontFamily
+                            }
+                        }
+                        Rectangle {
+                            readonly property bool ready: bypassInput.text.trim().length > 0 && !S.VpnBypassService.busy
+                            width: 80; height: 36; radius: 8
+                            color: ready ? (addBypassMA.containsMouse ? Qt.lighter(Theme.primary, 1.15) : Theme.primary) : Theme.withAlpha(Theme.text, 0.08)
+                            Text {
+                                anchors.centerIn: parent
+                                text: S.VpnBypassService.busy ? "…" : "Add"
+                                color: parent.ready ? Theme.foregroundFor(Theme.primary) : SettingsPalette.overlay
+                                font.pixelSize: 12; font.bold: true; font.family: Theme.fontFamily
+                            }
+                            MouseArea {
+                                id: addBypassMA; anchors.fill: parent; hoverEnabled: true
+                                cursorShape: parent.ready ? Qt.PointingHandCursor : Qt.ArrowCursor
+                                onClicked: bypassCard.submit()
+                            }
+                        }
+                    }
+
+                    // Error
+                    Rectangle {
+                        visible: S.VpnBypassService.errorMessage.length > 0
+                        Layout.fillWidth: true
+                        implicitHeight: bypassErrorRow.implicitHeight + 14
+                        radius: 8
+                        color: Theme.withAlpha(Theme.red, 0.12)
+                        border.color: Theme.withAlpha(Theme.red, 0.35); border.width: 1
+                        RowLayout {
+                            id: bypassErrorRow
+                            anchors.left: parent.left; anchors.right: parent.right
+                            anchors.verticalCenter: parent.verticalCenter
+                            anchors.leftMargin: 10; anchors.rightMargin: 10
+                            Text {
+                                Layout.fillWidth: true
+                                text: "⚠ " + S.VpnBypassService.errorMessage
+                                wrapMode: Text.WordWrap
+                                color: SettingsPalette.readableAccent(Theme.red); font.pixelSize: 12; font.family: Theme.fontFamily
+                            }
+                            Text {
+                                text: "✕"; color: SettingsPalette.readableAccent(Theme.red); font.pixelSize: 13
+                                MouseArea { anchors.fill: parent; anchors.margins: -6; cursorShape: Qt.PointingHandCursor; onClicked: S.VpnBypassService.clearError() }
+                            }
+                        }
+                    }
+
+                    Text {
+                        visible: S.VpnBypassService.loaded && S.VpnBypassService.sites.length === 0
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                        text: "No sites yet. Added sites skip the VPN, for example a bank or a service that blocks VPNs."
+                        color: SettingsPalette.overlay; font.pixelSize: 12; font.family: Theme.fontFamily
+                    }
+
+                    // Site list
+                    Repeater {
+                        model: S.VpnBypassService.sites
+                        Rectangle {
+                            id: siteRow
+                            required property var modelData
+                            Layout.fillWidth: true
+                            height: 46; radius: 8
+                            color: Theme.withAlpha(Theme.text, 0.03)
+                            RowLayout {
+                                anchors.fill: parent; anchors.leftMargin: 12; anchors.rightMargin: 8
+                                spacing: 10
+                                Text {
+                                    text: !S.VpnBypassService.vpnActive ? "󰖟" : (siteRow.modelData.direct ? "󰄬" : "󰀦")
+                                    font.pixelSize: 15; font.family: "JetBrainsMono Nerd Font"
+                                    color: !S.VpnBypassService.vpnActive ? SettingsPalette.subtext
+                                         : siteRow.modelData.direct ? SettingsPalette.readableAccent(Theme.green) : SettingsPalette.readableAccent(Theme.yellow)
+                                }
+                                ColumnLayout {
+                                    Layout.fillWidth: true
+                                    spacing: 1
+                                    Text {
+                                        Layout.fillWidth: true
+                                        text: siteRow.modelData.domain; elide: Text.ElideRight
+                                        color: SettingsPalette.text; font.pixelSize: 13; font.family: Theme.fontFamily
+                                    }
+                                    Text {
+                                        Layout.fillWidth: true
+                                        elide: Text.ElideRight
+                                        text: {
+                                            var n = siteRow.modelData.ipv4.length;
+                                            var count = n + (n === 1 ? " address" : " addresses");
+                                            if (!S.VpnBypassService.vpnActive) return count;
+                                            return (siteRow.modelData.direct ? "Opens without VPN" : "Not applied yet, press Refresh") + " • " + count;
+                                        }
+                                        color: SettingsPalette.subtext; font.pixelSize: 11; font.family: Theme.fontFamily
+                                    }
+                                }
+                                Rectangle {
+                                    width: 76; height: 28; radius: 8
+                                    color: removeSiteMA.containsMouse ? Theme.withAlpha(Theme.red, 0.25) : Theme.withAlpha(Theme.red, 0.12)
+                                    opacity: S.VpnBypassService.busy ? 0.5 : 1
+                                    Text { anchors.centerIn: parent; text: "Remove"; color: Theme.cpRed; font.pixelSize: 12; font.bold: true; font.family: Theme.fontFamily }
+                                    MouseArea {
+                                        id: removeSiteMA; anchors.fill: parent; hoverEnabled: true
+                                        cursorShape: S.VpnBypassService.busy ? Qt.BusyCursor : Qt.PointingHandCursor
+                                        onClicked: if (!S.VpnBypassService.busy) S.VpnBypassService.removeSite(siteRow.modelData.domain)
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Addresses bypassed before this list existed
+                    Rectangle {
+                        visible: S.VpnBypassService.legacy.length > 0
+                        Layout.fillWidth: true
+                        height: 40; radius: 8
+                        color: legacyMA.containsMouse ? Theme.withAlpha(Theme.text, 0.06) : Theme.withAlpha(Theme.text, 0.03)
+                        RowLayout {
+                            anchors.fill: parent; anchors.leftMargin: 12; anchors.rightMargin: 12
+                            Text {
+                                text: bypassCard.showLegacy ? "▾" : "▸"
+                                color: SettingsPalette.subtext; font.pixelSize: 12
+                            }
+                            Text {
+                                Layout.fillWidth: true
+                                elide: Text.ElideRight
+                                text: S.VpnBypassService.legacy.length + " addresses added earlier • site names unknown"
+                                color: SettingsPalette.text; font.pixelSize: 12; font.family: Theme.fontFamily
+                            }
+                        }
+                        MouseArea {
+                            id: legacyMA; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
+                            onClicked: bypassCard.showLegacy = !bypassCard.showLegacy
+                        }
+                    }
+
+                    Flow {
+                        visible: bypassCard.showLegacy && S.VpnBypassService.legacy.length > 0
+                        Layout.fillWidth: true
+                        spacing: 6
+                        Repeater {
+                            model: bypassCard.showLegacy ? S.VpnBypassService.legacy : []
+                            Rectangle {
+                                id: legacyChip
+                                required property var modelData
+                                width: legacyChipRow.implicitWidth + 16; height: 26; radius: 13
+                                color: Theme.withAlpha(Theme.text, 0.05)
+                                RowLayout {
+                                    id: legacyChipRow
+                                    anchors.centerIn: parent
+                                    spacing: 6
+                                    Text { text: legacyChip.modelData; color: SettingsPalette.text; font.pixelSize: 11; font.family: Theme.fontFamily }
+                                    Text {
+                                        text: "✕"; font.pixelSize: 11
+                                        color: chipRemoveMA.containsMouse ? Theme.cpRed : SettingsPalette.subtext
+                                        MouseArea {
+                                            id: chipRemoveMA; anchors.fill: parent; anchors.margins: -5; hoverEnabled: true
+                                            cursorShape: S.VpnBypassService.busy ? Qt.BusyCursor : Qt.PointingHandCursor
+                                            onClicked: if (!S.VpnBypassService.busy) S.VpnBypassService.removeLegacy(legacyChip.modelData)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // ═══════════ 8. WIFI LIST ═══════════
             Rectangle { Layout.fillWidth: true; height: 1; color: Theme.withAlpha(Theme.text, 0.06) }
 
             RowLayout {
@@ -761,5 +1271,9 @@ Item {
     }
 
     // ── Add VPN Popup ──
+    AddVpnPopup {
+        id: addVpnPopup
+        onSuccess: S.VpnService.refreshAll()
+    }
 
 }

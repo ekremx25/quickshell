@@ -27,6 +27,8 @@ Singleton {
     property bool connected: activeUuids.length > 0
 
     property var connectionDetails: ({})
+    // UUID of the profile a connect, disconnect or delete is running for.
+    property string busyUuid: ""
 
     property bool _destroying: false
     property bool _monitorStartedOnce: false
@@ -282,12 +284,47 @@ Singleton {
         return root.activeUuids && root.activeUuids.indexOf(uuid) !== -1;
     }
 
+    // NetworkManager state of an active profile: "activating", "activated",
+    // "deactivating", or "" when it is not active.
+    function stateOf(uuid) {
+        for (var i = 0; i < root.activeConnections.length; i++) {
+            if (root.activeConnections[i].uuid === uuid) return root.activeConnections[i].state || "";
+        }
+        return "";
+    }
+
+    function clearError() {
+        root.errorMessage = "";
+    }
+
+    // Turns raw nmcli output into a sentence a user can act on.
+    function friendlyError(message, fallback) {
+        // nmcli adds "Hint: use journalctl ..." lines meant for terminals.
+        var text = String(message || "").split("\n").filter(function(line) {
+            return line.trim().length > 0 && line.trim().indexOf("Hint:") !== 0;
+        }).join(" ").trim();
+        var lower = text.toLowerCase();
+        if (lower.indexOf("secrets were required") !== -1 || lower.indexOf("no secrets") !== -1)
+            return "This VPN needs a username or password. Remove it and add it again with your login details.";
+        if (lower.indexOf("timeout") !== -1 || lower.indexOf("timed out") !== -1)
+            return "The VPN server did not answer in time. Check your internet connection or try another server.";
+        if (lower.indexOf("not authorized") !== -1 || lower.indexOf("insufficient privileges") !== -1)
+            return "You are not allowed to change this VPN.";
+        if (lower.indexOf("unknown connection") !== -1)
+            return "This VPN no longer exists.";
+        if (lower.indexOf("activation failed") !== -1)
+            return "The VPN could not connect. The server may be unreachable, or the configuration or login details may be wrong.";
+        text = text.replace(/^Error:\s*/i, "");
+        return text || fallback;
+    }
+
     property var _vpnStepQueue: []
     property int _vpnStepIdx: 0
 
     function _runNextVpnStep() {
         if (_vpnStepIdx >= _vpnStepQueue.length) {
             root.isBusy = false;
+            root.busyUuid = "";
             _vpnStepQueue = [];
             _vpnStepIdx = 0;
             refreshAll();
@@ -306,6 +343,7 @@ Singleton {
         }
 
         root.isBusy = true;
+        root.busyUuid = uuidOrName;
         root.errorMessage = "";
 
         if (root.singleActive && root.activeUuids.length > 0) {
@@ -314,12 +352,13 @@ Singleton {
             for (var i = 0; i < root.activeUuids.length; i++) {
                 steps.push(["nmcli", "connection", "down", "uuid", root.activeUuids[i]]);
             }
-            steps.push(["nmcli", "connection", "up"].concat(selectorArgs(uuidOrName)));
+            steps.push(["nmcli", "-w", "30", "connection", "up"].concat(selectorArgs(uuidOrName)));
             _vpnStepQueue = steps;
             _vpnStepIdx = 0;
             _runNextVpnStep();
         } else {
-            runVpnCommand(vpnUp, ["nmcli", "connection", "up"].concat(selectorArgs(uuidOrName)));
+            // -w bounds how long a silent server keeps the button busy.
+            runVpnCommand(vpnUp, ["nmcli", "-w", "30", "connection", "up"].concat(selectorArgs(uuidOrName)));
         }
     }
 
@@ -331,8 +370,9 @@ Singleton {
         }
 
         root.isBusy = true;
+        root.busyUuid = uuidOrName;
         root.errorMessage = "";
-        runVpnCommand(vpnDown, ["nmcli", "connection", "down"].concat(selectorArgs(uuidOrName)));
+        runVpnCommand(vpnDown, ["nmcli", "-w", "15", "connection", "down"].concat(selectorArgs(uuidOrName)));
     }
 
     function toggle(uuid) {
@@ -349,6 +389,7 @@ Singleton {
     function deleteConnection(uuidOrName) {
         if (root.isBusy) return;
         root.isBusy = true;
+        root.busyUuid = uuidOrName;
         root.errorMessage = "";
         runVpnCommand(vpnDelete, ["nmcli", "connection", "delete"].concat(selectorArgs(uuidOrName)));
     }
@@ -361,12 +402,15 @@ Singleton {
         stdout: SplitParser { onRead: data => { vpnUp.stdoutBuf += data + "\n"; } }
         stderr: SplitParser { onRead: data => { vpnUp.stderrBuf += data + "\n"; } }
         onExited: (exitCode) => {
-            root.isBusy = false;
             var message = root.processMessage(vpnUp);
+            // Set the error before clearing busy, so the UI never sees a
+            // finished operation without its error.
             if (exitCode !== 0 && !message.toLowerCase().includes("successfully")) {
-                root.errorMessage = message || "Failed to connect VPN";
-                Log.warn("VpnService", root.errorMessage);
+                root.errorMessage = root.friendlyError(message, "Could not connect the VPN.");
+                Log.warn("VpnService", message);
             }
+            root.isBusy = false;
+            root.busyUuid = "";
             vpnUp.stdoutBuf = "";
             vpnUp.stderrBuf = "";
             refreshAll();
@@ -381,11 +425,12 @@ Singleton {
         stdout: SplitParser { onRead: data => { vpnDown.stdoutBuf += data + "\n"; } }
         stderr: SplitParser { onRead: data => { vpnDown.stderrBuf += data + "\n"; } }
         onExited: (exitCode) => {
-            root.isBusy = false;
             if (exitCode !== 0) {
-                root.errorMessage = root.processMessage(vpnDown) || "Failed to disconnect VPN";
+                root.errorMessage = root.friendlyError(root.processMessage(vpnDown), "Could not disconnect the VPN.");
                 Log.warn("VpnService", root.errorMessage);
             }
+            root.isBusy = false;
+            root.busyUuid = "";
             vpnDown.stdoutBuf = "";
             vpnDown.stderrBuf = "";
             refreshAll();
@@ -406,12 +451,13 @@ Singleton {
             if (root._vpnStepQueue.length > 0) {
                 // Step queue active — continue to next step
                 if (exitCode !== 0) {
-                    root.errorMessage = message || ("VPN step failed (exit " + exitCode + ")");
+                    root.errorMessage = root.friendlyError(message, "Could not switch the VPN.");
                     Log.warn("VpnService", root.errorMessage);
                 }
                 root._runNextVpnStep();
             } else {
                 root.isBusy = false;
+                root.busyUuid = "";
                 if (exitCode !== 0 && root.errorMessage === "") {
                     root.errorMessage = "Failed to switch VPN";
                     Log.warn("VpnService", root.errorMessage);
@@ -429,11 +475,12 @@ Singleton {
         stdout: SplitParser { onRead: data => { vpnDelete.stdoutBuf += data + "\n"; } }
         stderr: SplitParser { onRead: data => { vpnDelete.stderrBuf += data + "\n"; } }
         onExited: (exitCode) => {
-            root.isBusy = false;
             if (exitCode !== 0) {
-                root.errorMessage = root.processMessage(vpnDelete) || "Failed to delete VPN";
+                root.errorMessage = root.friendlyError(root.processMessage(vpnDelete), "Could not remove the VPN.");
                 Log.warn("VpnService", root.errorMessage);
             }
+            root.isBusy = false;
+            root.busyUuid = "";
             vpnDelete.stdoutBuf = "";
             vpnDelete.stderrBuf = "";
             refreshAll();
@@ -443,9 +490,11 @@ Singleton {
     function disconnectAllActive() {
         if (root.isBusy || root.activeUuids.length === 0) return;
         root.isBusy = true;
+        root.busyUuid = "*";
+        root.errorMessage = "";
         var steps = [];
         for (var i = 0; i < root.activeUuids.length; i++) {
-            steps.push(["nmcli", "connection", "down", "uuid", root.activeUuids[i]]);
+            steps.push(["nmcli", "-w", "15", "connection", "down", "uuid", root.activeUuids[i]]);
         }
         _vpnStepQueue = steps;
         _vpnStepIdx = 0;
@@ -455,6 +504,7 @@ Singleton {
     function setAutoconnect(uuidOrName, enabled) {
         if (root.isBusy) return;
         root.isBusy = true;
+        root.busyUuid = uuidOrName;
         root.errorMessage = "";
         var value = enabled ? "yes" : "no";
         runVpnCommand(setAutoconnectProcess,
@@ -469,11 +519,12 @@ Singleton {
         stdout: SplitParser { onRead: data => { setAutoconnectProcess.stdoutBuf += data + "\n"; } }
         stderr: SplitParser { onRead: data => { setAutoconnectProcess.stderrBuf += data + "\n"; } }
         onExited: (exitCode) => {
-            root.isBusy = false;
             if (exitCode !== 0 && root.errorMessage === "") {
-                root.errorMessage = root.processMessage(setAutoconnectProcess) || "Failed to update autoconnect";
+                root.errorMessage = root.friendlyError(root.processMessage(setAutoconnectProcess), "Could not change automatic connection.");
                 Log.warn("VpnService", root.errorMessage);
             }
+            root.isBusy = false;
+            root.busyUuid = "";
             setAutoconnectProcess.stdoutBuf = "";
             setAutoconnectProcess.stderrBuf = "";
             refreshAll();
