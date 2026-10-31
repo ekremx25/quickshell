@@ -56,6 +56,7 @@ jobs:
             monitor_role_profiles.json
             monitor_runtime.json
             vpn_bypass.json
+            monitor_descriptions.json
             screen_config.json
             desktop_widgets.json
             weather_config.json

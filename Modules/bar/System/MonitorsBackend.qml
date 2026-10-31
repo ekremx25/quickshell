@@ -619,6 +619,12 @@ Item {
 
     Component.onCompleted: refresh()
 
+    Process {
+        id: persistRulesProc
+        command: ["python3", backend.configDir + "/scripts/monitor_port_restore.py", "--write-rules"]
+        stderr: SplitParser { onRead: data => Log.warn("MonitorsBackend", data) }
+    }
+
     Core.JsonDataStore {
         id: configStore
         path: backend.monitorConfigPath
@@ -630,6 +636,9 @@ Item {
         }
         onSavedValue: function(value) {
             backend.savedConfig = value || {};
+            // Keep Hyprland's own monitor rules in step with the saved settings,
+            // so they survive Hyprland reloads and restarts.
+            if (CompositorService.isHyprland && !persistRulesProc.running) persistRulesProc.running = true;
         }
         onFailed: function(phase, exitCode, details) {
             if (phase === "parse") Log.warn("MonitorsBackend", "Saved config parse error: " + details);
