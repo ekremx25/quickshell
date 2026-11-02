@@ -33,6 +33,8 @@ if [ "$compositor" = "hyprland" ]; then
     hyprctl -j workspaces 2>/dev/null || printf '%s\n' '[]'
     printf '%s\n' '<<<CLIENTS>>>'
     hyprctl -j clients 2>/dev/null || printf '%s\n' '[]'
+    printf '%s\n' '<<<RULES>>>'
+    hyprctl -j workspacerules 2>/dev/null || printf '%s\n' '[]'
     printf '%s\n' '<<<END>>>'
     exit 0
 fi

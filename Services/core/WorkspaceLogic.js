@@ -73,8 +73,35 @@ function workspaceSort(left, right) {
     return String(left.name || "").localeCompare(String(right.name || ""));
 }
 
-function buildHyprlandState(monitors, workspaces, clients) {
-    var state = { monitorOrder: [], byMonitor: {}, global: [], focusedMonitor: "" };
+// Numeric workspaces that Hyprland's rules pin to each monitor, as
+// { monitorName: [ids...] }. Rules may name the monitor ("DP-2") or select it
+// by EDID description ("desc:ASUS ..."), like Hyprland's own matching.
+function hyprlandRuleSlots(monitors, rules) {
+    var slots = {};
+    var ruleList = Array.isArray(rules) ? rules : [];
+    for (var ri = 0; ri < ruleList.length; ++ri) {
+        var rule = ruleList[ri] || {};
+        var id = String(rule.workspaceString || "").trim();
+        var selector = String(rule.monitor || "").trim();
+        if (!/^[1-9]\d*$/.test(id) || selector.length === 0) continue;
+        var target = "";
+        for (var mi = 0; mi < monitors.length; ++mi) {
+            var monitor = monitors[mi] || {};
+            var matches = selector.indexOf("desc:") === 0
+                ? String(monitor.description || "").indexOf(selector.substring(5).trim()) === 0
+                : String(monitor.name || "") === selector;
+            if (matches) { target = String(monitor.name || ""); break; }
+        }
+        if (!target) continue;
+        if (!slots[target]) slots[target] = [];
+        if (slots[target].indexOf(Number(id)) === -1) slots[target].push(Number(id));
+    }
+    for (var key in slots) slots[key].sort(function(a, b) { return a - b; });
+    return slots;
+}
+
+function buildHyprlandState(monitors, workspaces, clients, rules) {
+    var state = { monitorOrder: [], byMonitor: {}, global: [], focusedMonitor: "", ruleSlots: {} };
     var monitorList = Array.isArray(monitors) ? monitors : [];
     var workspaceList = Array.isArray(workspaces) ? workspaces : [];
     var clientList = Array.isArray(clients) ? clients : [];
@@ -136,6 +163,7 @@ function buildHyprlandState(monitors, workspaces, clients) {
         parent.winCount++;
     }
 
+    state.ruleSlots = hyprlandRuleSlots(monitorList, rules);
     state.global.sort(workspaceSort);
     for (var monitorKey in state.byMonitor) state.byMonitor[monitorKey].workspaces.sort(workspaceSort);
     return state;
@@ -306,10 +334,20 @@ function workspacesForMonitor(state, monitorName, config, roleMap) {
     if (normalized.displayMode === "role"
             && safeState.tagBased !== true
             && safeState.localIndexed !== true) {
+        // Hyprland's workspace rules decide where a workspace opens; follow
+        // them so the buttons match where SUPER+number really goes. Without
+        // rules for this monitor, fall back to the role range.
+        var ruled = (safeState.ruleSlots && safeState.ruleSlots[monitorName]) || [];
         var range = rangeForMonitor(monitorName, normalized, roleMap, safeState.monitorOrder || []);
         if (normalized.showEmpty) {
-            for (var id = range.start; id <= range.end; ++id) {
-                if (!seen[String(id)]) add(emptyWorkspace(id, monitorName));
+            if (ruled.length > 0) {
+                for (var ri = 0; ri < ruled.length; ++ri) {
+                    if (!seen[String(ruled[ri])]) add(emptyWorkspace(ruled[ri], monitorName));
+                }
+            } else {
+                for (var id = range.start; id <= range.end; ++id) {
+                    if (!seen[String(id)]) add(emptyWorkspace(id, monitorName));
+                }
             }
         }
         // Preserve occupied/active legacy workspaces outside the new role range

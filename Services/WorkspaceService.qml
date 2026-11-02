@@ -54,8 +54,11 @@ Singleton {
     function parseHyprlandSnapshot(text) {
         var monitors = JSON.parse(section(text, "<<<MONITORS>>>", "<<<WORKSPACES>>>" ) || "[]")
         var workspaces = JSON.parse(section(text, "<<<WORKSPACES>>>", "<<<CLIENTS>>>") || "[]")
-        var clients = JSON.parse(section(text, "<<<CLIENTS>>>", "<<<END>>>") || "[]")
-        return WorkspaceLogic.buildHyprlandState(monitors, workspaces, clients)
+        // Workspace rules come last; older snapshots end the clients at <<<END>>>.
+        var hasRules = text.indexOf("<<<RULES>>>") !== -1
+        var clients = JSON.parse(section(text, "<<<CLIENTS>>>", hasRules ? "<<<RULES>>>" : "<<<END>>>") || "[]")
+        var rules = hasRules ? JSON.parse(section(text, "<<<RULES>>>", "<<<END>>>") || "[]") : []
+        return WorkspaceLogic.buildHyprlandState(monitors, workspaces, clients, rules)
     }
 
     function parseNiriSnapshot(text) {
